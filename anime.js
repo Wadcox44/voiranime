@@ -14,41 +14,57 @@ const container = document.getElementById("animeContainer");
 /* =========================
    LOAD ANIME
 ========================= */
-document.addEventListener("DOMContentLoaded", () => {
-  if (animeId) {
-    loadAnime(animeId);
-  }
-});
-
 async function loadAnime(id) {
   try {
     const res = await fetch(`${BASE_URL}/anime/${id}/full`);
     const data = await res.json();
-
     const anime = data.data;
 
+    const trailerUrl = anime.trailer?.embed_url;
+
     container.innerHTML = `
-      <div class="anime-hero">
+      <div class="anime-page">
 
-        <img class="anime-poster" src="${anime.images.jpg.large_image_url}" />
+        <!-- HERO TRAILER -->
+        <div class="anime-hero-video">
 
-        <div class="anime-info">
+          ${
+            trailerUrl
+              ? `<iframe 
+                  src="${trailerUrl}?autoplay=1&mute=1"
+                  frameborder="0"
+                  allow="autoplay; encrypted-media"
+                  allowfullscreen>
+                </iframe>`
+              : `<img src="${anime.images.jpg.large_image_url}" />`
+          }
 
-          <h1>${anime.title}</h1>
+        </div>
 
-          <p class="score">⭐ ${anime.score || "N/A"}</p>
+        <!-- CONTENT -->
+        <div class="anime-hero-content">
 
-          <p class="genres">
-            ${anime.genres.map(g => g.name).join(" • ")}
-          </p>
+          <img class="poster" src="${anime.images.jpg.large_image_url}" />
 
-          <p class="synopsis">
-            ${anime.synopsis || "Pas de synopsis disponible."}
-          </p>
+          <div class="info">
 
-          <a class="btn" href="${anime.url}" target="_blank">
-            Voir sur source officielle
-          </a>
+            <h1>${anime.title}</h1>
+
+            <p class="score">⭐ ${anime.score || "N/A"}</p>
+
+            <p class="genres">
+              ${anime.genres.map(g => g.name).join(" • ")}
+            </p>
+
+            <p class="synopsis">
+              ${anime.synopsis ? anime.synopsis.substring(0, 600) + "..." : "Pas de synopsis disponible."}
+            </p>
+
+            <a class="btn" href="${anime.url}" target="_blank">
+              Voir source officielle
+            </a>
+
+          </div>
 
         </div>
 
