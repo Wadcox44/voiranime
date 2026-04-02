@@ -32,24 +32,51 @@ async function loadAnime(id) {
     const trailerUrl = anime.trailer?.embed_url;
 
     container.innerHTML = `
-      <div class="anime-page">
+  <div class="hero">
 
-        <!-- HERO TRAILER -->
-        <div class="anime-hero-video">
+    <!-- BACKGROUND VIDEO -->
+    <div class="hero-bg">
+      ${
+        trailerUrl
+          ? `<iframe 
+              src="${trailerUrl}?autoplay=1&mute=1&controls=0&loop=1"
+              frameborder="0"
+              allow="autoplay; encrypted-media"
+              allowfullscreen>
+            </iframe>`
+          : `<img src="${anime.images.jpg.large_image_url}" />`
+      }
 
-          ${
-            trailerUrl
-              ? `<iframe 
-                  src="${trailerUrl}?autoplay=1&mute=1"
-                  frameborder="0"
-                  allow="autoplay; encrypted-media"
-                  allowfullscreen>
-                </iframe>`
-              : `<img src="${anime.images.jpg.large_image_url}" />`
-          }
+      <div class="overlay"></div>
+    </div>
 
-        </div>
+    <!-- HERO CONTENT -->
+    <div class="hero-content">
 
+      <h1>${anime.title}</h1>
+
+      <p class="meta">
+        ⭐ ${anime.score || "N/A"} • 
+        ${anime.episodes || "?"} épisodes
+      </p>
+
+      <p class="genres">
+        ${anime.genres.map(g => g.name).join(" • ")}
+      </p>
+
+      <div class="buttons">
+        <a class="btn primary" href="${anime.url}" target="_blank">▶ Play</a>
+        <button class="btn secondary" onclick="translateSynopsis()">🌍 Traduire</button>
+      </div>
+
+      <p class="synopsis">
+        ${anime.synopsis ? anime.synopsis.substring(0, 500) + "..." : ""}
+      </p>
+
+    </div>
+
+  </div>
+`;
         <!-- CONTENT -->
         <div class="anime-hero-content">
 
