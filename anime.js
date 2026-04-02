@@ -23,9 +23,13 @@ if (!animeId) {
 /* =========================
    LOAD ANIME
 ========================= */
-/* =========================
-   LOAD ANIME
-========================= */
+function playTrailer() {
+  const iframe = document.querySelector(".hero-bg iframe");
+
+  if (iframe) {
+    iframe.src = iframe.src.replace("mute=1", "mute=0");
+  }
+}
 async function loadAnime(id) {
   console.log("loadAnime lancé avec id:", id);
 
@@ -78,7 +82,7 @@ async function loadAnime(id) {
           </p>
 
           <div class="buttons">
-            <a class="btn primary" href="${anime.url}" target="_blank">▶ Play</a>
+            <button class="btn primary" onclick="playTrailer()">▶ Play</button>
           </div>
 
           <p class="synopsis">
