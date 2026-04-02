@@ -11,6 +11,15 @@ const animeId = params.get("id");
 
 const container = document.getElementById("animeContainer");
 
+console.log("animeId =", animeId);
+console.log("container =", container);
+
+if (!animeId) {
+  container.innerHTML = "<p>Erreur : aucun anime sélectionné</p>";
+} else {
+  loadAnime(animeId);
+}
+
 /* =========================
    LOAD ANIME
 ========================= */
