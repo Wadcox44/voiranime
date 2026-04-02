@@ -23,16 +23,78 @@ if (!animeId) {
 /* =========================
    LOAD ANIME
 ========================= */
+/* =========================
+   LOAD ANIME
+========================= */
 async function loadAnime(id) {
+  console.log("loadAnime lancé avec id:", id);
+
   try {
     const res = await fetch(`${BASE_URL}/anime/${id}/full`);
     const data = await res.json();
+
+    console.log("DATA API =", data);
+
     const anime = data.data;
+
+    if (!anime) {
+      container.innerHTML = "<p>Erreur : données anime introuvables</p>";
+      return;
+    }
 
     const trailerUrl = anime.trailer?.embed_url;
 
     container.innerHTML = `
-  <div class="hero">
+      <div class="hero">
+
+        <!-- BACKGROUND VIDEO -->
+        <div class="hero-bg">
+          ${
+            trailerUrl
+              ? `<iframe 
+                  src="${trailerUrl}?autoplay=1&mute=1&controls=0&loop=1"
+                  frameborder="0"
+                  allow="autoplay; encrypted-media"
+                  allowfullscreen>
+                </iframe>`
+              : `<img src="${anime.images.jpg.large_image_url}" />`
+          }
+
+          <div class="overlay"></div>
+        </div>
+
+        <!-- HERO CONTENT -->
+        <div class="hero-content">
+
+          <h1>${anime.title}</h1>
+
+          <p class="meta">
+            ⭐ ${anime.score || "N/A"} • 
+            ${anime.episodes || "?"} épisodes
+          </p>
+
+          <p class="genres">
+            ${anime.genres.map(g => g.name).join(" • ")}
+          </p>
+
+          <div class="buttons">
+            <a class="btn primary" href="${anime.url}" target="_blank">▶ Play</a>
+          </div>
+
+          <p class="synopsis">
+            ${anime.synopsis ? anime.synopsis.substring(0, 500) + "..." : ""}
+          </p>
+
+        </div>
+
+      </div>
+    `;
+
+  } catch (error) {
+    console.error("ERREUR FETCH :", error);
+    container.innerHTML = "<p>Erreur de chargement API</p>";
+  }
+}
 
     <!-- BACKGROUND VIDEO -->
     <div class="hero-bg">
