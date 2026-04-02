@@ -3,17 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Anime</title>
+
+  <title>VoirAnime - Détails Anime</title>
+  <meta name="description" content="Regarde les détails des animes et leurs trailers sur VoirAnime">
+
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <!-- HEADER SIMPLE -->
+  <!-- HEADER -->
   <header class="header">
     <div class="logo" onclick="window.location.href='index.html'">
       VoirAnime
     </div>
+
+    <nav class="nav">
+      <a href="index.html">Accueil</a>
+      <a href="#">Tendances</a>
+      <a href="#">Genres</a>
+    </nav>
   </header>
 
   <!-- CONTAINER ANIME -->
@@ -21,6 +30,8 @@
     <p>Chargement...</p>
   </section>
 
-  <script src="anime.js"></script>
+  <!-- JS -->
+  <script src="anime.js" defer></script>
+
 </body>
 </html>
