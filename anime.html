@@ -1,86 +1,196 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AniSearch — Détails</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>AniVault — Anime</title>
+  <link rel="stylesheet" href="style.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
 </head>
-<body class="page-detail">
+<body class="page-anime">
 
-  <header class="site-header">
+<!-- ═══════════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════════ -->
+<nav class="navbar transparent" id="navbar">
+  <div class="nav-left">
+    <a href="index.html" class="nav-logo">ANI<span>VAULT</span></a>
     <a href="index.html" class="back-link">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
       Retour
     </a>
-    <div class="logo">ANI<span>SEARCH</span></div>
-  </header>
+  </div>
+  <div class="nav-right">
+    <button class="btn-fav nav-fav-btn" id="navFavBtn" data-id="">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      Favori
+    </button>
+  </div>
+</nav>
 
-  <div class="loader-full" id="loaderFull">
-    <div class="loader"><span></span><span></span><span></span></div>
+<!-- ═══════════════════════════════════════════
+     FULL LOADER
+═══════════════════════════════════════════ -->
+<div class="page-loader" id="pageLoader">
+  <div class="sk-dots large"><span></span><span></span><span></span></div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ANIME HERO (Trailer / Banner)
+═══════════════════════════════════════════ -->
+<section class="anime-hero" id="animeHero">
+  <!-- YouTube iframe (hidden until played) -->
+  <div class="trailer-container" id="trailerContainer">
+    <iframe
+      id="trailerFrame"
+      src=""
+      title="Trailer"
+      frameborder="0"
+      allow="autoplay; encrypted-media"
+      allowfullscreen
+    ></iframe>
   </div>
 
-  <main id="detailMain" class="detail-main hidden">
-
-    <!-- Banner + Poster -->
-    <div class="detail-hero" id="detailHero">
-      <div class="banner-overlay"></div>
-      <img class="banner-img" id="bannerImg" src="" alt="" />
-    </div>
-
-    <div class="detail-body">
-      <div class="poster-col">
-        <img class="poster-img" id="posterImg" src="" alt="" />
-
-        <!-- Watch buttons -->
-        <div class="watch-section">
-          <h3 class="watch-title">Où regarder</h3>
-          <a id="crunchyrollBtn" href="#" target="_blank" class="watch-btn crunchyroll-btn">
-            <img src="https://www.crunchyroll.com/favicons/favicon-32x32.png" alt="" width="18" height="18" onerror="this.style.display='none'"/>
-            Crunchyroll
-          </a>
-          <a id="netflixBtn" href="#" target="_blank" class="watch-btn netflix-btn">
-            <svg width="18" height="18" viewBox="0 0 111 30" fill="currentColor">
-              <path d="M105.06233,14.2806261 L110.999999,30 C109.249999,29.7500005 107.500845,29.4999943 105.718489,29.2500062 L105.718489,29.2500062 L97.6495274,11.0978418 L97.6495274,28.5 C96.0142331,28.25 94.37862,28.0000018 92.7340527,27.7999973 L92.7340527,27.7999973 L92.7340527,0 L97.2421072,0 L106.015481,19.4147481 L106.015481,0 C107.375413,0.0 108.867369,0.0 110.999999,0.0 L110.999999,0.0 L110.999999,14.2806261 Z M90.4008951,0 L85.1648857,0 L85.1648857,27.3461563 C86.8000766,27.2 88.4163297,27.0578083 90.4008951,26.9156166 Z M81.2967328,27.9019513 L81.2967328,0 L76.0607234,0 L76.0607234,28.4995072 C77.7082081,28.2996076 79.4073962,28.0997081 81.2967328,27.9019513 Z M71.2047695,28.9981765 L71.2047695,0 L66.0,0 L66.0,29.3 C67.6828308,29.1666632 69.420016,29.0833315 71.2047695,28.9981765 Z M60.8457976,0 L55.609788,0 L55.609788,29.7497614 C57.2547948,29.7497614 58.8973039,29.7497614 60.8457976,29.7497614 Z M50.4942613,0 L45.1,0 L45.1,29.5 C46.9996566,29.5 48.8993132,29.5 50.4942613,29.4980176 Z M40.1,0 L34.8,0 L34.8,29.2500062 C36.5,29.2500062 38.3500577,29.2500062 40.1,29.2500062 Z M29.7,0 L24.4,0 L24.4,28.9 C26.1,28.9 27.9,29.0500018 29.7,29.0999942 L29.7,29.0999942 Z M19.3,0 L14.1,0 L14.1,28.6000061 C15.7,28.7500061 17.5,28.9 19.3,29.0500061 Z M9.0,0 L3.7,0 L3.7,27.3 C5.3,27.5 7.1,27.7 9.0,27.9 Z M0.0,0 L0.0,26.8000061 C1.6,27.0000061 3.3,27.2 5.0,27.4 L5.0,0 Z"/>
-            </svg>
-            Netflix
-          </a>
-        </div>
-      </div>
-
-      <div class="info-col">
-        <div class="badges-row" id="badgesRow"></div>
-        <h1 class="detail-title" id="detailTitle"></h1>
-        <div class="meta-row" id="metaRow"></div>
-
-        <div class="score-block" id="scoreBlock">
-          <div class="score-num" id="scoreNum"></div>
-          <div class="score-label">Score MAL</div>
-          <div class="score-stars" id="scoreStars"></div>
-        </div>
-
-        <h2 class="section-label">Synopsis</h2>
-        <p class="synopsis" id="synopsis"></p>
-
-        <h2 class="section-label">Genres</h2>
-        <div class="genres-list" id="genresList"></div>
-      </div>
-    </div>
-  </main>
-
-  <div class="error-state hidden" id="errorState">
-    <div class="empty-icon">（；￣д￣）</div>
-    <p>Impossible de charger cet anime.<br/><a href="index.html">← Retour à la recherche</a></p>
+  <!-- Fallback: banner image -->
+  <div class="anime-banner" id="animeBanner">
+    <img id="bannerImg" src="" alt=""/>
+    <div class="banner-vignette"></div>
   </div>
 
-  <footer class="site-footer">
-    <p>Données fournies par <a href="https://jikan.moe" target="_blank">Jikan API</a> · MyAnimeList</p>
-  </footer>
+  <!-- Controls overlay -->
+  <div class="trailer-controls" id="trailerControls">
+    <div class="trailer-left">
+      <button class="trailer-btn play-btn" id="playTrailerBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        Voir la bande-annonce
+      </button>
+      <button class="trailer-btn unmute-btn hidden" id="unmuteBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="muteIcon"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        <span id="muteLabel">Son actif</span>
+      </button>
+    </div>
+    <div class="trailer-rating" id="trailerRating"></div>
+  </div>
 
-  <script src="script.js"></script>
+  <!-- Bottom gradient for content below -->
+  <div class="hero-bottom-fade"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     ANIME CONTENT
+═══════════════════════════════════════════ -->
+<main class="anime-content" id="animeContent">
+
+  <!-- Left column: details -->
+  <div class="anime-main-col">
+    <div class="anime-header">
+      <div class="anime-badges" id="animeBadges"></div>
+      <h1 class="anime-title" id="animeTitle">—</h1>
+      <p class="anime-title-jp" id="animeTitleJp"></p>
+
+      <div class="anime-quick-stats" id="animeQuickStats">
+        <!-- Score, year, episodes, duration -->
+      </div>
+
+      <div class="anime-action-row">
+        <a href="#" class="btn-primary watch-crunchy" id="watchCrunchyBtn" target="_blank">
+          <img src="https://www.crunchyroll.com/favicons/favicon-32x32.png" width="16" height="16" onerror="this.style.display='none'" alt=""/>
+          Crunchyroll
+        </a>
+        <a href="#" class="btn-primary watch-netflix" id="watchNetflixBtn" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l4.5 9L5 21h3l2.25-4.5L12.75 21h3L11.25 12 15.75 3h-3L10.5 7.5 8.25 3H5z"/></svg>
+          Netflix
+        </a>
+        <button class="btn-secondary" id="animeFavBtn" data-id="">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span id="favBtnLabel">Favori</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="anime-synopsis-block">
+      <h2 class="block-title">Synopsis</h2>
+      <p class="anime-synopsis" id="animeSynopsis"></p>
+      <button class="synopsis-toggle" id="synopsisToggle">Lire plus ▼</button>
+    </div>
+
+    <div class="anime-genres-block">
+      <h2 class="block-title">Genres & Thèmes</h2>
+      <div class="tags-list" id="animeGenres"></div>
+    </div>
+
+    <!-- Skeleton for loading -->
+    <div class="detail-skeleton" id="detailSkeleton">
+      <div class="sk-block sk-title-lg"></div>
+      <div class="sk-block sk-text"></div>
+      <div class="sk-block sk-text short"></div>
+      <div class="sk-block sk-text"></div>
+    </div>
+  </div>
+
+  <!-- Right column: metadata -->
+  <aside class="anime-aside-col" id="animeAside">
+    <div class="score-widget" id="scoreWidget">
+      <div class="score-circle">
+        <div class="score-value" id="scoreValue">—</div>
+        <div class="score-max">/10</div>
+      </div>
+      <div class="score-info">
+        <div class="score-label">Score MAL</div>
+        <div class="score-voters" id="scoreVoters"></div>
+        <div class="score-rank" id="scoreRank"></div>
+      </div>
+    </div>
+
+    <div class="info-table" id="infoTable">
+      <!-- Populated by JS -->
+    </div>
+
+    <div class="streaming-block">
+      <h3 class="block-title small">Où regarder</h3>
+      <div class="stream-links">
+        <a href="#" id="streamCrunchyroll" class="stream-link crunchyroll-link" target="_blank">
+          <span class="stream-icon">🟠</span> Crunchyroll
+        </a>
+        <a href="#" id="streamNetflix" class="stream-link netflix-link" target="_blank">
+          <span class="stream-icon">🔴</span> Netflix
+        </a>
+        <a href="#" id="streamADN" class="stream-link adn-link" target="_blank">
+          <span class="stream-icon">🔵</span> ADN
+        </a>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<!-- ═══════════════════════════════════════════
+     RECOMMENDATIONS
+═══════════════════════════════════════════ -->
+<section class="recommendations-section" id="recommendationsSection">
+  <div class="content-section">
+    <div class="section-header">
+      <h2 class="section-title"><span class="section-dot orange"></span>Animes similaires</h2>
+    </div>
+    <div class="carousel-wrapper">
+      <button class="carousel-btn prev" data-carousel="reco">‹</button>
+      <div class="carousel" id="carousel-reco"></div>
+      <button class="carousel-btn next" data-carousel="reco">›</button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="footer-logo">ANI<span>VAULT</span></div>
+  <p class="footer-text">Données fournies par <a href="https://jikan.moe" target="_blank">Jikan API</a> · MyAnimeList</p>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script src="anime.js"></script>
 </body>
 </html>
