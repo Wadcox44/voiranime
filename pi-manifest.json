@@ -1,8 +1,0 @@
-{
-  "version": "1",
-  "name": "Voiranime portal",
-  "short_name": "Voiranime",
-  "description": "Portail premium dédié à l'animation japonaise sur Pi Network. News, streaming et communauté pour les passionnés de culture nippone. 🇯🇵",
-  "dev_app_id": "METS_ICI_LE_NOUVEL_ID",
-  "icon": "https://wadcox44.github.io/voiranime-portal/icon.png"
-}
