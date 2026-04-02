@@ -17,16 +17,21 @@ body {
 /* =========================
    HEADER
 ========================= */
+/* =========================
+   TOP BAR PREMIUM
+========================= */
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 40px;
-  background: rgba(18, 26, 42, 0.6);
-  backdrop-filter: blur(10px);
+  padding: 18px 40px;
+  background: rgba(18, 26, 42, 0.4);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 100;
 }
 
 .logo {
@@ -34,16 +39,59 @@ body {
   font-weight: bold;
   color: #00e5ff;
   letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+  cursor: pointer;
 }
 
+/* NAV CENTER */
+.nav {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav a {
+  color: #aaa;
+  text-decoration: none;
+  font-size: 14px;
+  transition: 0.3s;
+  position: relative;
+}
+
+.nav a:hover {
+  color: #00e5ff;
+}
+
+.nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0%;
+  height: 2px;
+  background: #00e5ff;
+  transition: 0.3s;
+}
+
+.nav a:hover::after {
+  width: 100%;
+}
+
+/* SEARCH */
 #searchInput {
-  width: 300px;
-  padding: 10px 15px;
-  border-radius: 10px;
-  border: none;
+  width: 260px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
   outline: none;
-  background: #121a2a;
+  background: rgba(18, 26, 42, 0.8);
   color: white;
+  transition: 0.3s;
+}
+
+#searchInput:focus {
+  border-color: #00e5ff;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
 }
 
 /* =========================
