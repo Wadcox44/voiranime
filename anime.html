@@ -3,35 +3,84 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-  <title>VoirAnime - Détails Anime</title>
-  <meta name="description" content="Regarde les détails des animes et leurs trailers sur VoirAnime">
-
-  <link rel="stylesheet" href="style.css">
+  <title>AniSearch — Détails</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
+<body class="page-detail">
 
-<body>
-
-  <!-- HEADER -->
-  <header class="header">
-    <div class="logo" onclick="window.location.href='index.html'">
-      VoirAnime
-    </div>
-
-    <nav class="nav">
-      <a href="index.html">Accueil</a>
-      <a href="#">Tendances</a>
-      <a href="#">Genres</a>
-    </nav>
+  <header class="site-header">
+    <a href="index.html" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Retour
+    </a>
+    <div class="logo">ANI<span>SEARCH</span></div>
   </header>
 
-  <!-- CONTAINER ANIME -->
-  <section id="animeContainer" class="anime-container">
-    <p>Chargement...</p>
-  </section>
+  <div class="loader-full" id="loaderFull">
+    <div class="loader"><span></span><span></span><span></span></div>
+  </div>
 
-  <!-- JS -->
-  <script src="anime.js" defer></script>
+  <main id="detailMain" class="detail-main hidden">
 
+    <!-- Banner + Poster -->
+    <div class="detail-hero" id="detailHero">
+      <div class="banner-overlay"></div>
+      <img class="banner-img" id="bannerImg" src="" alt="" />
+    </div>
+
+    <div class="detail-body">
+      <div class="poster-col">
+        <img class="poster-img" id="posterImg" src="" alt="" />
+
+        <!-- Watch buttons -->
+        <div class="watch-section">
+          <h3 class="watch-title">Où regarder</h3>
+          <a id="crunchyrollBtn" href="#" target="_blank" class="watch-btn crunchyroll-btn">
+            <img src="https://www.crunchyroll.com/favicons/favicon-32x32.png" alt="" width="18" height="18" onerror="this.style.display='none'"/>
+            Crunchyroll
+          </a>
+          <a id="netflixBtn" href="#" target="_blank" class="watch-btn netflix-btn">
+            <svg width="18" height="18" viewBox="0 0 111 30" fill="currentColor">
+              <path d="M105.06233,14.2806261 L110.999999,30 C109.249999,29.7500005 107.500845,29.4999943 105.718489,29.2500062 L105.718489,29.2500062 L97.6495274,11.0978418 L97.6495274,28.5 C96.0142331,28.25 94.37862,28.0000018 92.7340527,27.7999973 L92.7340527,27.7999973 L92.7340527,0 L97.2421072,0 L106.015481,19.4147481 L106.015481,0 C107.375413,0.0 108.867369,0.0 110.999999,0.0 L110.999999,0.0 L110.999999,14.2806261 Z M90.4008951,0 L85.1648857,0 L85.1648857,27.3461563 C86.8000766,27.2 88.4163297,27.0578083 90.4008951,26.9156166 Z M81.2967328,27.9019513 L81.2967328,0 L76.0607234,0 L76.0607234,28.4995072 C77.7082081,28.2996076 79.4073962,28.0997081 81.2967328,27.9019513 Z M71.2047695,28.9981765 L71.2047695,0 L66.0,0 L66.0,29.3 C67.6828308,29.1666632 69.420016,29.0833315 71.2047695,28.9981765 Z M60.8457976,0 L55.609788,0 L55.609788,29.7497614 C57.2547948,29.7497614 58.8973039,29.7497614 60.8457976,29.7497614 Z M50.4942613,0 L45.1,0 L45.1,29.5 C46.9996566,29.5 48.8993132,29.5 50.4942613,29.4980176 Z M40.1,0 L34.8,0 L34.8,29.2500062 C36.5,29.2500062 38.3500577,29.2500062 40.1,29.2500062 Z M29.7,0 L24.4,0 L24.4,28.9 C26.1,28.9 27.9,29.0500018 29.7,29.0999942 L29.7,29.0999942 Z M19.3,0 L14.1,0 L14.1,28.6000061 C15.7,28.7500061 17.5,28.9 19.3,29.0500061 Z M9.0,0 L3.7,0 L3.7,27.3 C5.3,27.5 7.1,27.7 9.0,27.9 Z M0.0,0 L0.0,26.8000061 C1.6,27.0000061 3.3,27.2 5.0,27.4 L5.0,0 Z"/>
+            </svg>
+            Netflix
+          </a>
+        </div>
+      </div>
+
+      <div class="info-col">
+        <div class="badges-row" id="badgesRow"></div>
+        <h1 class="detail-title" id="detailTitle"></h1>
+        <div class="meta-row" id="metaRow"></div>
+
+        <div class="score-block" id="scoreBlock">
+          <div class="score-num" id="scoreNum"></div>
+          <div class="score-label">Score MAL</div>
+          <div class="score-stars" id="scoreStars"></div>
+        </div>
+
+        <h2 class="section-label">Synopsis</h2>
+        <p class="synopsis" id="synopsis"></p>
+
+        <h2 class="section-label">Genres</h2>
+        <div class="genres-list" id="genresList"></div>
+      </div>
+    </div>
+  </main>
+
+  <div class="error-state hidden" id="errorState">
+    <div class="empty-icon">（；￣д￣）</div>
+    <p>Impossible de charger cet anime.<br/><a href="index.html">← Retour à la recherche</a></p>
+  </div>
+
+  <footer class="site-footer">
+    <p>Données fournies par <a href="https://jikan.moe" target="_blank">Jikan API</a> · MyAnimeList</p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
