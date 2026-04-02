@@ -156,3 +156,66 @@ footer {
   color: #666;
   margin-top: 40px;
 }
+
+/* =========================
+   ANIME PAGE
+========================= */
+
+.anime-container {
+  padding: 40px;
+}
+
+.anime-hero {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.anime-poster {
+  width: 280px;
+  border-radius: 15px;
+  box-shadow: 0 0 25px rgba(0, 229, 255, 0.2);
+}
+
+.anime-info {
+  flex: 1;
+  min-width: 250px;
+}
+
+.anime-info h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.score {
+  color: #00e5ff;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.genres {
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+.synopsis {
+  line-height: 1.6;
+  color: #ddd;
+  margin-bottom: 20px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 15px;
+  background: #00e5ff;
+  color: black;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  box-shadow: 0 0 15px #00e5ff;
+}
