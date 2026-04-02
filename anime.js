@@ -21,15 +21,19 @@ if (!animeId) {
 }
 
 /* =========================
-   LOAD ANIME
+   PLAY TRAILER (UNMUTE)
 ========================= */
 function playTrailer() {
-  const iframe = document.querySelector(".hero-bg iframe");
+  const iframe = document.querySelector(".anime-hero-video iframe");
 
   if (iframe) {
     iframe.src = iframe.src.replace("mute=1", "mute=0");
   }
 }
+
+/* =========================
+   LOAD ANIME
+========================= */
 async function loadAnime(id) {
   console.log("loadAnime lancé avec id:", id);
 
@@ -49,45 +53,46 @@ async function loadAnime(id) {
     const trailerUrl = anime.trailer?.embed_url;
 
     container.innerHTML = `
-      <div class="hero">
+      <div class="anime-page">
 
-        <!-- BACKGROUND VIDEO -->
-        <div class="hero-bg">
+        <!-- HERO VIDEO -->
+        <div class="anime-hero-video">
           ${
             trailerUrl
               ? `<iframe 
-                  src="${trailerUrl}?autoplay=1&mute=1&controls=0&loop=1"
+                  src="${trailerUrl}?autoplay=1&mute=1"
                   frameborder="0"
                   allow="autoplay; encrypted-media"
                   allowfullscreen>
                 </iframe>`
               : `<img src="${anime.images.jpg.large_image_url}" />`
           }
-
-          <div class="overlay"></div>
         </div>
 
-        <!-- HERO CONTENT -->
-        <div class="hero-content">
+        <!-- CONTENT -->
+        <div class="anime-hero-content">
 
-          <h1>${anime.title}</h1>
+          <img class="poster" src="${anime.images.jpg.large_image_url}" />
 
-          <p class="meta">
-            ⭐ ${anime.score || "N/A"} • 
-            ${anime.episodes || "?"} épisodes
-          </p>
+          <div class="info">
 
-          <p class="genres">
-            ${anime.genres.map(g => g.name).join(" • ")}
-          </p>
+            <h1>${anime.title}</h1>
 
-          <div class="buttons">
-            <button class="btn primary" onclick="playTrailer()">▶ Play</button>
+            <p class="score">⭐ ${anime.score || "N/A"}</p>
+
+            <p class="genres">
+              ${anime.genres.map(g => g.name).join(" • ")}
+            </p>
+
+            <p class="synopsis">
+              ${anime.synopsis ? anime.synopsis.substring(0, 600) + "..." : "Pas de synopsis disponible."}
+            </p>
+
+            <button class="btn primary" onclick="playTrailer()">
+              ▶ Play
+            </button>
+
           </div>
-
-          <p class="synopsis">
-            ${anime.synopsis ? anime.synopsis.substring(0, 500) + "..." : ""}
-          </p>
 
         </div>
 
