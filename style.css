@@ -359,3 +359,114 @@ footer {
 .btn:hover {
   box-shadow: 0 0 15px #00e5ff;
 }
+
+
+/* =========================
+   HERO NETFLIX STYLE
+========================= */
+
+.hero {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+/* BACKGROUND VIDEO */
+.hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.hero-bg iframe,
+.hero-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.2);
+  filter: blur(2px) brightness(0.6);
+}
+
+/* DARK OVERLAY */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.95),
+    rgba(0,0,0,0.4),
+    rgba(0,0,0,0.8)
+  );
+  z-index: 2;
+}
+
+/* CONTENT */
+.hero-content {
+  position: relative;
+  z-index: 3;
+  padding: 120px 60px;
+  max-width: 700px;
+}
+
+/* TITLE */
+.hero-content h1 {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+/* META */
+.meta {
+  color: #00e5ff;
+  margin-bottom: 10px;
+}
+
+/* GENRES */
+.genres {
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+/* BUTTONS */
+.buttons {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.btn {
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.primary {
+  background: white;
+  color: black;
+}
+
+.secondary {
+  background: rgba(255,255,255,0.2);
+  color: white;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+/* SYNOPSIS */
+.synopsis {
+  color: #ddd;
+  line-height: 1.5;
+}
