@@ -1,1 +1,59 @@
-.
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AniSearch — Trouve ton anime</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body class="page-home">
+
+  <header class="site-header">
+    <div class="logo">ANI<span>SEARCH</span></div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="hero-eyebrow">Propulsé par MyAnimeList</p>
+      <h1 class="hero-title">Trouve <em>n'importe quel</em> anime.</h1>
+      <p class="hero-sub">Tape un titre, un genre, un personnage — on s'occupe du reste.</p>
+
+      <div class="search-wrapper">
+        <div class="search-bar">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Ex : Naruto, Attack on Titan, Shōnen…"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button id="clearBtn" class="clear-btn" aria-label="Effacer">✕</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="results-section" id="resultsSection">
+      <div class="results-header" id="resultsHeader"></div>
+      <div class="cards-grid" id="cardsGrid"></div>
+      <div class="loader" id="loader">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">（；￣д￣）</div>
+        <p>Aucun résultat trouvé.<br/>Essaie un autre titre !</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Données fournies par <a href="https://jikan.moe" target="_blank">Jikan API</a> · MyAnimeList</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
