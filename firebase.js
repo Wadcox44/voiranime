@@ -32,12 +32,13 @@ import {
    🔧 CONFIG — REMPLACE CES VALEURS
 ────────────────────────────────────── */
 const firebaseConfig = {
-  apiKey:            "VOTRE_API_KEY",
-  authDomain:        "VOTRE_PROJECT.firebaseapp.com",
-  projectId:         "VOTRE_PROJECT_ID",
-  storageBucket:     "VOTRE_PROJECT.appspot.com",
-  messagingSenderId: "VOTRE_SENDER_ID",
-  appId:             "VOTRE_APP_ID",
+    apiKey: "AIzaSyALvccfFRQkjkoTzoQdDcpASg-3UjoYFi8",
+  authDomain: "voir-anime.firebaseapp.com",
+  projectId: "voir-anime",
+  storageBucket: "voir-anime.firebasestorage.app",
+  messagingSenderId: "9083405988",
+  appId: "1:9083405988:web:0b819ae034592ca4504831",
+  measurementId: "G-F1TT7CFSF0"
 };
 
 /* ──────────────────────────────────────
