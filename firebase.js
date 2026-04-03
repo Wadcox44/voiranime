@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════
-   firebase.js — AniVault · Firebase Tracking Module
+   firebase.js — VoirAnime · Firebase Tracking Module
    Fonctions : trackView · trackClick · getTopAnime · getTrendingAnime
    ═══════════════════════════════════════════════════════
 
@@ -71,7 +71,7 @@ async function _increment(docRef, fields) {
       await setDoc(docRef, { ...init, createdAt: serverTimestamp() });
     }
   } catch (e) {
-    console.warn('[AniVault Firebase] Erreur increment:', e.message);
+    console.warn('[VoirAnime Firebase] Erreur increment:', e.message);
   }
 }
 
@@ -103,10 +103,10 @@ export async function trackView(animeId) {
       timestamp: serverTimestamp(),
     });
   } catch (e) {
-    console.warn('[AniVault Firebase] Erreur log event view:', e.message);
+    console.warn('[VoirAnime Firebase] Erreur log event view:', e.message);
   }
 
-  console.debug(`[AniVault] 👁 Vue trackée → anime ${id}`);
+  console.debug(`[VoirAnime] 👁 Vue trackée → anime ${id}`);
 }
 
 /**
@@ -136,10 +136,10 @@ export async function trackClick(platform, animeId) {
       timestamp: serverTimestamp(),
     });
   } catch (e) {
-    console.warn('[AniVault Firebase] Erreur log event click:', e.message);
+    console.warn('[VoirAnime Firebase] Erreur log event click:', e.message);
   }
 
-  console.debug(`[AniVault] 🖱 Clic trackée → ${p} · anime ${id}`);
+  console.debug(`[VoirAnime] 🖱 Clic trackée → ${p} · anime ${id}`);
 }
 
 /* ══════════════════════════════════════
@@ -206,7 +206,7 @@ export async function getTopAnime(n = 10) {
       .slice(0, n);
 
   } catch (e) {
-    console.warn('[AniVault Firebase] getTopAnime error:', e.message);
+    console.warn('[VoirAnime Firebase] getTopAnime error:', e.message);
     return [];
   }
 }
@@ -250,7 +250,7 @@ export async function getTrendingAnime(n = 10, hoursBack = 24) {
       .slice(0, n);
 
   } catch (e) {
-    console.warn('[AniVault Firebase] getTrendingAnime error:', e.message);
+    console.warn('[VoirAnime Firebase] getTrendingAnime error:', e.message);
     return [];
   }
 }
@@ -272,7 +272,7 @@ export async function getDuelData(duelId) {
     const snap = await getDoc(ref);
     return snap.exists() ? snap.data() : null;
   } catch (e) {
-    console.warn('[AniVault Firebase] getDuelData error:', e.message);
+    console.warn('[VoirAnime Firebase] getDuelData error:', e.message);
     return null;
   }
 }
