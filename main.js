@@ -1,22 +1,27 @@
 /* ═══════════════════════════════════════════════════
-   main.js — VoirAnime Homepage
-   Gère : Hero rotatif · Carousels · Search instant · Favoris · Historique
+   main.js — VoirAnime Homepage  [VERSION CORRIGÉE]
+   Corrections : types id, memory leaks, XSS, module import, robustesse
    ═══════════════════════════════════════════════════ */
 
 'use strict';
 
 /* ──────────────────────────────────────
+   IMPORTS FIREBASE
+   ⚠ index.html doit avoir : <script type="module" src="main.js">
+────────────────────────────────────── */
+import { trackView } from './firebase.js';
+
+/* ──────────────────────────────────────
    CONFIG & STATE
 ────────────────────────────────────── */
-const API = 'https://api.jikan.moe/v4';
-const HERO_INTERVAL = 7000; // ms entre chaque anime hero
+const API           = 'https://api.jikan.moe/v4';
+const HERO_INTERVAL = 7000;
 
 const state = {
-  heroAnimes: [],
-  heroIndex: 0,
-  heroTimer: null,
+  heroAnimes:  [],
+  heroIndex:   0,
+  heroTimer:   null,
   searchTimer: null,
-  searchActive: false,
 };
 
 /* ──────────────────────────────────────
@@ -29,6 +34,8 @@ async function jikanFetch(endpoint, retries = 3) {
     try {
       const res = await fetch(`${API}${endpoint}`);
       if (res.status === 429) {
+        // FIX Bug 6 : vider le body avant retry pour libérer la connexion HTTP/2
+        await res.text().catch(() => {});
         await sleep(1200 * (i + 1));
         continue;
       }
@@ -42,34 +49,59 @@ async function jikanFetch(endpoint, retries = 3) {
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function el(id)    { return document.getElementById(id); }
 
-function el(id) { return document.getElementById(id); }
+/** FIX Bug 7 : échappe les caractères dangereux pour éviter XSS dans innerHTML */
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 function showToast(msg, duration = 2800) {
   const t = el('toast');
+  if (!t) return;
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), duration);
 }
 
-/* ── Favorites ── */
+/* ──────────────────────────────────────
+   FAVORITES
+   FIX Bug 1 : tous les ids normalisés en NUMBER
+   pour garantir comparaison cohérente (=== entre number et string échouait)
+────────────────────────────────────── */
 function getFavs() {
   try { return JSON.parse(localStorage.getItem('VoirAnime_favs') || '[]'); }
   catch { return []; }
 }
-function saveFavs(favs) { localStorage.setItem('VoirAnime_favs', JSON.stringify(favs)); }
-function isFav(id) { return getFavs().some(f => f.id === id); }
+
+function saveFavs(favs) {
+  localStorage.setItem('VoirAnime_favs', JSON.stringify(favs));
+}
+
+function isFav(id) {
+  const numId = Number(id);
+  return getFavs().some(f => Number(f.id) === numId);
+}
 
 function toggleFav(id, title, img) {
-  const favs = getFavs();
-  const idx = favs.findIndex(f => f.id === id);
+  const numId = Number(id);
+  const favs  = getFavs();
+  const idx   = favs.findIndex(f => Number(f.id) === numId);
+
   if (idx > -1) {
     favs.splice(idx, 1);
     showToast(`💔 ${title} retiré des favoris`);
   } else {
-    favs.unshift({ id, title, img });
+    favs.unshift({ id: numId, title, img });
     showToast(`❤ ${title} ajouté aux favoris`);
   }
+
   saveFavs(favs);
   updateFavUI();
   renderFavoritesSection();
@@ -77,26 +109,31 @@ function toggleFav(id, title, img) {
 }
 
 function updateFavUI() {
-  const favs = getFavs();
+  const favs  = getFavs();
   const badge = el('navFavCount');
   if (badge) badge.textContent = favs.length;
 
-  // Update all fav buttons on page
   document.querySelectorAll('[data-fav-id]').forEach(btn => {
-    const id = parseInt(btn.dataset.favId);
-    btn.classList.toggle('active', isFav(id));
+    const id     = Number(btn.dataset.favId); // FIX : Number, pas parseInt
+    const active = isFav(id);
+    btn.classList.toggle('active', active);
+    const svg = btn.querySelector('svg');
+    if (svg) svg.setAttribute('fill', active ? 'currentColor' : 'none');
   });
 }
 
-/* ── Watch History ── */
+/* ──────────────────────────────────────
+   WATCH HISTORY
+────────────────────────────────────── */
 function getHistory() {
   try { return JSON.parse(localStorage.getItem('VoirAnime_history') || '[]'); }
   catch { return []; }
 }
 
 function addToHistory(id, title, img, progress = 0) {
-  const hist = getHistory().filter(h => h.id !== id);
-  hist.unshift({ id, title, img, progress, ts: Date.now() });
+  const numId = Number(id);
+  const hist  = getHistory().filter(h => Number(h.id) !== numId);
+  hist.unshift({ id: numId, title, img, progress, ts: Date.now() });
   localStorage.setItem('VoirAnime_history', JSON.stringify(hist.slice(0, 20)));
 }
 
@@ -104,6 +141,7 @@ function addToHistory(id, title, img, progress = 0) {
    SKELETON BUILDER
 ────────────────────────────────────── */
 function buildSkeletons(container, count = 8) {
+  if (!container) return; // FIX Bug 5 : guard null
   container.innerHTML = Array.from({ length: count }, () => `
     <div class="sk-card">
       <div class="sk-block sk-card-img"></div>
@@ -115,16 +153,17 @@ function buildSkeletons(container, count = 8) {
 
 /* ──────────────────────────────────────
    CARD BUILDER
+   FIX Bug 7 : esc() sur toutes les valeurs dans innerHTML
 ────────────────────────────────────── */
 function buildCard(anime, opts = {}) {
   const { rank = null, showProgress = false, progress = 60 } = opts;
 
-  const id     = anime.mal_id;
-  const title  = anime.title_english || anime.title || 'Titre inconnu';
-  const img    = anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url || '';
-  const score  = anime.score;
-  const type   = anime.type || '';
-  const fav    = isFav(id);
+  const id    = Number(anime.mal_id);
+  const title = anime.title_english || anime.title || 'Titre inconnu';
+  const img   = anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url || '';
+  const score = anime.score;
+  const type  = anime.type || '';
+  const fav   = isFav(id);
 
   const card = document.createElement('article');
   card.className = 'anime-card' + (showProgress ? ' continue-card' : '');
@@ -133,7 +172,7 @@ function buildCard(anime, opts = {}) {
 
   card.innerHTML = `
     <div class="card-thumb">
-      <img src="${img}" alt="${title}" loading="lazy"
+      <img src="${esc(img)}" alt="${esc(title)}" loading="lazy"
            onerror="this.src='https://placehold.co/160x230/111118/555?text=No+Image'"/>
       <div class="card-thumb-overlay">
         <div class="card-play-icon">
@@ -141,25 +180,25 @@ function buildCard(anime, opts = {}) {
         </div>
         ${score ? `<div class="card-score-badge">★ ${score.toFixed(1)}</div>` : ''}
       </div>
-      ${type ? `<span class="card-type-badge">${type}</span>` : ''}
+      ${type ? `<span class="card-type-badge">${esc(type)}</span>` : ''}
       ${rank ? `<span class="card-rank-badge">#${rank}</span>` : ''}
       <button class="card-fav-btn ${fav ? 'active' : ''}" data-fav-id="${id}" aria-label="Favori">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="${fav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+        <svg width="12" height="12" viewBox="0 0 24 24"
+             fill="${fav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
         </svg>
       </button>
       ${showProgress ? `
         <div class="progress-bar-wrap">
-          <div class="progress-bar-fill" style="width:${progress}%"></div>
+          <div class="progress-bar-fill" style="width:${Number(progress)}%"></div>
         </div>` : ''}
     </div>
     <div class="card-info">
-      <h3 class="card-title">${title}</h3>
-      <p class="card-sub">${score ? `★ ${score.toFixed(1)}` : ''}${score && type ? ' · ' : ''}${type}</p>
+      <h3 class="card-title">${esc(title)}</h3>
+      <p class="card-sub">${score ? `★ ${score.toFixed(1)}` : ''}${score && type ? ' · ' : ''}${esc(type)}</p>
     </div>
   `;
 
-  /* Click → detail */
   card.addEventListener('click', (e) => {
     if (e.target.closest('.card-fav-btn')) return;
     addToHistory(id, title, img, showProgress ? progress : 0);
@@ -170,13 +209,13 @@ function buildCard(anime, opts = {}) {
     if (e.key === 'Enter') window.location.href = `anime.html?id=${id}`;
   });
 
-  /* Fav button */
   card.querySelector('.card-fav-btn').addEventListener('click', (e) => {
     e.stopPropagation();
     const added = toggleFav(id, title, img);
-    const btn = e.currentTarget;
+    const btn   = e.currentTarget;
     btn.classList.toggle('active', added);
-    btn.querySelector('svg').setAttribute('fill', added ? 'currentColor' : 'none');
+    const svg = btn.querySelector('svg');
+    if (svg) svg.setAttribute('fill', added ? 'currentColor' : 'none');
   });
 
   return card;
@@ -192,7 +231,7 @@ function renderCarousel(carouselId, animes, opts = {}) {
   animes.forEach((anime, i) => {
     container.appendChild(buildCard(anime, {
       rank: opts.showRank ? i + 1 : null,
-      ...opts
+      ...opts,
     }));
   });
 }
@@ -207,13 +246,18 @@ function initCarouselButtons() {
       const carousel = el(`carousel-${id}`);
       if (!carousel) return;
       const step = carousel.clientWidth * 0.75;
-      carousel.scrollBy({ left: btn.classList.contains('prev') ? -step : step, behavior: 'smooth' });
+      carousel.scrollBy({
+        left: btn.classList.contains('prev') ? -step : step,
+        behavior: 'smooth',
+      });
     });
   });
 }
 
 /* ──────────────────────────────────────
    HERO
+   FIX Bug 2 & 3 : cloneNode() pour nettoyer les anciens
+   event listeners sans avoir à les référencer manuellement
 ────────────────────────────────────── */
 function renderHero(anime) {
   const imgEl    = el('heroImg');
@@ -221,15 +265,12 @@ function renderHero(anime) {
   const synEl    = el('heroSynopsis');
   const badgesEl = el('heroBadges');
   const metaEl   = el('heroMeta');
-  const playBtn  = el('heroPlayBtn');
-  const moreBtn  = el('heroMoreBtn');
-  const favBtn   = el('heroFavBtn');
   const skeleton = el('heroSkeleton');
   const info     = el('heroInfo');
 
-  const id      = anime.mal_id;
-  const title   = anime.title_english || anime.title;
-  const img     = anime.images?.jpg?.large_image_url || '';
+  const id       = Number(anime.mal_id);
+  const title    = anime.title_english || anime.title;
+  const img      = anime.images?.jpg?.large_image_url || '';
   const synopsis = (anime.synopsis || '').replace(/\[Written by MAL Rewrite\]/gi, '').trim();
 
   // Image transition
@@ -237,52 +278,68 @@ function renderHero(anime) {
   imgEl.src = img;
   imgEl.onload = () => { imgEl.style.opacity = '1'; };
 
+  // textContent : jamais de XSS
   titleEl.textContent = title;
   synEl.textContent   = synopsis.slice(0, 200) + (synopsis.length > 200 ? '…' : '');
 
   // Badges
   const badges = [];
-  if (anime.score)    badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
-  if (anime.type)     badges.push(`<span class="badge badge-muted">${anime.type}</span>`);
+  if (anime.score) badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
+  if (anime.type)  badges.push(`<span class="badge badge-muted">${esc(anime.type)}</span>`);
   if (anime.status === 'Currently Airing') badges.push(`<span class="badge badge-green">● EN COURS</span>`);
   badgesEl.innerHTML = badges.join('');
 
   // Meta
   const meta = [
-    anime.year     ? `📅 ${anime.year}`           : null,
-    anime.episodes ? `🎬 ${anime.episodes} ep.`   : null,
-    anime.rating   ? anime.rating.split(' ')[0]   : null,
+    anime.year     ? `📅 ${anime.year}`         : null,
+    anime.episodes ? `🎬 ${anime.episodes} ep.` : null,
+    anime.rating   ? anime.rating.split(' ')[0]  : null,
   ].filter(Boolean);
-  metaEl.innerHTML = meta.map(m => `<span class="hero-meta-item">${m}</span>`).join('');
+  metaEl.innerHTML = meta.map(m => `<span class="hero-meta-item">${esc(m)}</span>`).join('');
 
-  // Actions
-  playBtn.href = `anime.html?id=${id}`;
-  moreBtn.onclick = () => { window.location.href = `anime.html?id=${id}`; };
-  favBtn.dataset.id = id;
-  favBtn.classList.toggle('active', isFav(id));
-  favBtn.onclick = () => {
-    const fav = toggleFav(id, title, img);
-    favBtn.classList.toggle('active', fav);
-  };
+  // FIX Bug 2 : remplace moreBtn par un clone pour vider les anciens listeners
+  const moreBtn    = el('heroMoreBtn');
+  const newMoreBtn = moreBtn.cloneNode(true);
+  moreBtn.parentNode.replaceChild(newMoreBtn, moreBtn);
+  newMoreBtn.addEventListener('click', () => { window.location.href = `anime.html?id=${id}`; });
 
-  // Reveal
+  // FIX Bug 3 : idem pour favBtn
+  const favBtn    = el('heroFavBtn');
+  const newFavBtn = favBtn.cloneNode(true);
+  favBtn.parentNode.replaceChild(newFavBtn, favBtn);
+  newFavBtn.dataset.id = id;
+  newFavBtn.classList.toggle('active', isFav(id));
+  newFavBtn.addEventListener('click', () => {
+    const added = toggleFav(id, title, img);
+    newFavBtn.classList.toggle('active', added);
+  });
+
+  // playBtn n'a pas de listener JS, juste un href → pas de fuite
+  el('heroPlayBtn').href = `anime.html?id=${id}`;
+
   skeleton.classList.add('hidden');
   info.classList.remove('hidden');
 }
 
 function updateHeroDots() {
   const dotsEl = el('heroDots');
-  dotsEl.innerHTML = state.heroAnimes.map((_, i) =>
-    `<div class="hero-dot ${i === state.heroIndex ? 'active' : ''}" data-i="${i}"></div>`
-  ).join('');
-  dotsEl.querySelectorAll('.hero-dot').forEach(dot => {
-    dot.addEventListener('click', () => {
-      clearInterval(state.heroTimer);
-      state.heroIndex = parseInt(dot.dataset.i);
-      renderHero(state.heroAnimes[state.heroIndex]);
-      updateHeroDots();
-      startHeroRotation();
-    });
+  dotsEl.innerHTML = state.heroAnimes
+    .map((_, i) => `<div class="hero-dot ${i === state.heroIndex ? 'active' : ''}" data-i="${i}"></div>`)
+    .join('');
+
+  // FIX : délégation sur le conteneur (un seul listener, pas N)
+  // + cloneNode pour éviter les doubles listeners sur le conteneur lui-même
+  const newDotsEl = dotsEl.cloneNode(true);
+  dotsEl.parentNode.replaceChild(newDotsEl, dotsEl);
+
+  newDotsEl.addEventListener('click', (e) => {
+    const dot = e.target.closest('.hero-dot');
+    if (!dot) return;
+    clearInterval(state.heroTimer);
+    state.heroIndex = parseInt(dot.dataset.i, 10);
+    renderHero(state.heroAnimes[state.heroIndex]);
+    updateHeroDots();
+    startHeroRotation();
   });
 }
 
@@ -299,12 +356,12 @@ function startHeroRotation() {
    SEARCH
 ────────────────────────────────────── */
 function initSearch() {
-  const toggle    = el('searchToggle');
-  const expand    = el('searchExpand');
-  const input     = el('searchInput');
-  const clearBtn  = el('searchClear');
-  const overlay   = el('searchOverlay');
-  const closeBtn  = el('searchOverlayClose');
+  const toggle   = el('searchToggle');
+  const expand   = el('searchExpand');
+  const input    = el('searchInput');
+  const clearBtn = el('searchClear');
+  const overlay  = el('searchOverlay');
+  const closeBtn = el('searchOverlayClose');
 
   toggle.addEventListener('click', () => {
     expand.classList.toggle('active');
@@ -346,11 +403,11 @@ function initSearch() {
 }
 
 async function performSearch(query) {
-  const overlay  = el('searchOverlay');
-  const grid     = el('searchResultsGrid');
-  const loader   = el('searchLoader');
-  const empty    = el('searchEmpty');
-  const label    = el('searchLabel');
+  const overlay = el('searchOverlay');
+  const grid    = el('searchResultsGrid');
+  const loader  = el('searchLoader');
+  const empty   = el('searchEmpty');
+  const label   = el('searchLabel');
 
   overlay.classList.add('active');
   grid.innerHTML = '';
@@ -359,7 +416,7 @@ async function performSearch(query) {
   label.textContent = `Recherche : « ${query} »`;
 
   try {
-    const data = await jikanFetch(`/anime?q=${encodeURIComponent(query)}&limit=20&sfw=true`);
+    const data    = await jikanFetch(`/anime?q=${encodeURIComponent(query)}&limit=20&sfw=true`);
     loader.classList.remove('visible');
     const results = data.data || [];
 
@@ -383,7 +440,8 @@ async function performSearch(query) {
 function renderFavoritesSection() {
   const section  = el('section-favorites');
   const carousel = el('carousel-favorites');
-  const favs     = getFavs();
+  if (!section || !carousel) return;
+  const favs = getFavs();
 
   if (favs.length === 0) {
     section.style.display = 'none';
@@ -392,13 +450,13 @@ function renderFavoritesSection() {
   section.style.display = 'block';
   carousel.innerHTML = '';
   favs.forEach(f => {
-    // Build a minimal card from stored data
     const fake = {
-      mal_id: f.id,
-      title: f.title,
+      mal_id:        f.id,
+      title:         f.title,
       title_english: f.title,
-      images: { jpg: { large_image_url: f.img, image_url: f.img } },
-      score: null, type: null
+      images:        { jpg: { large_image_url: f.img, image_url: f.img } },
+      score:         null,
+      type:          null,
     };
     carousel.appendChild(buildCard(fake));
   });
@@ -410,6 +468,7 @@ function renderFavoritesSection() {
 function renderContinueWatching() {
   const section  = el('section-continue');
   const carousel = el('carousel-continue');
+  if (!section || !carousel) return;
   const hist = getHistory();
 
   if (hist.length === 0) {
@@ -420,21 +479,23 @@ function renderContinueWatching() {
   carousel.innerHTML = '';
   hist.slice(0, 10).forEach(h => {
     const fake = {
-      mal_id: h.id,
-      title: h.title,
+      mal_id:        h.id,
+      title:         h.title,
       title_english: h.title,
-      images: { jpg: { large_image_url: h.img } },
-      score: null, type: null
+      images:        { jpg: { large_image_url: h.img } },
+      score:         null,
+      type:          null,
     };
     carousel.appendChild(buildCard(fake, { showProgress: true, progress: h.progress || 45 }));
   });
 }
 
 /* ──────────────────────────────────────
-   NAVBAR SCROLL EFFECT
+   NAVBAR SCROLL
 ────────────────────────────────────── */
 function initNavbar() {
   const nav = el('navbar');
+  if (!nav) return;
   window.addEventListener('scroll', () => {
     nav.classList.toggle('scrolled', window.scrollY > 80);
   }, { passive: true });
@@ -443,15 +504,13 @@ function initNavbar() {
 /* ──────────────────────────────────────
    DATA LOADING
 ────────────────────────────────────── */
-
-// Stagger API calls to avoid hitting rate limit
 async function loadSection(endpointPath, carouselId, skeletonId, count = 8, opts = {}) {
   const skelEl = el(skeletonId);
   if (skelEl) buildSkeletons(skelEl.parentElement, count);
 
   try {
     await sleep(opts.delay || 0);
-    const data = await jikanFetch(endpointPath);
+    const data   = await jikanFetch(endpointPath);
     const animes = data.data || [];
     renderCarousel(carouselId, animes, opts);
   } catch (e) {
@@ -463,17 +522,16 @@ async function loadSection(endpointPath, carouselId, skeletonId, count = 8, opts
 
 async function loadHero() {
   try {
-    // Use top airing for hero
     const data = await jikanFetch('/top/anime?filter=airing&limit=10');
     state.heroAnimes = (data.data || []).filter(a => a.images?.jpg?.large_image_url);
     if (state.heroAnimes.length === 0) return;
-
     renderHero(state.heroAnimes[0]);
     updateHeroDots();
     startHeroRotation();
   } catch (e) {
     console.error('Hero load error:', e);
-    el('heroSkeleton').innerHTML = '<p style="color:var(--muted)">Impossible de charger le hero.</p>';
+    const sk = el('heroSkeleton');
+    if (sk) sk.innerHTML = '<p style="color:var(--muted)">Impossible de charger le hero.</p>';
   }
 }
 
@@ -488,12 +546,10 @@ async function init() {
   renderFavoritesSection();
   renderContinueWatching();
 
-  // Load hero first
   await loadHero();
 
-  // Load sections with staggered delays to respect rate limit
-  loadSection('/top/anime?filter=bypopularity&limit=20', 'popular', 'skel-popular', 10, { delay: 300, showRank: true });
-  loadSection('/top/anime?limit=20',                     'top',     'skel-top',     10, { delay: 700 });
+  loadSection('/top/anime?filter=bypopularity&limit=20', 'popular', 'skel-popular', 10, { delay: 300,  showRank: true });
+  loadSection('/top/anime?limit=20',                     'top',     'skel-top',     10, { delay: 700  });
   loadSection('/top/anime?filter=airing&limit=20',       'airing',  'skel-airing',  10, { delay: 1100 });
   loadSection('/top/anime?type=movie&limit=20',          'movies',  'skel-movies',  10, { delay: 1500 });
 }

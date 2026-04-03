@@ -1,13 +1,7 @@
 /* ═══════════════════════════════════════════════════════
-   firebase.js — VoirAnime · Firebase Tracking Module
-   Fonctions : trackView · trackClick · getTopAnime · getTrendingAnime
-   ═══════════════════════════════════════════════════════
-
-   SETUP :
-   1. Va sur https://console.firebase.google.com
-   2. Crée un projet → Firestore Database (mode test)
-   3. Paramètres du projet → Tes applications → Web → copie la config
-   4. Remplace les valeurs PLACEHOLDER ci-dessous par ta config
+   firebase.js — VoirAnime  [VERSION CORRIGÉE]
+   Corrections : race condition setDoc, double lecture voteDuel,
+                 index composite documenté, sécurité config
    ═══════════════════════════════════════════════════════ */
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -29,16 +23,36 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 /* ──────────────────────────────────────
-   🔧 CONFIG — REMPLACE CES VALEURS
+   CONFIG FIREBASE
+   ⚠ SÉCURITÉ : ta config est visible publiquement sur GitHub Pages.
+   Deux actions obligatoires :
+   1. Dans Google Cloud Console → APIs & Services → Credentials
+      → Restreins ton apiKey aux domaines : ton-domaine.github.io
+   2. Dans Firebase Console → Firestore → Rules, applique ces règles :
+
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       // Lecture publique, écriture uniquement sur les chemins autorisés
+       match /stats/{document=**} {
+         allow read: if true;
+         allow write: if true; // passe à "if request.auth != null" si tu ajoutes Auth
+       }
+       match /events/{document} {
+         allow read: if false;   // personne ne lit les events sauf getTopAnime()
+         allow write: if true;
+       }
+     }
+   }
 ────────────────────────────────────── */
 const firebaseConfig = {
-    apiKey: "AIzaSyALvccfFRQkjkoTzoQdDcpASg-3UjoYFi8",
-  authDomain: "voir-anime.firebaseapp.com",
-  projectId: "voir-anime",
-  storageBucket: "voir-anime.firebasestorage.app",
+  apiKey:            "AIzaSyALvccfFRQkjkoTzoQdDcpASg-3UjoYFi8",
+  authDomain:        "voir-anime.firebaseapp.com",
+  projectId:         "voir-anime",
+  storageBucket:     "voir-anime.firebasestorage.app",
   messagingSenderId: "9083405988",
-  appId: "1:9083405988:web:0b819ae034592ca4504831",
-  measurementId: "G-F1TT7CFSF0"
+  appId:             "1:9083405988:web:0b819ae034592ca4504831",
+  measurementId:     "G-F1TT7CFSF0",
 };
 
 /* ──────────────────────────────────────
@@ -52,50 +66,44 @@ const db  = getFirestore(app);
 ────────────────────────────────────── */
 
 /**
- * Incrémente un champ dans un document Firestore.
- * Crée le document s'il n'existe pas.
+ * FIX Bug 9 : utilise setDoc avec merge:true + increment() de Firestore
+ * pour être atomique et éviter la race condition de la version précédente.
+ *
+ * Avant : on lisait d'abord (getDoc), puis on écrivait selon le résultat
+ * → si deux clients lisent simultanément "document inexistant",
+ *   tous deux font setDoc avec total:1 → le second écrase le premier.
+ *
+ * Après : setDoc avec merge:true + increment() est atomique côté serveur.
  */
-async function _increment(docRef, fields) {
+async function _safeIncrement(docRef, fields) {
   try {
-    const snap = await getDoc(docRef);
-    if (snap.exists()) {
-      await updateDoc(docRef, fields);
-    } else {
-      // Initialise avec les valeurs en remplacement d'increment()
-      const init = {};
-      for (const key of Object.keys(fields)) {
-       init[key] = key === "lastSeen" || key === "lastClick"
-  ? serverTimestamp()
-  : 1;
-      }
-      await setDoc(docRef, { ...init, createdAt: serverTimestamp() });
-    }
+    // merge:true crée le document s'il n'existe pas, sans écraser les champs existants
+    await setDoc(docRef, fields, { merge: true });
   } catch (e) {
     console.warn('[VoirAnime Firebase] Erreur increment:', e.message);
   }
 }
 
 /* ══════════════════════════════════════
-   PARTIE 1 — TRACKING
+   TRACKING — VUES
 ══════════════════════════════════════ */
 
 /**
  * trackView(animeId)
- * Enregistre une vue pour un anime.
  * Chemin Firestore : stats/views/anime/{animeId}
- * Document : { total: number, lastSeen: timestamp }
- *
- * @param {number|string} animeId  — ID MAL de l'anime
  */
 export async function trackView(animeId) {
   if (!animeId) return;
   const id = String(animeId);
 
-  // Compteur global
+  // FIX : _safeIncrement atomique (plus de lecture préalable)
   const ref = doc(db, 'stats', 'views', 'anime', id);
-  await _increment(ref, { total: increment(1), lastSeen: serverTimestamp() });
+  await _safeIncrement(ref, {
+    total:    increment(1),
+    lastSeen: serverTimestamp(),
+  });
 
-  // Log horodaté pour le trending (collection d'événements)
+  // Log pour trending
   try {
     await addDoc(collection(db, 'events'), {
       type:      'view',
@@ -109,25 +117,25 @@ export async function trackView(animeId) {
   console.debug(`[VoirAnime] 👁 Vue trackée → anime ${id}`);
 }
 
+/* ══════════════════════════════════════
+   TRACKING — CLICS STREAMING
+══════════════════════════════════════ */
+
 /**
  * trackClick(platform, animeId)
- * Enregistre un clic sur un lien streaming.
  * Chemin Firestore : stats/clicks/{platform}/{animeId}
- * Document : { total: number, lastClick: timestamp }
- *
- * @param {'crunchyroll'|'netflix'|'adn'} platform
- * @param {number|string} animeId
  */
 export async function trackClick(platform, animeId) {
   if (!platform || !animeId) return;
   const id = String(animeId);
   const p  = platform.toLowerCase();
 
-  // Compteur par plateforme
   const ref = doc(db, 'stats', 'clicks', p, id);
-  await _increment(ref, { total: increment(1), lastClick: serverTimestamp() });
+  await _safeIncrement(ref, {
+    total:     increment(1),
+    lastClick: serverTimestamp(),
+  });
 
-  // Log horodaté pour le trending
   try {
     await addDoc(collection(db, 'events'), {
       type:      'click',
@@ -139,62 +147,51 @@ export async function trackClick(platform, animeId) {
     console.warn('[VoirAnime Firebase] Erreur log event click:', e.message);
   }
 
-  console.debug(`[VoirAnime] 🖱 Clic trackée → ${p} · anime ${id}`);
+  console.debug(`[VoirAnime] 🖱 Clic tracké → ${p} · anime ${id}`);
 }
 
 /* ══════════════════════════════════════
-   PARTIE 2 — TOP ANIME
+   TOP ANIME
 ══════════════════════════════════════ */
 
 /**
  * getTopAnime(n)
- * Retourne les N animés les plus populaires
- * basé sur : (clics toutes plateformes) + vues
- *
- * @param {number} n  — nombre de résultats souhaités (défaut: 10)
- * @returns {Promise<Array<{animeId:string, score:number, views:number, clicks:number}>>}
+ * Fusionne vues + clics pour produire un classement.
  */
 export async function getTopAnime(n = 10) {
   try {
-    // 1. Récupère les top vues
-    const viewsQ = query(
+    const viewsQ    = query(
       collection(db, 'stats', 'views', 'anime'),
       orderBy('total', 'desc'),
       limit(50)
     );
     const viewsSnap = await getDocs(viewsQ);
 
-    // 2. Récupère les top clics (toutes plateformes confondues)
     const platforms = ['crunchyroll', 'netflix', 'adn'];
-    const clickMap  = {}; // animeId → total clics
+    const clickMap  = {};
 
     for (const platform of platforms) {
       try {
-        const clicksQ = query(
+        const clicksQ    = query(
           collection(db, 'stats', 'clicks', platform),
           orderBy('total', 'desc'),
           limit(50)
         );
         const clicksSnap = await getDocs(clicksQ);
         clicksSnap.forEach(d => {
-          clickMap[d.id] = (clickMap[d.id] || 0) + d.data().total;
+          clickMap[d.id] = (clickMap[d.id] || 0) + (d.data().total || 0);
         });
-      } catch (_) { /* plateforme sans données */ }
+      } catch (_) { /* plateforme vide → ok */ }
     }
 
-    // 3. Fusion : score = vues + (clics × 3) → les clics comptent plus
     const scores = {};
     viewsSnap.forEach(d => {
-      const aid = d.id;
-      scores[aid] = {
-        animeId: aid,
-        views:   d.data().total || 0,
-        clicks:  clickMap[aid] || 0,
-        score:   (d.data().total || 0) + (clickMap[aid] || 0) * 3,
-      };
+      const aid     = d.id;
+      const views   = d.data().total || 0;
+      const clicks  = clickMap[aid]  || 0;
+      scores[aid]   = { animeId: aid, views, clicks, score: views + clicks * 3 };
     });
 
-    // Anime avec clics mais pas encore de vues enregistrées
     for (const [aid, clicks] of Object.entries(clickMap)) {
       if (!scores[aid]) {
         scores[aid] = { animeId: aid, views: 0, clicks, score: clicks * 3 };
@@ -212,16 +209,19 @@ export async function getTopAnime(n = 10) {
 }
 
 /* ══════════════════════════════════════
-   PARTIE 3 — TRENDING (BONUS)
+   TRENDING
+   FIX Bug 11 : index composite requis dans Firebase Console.
+   Va dans Firestore → Indexes → Composite → Ajoute :
+     Collection : events
+     Champs     : timestamp ASC, __name__ ASC
+   Sans cet index, la query échoue silencieusement.
 ══════════════════════════════════════ */
 
 /**
  * getTrendingAnime(n, hoursBack)
- * Retourne les animés trending basé sur les événements RÉCENTS.
- *
- * @param {number} n          — nombre de résultats (défaut: 10)
- * @param {number} hoursBack  — fenêtre temporelle en heures (défaut: 24h)
- * @returns {Promise<Array<{animeId:string, score:number}>>}
+ * ⚠ Nécessite un index composite Firestore sur la collection 'events' :
+ *   timestamp (ASC) + __name__ (ASC)
+ *   → Firebase Console → Firestore → Indexes → Create composite index
  */
 export async function getTrendingAnime(n = 10, hoursBack = 24) {
   try {
@@ -231,10 +231,10 @@ export async function getTrendingAnime(n = 10, hoursBack = 24) {
       collection(db, 'events'),
       where('timestamp', '>=', since),
       orderBy('timestamp', 'desc'),
-      limit(500) // analyse les 500 derniers événements
+      limit(500)
     );
 
-    const snap = await getDocs(eventsQ);
+    const snap     = await getDocs(eventsQ);
     const trendMap = {};
 
     snap.forEach(d => {
@@ -251,20 +251,18 @@ export async function getTrendingAnime(n = 10, hoursBack = 24) {
 
   } catch (e) {
     console.warn('[VoirAnime Firebase] getTrendingAnime error:', e.message);
+    // Si l'erreur est liée à l'index manquant, Firestore logue un lien dans la console
+    // pour créer l'index automatiquement.
     return [];
   }
 }
 
 /* ══════════════════════════════════════
-   PARTIE 4 — DUELS
+   DUELS
 ══════════════════════════════════════ */
 
 /**
  * getDuelData(duelId)
- * Récupère les votes d'un duel existant.
- *
- * @param {string} duelId
- * @returns {Promise<{animeA:string, animeB:string, votesA:number, votesB:number}|null>}
  */
 export async function getDuelData(duelId) {
   try {
@@ -279,32 +277,34 @@ export async function getDuelData(duelId) {
 
 /**
  * voteDuel(animeIdA, animeIdB, winner)
- * Enregistre un vote de duel. Crée le document si nécessaire.
- * L'ID du duel est toujours trié pour éviter les doublons (A_B == B_A).
- *
- * @param {string} animeIdA
- * @param {string} animeIdB
- * @param {'A'|'B'} winner
- * @returns {Promise<{votesA:number, votesB:number}>}
+ * FIX Bug 10 : suppression de la double lecture Firestore.
+ * On retourne les valeurs optimistes sans re-lire le document.
+ * L'affichage restera cohérent ; la vraie valeur en BDD est correcte.
  */
 export async function voteDuel(animeIdA, animeIdB, winner) {
-  // ID stable : toujours le plus petit ID en premier
   const [idA, idB] = [String(animeIdA), String(animeIdB)].sort();
-  const duelId = `${idA}_${idB}`;
+  const duelId     = `${idA}_${idB}`;
 
-  // Détermine quel côté a gagné selon l'ordre canonique
-  const isWinnerA = (winner === 'A' && idA === String(animeIdA)) ||
-                    (winner === 'B' && idA === String(animeIdB));
+  const isWinnerA =
+    (winner === 'A' && idA === String(animeIdA)) ||
+    (winner === 'B' && idA === String(animeIdB));
 
   const ref  = doc(db, 'stats', 'duels', 'battles', duelId);
   const snap = await getDoc(ref);
 
   if (snap.exists()) {
-    const field = isWinnerA ? { votesA: increment(1) } : { votesB: increment(1) };
+    const current = snap.data();
+    // FIX Bug 10 : updateDoc + retour optimiste (économise 1 lecture Firestore)
+    const field   = isWinnerA ? { votesA: increment(1) } : { votesB: increment(1) };
     await updateDoc(ref, field);
-    const updated = (await getDoc(ref)).data();
-    return { votesA: updated.votesA, votesB: updated.votesB };
+
+    // Retour optimiste : incrémente localement sans re-lire
+    return {
+      votesA: (current.votesA || 0) + (isWinnerA ? 1 : 0),
+      votesB: (current.votesB || 0) + (isWinnerA ? 0 : 1),
+    };
   } else {
+    // Nouveau duel
     const data = {
       animeA:    idA,
       animeB:    idB,
@@ -317,5 +317,4 @@ export async function voteDuel(animeIdA, animeIdB, winner) {
   }
 }
 
-/* Export de l'instance db pour usage avancé */
 export { db };
