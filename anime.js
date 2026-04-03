@@ -2,8 +2,8 @@
    anime.js — VoirAnime Detail Page
    Gère : Détails anime · Trailer YouTube · Favoris · Recommandations
    ═══════════════════════════════════════════════════ */
-import { trackView, trackClick } from './firebase.js';
 'use strict';
+import { trackView, trackClick } from './firebase.js';
 
 const API = 'https://api.jikan.moe/v4';
 
@@ -276,60 +276,29 @@ function renderDetail(anime) {
     </div>
   `).join('');
 
-  // Watch buttons
-  const titleEnc = encodeURIComponent(title);
-  const crunchyBtn = el('watchCrunchyBtn');
-const netflixBtn = el('watchNetflixBtn');
+  // Watch buttons + Streaming aside links (avec tracking Firebase)
+  const titleEnc   = encodeURIComponent(title);
+  const crunchyUrl = `https://www.crunchyroll.com/search?q=${titleEnc}`;
+  const netflixUrl = `https://www.netflix.com/search?q=${titleEnc}`;
+  const adnUrl     = `https://animedigitalnetwork.fr/video/search?q=${titleEnc}`;
 
-const crunchyUrl = `https://www.crunchyroll.com/search?q=${titleEnc}`;
-const netflixUrl = `https://www.netflix.com/search?q=${titleEnc}`;
+  // Helper : attache tracking + ouverture sur n'importe quel lien streaming
+  function bindStream(elemId, platform, url) {
+    const btn = el(elemId);
+    if (!btn) return;
+    btn.href = url;
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      trackClick(platform, id);
+      window.open(url, '_blank');
+    });
+  }
 
-crunchyBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  trackClick("crunchyroll", id);
-  window.open(crunchyUrl, "_blank");
-});
-
-netflixBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  trackClick("netflix", id);
-  window.open(netflixUrl, "_blank");
-});
-
-  // Streaming aside links
-  // Streaming aside links (avec tracking Firebase)
-
-const streamCrunchy = el('streamCrunchyroll');
-const streamNetflix = el('streamNetflix');
-const streamADN = el('streamADN');
-
-const crunchyUrl = `https://www.crunchyroll.com/search?q=${titleEnc}`;
-const netflixUrl = `https://www.netflix.com/search?q=${titleEnc}`;
-const adnUrl = `https://animedigitalnetwork.fr/video/search?q=${titleEnc}`;
-
-if (streamCrunchy) {
-  streamCrunchy.addEventListener("click", (e) => {
-    e.preventDefault();
-    trackClick("crunchyroll", id);
-    window.open(crunchyUrl, "_blank");
-  });
-}
-
-if (streamNetflix) {
-  streamNetflix.addEventListener("click", (e) => {
-    e.preventDefault();
-    trackClick("netflix", id);
-    window.open(netflixUrl, "_blank");
-  });
-}
-
-if (streamADN) {
-  streamADN.addEventListener("click", (e) => {
-    e.preventDefault();
-    trackClick("adn", id);
-    window.open(adnUrl, "_blank");
-  });
-}
+  bindStream('watchCrunchyBtn',  'crunchyroll', crunchyUrl);
+  bindStream('watchNetflixBtn',  'netflix',     netflixUrl);
+  bindStream('streamCrunchyroll','crunchyroll', crunchyUrl);
+  bindStream('streamNetflix',    'netflix',     netflixUrl);
+  bindStream('streamADN',        'adn',         adnUrl);
 
   // Fav buttons
   const fav = isFav(id);
@@ -472,7 +441,7 @@ async function init() {
 
   const params  = new URLSearchParams(window.location.search);
   const animeId = params.get('id');
-trackView(animeId);
+
   if (!animeId) {
     hidePageLoader();
     el('pageLoader').innerHTML = `
@@ -482,6 +451,8 @@ trackView(animeId);
       </div>`;
     return;
   }
+
+  trackView(animeId); // ← après le guard : on sait que l'id est valide
 
   try {
     const data = await jikanFetch(`/anime/${animeId}/full`);
