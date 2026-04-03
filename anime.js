@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════
-   anime.js — AniVault Detail Page
+   anime.js — VOIRANIME Detail Page
    Gère : Détails anime · Trailer YouTube · Favoris · Recommandations
    ═══════════════════════════════════════════════════ */
 import { trackView, trackClick } from './firebase.js';
@@ -36,9 +36,9 @@ function showToast(msg, duration = 2800) {
 
 /* ── Favorites ── */
 function getFavs() {
-  try { return JSON.parse(localStorage.getItem('anivault_favs') || '[]'); } catch { return []; }
+  try { return JSON.parse(localStorage.getItem('VOIRANIME_favs') || '[]'); } catch { return []; }
 }
-function saveFavs(f) { localStorage.setItem('anivault_favs', JSON.stringify(f)); }
+function saveFavs(f) { localStorage.setItem('VOIRANIME_favs', JSON.stringify(f)); }
 function isFav(id) { return getFavs().some(f => f.id === id); }
 
 function toggleFav(id, title, img) {
@@ -53,9 +53,9 @@ function toggleFav(id, title, img) {
 /* ── History ── */
 function addToHistory(id, title, img, progress = 0) {
   try {
-    const hist = JSON.parse(localStorage.getItem('anivault_history') || '[]').filter(h => h.id !== id);
+    const hist = JSON.parse(localStorage.getItem('VOIRANIME_history') || '[]').filter(h => h.id !== id);
     hist.unshift({ id, title, img, progress, ts: Date.now() });
-    localStorage.setItem('anivault_history', JSON.stringify(hist.slice(0, 20)));
+    localStorage.setItem('VOIRANIME_history', JSON.stringify(hist.slice(0, 20)));
   } catch {}
 }
 
@@ -229,7 +229,7 @@ function renderDetail(anime) {
                    .replace(/\[Written by MAL Rewrite\]/gi, '').trim();
 
   // Page title
-  document.title = `AniVault — ${title}`;
+  document.title = `VOIRANIME — ${title}`;
 
   // Banner
   el('bannerImg').src = img;
