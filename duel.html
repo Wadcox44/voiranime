@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AniVault — Duels</title>
+  <title>VoirAnime — Duels</title>
   <link rel="stylesheet" href="style.css"/>
   <link rel="stylesheet" href="duel.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -185,8 +185,8 @@ const state = {
   currentA:     null,       // anime objet côté A
   currentB:     null,       // anime objet côté B
   voted:        false,      // l'user a-t-il voté ce round ?
-  duelsPlayed:  parseInt(localStorage.getItem('anivault_duels') || '0'),
-  streak:       parseInt(localStorage.getItem('anivault_streak') || '0'),
+  duelsPlayed:  parseInt(localStorage.getItem('VoirAnime_duels') || '0'),
+  streak:       parseInt(localStorage.getItem('VoirAnime_streak') || '0'),
   winnerSide:   null,
 };
 
@@ -323,8 +323,8 @@ async function handleVote(winnerSide) {
   // Stats session
   state.duelsPlayed++;
   state.streak++;
-  localStorage.setItem('anivault_duels', state.duelsPlayed);
-  localStorage.setItem('anivault_streak', state.streak);
+  localStorage.setItem('VoirAnime_duels', state.duelsPlayed);
+  localStorage.setItem('VoirAnime_streak', state.streak);
   updateSessionStats();
   el('navDuelCount').textContent = state.duelsPlayed;
 
