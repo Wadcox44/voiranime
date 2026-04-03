@@ -64,7 +64,9 @@ async function _increment(docRef, fields) {
       // Initialise avec les valeurs en remplacement d'increment()
       const init = {};
       for (const key of Object.keys(fields)) {
-        init[key] = 1;
+       init[key] = key === "lastSeen" || key === "lastClick"
+  ? serverTimestamp()
+  : 1;
       }
       await setDoc(docRef, { ...init, createdAt: serverTimestamp() });
     }
