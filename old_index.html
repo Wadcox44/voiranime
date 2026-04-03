@@ -1,59 +1,200 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AniSearch — Trouve ton anime</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>AniVault — Streaming Anime Premium</title>
+  <link rel="stylesheet" href="style.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
 </head>
-<body class="page-home">
+<body>
 
-  <header class="site-header">
-    <div class="logo">ANI<span>SEARCH</span></div>
-  </header>
-
-  <main>
-    <section class="hero">
-      <p class="hero-eyebrow">Propulsé par MyAnimeList</p>
-      <h1 class="hero-title">Trouve <em>n'importe quel</em> anime.</h1>
-      <p class="hero-sub">Tape un titre, un genre, un personnage — on s'occupe du reste.</p>
-
-      <div class="search-wrapper">
-        <div class="search-bar">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="Ex : Naruto, Attack on Titan, Shōnen…"
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <button id="clearBtn" class="clear-btn" aria-label="Effacer">✕</button>
-        </div>
+<!-- ═══════════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════════ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-left">
+    <a href="index.html" class="nav-logo">ANI<span>VAULT</span></a>
+    <ul class="nav-links">
+      <li><a href="#" class="nav-link active">Accueil</a></li>
+      <li><a href="#section-popular" class="nav-link">Populaires</a></li>
+      <li><a href="#section-top" class="nav-link">Top Rated</a></li>
+      <li><a href="#section-airing" class="nav-link">En cours</a></li>
+      <li><a href="#" class="nav-link" id="navFavLink">❤ Favoris <span class="fav-count-badge" id="navFavCount">0</span></a></li>
+    </ul>
+  </div>
+  <div class="nav-right">
+    <div class="search-container" id="searchContainer">
+      <button class="search-toggle" id="searchToggle" aria-label="Rechercher">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <div class="search-expand" id="searchExpand">
+        <input type="text" id="searchInput" placeholder="Titre, genre, personnage…" autocomplete="off" spellcheck="false"/>
+        <button class="search-clear" id="searchClear">✕</button>
       </div>
-    </section>
+    </div>
+  </div>
+</nav>
 
-    <section class="results-section" id="resultsSection">
-      <div class="results-header" id="resultsHeader"></div>
-      <div class="cards-grid" id="cardsGrid"></div>
-      <div class="loader" id="loader">
-        <span></span><span></span><span></span>
+<!-- ═══════════════════════════════════════════
+     SEARCH OVERLAY
+═══════════════════════════════════════════ -->
+<div class="search-overlay" id="searchOverlay">
+  <div class="search-overlay-inner">
+    <div class="search-overlay-header">
+      <p class="search-overlay-label" id="searchLabel">Résultats de recherche</p>
+      <button class="search-overlay-close" id="searchOverlayClose">✕ Fermer</button>
+    </div>
+    <div class="search-results-grid" id="searchResultsGrid"></div>
+    <div class="search-loader" id="searchLoader">
+      <div class="sk-dots"><span></span><span></span><span></span></div>
+    </div>
+    <div class="search-empty" id="searchEmpty">
+      <p class="empty-kaomoji">（；￣д￣）</p>
+      <p>Aucun résultat. Essaie un autre titre.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-bg" id="heroBg">
+    <img id="heroImg" src="" alt="" />
+    <div class="hero-gradient"></div>
+  </div>
+  <div class="hero-content" id="heroContent">
+    <div class="hero-skeleton" id="heroSkeleton">
+      <div class="sk-block sk-title"></div>
+      <div class="sk-block sk-text"></div>
+      <div class="sk-block sk-text short"></div>
+      <div class="sk-buttons">
+        <div class="sk-block sk-btn"></div>
+        <div class="sk-block sk-btn"></div>
       </div>
-      <div class="empty-state" id="emptyState">
-        <div class="empty-icon">（；￣д￣）</div>
-        <p>Aucun résultat trouvé.<br/>Essaie un autre titre !</p>
+    </div>
+    <div class="hero-info hidden" id="heroInfo">
+      <div class="hero-badges" id="heroBadges"></div>
+      <h1 class="hero-title" id="heroTitle"></h1>
+      <p class="hero-synopsis" id="heroSynopsis"></p>
+      <div class="hero-actions">
+        <a href="#" class="btn-play" id="heroPlayBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+          Voir l'anime
+        </a>
+        <button class="btn-more" id="heroMoreBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          Plus d'infos
+        </button>
+        <button class="btn-fav" id="heroFavBtn" data-id="">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
       </div>
-    </section>
-  </main>
+      <div class="hero-meta" id="heroMeta"></div>
+    </div>
+  </div>
+  <div class="hero-dots" id="heroDots"></div>
+</section>
 
-  <footer class="site-footer">
-    <p>Données fournies par <a href="https://jikan.moe" target="_blank">Jikan API</a> · MyAnimeList</p>
-  </footer>
+<!-- ═══════════════════════════════════════════
+     CONTINUE WATCHING
+═══════════════════════════════════════════ -->
+<section class="content-section" id="section-continue" style="display:none">
+  <div class="section-header">
+    <h2 class="section-title"><span class="section-dot red"></span>Continuer à regarder</h2>
+  </div>
+  <div class="carousel-wrapper">
+    <button class="carousel-btn prev" data-carousel="continue">‹</button>
+    <div class="carousel" id="carousel-continue"></div>
+    <button class="carousel-btn next" data-carousel="continue">›</button>
+  </div>
+</section>
 
-  <script src="script.js"></script>
+<!-- ═══════════════════════════════════════════
+     SECTIONS CATALOGUE
+═══════════════════════════════════════════ -->
+<section class="content-section" id="section-popular">
+  <div class="section-header">
+    <h2 class="section-title"><span class="section-dot orange"></span>🔥 Les plus populaires</h2>
+    <span class="section-badge">Top 25</span>
+  </div>
+  <div class="carousel-wrapper">
+    <button class="carousel-btn prev" data-carousel="popular">‹</button>
+    <div class="carousel" id="carousel-popular">
+      <div class="carousel-skeleton" id="skel-popular"></div>
+    </div>
+    <button class="carousel-btn next" data-carousel="popular">›</button>
+  </div>
+</section>
+
+<section class="content-section" id="section-top">
+  <div class="section-header">
+    <h2 class="section-title"><span class="section-dot gold"></span>⭐ Mieux notés</h2>
+    <span class="section-badge">All time</span>
+  </div>
+  <div class="carousel-wrapper">
+    <button class="carousel-btn prev" data-carousel="top">‹</button>
+    <div class="carousel" id="carousel-top">
+      <div class="carousel-skeleton" id="skel-top"></div>
+    </div>
+    <button class="carousel-btn next" data-carousel="top">›</button>
+  </div>
+</section>
+
+<section class="content-section" id="section-airing">
+  <div class="section-header">
+    <h2 class="section-title"><span class="section-dot green"></span>📡 En diffusion</h2>
+    <span class="section-badge">Saison actuelle</span>
+  </div>
+  <div class="carousel-wrapper">
+    <button class="carousel-btn prev" data-carousel="airing">‹</button>
+    <div class="carousel" id="carousel-airing">
+      <div class="carousel-skeleton" id="skel-airing"></div>
+    </div>
+    <button class="carousel-btn next" data-carousel="airing">›</button>
+  </div>
+</section>
+
+<section class="content-section" id="section-movies">
+  <div class="section-header">
+    <h2 class="section-title"><span class="section-dot blue"></span>🎬 Films anime</h2>
+  </div>
+  <div class="carousel-wrapper">
+    <button class="carousel-btn prev" data-carousel="movies">‹</button>
+    <div class="carousel" id="carousel-movies">
+      <div class="carousel-skeleton" id="skel-movies"></div>
+    </div>
+    <button class="carousel-btn next" data-carousel="movies">›</button>
+  </div>
+</section>
+
+<section class="content-section" id="section-favorites" style="display:none">
+  <div class="section-header">
+    <h2 class="section-title"><span class="section-dot red"></span>❤ Mes Favoris</h2>
+  </div>
+  <div class="carousel-wrapper">
+    <button class="carousel-btn prev" data-carousel="favorites">‹</button>
+    <div class="carousel" id="carousel-favorites"></div>
+    <button class="carousel-btn next" data-carousel="favorites">›</button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="footer-logo">ANI<span>VAULT</span></div>
+  <p class="footer-text">Données fournies par <a href="https://jikan.moe" target="_blank">Jikan API</a> · MyAnimeList · Aucune vidéo n'est hébergée sur ce site.</p>
+  <p class="footer-copy">© 2025 AniVault — Projet open source</p>
+</footer>
+
+<!-- ═══════════════════════════════════════════
+     TOAST
+═══════════════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<script src="main.js"></script>
 </body>
 </html>
