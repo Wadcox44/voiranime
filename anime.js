@@ -278,13 +278,58 @@ function renderDetail(anime) {
 
   // Watch buttons
   const titleEnc = encodeURIComponent(title);
-  el('watchCrunchyBtn').href = `https://www.crunchyroll.com/search?q=${titleEnc}`;
-  el('watchNetflixBtn').href = `https://www.netflix.com/search?q=${titleEnc}`;
+  const crunchyBtn = el('watchCrunchyBtn');
+const netflixBtn = el('watchNetflixBtn');
+
+const crunchyUrl = `https://www.crunchyroll.com/search?q=${titleEnc}`;
+const netflixUrl = `https://www.netflix.com/search?q=${titleEnc}`;
+
+crunchyBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  trackClick("crunchyroll", id);
+  window.open(crunchyUrl, "_blank");
+});
+
+netflixBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  trackClick("netflix", id);
+  window.open(netflixUrl, "_blank");
+});
 
   // Streaming aside links
-  el('streamCrunchyroll').href = `https://www.crunchyroll.com/search?q=${titleEnc}`;
-  el('streamNetflix').href     = `https://www.netflix.com/search?q=${titleEnc}`;
-  el('streamADN').href         = `https://animedigitalnetwork.fr/video/search?q=${titleEnc}`;
+  // Streaming aside links (avec tracking Firebase)
+
+const streamCrunchy = el('streamCrunchyroll');
+const streamNetflix = el('streamNetflix');
+const streamADN = el('streamADN');
+
+const crunchyUrl = `https://www.crunchyroll.com/search?q=${titleEnc}`;
+const netflixUrl = `https://www.netflix.com/search?q=${titleEnc}`;
+const adnUrl = `https://animedigitalnetwork.fr/video/search?q=${titleEnc}`;
+
+if (streamCrunchy) {
+  streamCrunchy.addEventListener("click", (e) => {
+    e.preventDefault();
+    trackClick("crunchyroll", id);
+    window.open(crunchyUrl, "_blank");
+  });
+}
+
+if (streamNetflix) {
+  streamNetflix.addEventListener("click", (e) => {
+    e.preventDefault();
+    trackClick("netflix", id);
+    window.open(netflixUrl, "_blank");
+  });
+}
+
+if (streamADN) {
+  streamADN.addEventListener("click", (e) => {
+    e.preventDefault();
+    trackClick("adn", id);
+    window.open(adnUrl, "_blank");
+  });
+}
 
   // Fav buttons
   const fav = isFav(id);
@@ -427,7 +472,7 @@ async function init() {
 
   const params  = new URLSearchParams(window.location.search);
   const animeId = params.get('id');
-
+trackView(animeId);
   if (!animeId) {
     hidePageLoader();
     el('pageLoader').innerHTML = `
