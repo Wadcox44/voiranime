@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════
-   main.js — AniVault Homepage
+   main.js — VoirAnime Homepage
    Gère : Hero rotatif · Carousels · Search instant · Favoris · Historique
    ═══════════════════════════════════════════════════ */
 
@@ -54,10 +54,10 @@ function showToast(msg, duration = 2800) {
 
 /* ── Favorites ── */
 function getFavs() {
-  try { return JSON.parse(localStorage.getItem('anivault_favs') || '[]'); }
+  try { return JSON.parse(localStorage.getItem('VoirAnime_favs') || '[]'); }
   catch { return []; }
 }
-function saveFavs(favs) { localStorage.setItem('anivault_favs', JSON.stringify(favs)); }
+function saveFavs(favs) { localStorage.setItem('VoirAnime_favs', JSON.stringify(favs)); }
 function isFav(id) { return getFavs().some(f => f.id === id); }
 
 function toggleFav(id, title, img) {
@@ -90,14 +90,14 @@ function updateFavUI() {
 
 /* ── Watch History ── */
 function getHistory() {
-  try { return JSON.parse(localStorage.getItem('anivault_history') || '[]'); }
+  try { return JSON.parse(localStorage.getItem('VoirAnime_history') || '[]'); }
   catch { return []; }
 }
 
 function addToHistory(id, title, img, progress = 0) {
   const hist = getHistory().filter(h => h.id !== id);
   hist.unshift({ id, title, img, progress, ts: Date.now() });
-  localStorage.setItem('anivault_history', JSON.stringify(hist.slice(0, 20)));
+  localStorage.setItem('VoirAnime_history', JSON.stringify(hist.slice(0, 20)));
 }
 
 /* ──────────────────────────────────────
