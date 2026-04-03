@@ -2,7 +2,7 @@
    anime.js — AniVault Detail Page
    Gère : Détails anime · Trailer YouTube · Favoris · Recommandations
    ═══════════════════════════════════════════════════ */
-
+import { trackView, trackClick } from './firebase.js';
 'use strict';
 
 const API = 'https://api.jikan.moe/v4';
