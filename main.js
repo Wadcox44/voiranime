@@ -25,25 +25,81 @@ const state = {
 };
 
 /* ──────────────────────────────────────
-   UTILS
+   JIKAN QUEUE + CACHE
+   Problème : Jikan limite à 3 req/s et 60 req/min.
+   Lancer 4-5 requêtes en parallèle (même avec des délais)
+   provoque des 429 car les délais se chevauchent.
+   Solution : queue FIFO strictement séquentielle + cache sessionStorage.
 ────────────────────────────────────── */
 
-/** Fetch avec retry auto sur rate limit (429) */
+const JIKAN_MIN_INTERVAL = 400; // ms minimum entre deux requêtes (~2.5 req/s, sous la limite de 3)
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes de cache sessionStorage
+
+let _lastRequestTime = 0;  // timestamp de la dernière requête partie
+let _queue = Promise.resolve(); // chaîne de promesses séquentielles
+
+/**
+ * jikanFetch — queue séquentielle + cache sessionStorage + retry 429
+ * Toutes les requêtes passent par cette fonction et s'exécutent
+ * l'une après l'autre avec un intervalle minimum garanti.
+ */
 async function jikanFetch(endpoint, retries = 3) {
+  // 1. Vérifie le cache sessionStorage
+  const cacheKey = `jikan_cache_${endpoint}`;
+  try {
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      const { data, ts } = JSON.parse(cached);
+      if (Date.now() - ts < CACHE_TTL_MS) {
+        return data; // retour immédiat sans requête réseau
+      }
+      sessionStorage.removeItem(cacheKey);
+    }
+  } catch (_) { /* sessionStorage indisponible → on continue sans cache */ }
+
+  // 2. Ajoute la requête à la queue séquentielle
+  // Chaque appel attend que le précédent soit terminé
+  const result = await (_queue = _queue.then(() => _executeRequest(endpoint, retries, cacheKey)));
+  return result;
+}
+
+async function _executeRequest(endpoint, retries, cacheKey) {
+  // Garantit l'intervalle minimum entre deux requêtes
+  const now     = Date.now();
+  const elapsed = now - _lastRequestTime;
+  if (elapsed < JIKAN_MIN_INTERVAL) {
+    await sleep(JIKAN_MIN_INTERVAL - elapsed);
+  }
+
   for (let i = 0; i < retries; i++) {
     try {
+      _lastRequestTime = Date.now();
       const res = await fetch(`${API}${endpoint}`);
+
       if (res.status === 429) {
-        // FIX Bug 6 : vider le body avant retry pour libérer la connexion HTTP/2
+        // Vide le body pour libérer la connexion HTTP/2
         await res.text().catch(() => {});
-        await sleep(1200 * (i + 1));
+        const wait = 2000 * (i + 1); // backoff exponentiel : 2s, 4s, 6s
+        console.warn(`[Jikan] 429 sur ${endpoint} — retry dans ${wait}ms`);
+        await sleep(wait);
+        _lastRequestTime = Date.now();
         continue;
       }
+
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
+
+      const data = await res.json();
+
+      // Met en cache dans sessionStorage
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify({ data, ts: Date.now() }));
+      } catch (_) { /* quota sessionStorage dépassé → pas grave */ }
+
+      return data;
+
     } catch (e) {
       if (i === retries - 1) throw e;
-      await sleep(600);
+      await sleep(800 * (i + 1));
     }
   }
 }
@@ -509,7 +565,7 @@ async function loadSection(endpointPath, carouselId, skeletonId, count = 8, opts
   if (skelEl) buildSkeletons(skelEl.parentElement, count);
 
   try {
-    await sleep(opts.delay || 0);
+    // Plus besoin de opts.delay : la queue jikanFetch gère le séquencement
     const data   = await jikanFetch(endpointPath);
     const animes = data.data || [];
     renderCarousel(carouselId, animes, opts);
@@ -548,10 +604,13 @@ async function init() {
 
   await loadHero();
 
-  loadSection('/top/anime?filter=bypopularity&limit=20', 'popular', 'skel-popular', 10, { delay: 300,  showRank: true });
-  loadSection('/top/anime?limit=20',                     'top',     'skel-top',     10, { delay: 700  });
-  loadSection('/top/anime?filter=airing&limit=20',       'airing',  'skel-airing',  10, { delay: 1100 });
-  loadSection('/top/anime?type=movie&limit=20',          'movies',  'skel-movies',  10, { delay: 1500 });
+  // Les sections sont maintenant chargées via la queue séquentielle :
+  // chaque loadSection attend la fin de la précédente avant d'envoyer
+  // sa requête réseau. Plus besoin de délais arbitraires.
+  await loadSection('/top/anime?filter=bypopularity&limit=20', 'popular', 'skel-popular', 10, { showRank: true });
+  await loadSection('/top/anime?limit=20',                     'top',     'skel-top',     10);
+  await loadSection('/top/anime?filter=airing&limit=20',       'airing',  'skel-airing',  10);
+  await loadSection('/top/anime?type=movie&limit=20',          'movies',  'skel-movies',  10);
 }
 
 document.addEventListener('DOMContentLoaded', init);
