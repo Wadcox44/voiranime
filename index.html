@@ -73,18 +73,13 @@
       </span>
     </a>
     <ul class="nav-links">
-      <li><a href="#"                class="nav-link active">Accueil</a></li>
-      <li><a href="#section-popular" class="nav-link">Populaires</a></li>
-      <li><a href="#section-top"     class="nav-link">Top Rated</a></li>
-      <li><a href="#section-airing"  class="nav-link">En cours</a></li>
-      <li><a href="catalogue.html"   class="nav-link">🗂 Catalogue</a></li>
-      <li><a href="duel.html"        class="nav-link">⚔ Duels</a></li>
-      <li>
-        <a href="#" class="nav-link" id="navFavLink">
-          ❤ Favoris <span class="fav-count-badge" id="navFavCount">0</span>
-        </a>
-      </li>
-      <li><a href="profile.html" class="nav-link">👤 Profil</a></li>
+      <li><a href="index.html"     class="nav-link active">Accueil</a></li>
+      <li><a href="catalogue.html" class="nav-link">Catalogue</a></li>
+      <li><a href="duel.html"      class="nav-link">⚔ Duels</a></li>
+      <li><a href="profile.html"   class="nav-link">
+        Profil
+        <span class="fav-count-badge" id="navFavCount" style="display:none">0</span>
+      </a></li>
     </ul>
   </div>
   <div class="nav-right">
@@ -93,6 +88,7 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
+        <span class="search-toggle-label">Recherche</span>
       </button>
       <div class="search-expand" id="searchExpand">
         <input type="text" id="searchInput" placeholder="Titre, genre, personnage…" autocomplete="off" spellcheck="false"/>
@@ -237,24 +233,49 @@
 </section>
 
 <!-- ════════════════════════════════
-     AMBIANCES
+     AMBIANCES — Portails émotionnels
 ════════════════════════════════ -->
 <section class="mood-section" aria-label="Filtrer par ambiance">
+  <div class="mood-section-header">
+    <p class="mood-section-eyebrow">Dans quel état d'esprit tu es ce soir ?</p>
+  </div>
   <div class="mood-row" id="moodRow">
-    <button class="mood-pill active" data-mood="all"><span class="mood-pill-icon">✦</span><span class="mood-pill-label">Tout</span></button>
-    <button class="mood-pill" data-mood="action"><span class="mood-pill-icon">⚡</span><span class="mood-pill-label">Adrénaline</span></button>
-    <button class="mood-pill" data-mood="romance"><span class="mood-pill-icon">🌸</span><span class="mood-pill-label">Romance</span></button>
-    <button class="mood-pill" data-mood="dark"><span class="mood-pill-icon">🌑</span><span class="mood-pill-label">Univers Sombre</span></button>
-    <button class="mood-pill" data-mood="comedy"><span class="mood-pill-icon">😄</span><span class="mood-pill-label">Bonne Humeur</span></button>
-    <button class="mood-pill" data-mood="scifi"><span class="mood-pill-icon">🚀</span><span class="mood-pill-label">Sci-fi &amp; Mecha</span></button>
-    <button class="mood-pill" data-mood="psychological"><span class="mood-pill-icon">🤯</span><span class="mood-pill-label">Mind-bending</span></button>
-    <button class="mood-pill" data-mood="slice"><span class="mood-pill-icon">🍃</span><span class="mood-pill-label">Zen &amp; Calme</span></button>
+    <button class="mood-pill active" data-mood="all" data-color="default">
+      <span class="mood-pill-icon">✦</span>
+      <span class="mood-pill-label">Tout explorer</span>
+    </button>
+    <button class="mood-pill" data-mood="action" data-color="red">
+      <span class="mood-pill-icon">⚡</span>
+      <span class="mood-pill-label">Adrénaline</span>
+    </button>
+    <button class="mood-pill" data-mood="romance" data-color="pink">
+      <span class="mood-pill-icon">🌸</span>
+      <span class="mood-pill-label">Romance</span>
+    </button>
+    <button class="mood-pill" data-mood="dark" data-color="dark">
+      <span class="mood-pill-icon">🌑</span>
+      <span class="mood-pill-label">Univers Sombre</span>
+    </button>
+    <button class="mood-pill" data-mood="comedy" data-color="gold">
+      <span class="mood-pill-icon">😄</span>
+      <span class="mood-pill-label">Bonne Humeur</span>
+    </button>
+    <button class="mood-pill" data-mood="scifi" data-color="cyan">
+      <span class="mood-pill-icon">🚀</span>
+      <span class="mood-pill-label">Sci-fi &amp; Mecha</span>
+    </button>
+    <button class="mood-pill" data-mood="psychological" data-color="violet">
+      <span class="mood-pill-icon">🤯</span>
+      <span class="mood-pill-label">Mind-bending</span>
+    </button>
+    <button class="mood-pill" data-mood="slice" data-color="green">
+      <span class="mood-pill-icon">🍃</span>
+      <span class="mood-pill-label">Zen &amp; Calme</span>
+    </button>
   </div>
 </section>
 
-<!-- ════════════════════════════════
-     SECTION MOOD (peuplée par JS)
-════════════════════════════════ -->
+<!-- SECTION MOOD (peuplée par JS) -->
 <section class="content-section" id="section-mood" style="display:none">
   <div class="section-header">
     <h2 class="section-title" id="moodSectionTitle"><span class="section-dot violet"></span>Ambiance</h2>
@@ -266,9 +287,7 @@
   </div>
 </section>
 
-<!-- ════════════════════════════════
-     RECHERCHE AVANCÉE
-════════════════════════════════ -->
+<!-- RECHERCHE AVANCÉE -->
 <section class="adv-search-section" id="advSearchSection">
   <div class="adv-search-toggle" id="advSearchToggle">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
@@ -360,14 +379,23 @@
   </div>
 </section>
 
-<div class="section-divider"></div>
-
 <!-- ════════════════════════════════
-     CONTINUER À REGARDER
+     ZONE NARRATIVE 1 — La Rivière
 ════════════════════════════════ -->
+<div class="zone-separator">
+  <div class="zone-separator-line"></div>
+  <div class="zone-separator-label">
+    <span class="zone-separator-num">01</span>
+    <span class="zone-separator-title">Ce qui vit en ce moment</span>
+    <span class="zone-separator-sub">Anime en cours de diffusion · Tendances · Films récents</span>
+  </div>
+  <div class="zone-separator-line"></div>
+</div>
+
+<!-- CONTINUER À REGARDER -->
 <section class="content-section" id="section-continue" style="display:none">
   <div class="section-header">
-    <h2 class="section-title"><span class="section-dot red"></span>Continuer à regarder</h2>
+    <h2 class="section-title"><span class="section-dot red"></span>Reprendre</h2>
   </div>
   <div class="carousel-wrapper">
     <button class="carousel-btn prev" data-carousel="continue">‹</button>
@@ -376,9 +404,7 @@
   </div>
 </section>
 
-<!-- ════════════════════════════════
-     POPULAIRES
-════════════════════════════════ -->
+<!-- POPULAIRES -->
 <section class="content-section" id="section-popular">
   <div class="section-header">
     <h2 class="section-title"><span class="section-dot orange"></span>🔥 Les plus populaires</h2>
@@ -393,11 +419,20 @@
   </div>
 </section>
 
-<div class="section-divider"></div>
-
 <!-- ════════════════════════════════
-     MIEUX NOTÉS
+     ZONE NARRATIVE 2 — Les Légendes
 ════════════════════════════════ -->
+<div class="zone-separator">
+  <div class="zone-separator-line"></div>
+  <div class="zone-separator-label">
+    <span class="zone-separator-num">02</span>
+    <span class="zone-separator-title">Ce qui a traversé le temps</span>
+    <span class="zone-separator-sub">Chefs-d'œuvre · Références absolues · Films cultes</span>
+  </div>
+  <div class="zone-separator-line"></div>
+</div>
+
+<!-- MIEUX NOTÉS -->
 <section class="content-section" id="section-top">
   <div class="section-header">
     <h2 class="section-title"><span class="section-dot gold"></span>⭐ Mieux notés</h2>
@@ -412,11 +447,7 @@
   </div>
 </section>
 
-<div class="section-divider"></div>
-
-<!-- ════════════════════════════════
-     EN DIFFUSION
-════════════════════════════════ -->
+<!-- EN DIFFUSION -->
 <section class="content-section" id="section-airing">
   <div class="section-header">
     <h2 class="section-title"><span class="section-dot green"></span>📡 En diffusion</h2>
@@ -431,11 +462,20 @@
   </div>
 </section>
 
-<div class="section-divider"></div>
-
 <!-- ════════════════════════════════
-     FILMS
+     ZONE NARRATIVE 3 — Le Cinéma
 ════════════════════════════════ -->
+<div class="zone-separator">
+  <div class="zone-separator-line"></div>
+  <div class="zone-separator-label">
+    <span class="zone-separator-num">03</span>
+    <span class="zone-separator-title">L'expérience cinématique</span>
+    <span class="zone-separator-sub">Films · Courts-métrages · OAV d'exception</span>
+  </div>
+  <div class="zone-separator-line"></div>
+</div>
+
+<!-- FILMS -->
 <section class="content-section" id="section-movies">
   <div class="section-header">
     <h2 class="section-title"><span class="section-dot blue"></span>🎬 Films anime</h2>
@@ -449,11 +489,7 @@
   </div>
 </section>
 
-<div class="section-divider"></div>
-
-<!-- ════════════════════════════════
-     TRENDING (Firebase)
-════════════════════════════════ -->
+<!-- TRENDING -->
 <section class="content-section" id="section-trending" style="display:none">
   <div class="section-header">
     <h2 class="section-title"><span class="section-dot pink"></span>📈 Trending sur VoirAnime</h2>
@@ -466,19 +502,58 @@
   </div>
 </section>
 
-<div class="section-divider"></div>
-
 <!-- ════════════════════════════════
-     FAVORIS
+     ZONE NARRATIVE 4 — Ton Univers
 ════════════════════════════════ -->
-<section class="content-section" id="section-favorites" style="display:none">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot red"></span>❤ Mes Favoris</h2>
+<div class="zone-separator zone-separator-personal">
+  <div class="zone-separator-line"></div>
+  <div class="zone-separator-label">
+    <span class="zone-separator-num">04</span>
+    <span class="zone-separator-title">Ton univers</span>
+    <span class="zone-separator-sub">Tes favoris · Ton histoire · Tes explorations</span>
   </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="favorites">‹</button>
-    <div class="carousel" id="carousel-favorites"></div>
-    <button class="carousel-btn next" data-carousel="favorites">›</button>
+  <div class="zone-separator-line"></div>
+</div>
+
+<!-- ZONE PERSONNELLE -->
+<section class="personal-zone" id="personalZone" style="display:none">
+  <div class="personal-zone-inner">
+    <!-- Favoris -->
+    <div class="personal-block" id="section-favorites" style="display:none">
+      <div class="personal-block-header">
+        <h2 class="personal-block-title">
+          <span class="personal-dot pink-dot"></span>
+          Mes Favoris
+        </h2>
+        <a href="profile.html" class="personal-block-link">Voir le profil →</a>
+      </div>
+      <div class="carousel-wrapper">
+        <button class="carousel-btn prev" data-carousel="favorites">‹</button>
+        <div class="carousel" id="carousel-favorites"></div>
+        <button class="carousel-btn next" data-carousel="favorites">›</button>
+      </div>
+    </div>
+    <!-- Continue watching -->
+    <div class="personal-block" id="section-continue-inner" style="display:none">
+      <div class="personal-block-header">
+        <h2 class="personal-block-title">
+          <span class="personal-dot violet-dot"></span>
+          Continuer à regarder
+        </h2>
+      </div>
+      <div class="carousel-wrapper">
+        <button class="carousel-btn prev" data-carousel="continue">‹</button>
+        <div class="carousel" id="carousel-continue"></div>
+        <button class="carousel-btn next" data-carousel="continue">›</button>
+      </div>
+    </div>
+    <!-- CTA si vide -->
+    <div class="personal-empty" id="personalEmpty">
+      <div class="personal-empty-icon">🌱</div>
+      <p class="personal-empty-title">Ton univers est vide pour l'instant.</p>
+      <p class="personal-empty-sub">Explore des animes, ajoute des favoris — cet espace grandira avec toi.</p>
+      <a href="catalogue.html" class="personal-empty-cta">Commencer à explorer →</a>
+    </div>
   </div>
 </section>
 

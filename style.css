@@ -2240,3 +2240,272 @@ body {
   .hero-cta-explore  { padding: 12px 22px; font-size: 0.88rem; }
   .hero-cta-surprise { padding: 11px 16px; font-size: 0.84rem; }
 }
+
+/* ═══════════════════════════════════════════════════════
+   GAP 1 — Navbar simplifiée + search label
+   ═══════════════════════════════════════════════════════ */
+.search-toggle-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text2);
+  margin-left: 4px;
+}
+@media (max-width: 768px) {
+  .search-toggle-label { display: none; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   GAP 2 — Mood pills colorées avec identité forte
+   ═══════════════════════════════════════════════════════ */
+.mood-section-header {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 48px 10px;
+}
+.mood-section-eyebrow {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Pills avec couleur signature */
+.mood-pill[data-color="red"] {
+  --pill-c: rgba(230,57,70,0.18);
+  --pill-b: rgba(230,57,70,0.35);
+  --pill-t: #ff8080;
+  --pill-glow: rgba(230,57,70,0.4);
+}
+.mood-pill[data-color="pink"] {
+  --pill-c: rgba(255,79,216,0.14);
+  --pill-b: rgba(255,79,216,0.35);
+  --pill-t: #ffaaee;
+  --pill-glow: rgba(255,79,216,0.4);
+}
+.mood-pill[data-color="dark"] {
+  --pill-c: rgba(80,40,120,0.2);
+  --pill-b: rgba(100,60,140,0.4);
+  --pill-t: #b899ff;
+  --pill-glow: rgba(100,60,200,0.35);
+}
+.mood-pill[data-color="gold"] {
+  --pill-c: rgba(255,209,102,0.14);
+  --pill-b: rgba(255,209,102,0.32);
+  --pill-t: #ffd166;
+  --pill-glow: rgba(255,209,102,0.4);
+}
+.mood-pill[data-color="cyan"] {
+  --pill-c: rgba(76,201,240,0.12);
+  --pill-b: rgba(76,201,240,0.32);
+  --pill-t: #4cc9f0;
+  --pill-glow: rgba(76,201,240,0.4);
+}
+.mood-pill[data-color="violet"] {
+  --pill-c: rgba(124,77,255,0.14);
+  --pill-b: rgba(124,77,255,0.35);
+  --pill-t: #c0adff;
+  --pill-glow: rgba(124,77,255,0.4);
+}
+.mood-pill[data-color="green"] {
+  --pill-c: rgba(6,214,160,0.12);
+  --pill-b: rgba(6,214,160,0.32);
+  --pill-t: #06d6a0;
+  --pill-glow: rgba(6,214,160,0.35);
+}
+
+/* Applique la couleur signature */
+.mood-pill[data-color]:not([data-color="default"]) {
+  border-color: rgba(255,255,255,0.07);
+}
+.mood-pill[data-color]:not([data-color="default"]):hover {
+  background: var(--pill-c);
+  border-color: var(--pill-b);
+  box-shadow: 0 4px 18px var(--pill-glow);
+}
+.mood-pill[data-color]:not([data-color="default"]):hover .mood-pill-label {
+  color: var(--pill-t);
+}
+.mood-pill[data-color]:not([data-color="default"]).active {
+  background: var(--pill-c);
+  border-color: var(--pill-b);
+  box-shadow: 0 4px 18px var(--pill-glow);
+}
+.mood-pill[data-color]:not([data-color="default"]).active .mood-pill-label {
+  color: var(--pill-t);
+}
+.mood-pill[data-color]:not([data-color="default"]) .mood-pill-icon {
+  filter: drop-shadow(0 0 4px var(--pill-glow, transparent));
+}
+
+/* ═══════════════════════════════════════════════════════
+   GAP 3 — Séparateurs narratifs de zone
+   ═══════════════════════════════════════════════════════ */
+.zone-separator {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 40px 48px 32px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.zone-separator-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right,
+    transparent,
+    rgba(255,255,255,0.06) 30%,
+    rgba(255,255,255,0.06) 70%,
+    transparent);
+}
+
+.zone-separator-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.zone-separator-num {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--pink);
+  opacity: 0.7;
+}
+
+.zone-separator-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text2);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.zone-separator-sub {
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.zone-separator-personal .zone-separator-num { color: var(--violet); }
+.zone-separator-personal .zone-separator-title { color: var(--text); }
+
+/* ═══════════════════════════════════════════════════════
+   GAP 3 — Zone personnelle (Ton Univers)
+   ═══════════════════════════════════════════════════════ */
+.personal-zone {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 0 48px;
+  position: relative;
+}
+
+.personal-zone-inner {
+  position: relative;
+  background: linear-gradient(135deg,
+    rgba(124,77,255,0.04) 0%,
+    rgba(255,79,216,0.03) 50%,
+    transparent 100%);
+  border-radius: var(--r-xl);
+  border: 1px solid rgba(124,77,255,0.1);
+  margin: 0 48px;
+  padding: 28px 0 20px;
+}
+
+.personal-block { padding: 0; margin-bottom: 16px; }
+.personal-block:last-child { margin-bottom: 0; }
+
+.personal-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px 14px;
+}
+
+.personal-block-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.personal-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pink-dot   { background: var(--pink);   box-shadow: 0 0 7px var(--pink-glow); }
+.violet-dot { background: var(--violet); box-shadow: 0 0 7px var(--violet-glow); }
+
+.personal-block-link {
+  font-size: 0.76rem;
+  color: var(--muted);
+  transition: color 0.2s;
+}
+.personal-block-link:hover { color: var(--pink); }
+
+/* Empty state personnel */
+.personal-empty {
+  text-align: center;
+  padding: 52px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.personal-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 8px;
+  animation: personalGrow 3s ease-in-out infinite;
+}
+@keyframes personalGrow {
+  0%,100% { transform: scale(1); }
+  50%     { transform: scale(1.08); }
+}
+
+.personal-empty-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text2);
+}
+.personal-empty-sub {
+  font-size: 0.82rem;
+  color: var(--muted);
+  max-width: 340px;
+  line-height: 1.6;
+}
+.personal-empty-cta {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--violet);
+  padding: 9px 20px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--b-violet);
+  background: var(--violet-dim);
+  transition: all 0.2s;
+}
+.personal-empty-cta:hover {
+  background: rgba(124,77,255,0.2);
+  box-shadow: 0 4px 16px var(--violet-glow);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .zone-separator { padding: 28px 16px 20px; gap: 12px; }
+  .zone-separator-sub { display: none; }
+  .zone-separator-title { font-size: 0.8rem; }
+  .personal-zone-inner { margin: 0 16px; }
+  .mood-section-header { padding: 0 16px 8px; }
+}
