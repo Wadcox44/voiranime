@@ -77,6 +77,7 @@
       <li><a href="#section-popular" class="nav-link">Populaires</a></li>
       <li><a href="#section-top"     class="nav-link">Top Rated</a></li>
       <li><a href="#section-airing"  class="nav-link">En cours</a></li>
+      <li><a href="catalogue.html"   class="nav-link">🗂 Catalogue</a></li>
       <li><a href="duel.html"        class="nav-link">⚔ Duels</a></li>
       <li>
         <a href="#" class="nav-link" id="navFavLink">
@@ -167,6 +168,36 @@
   </div>
 
   <div class="hero-dots" id="heroDots"></div>
+</section>
+
+<!-- ════════════════════════════════
+     ANIME DU JOUR
+════════════════════════════════ -->
+<section class="anime-du-jour" id="animeDuJour" style="display:none">
+  <div class="adj-inner">
+    <div class="adj-label">
+      <span class="adj-dot"></span>
+      Anime du jour
+    </div>
+    <div class="adj-content">
+      <img class="adj-img" id="adjImg" src="" alt=""/>
+      <div class="adj-info">
+        <div class="adj-badges" id="adjBadges"></div>
+        <h2 class="adj-title" id="adjTitle"></h2>
+        <p  class="adj-synopsis" id="adjSynopsis"></p>
+        <div class="adj-actions">
+          <a href="#" class="adj-btn-primary" id="adjLink">Voir l'anime →</a>
+          <button class="adj-btn-shuffle" id="adjShuffle" title="Autre suggestion">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+              <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+            </svg>
+            Autre suggestion
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ════════════════════════════════
@@ -459,6 +490,28 @@
     if(!pill) return;
     row.querySelectorAll('.mood-pill').forEach(function(p){ p.classList.remove('active'); });
     pill.classList.add('active');
+  });
+})();
+</script>
+<script>
+/* Transition cinématique entre pages */
+(function(){
+  var overlay = document.createElement("div");
+  overlay.className = "page-transition-overlay in";
+  document.body.appendChild(overlay);
+  setTimeout(function(){ overlay.remove(); }, 450);
+
+  document.addEventListener("click", function(e){
+    var link = e.target.closest("a[href]");
+    if (!link) return;
+    var href = link.getAttribute("href");
+    if (!href || href.startsWith("#") || href.startsWith("http") ||
+        href.startsWith("mailto") || link.target === "_blank") return;
+    e.preventDefault();
+    var ov = document.createElement("div");
+    ov.className = "page-transition-overlay out";
+    document.body.appendChild(ov);
+    setTimeout(function(){ window.location.href = href; }, 340);
   });
 })();
 </script>
