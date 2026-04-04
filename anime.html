@@ -14,10 +14,11 @@
     .logo-glitch::before,.logo-glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:0;pointer-events:none}
     .logo-glitch::before{color:#ff2d78;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%)}
     .logo-glitch::after{color:#2de4ff;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%)}
-    .nav-logo:hover .logo-glitch::before{animation:va-gr .45s steps(2) infinite;opacity:1}
-    .nav-logo:hover .logo-glitch::after{animation:va-gb .45s steps(2) .06s infinite;opacity:1}
-    @keyframes va-gr{0%{transform:translate(-2px,1px)}50%{transform:translate(2px,-1px)}100%{transform:translate(-1px,2px)}}
-    @keyframes va-gb{0%{transform:translate(2px,-1px)}50%{transform:translate(-2px,1px)}100%{transform:translate(1px,-2px)}}
+    /* Glitch permanent toutes les 5s */
+    .logo-glitch::before{animation:va-gr-auto 5s steps(2) infinite;opacity:1}
+    .logo-glitch::after{animation:va-gb-auto 5s steps(2) .06s infinite;opacity:1}
+    @keyframes va-gr-auto{0%{transform:translate(-2px,1px);opacity:1}4%{transform:translate(2px,-1px);opacity:1}8%{transform:translate(-1px,2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
+    @keyframes va-gb-auto{0%{transform:translate(2px,-1px);opacity:1}4%{transform:translate(-2px,1px);opacity:1}8%{transform:translate(1px,-2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
     .logo-voir{color:#fff;animation:va-gw 2.6s ease-in-out infinite}
     .logo-anime{color:#ff4fd8;animation:va-gp 2.6s ease-in-out infinite .4s}
     @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(255,79,216,.4),0 0 10px rgba(255,79,216,.2)}50%{text-shadow:0 0 8px rgba(255,79,216,.9),0 0 20px rgba(255,79,216,.5),0 0 36px rgba(124,77,255,.3)}}
