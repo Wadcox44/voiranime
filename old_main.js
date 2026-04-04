@@ -521,6 +521,7 @@ function renderFavoritesSection() {
 
   if (favs.length === 0) {
     section.style.display = 'none';
+    updatePersonalZone();
     return;
   }
   section.style.display = 'block';
@@ -536,19 +537,22 @@ function renderFavoritesSection() {
     };
     carousel.appendChild(buildCard(fake));
   });
+  updatePersonalZone();
 }
 
 /* ──────────────────────────────────────
    CONTINUE WATCHING
 ────────────────────────────────────── */
 function renderContinueWatching() {
-  const section  = el('section-continue');
+  // Supporte les deux IDs (zone personnelle ou section standalone)
+  const section  = el('section-continue-inner') || el('section-continue');
   const carousel = el('carousel-continue');
-  if (!section || !carousel) return;
+  if (!carousel) return;
   const hist = getHistory();
 
-  if (hist.length === 0) {
-    section.style.display = 'none';
+  if (!section || hist.length === 0) {
+    if (section) section.style.display = 'none';
+    updatePersonalZone();
     return;
   }
   section.style.display = 'block';
@@ -564,6 +568,18 @@ function renderContinueWatching() {
     };
     carousel.appendChild(buildCard(fake, { showProgress: true, progress: h.progress || 45 }));
   });
+  updatePersonalZone();
+}
+
+/* Affichage de la Zone Personnelle */
+function updatePersonalZone() {
+  const zone  = el('personalZone');
+  const empty = el('personalEmpty');
+  if (!zone) return;
+  const hasFavs = getFavs().length > 0;
+  const hasHist = getHistory().length > 0;
+  zone.style.display = 'block';
+  if (empty) empty.style.display = (hasFavs || hasHist) ? 'none' : 'flex';
 }
 
 /* ──────────────────────────────────────
