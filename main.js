@@ -236,7 +236,7 @@ function buildCard(anime, opts = {}) {
         </div>
         ${score ? `<div class="card-score-badge">★ ${score.toFixed(1)}</div>` : ''}
       </div>
-      ${type ? `<span class="card-type-badge">${esc(type)}</span>` : ''}
+      ${type ? `<span class="card-type-badge">${esc(({TV:'Série',Movie:'Film',OVA:'Spécial',ONA:'Streaming',Special:'Spécial'})[type]||type)}</span>` : ''}
       ${rank ? `<span class="card-rank-badge">#${rank}</span>` : ''}
       <button class="card-fav-btn ${fav ? 'active' : ''}" data-fav-id="${id}" aria-label="Favori">
         <svg width="12" height="12" viewBox="0 0 24 24"
@@ -361,8 +361,12 @@ function renderHero(anime) {
   // Badges
   const badges = [];
   if (anime.score) badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
-  if (anime.type)  badges.push(`<span class="badge badge-muted">${esc(anime.type)}</span>`);
-  if (anime.status === 'Currently Airing') badges.push(`<span class="badge badge-green">● EN COURS</span>`);
+  if (anime.type) {
+    const tMap = { TV:'Série', Movie:"Film d'anime", OVA:'Spécial', ONA:'Streaming', Special:'Spécial' };
+    badges.push(`<span class="badge badge-muted">${esc(tMap[anime.type]||anime.type)}</span>`);
+  }
+  if (anime.status === 'Currently Airing') badges.push('<span class="badge badge-green">● En cours</span>');
+  if (anime.status === 'Not yet aired')    badges.push('<span class="badge badge-blue">À venir</span>');
   badgesEl.innerHTML = badges.join('');
 
   // Meta
@@ -860,7 +864,10 @@ function renderAnimeDuJour(anime, shuffle = false) {
 
   const badges = [];
   if (anime.score) badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
-  if (anime.type)  badges.push(`<span class="badge badge-muted">${esc(anime.type)}</span>`);
+  if (anime.type) {
+    const tMap = { TV:'Série', Movie:"Film d'anime", OVA:'Spécial', ONA:'Streaming', Special:'Spécial' };
+    badges.push(`<span class="badge badge-muted">${esc(tMap[anime.type]||anime.type)}</span>`);
+  }
   badgesEl.innerHTML = badges.join('');
 
   section.style.display = 'block';
