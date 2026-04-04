@@ -629,6 +629,68 @@
 
 <script>
 /* ════════════════════════════════════════
+   DESIGN SYSTEM BRIDGE
+   Scroll reveal · Token sync · Focus polish
+   ════════════════════════════════════════ */
+(function(){
+
+  /* ── Scroll Reveal ── */
+  const revealEls = document.querySelectorAll(
+    '.content-section, .anime-du-jour, .zone-separator, .personal-zone, .adv-search-section, .mood-section'
+  );
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('revealed');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+    revealEls.forEach((el, i) => {
+      el.classList.add('reveal-on-scroll');
+      el.style.transitionDelay = Math.min(i * 0.04, 0.2) + 's';
+      io.observe(el);
+    });
+  } else {
+    // Fallback sans IO
+    revealEls.forEach(el => el.classList.add('revealed'));
+  }
+
+  /* ── Tilt 3D cards ── */
+  var lastCard = null;
+  document.addEventListener('mousemove', function(e){
+    var card = e.target.closest('.anime-card');
+    if(!card){
+      if(lastCard){ lastCard.style.transform=''; lastCard=null; }
+      return;
+    }
+    var r  = card.getBoundingClientRect();
+    var dx = (e.clientX - r.left - r.width/2)  / (r.width/2);
+    var dy = (e.clientY - r.top  - r.height/2) / (r.height/2);
+    card.style.transform = `translateY(-10px) scale(1.06) rotateY(${dx*7}deg) rotateX(${-dy*4}deg)`;
+    lastCard = card;
+  });
+  document.addEventListener('mouseleave', function(e){
+    var card = e.target.closest('.anime-card');
+    if(card) card.style.transform = '';
+  }, true);
+
+  /* ── Navbar active link ── */
+  var links = document.querySelectorAll('.nav-link');
+  var path  = location.pathname.split('/').pop() || 'index.html';
+  links.forEach(function(l){
+    var href = l.getAttribute('href');
+    l.classList.toggle('active', href === path || (path === '' && href === 'index.html'));
+  });
+
+})();
+</script>
+
+<script>
+/* ════════════════════════════════════════
    HERO PORTAL ENGINE
    Particules · Parallax souris · Aura · Surprise
    ════════════════════════════════════════ */
