@@ -29,6 +29,12 @@
 </head>
 <body class="page-duel">
 
+<!-- Canvas confetti (z-index au-dessus de tout) -->
+<canvas id="confettiCanvas" style="position:fixed;inset:0;z-index:8000;pointer-events:none;"></canvas>
+
+<!-- Flash overlay au vote -->
+<div id="voteFlash" style="position:fixed;inset:0;z-index:7999;pointer-events:none;opacity:0;"></div>
+
 <!-- ════════════════════════════════
      PAGE LOADER
 ════════════════════════════════ -->
@@ -59,6 +65,13 @@
     </a>
   </div>
   <div class="nav-right">
+    <button class="duel-sound-btn" id="soundToggle" title="Son">
+      <svg id="soundIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+      </svg>
+    </button>
     <div class="duel-nav-stats">
       <span class="duel-nav-label">Duels joués</span>
       <span class="duel-nav-count" id="navDuelCount">0</span>
@@ -229,6 +242,155 @@ const state = {
 function el(id) { return document.getElementById(id); }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+/* ──────────────────────────────────────
+   SYSTÈME SON (Web Audio API — zero dépendance)
+────────────────────────────────────── */
+let soundEnabled = localStorage.getItem('voiranime_sound') !== 'off';
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let _actx = null;
+
+function getAudioCtx() {
+  if (!_actx) _actx = new AudioCtx();
+  return _actx;
+}
+
+function playTone(opts = {}) {
+  if (!soundEnabled) return;
+  try {
+    const ctx  = getAudioCtx();
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type            = opts.type    || 'sine';
+    osc.frequency.value = opts.freq    || 440;
+    gain.gain.setValueAtTime(opts.vol  || 0.18, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (opts.dur || 0.3));
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + (opts.dur || 0.3));
+  } catch (_) {}
+}
+
+// Sons thématiques
+function soundVote()    { playTone({ freq: 520, dur: 0.18, vol: 0.22, type: 'triangle' }); }
+function soundWin()     {
+  [523, 659, 784].forEach((f, i) =>
+    setTimeout(() => playTone({ freq: f, dur: 0.25, vol: 0.2, type: 'sine' }), i * 100));
+}
+function soundNext()    { playTone({ freq: 380, dur: 0.12, vol: 0.14, type: 'square' }); }
+function soundHover()   { playTone({ freq: 660, dur: 0.06, vol: 0.06, type: 'sine' }); }
+
+function initSoundToggle() {
+  const btn  = el('soundToggle');
+  const icon = el('soundIcon');
+  if (!btn) return;
+
+  const updateIcon = () => {
+    icon.innerHTML = soundEnabled
+      ? `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+         <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+         <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>`
+      : `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+         <line x1="23" y1="9" x2="17" y2="15"/>
+         <line x1="17" y1="9" x2="23" y2="15"/>`;
+    btn.classList.toggle('muted', !soundEnabled);
+  };
+  updateIcon();
+
+  btn.addEventListener('click', () => {
+    soundEnabled = !soundEnabled;
+    localStorage.setItem('voiranime_sound', soundEnabled ? 'on' : 'off');
+    updateIcon();
+    if (soundEnabled) playTone({ freq: 440, dur: 0.1, vol: 0.1 });
+  });
+}
+
+/* ──────────────────────────────────────
+   CONFETTIS (canvas pur, zero lib)
+────────────────────────────────────── */
+const confetti = (() => {
+  const canvas  = document.getElementById('confettiCanvas');
+  const ctx2d   = canvas?.getContext('2d');
+  let particles = [];
+  let raf       = null;
+
+  function resize() {
+    if (!canvas) return;
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const COLORS = ['#ff4fd8','#7c4dff','#4cc9f0','#ffd166','#ff2d78','#fff'];
+
+  function spawn(n = 80) {
+    for (let i = 0; i < n; i++) {
+      particles.push({
+        x:   Math.random() * canvas.width,
+        y:   -10 - Math.random() * 40,
+        vx:  (Math.random() - 0.5) * 6,
+        vy:  2 + Math.random() * 4,
+        rot: Math.random() * Math.PI * 2,
+        vr:  (Math.random() - 0.5) * 0.3,
+        w:   6 + Math.random() * 8,
+        h:   3 + Math.random() * 4,
+        col: COLORS[Math.floor(Math.random() * COLORS.length)],
+        life: 1,
+        dec:  0.008 + Math.random() * 0.006,
+      });
+    }
+  }
+
+  function tick() {
+    if (!ctx2d) return;
+    ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+    particles = particles.filter(p => p.life > 0);
+
+    for (const p of particles) {
+      p.x   += p.vx;
+      p.y   += p.vy;
+      p.vy  += 0.12; // gravity
+      p.vx  *= 0.99;
+      p.rot += p.vr;
+      p.life -= p.dec;
+
+      ctx2d.save();
+      ctx2d.globalAlpha = Math.max(0, p.life);
+      ctx2d.translate(p.x, p.y);
+      ctx2d.rotate(p.rot);
+      ctx2d.fillStyle = p.col;
+      ctx2d.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx2d.restore();
+    }
+
+    if (particles.length > 0) raf = requestAnimationFrame(tick);
+    else raf = null;
+  }
+
+  return {
+    burst(n = 80) {
+      spawn(n);
+      if (!raf) raf = requestAnimationFrame(tick);
+    }
+  };
+})();
+
+/* ──────────────────────────────────────
+   FLASH AU VOTE
+────────────────────────────────────── */
+function voteFlash(color) {
+  const flash = el('voteFlash');
+  if (!flash) return;
+  flash.style.background = color;
+  flash.style.transition = 'none';
+  flash.style.opacity    = '0.28';
+  requestAnimationFrame(() => {
+    flash.style.transition = 'opacity 0.5s ease';
+    flash.style.opacity    = '0';
+  });
+}
+
 function showToast(msg, dur = 2500) {
   const t = el('toast');
   t.textContent = msg;
@@ -324,12 +486,23 @@ async function handleVote(winnerSide) {
   state.winnerSide = winnerSide;
 
   const loserSide = winnerSide === 'A' ? 'B' : 'A';
-  el(`duelCard${winnerSide}`).classList.add('winner');
-  el(`duelCard${loserSide}`).classList.add('loser');
+  const winnerCard = el(`duelCard${winnerSide}`);
+  const loserCard  = el(`duelCard${loserSide}`);
+
+  // Son + flash immédiat
+  soundVote();
+  voteFlash(winnerSide === 'A' ? 'rgba(255,79,216,1)' : 'rgba(76,201,240,1)');
+
+  winnerCard.classList.add('winner');
+  loserCard.classList.add('loser');
   el('voteBtnA').disabled = true;
   el('voteBtnB').disabled = true;
   el('vsBadge').textContent = '⚔';
   el('vsBadge').classList.add('voted');
+
+  // Screen shake
+  el('duelArena').classList.add('shake');
+  setTimeout(() => el('duelArena').classList.remove('shake'), 500);
 
   state.duelsPlayed++;
   state.streak++;
@@ -351,6 +524,12 @@ async function handleVote(winnerSide) {
     votesA = winnerSide === 'A' ? 1 : 0;
     votesB = winnerSide === 'B' ? 1 : 0;
   }
+
+  // Confettis + son victoire après 200ms
+  setTimeout(() => {
+    confetti.burst(100);
+    soundWin();
+  }, 200);
 
   showResults(winnerSide, votesA, votesB);
 }
@@ -393,6 +572,7 @@ function showResults(winnerSide, votesA, votesB) {
 }
 
 function nextDuel() {
+  soundNext();
   if (state.animePool.length < 2) { loadPool().then(startDuel); return; }
   renderDuel(...pickTwo(state.animePool));
 }
@@ -407,6 +587,20 @@ function updateSessionStats() {
   el('statDuelsPlayed').textContent = `${state.duelsPlayed} duel${state.duelsPlayed > 1 ? 's' : ''} joué${state.duelsPlayed > 1 ? 's' : ''}`;
   el('statStreak').textContent      = `${state.streak} 🔥`;
   el('navDuelCount').textContent    = state.duelsPlayed;
+
+  // Milestone streaks
+  const milestones = { 5: '5 duels 🔥 En feu !', 10: '10 duels 💪 Incroyable !', 25: '25 duels 👑 Légende !' };
+  if (milestones[state.streak]) showMilestone(milestones[state.streak]);
+}
+
+function showMilestone(text) {
+  const existing = document.querySelector('.streak-milestone');
+  if (existing) existing.remove();
+  const el2 = document.createElement('div');
+  el2.className   = 'streak-milestone';
+  el2.textContent = text;
+  document.body.appendChild(el2);
+  setTimeout(() => el2.remove(), 2600);
 }
 
 async function loadLeaderboard() {
@@ -433,6 +627,12 @@ async function loadLeaderboard() {
 function initEvents() {
   el('voteBtnA').addEventListener('click', () => handleVote('A'));
   el('voteBtnB').addEventListener('click', () => handleVote('B'));
+
+  // Hover sound sur les boutons vote
+  [el('voteBtnA'), el('voteBtnB')].forEach(btn => {
+    btn.addEventListener('mouseenter', () => soundHover());
+  });
+
   el('duelCardA').addEventListener('click', (e) => { if (!e.target.closest('.duel-vote-btn') && !state.voted) handleVote('A'); });
   el('duelCardB').addEventListener('click', (e) => { if (!e.target.closest('.duel-vote-btn') && !state.voted) handleVote('B'); });
   el('nextDuelBtn').addEventListener('click', nextDuel);
@@ -452,6 +652,7 @@ function initEvents() {
 
 async function init() {
   updateSessionStats();
+  initSoundToggle();
   await loadPool();
   const loader = el('duelPageLoader');
   if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 400); }
@@ -462,5 +663,27 @@ async function init() {
 document.addEventListener('DOMContentLoaded', init);
 </script>
 
+<script>
+/* Transition cinématique entre pages */
+(function(){
+  var overlay = document.createElement("div");
+  overlay.className = "page-transition-overlay in";
+  document.body.appendChild(overlay);
+  setTimeout(function(){ overlay.remove(); }, 450);
+
+  document.addEventListener("click", function(e){
+    var link = e.target.closest("a[href]");
+    if (!link) return;
+    var href = link.getAttribute("href");
+    if (!href || href.startsWith("#") || href.startsWith("http") ||
+        href.startsWith("mailto") || link.target === "_blank") return;
+    e.preventDefault();
+    var ov = document.createElement("div");
+    ov.className = "page-transition-overlay out";
+    document.body.appendChild(ov);
+    setTimeout(function(){ window.location.href = href; }, 340);
+  });
+})();
+</script>
 </body>
 </html>

@@ -268,11 +268,15 @@
     <div class="stat-card-label">Animes visités</div>
   </div>
   <div class="stat-card">
-    <div class="stat-card-num" id="statDuelCount" style="color:var(--gold)">0</div>
+    <div class="stat-card-num" id="statRatingCount" style="color:var(--gold)">0</div>
+    <div class="stat-card-label">Animes notés</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-num" id="statDuelCount" style="color:#ff8c42">0</div>
     <div class="stat-card-label">Duels joués</div>
   </div>
   <div class="stat-card">
-    <div class="stat-card-num" id="statStreakCount" style="color:#ff8c42">0</div>
+    <div class="stat-card-num" id="statStreakCount" style="color:#4cc9f0">0</div>
     <div class="stat-card-label">Streak 🔥</div>
   </div>
 </div>
@@ -288,6 +292,20 @@
   <div class="profile-empty hidden" id="favEmpty">
     <div class="profile-empty-icon">（；￣д￣）</div>
     <p>Aucun favori pour l'instant.<br>Clique sur ❤ sur n'importe quelle fiche anime !</p>
+  </div>
+</section>
+
+<!-- MES NOTES -->
+<section class="profile-section">
+  <div class="profile-section-title">
+    <span class="section-dot gold"></span>
+    ⭐ Mes Notes
+    <span style="font-size:0.72rem;font-weight:400;color:var(--muted)" id="ratingSubtitle"></span>
+  </div>
+  <div class="profile-grid" id="ratingGrid"></div>
+  <div class="profile-empty hidden" id="ratingEmpty">
+    <div class="profile-empty-icon">⭐</div>
+    <p>Tu n'as encore noté aucun anime.<br>Visite une fiche anime et clique sur les étoiles !</p>
   </div>
 </section>
 
@@ -336,6 +354,10 @@
   }
   function saveFavs(f) { localStorage.setItem('VoirAnime_favs', JSON.stringify(f)); }
 
+  function getRatings() {
+    try { return JSON.parse(localStorage.getItem('VoirAnime_ratings') || '{}'); } catch { return {}; }
+  }
+
   function getHistory() {
     try { return JSON.parse(localStorage.getItem('VoirAnime_history') || '[]'); } catch { return []; }
   }
@@ -366,15 +388,16 @@
   function renderStats() {
     const favs    = getFavs();
     const hist    = getHistory();
+    const ratings = getRatings();
     const duels   = parseInt(localStorage.getItem('voiranime_duels')  || '0');
     const streak  = parseInt(localStorage.getItem('voiranime_streak') || '0');
 
-    el('statFavCount').textContent   = favs.length;
-    el('statHistCount').textContent  = hist.length;
-    el('statDuelCount').textContent  = duels;
-    el('statStreakCount').textContent = streak;
+    el('statFavCount').textContent    = favs.length;
+    el('statHistCount').textContent   = hist.length;
+    el('statRatingCount').textContent = Object.keys(ratings).length;
+    el('statDuelCount').textContent   = duels;
+    el('statStreakCount').textContent  = streak;
 
-    // Badge "membre depuis"
     const firstVisit = parseInt(localStorage.getItem('VoirAnime_firstVisit') || '0');
     if (!firstVisit) {
       localStorage.setItem('VoirAnime_firstVisit', Date.now().toString());
@@ -383,17 +406,60 @@
       el('profileSince').textContent = 'Membre depuis ' + timeAgo(firstVisit).toLowerCase().replace('il y a ', '');
     }
 
-    // Badges
     const badges = getBadges(favs, hist, duels);
     const badgesEl = el('profileBadges');
     badgesEl.innerHTML = badges.length
       ? badges.map(b => `<span class="profile-badge ${b.cls}">${b.label}</span>`).join('')
       : '<span class="profile-badge">🌱 Nouvelle recrue</span>';
 
-    // Avatar emoji selon niveau
-    const total = favs.length + hist.length + duels;
+    const total  = favs.length + hist.length + duels;
     const avatar = total < 5 ? '🌱' : total < 20 ? '⭐' : total < 50 ? '🔥' : '👑';
     el('profileAvatar').textContent = avatar;
+  }
+
+  function renderRatings() {
+    const ratings = getRatings();
+    const grid    = el('ratingGrid');
+    const empty   = el('ratingEmpty');
+    const sub     = el('ratingSubtitle');
+    const entries = Object.entries(ratings).sort((a, b) => b[1] - a[1]);
+
+    sub.textContent = entries.length ? `(${entries.length})` : '';
+
+    if (entries.length === 0) {
+      grid.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    grid.innerHTML = '';
+
+    // Récupère les infos depuis l'historique pour avoir image + titre
+    const hist = getHistory();
+    const histMap = {};
+    hist.forEach(h => { histMap[String(h.id)] = h; });
+
+    entries.forEach(([id, note]) => {
+      const info  = histMap[id];
+      const title = info?.title || `Anime #${id}`;
+      const img   = info?.img   || '';
+
+      const card = document.createElement('div');
+      card.className = 'profile-anime-card';
+      card.style.position = 'relative';
+      card.innerHTML = `
+        <img class="profile-card-img" src="${img}"
+             alt="${title}"
+             onerror="this.src='https://placehold.co/130x195/0f0e1a/555?text=?'"/>
+        <div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.75);
+                    border-radius:6px;padding:3px 7px;font-size:.7rem;font-weight:700;
+                    color:#ffd166;">${note}/10</div>
+        <div class="profile-card-body">
+          <div class="profile-card-title">${title}</div>
+        </div>`;
+      card.addEventListener('click', () => { window.location.href = `anime.html?id=${id}`; });
+      grid.appendChild(card);
+    });
   }
 
   function renderFavs() {
@@ -489,10 +555,33 @@
   // Init
   renderStats();
   renderFavs();
+  renderRatings();
   renderHistory();
 
 })();
 </script>
 
+<script>
+/* Transition cinématique entre pages */
+(function(){
+  var overlay = document.createElement("div");
+  overlay.className = "page-transition-overlay in";
+  document.body.appendChild(overlay);
+  setTimeout(function(){ overlay.remove(); }, 450);
+
+  document.addEventListener("click", function(e){
+    var link = e.target.closest("a[href]");
+    if (!link) return;
+    var href = link.getAttribute("href");
+    if (!href || href.startsWith("#") || href.startsWith("http") ||
+        href.startsWith("mailto") || link.target === "_blank") return;
+    e.preventDefault();
+    var ov = document.createElement("div");
+    ov.className = "page-transition-overlay out";
+    document.body.appendChild(ov);
+    setTimeout(function(){ window.location.href = href; }, 340);
+  });
+})();
+</script>
 </body>
 </html>

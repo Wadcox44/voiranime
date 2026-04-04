@@ -762,8 +762,69 @@ async function loadTrending() {
 }
 
 /* ──────────────────────────────────────
-   INIT
+   ANIME DU JOUR
+   Sélectionne un anime pseudo-aléatoire basé sur la date
+   → même anime toute la journée, change à minuit
 ────────────────────────────────────── */
+async function loadAnimeDuJour() {
+  try {
+    // Seed basé sur le jour (YYYYMMDD) → même résultat toute la journée
+    const today    = new Date();
+    const seed     = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    const page     = (seed % 4) + 1;  // pages 1-4
+    const offset   = seed % 25;       // position dans la page
+
+    const data   = await jikanFetch(`/top/anime?filter=bypopularity&limit=25&page=${page}`);
+    const animes = (data.data || []).filter(a => a.images?.jpg?.large_image_url && a.synopsis);
+    if (animes.length === 0) return;
+
+    const anime = animes[offset % animes.length];
+    renderAnimeDuJour(anime);
+
+    // Bouton shuffle → anime aléatoire parmi la liste
+    el('adjShuffle')?.addEventListener('click', () => {
+      const random = animes[Math.floor(Math.random() * animes.length)];
+      renderAnimeDuJour(random, true);
+    });
+  } catch (e) {
+    console.warn('Anime du jour:', e);
+  }
+}
+
+function renderAnimeDuJour(anime, shuffle = false) {
+  const section  = el('animeDuJour');
+  const imgEl    = el('adjImg');
+  const titleEl  = el('adjTitle');
+  const synEl    = el('adjSynopsis');
+  const badgesEl = el('adjBadges');
+  const linkEl   = el('adjLink');
+
+  if (!section) return;
+
+  const title    = anime.title_english || anime.title;
+  const img      = anime.images?.jpg?.large_image_url || '';
+  const synopsis = (anime.synopsis || '').replace(/\[Written by MAL Rewrite\]/gi, '').trim();
+
+  // Animation de remplacement si shuffle
+  if (shuffle) {
+    section.style.opacity = '0';
+    setTimeout(() => { section.style.opacity = '1'; }, 300);
+  }
+
+  imgEl.src = img;
+  imgEl.alt = title;
+  titleEl.textContent = title;
+  synEl.textContent   = synopsis.slice(0, 160) + (synopsis.length > 160 ? '…' : '');
+  linkEl.href         = `anime.html?id=${anime.mal_id}`;
+
+  const badges = [];
+  if (anime.score) badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
+  if (anime.type)  badges.push(`<span class="badge badge-muted">${esc(anime.type)}</span>`);
+  badgesEl.innerHTML = badges.join('');
+
+  section.style.display = 'block';
+  section.style.transition = 'opacity 0.3s ease';
+}
 async function init() {
   initNavbar();
   initSearch();
@@ -775,6 +836,7 @@ async function init() {
   renderContinueWatching();
 
   await loadHero();
+  loadAnimeDuJour();
 
   await loadSection('/top/anime?filter=bypopularity&limit=20', 'popular', 'skel-popular', 10, { showRank: true });
   await loadSection('/top/anime?limit=20',                     'top',     'skel-top',     10);

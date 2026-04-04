@@ -432,6 +432,66 @@ function hidePageLoader() {
 }
 
 /* ──────────────────────────────────────
+   NOTATION PERSONNELLE (1–10 étoiles)
+────────────────────────────────────── */
+function getRatings() {
+  try { return JSON.parse(localStorage.getItem('VoirAnime_ratings') || '{}'); }
+  catch { return {}; }
+}
+function saveRating(animeId, value) {
+  const r = getRatings();
+  if (value === null) delete r[String(animeId)];
+  else r[String(animeId)] = value;
+  localStorage.setItem('VoirAnime_ratings', JSON.stringify(r));
+}
+
+function initRating(animeId) {
+  const widget    = el('ratingWidget');
+  const stars     = el('ratingStars');
+  const valueEl   = el('ratingValue');
+  const clearBtn  = el('ratingClear');
+  if (!widget || !stars) return;
+
+  const ratings  = getRatings();
+  let current    = ratings[String(animeId)] || 0;
+
+  function renderStars(hovered = 0) {
+    const active = hovered || current;
+    stars.querySelectorAll('.rating-star').forEach(s => {
+      const v = Number(s.dataset.v);
+      s.classList.toggle('active',  v <= active);
+      s.classList.toggle('hovered', hovered > 0 && v <= hovered);
+    });
+    valueEl.textContent = hovered ? `${hovered}/10` : (current ? `${current}/10` : '—');
+    if (clearBtn) clearBtn.classList.toggle('hidden', current === 0);
+  }
+
+  renderStars();
+
+  // Hover
+  stars.querySelectorAll('.rating-star').forEach(s => {
+    s.addEventListener('mouseenter', () => renderStars(Number(s.dataset.v)));
+    s.addEventListener('mouseleave', () => renderStars(0));
+    s.addEventListener('click', () => {
+      const v = Number(s.dataset.v);
+      current = (current === v) ? 0 : v; // toggle si même note
+      saveRating(animeId, current || null);
+      renderStars(0);
+      showToast(current ? `Note enregistrée : ${current}/10 ⭐` : 'Note supprimée');
+    });
+  });
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      current = 0;
+      saveRating(animeId, null);
+      renderStars(0);
+      showToast('Note supprimée');
+    });
+  }
+}
+
+/* ──────────────────────────────────────
    INIT
 ────────────────────────────────────── */
 async function init() {
@@ -456,8 +516,8 @@ async function init() {
   try {
     const data = await jikanFetch(`/anime/${animeId}/full`);
     renderDetail(data.data);
+    initRating(animeId);
     hidePageLoader();
-    // Load recommendations after detail is shown
     loadRecommendations(animeId);
   } catch (e) {
     hidePageLoader();

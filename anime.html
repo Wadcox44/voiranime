@@ -158,6 +158,25 @@
           <span id="favBtnLabel">+ Favori</span>
         </button>
       </div>
+
+      <!-- Notation personnelle -->
+      <div class="rating-widget" id="ratingWidget">
+        <div class="rating-label">Ma note</div>
+        <div class="rating-stars" id="ratingStars">
+          <button class="rating-star" data-v="1">★</button>
+          <button class="rating-star" data-v="2">★</button>
+          <button class="rating-star" data-v="3">★</button>
+          <button class="rating-star" data-v="4">★</button>
+          <button class="rating-star" data-v="5">★</button>
+          <button class="rating-star" data-v="6">★</button>
+          <button class="rating-star" data-v="7">★</button>
+          <button class="rating-star" data-v="8">★</button>
+          <button class="rating-star" data-v="9">★</button>
+          <button class="rating-star" data-v="10">★</button>
+        </div>
+        <span class="rating-value" id="ratingValue">—</span>
+        <button class="rating-clear hidden" id="ratingClear" title="Effacer">✕</button>
+      </div>
     </div>
 
     <!-- Synopsis -->
@@ -251,5 +270,27 @@
 ════════════════════════════════ -->
 <script type="module" src="anime.js"></script>
 
+<script>
+/* Transition cinématique entre pages */
+(function(){
+  var overlay = document.createElement("div");
+  overlay.className = "page-transition-overlay in";
+  document.body.appendChild(overlay);
+  setTimeout(function(){ overlay.remove(); }, 450);
+
+  document.addEventListener("click", function(e){
+    var link = e.target.closest("a[href]");
+    if (!link) return;
+    var href = link.getAttribute("href");
+    if (!href || href.startsWith("#") || href.startsWith("http") ||
+        href.startsWith("mailto") || link.target === "_blank") return;
+    e.preventDefault();
+    var ov = document.createElement("div");
+    ov.className = "page-transition-overlay out";
+    document.body.appendChild(ov);
+    setTimeout(function(){ window.location.href = href; }, 340);
+  });
+})();
+</script>
 </body>
 </html>
