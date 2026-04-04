@@ -1,535 +1,296 @@
-/* ═══════════════════════════════════════════════════
-   anime.js — VoirAnime Detail Page
-   Gère : Détails anime · Trailer YouTube · Favoris · Recommandations
-   ═══════════════════════════════════════════════════ */
-import { trackView, trackClick } from './firebase.js';
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VoirAnime — Anime</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+  <style>
+    /* Logo néon */
+    .nav-logo{text-decoration:none;display:inline-flex;align-items:center}
+    .logo-glitch{display:inline-block;font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:-.5px;transform:skewX(-6deg);position:relative;user-select:none}
+    .logo-glitch::before,.logo-glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:0;pointer-events:none}
+    .logo-glitch::before{color:#ff2d78;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%)}
+    .logo-glitch::after{color:#2de4ff;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%)}
+    /* Glitch permanent toutes les 5s */
+    .logo-glitch::before{animation:va-gr-auto 5s steps(2) infinite;opacity:1}
+    .logo-glitch::after{animation:va-gb-auto 5s steps(2) .06s infinite;opacity:1}
+    @keyframes va-gr-auto{0%{transform:translate(-2px,1px);opacity:1}4%{transform:translate(2px,-1px);opacity:1}8%{transform:translate(-1px,2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
+    @keyframes va-gb-auto{0%{transform:translate(2px,-1px);opacity:1}4%{transform:translate(-2px,1px);opacity:1}8%{transform:translate(1px,-2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
+    .logo-voir{color:#fff;animation:va-gw 2.6s ease-in-out infinite}
+    .logo-anime{color:#ff4fd8;animation:va-gp 2.6s ease-in-out infinite .4s}
+    @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(255,79,216,.4),0 0 10px rgba(255,79,216,.2)}50%{text-shadow:0 0 8px rgba(255,79,216,.9),0 0 20px rgba(255,79,216,.5),0 0 36px rgba(124,77,255,.3)}}
+    @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(255,79,216,.6),0 0 14px rgba(124,77,255,.3)}50%{text-shadow:0 0 10px #ff4fd8,0 0 24px rgba(255,79,216,.7),0 0 40px rgba(124,77,255,.45)}}
+    @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
+  </style>
+</head>
+<body class="page-anime">
 
-const API = 'https://api.jikan.moe/v4';
+<!-- ════════════════════════════════
+     PAGE LOADER
+════════════════════════════════ -->
+<div class="page-loader" id="pageLoader">
+  <div class="sk-dots large"><span></span><span></span><span></span></div>
+</div>
 
-/* ──────────────────────────────────────
-   UTILS
-────────────────────────────────────── */
-function el(id) { return document.getElementById(id); }
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+<!-- ════════════════════════════════
+     NAVBAR
+════════════════════════════════ -->
+<nav class="navbar transparent" id="navbar">
+  <div class="nav-left">
+    <a href="index.html" class="nav-logo" aria-label="VoirAnime">
+      <span class="logo-glitch" data-text="VoirAnime">
+        <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
+      </span>
+    </a>
+    <a href="index.html" class="back-link">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Retour
+    </a>
+  </div>
+  <div class="nav-right">
+    <button class="nav-fav-btn" id="navFavBtn" data-id="">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06
+                 a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78
+                 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+      <span id="favBtnLabel">+ Favori</span>
+    </button>
+  </div>
+</nav>
 
-async function jikanFetch(endpoint, retries = 3) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const res = await fetch(`${API}${endpoint}`);
-      if (res.status === 429) { await sleep(1200 * (i + 1)); continue; }
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
-    } catch (e) {
-      if (i === retries - 1) throw e;
-      await sleep(600);
-    }
-  }
-}
+<!-- ════════════════════════════════
+     HERO — Trailer / Banner
+════════════════════════════════ -->
+<section class="anime-hero" id="animeHero">
 
-function showToast(msg, duration = 2800) {
-  const t = el('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), duration);
-}
+  <!-- iframe YouTube (caché jusqu'au clic play) -->
+  <div class="trailer-container" id="trailerContainer">
+    <iframe id="trailerFrame" src="" title="Bande-annonce"
+            frameborder="0" allow="autoplay; encrypted-media"
+            allowfullscreen></iframe>
+  </div>
 
-/* ── Favorites ── */
-function getFavs() {
-  try { return JSON.parse(localStorage.getItem('VoirAnime_favs') || '[]'); } catch { return []; }
-}
-function saveFavs(f) { localStorage.setItem('VoirAnime_favs', JSON.stringify(f)); }
-function isFav(id) { return getFavs().some(f => f.id === id); }
+  <!-- Image bannière (fallback) -->
+  <div class="anime-banner" id="animeBanner">
+    <img id="bannerImg" src="" alt=""/>
+    <div class="banner-vignette"></div>
+  </div>
 
-function toggleFav(id, title, img) {
-  const favs = getFavs();
-  const idx  = favs.findIndex(f => f.id === id);
-  if (idx > -1) { favs.splice(idx, 1); showToast(`💔 ${title} retiré des favoris`); }
-  else           { favs.unshift({ id, title, img }); showToast(`❤ ${title} ajouté aux favoris`); }
-  saveFavs(favs);
-  return idx === -1;
-}
-
-/* ── History ── */
-function addToHistory(id, title, img, progress = 0) {
-  try {
-    const hist = JSON.parse(localStorage.getItem('VoirAnime_history') || '[]').filter(h => h.id !== id);
-    hist.unshift({ id, title, img, progress, ts: Date.now() });
-    localStorage.setItem('VoirAnime_history', JSON.stringify(hist.slice(0, 20)));
-  } catch {}
-}
-
-/* ──────────────────────────────────────
-   CARD BUILDER (for recommendations)
-────────────────────────────────────── */
-function buildRecoCard(anime) {
-  const id    = anime.mal_id;
-  const title = anime.title_english || anime.title || 'Titre inconnu';
-  const img   = anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url || '';
-  const score = anime.score;
-  const type  = anime.type || '';
-  const fav   = isFav(id);
-
-  const card = document.createElement('article');
-  card.className = 'anime-card';
-
-  card.innerHTML = `
-    <div class="card-thumb">
-      <img src="${img}" alt="${title}" loading="lazy"
-           onerror="this.src='https://placehold.co/160x230/111118/555?text=No+Image'"/>
-      <div class="card-thumb-overlay">
-        <div class="card-play-icon">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-        </div>
-        ${score ? `<div class="card-score-badge">★ ${score.toFixed(1)}</div>` : ''}
-      </div>
-      ${type ? `<span class="card-type-badge">${type}</span>` : ''}
-      <button class="card-fav-btn ${fav ? 'active' : ''}" data-fav-id="${id}" aria-label="Favori">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="${fav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  <!-- Contrôles superposés -->
+  <div class="trailer-controls" id="trailerControls">
+    <div class="trailer-left">
+      <button class="trailer-btn play-btn" id="playTrailerBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="5,3 19,12 5,21"/>
         </svg>
+        Bande-annonce
+      </button>
+      <button class="trailer-btn unmute-btn hidden" id="unmuteBtn">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" id="muteIcon">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        </svg>
+        <span id="muteLabel">Son actif</span>
       </button>
     </div>
-    <div class="card-info">
-      <h3 class="card-title">${title}</h3>
-      <p class="card-sub">${score ? `★ ${score.toFixed(1)}` : ''}${score && type ? ' · ' : ''}${type}</p>
+    <div class="trailer-rating" id="trailerRating"></div>
+  </div>
+
+  <!-- Fondu bas vers le contenu -->
+  <div class="hero-bottom-fade"></div>
+</section>
+
+<!-- ════════════════════════════════
+     CONTENU PRINCIPAL
+════════════════════════════════ -->
+<main class="anime-content" id="animeContent">
+
+  <!-- ── Colonne principale ── -->
+  <div class="anime-main-col">
+
+    <!-- Skeleton de chargement -->
+    <div class="detail-skeleton" id="detailSkeleton">
+      <div class="sk-block sk-title-lg"></div>
+      <div class="sk-block sk-text"></div>
+      <div class="sk-block sk-text short"></div>
+      <div class="sk-block sk-text"></div>
     </div>
-  `;
 
-  card.addEventListener('click', (e) => {
-    if (e.target.closest('.card-fav-btn')) return;
-    addToHistory(id, title, img);
-    window.location.href = `anime.html?id=${id}`;
-  });
+    <!-- Header anime -->
+    <div class="anime-header">
+      <div class="anime-badges" id="animeBadges"></div>
+      <h1 class="anime-title"    id="animeTitle">—</h1>
+      <p  class="anime-title-jp" id="animeTitleJp"></p>
 
-  card.querySelector('.card-fav-btn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    const added = toggleFav(id, title, img);
-    const btn = e.currentTarget;
-    btn.classList.toggle('active', added);
-    btn.querySelector('svg').setAttribute('fill', added ? 'currentColor' : 'none');
-  });
+      <!-- Stats rapides (score, épisodes, année, membres) -->
+      <div class="anime-quick-stats" id="animeQuickStats"></div>
 
-  return card;
-}
+      <!-- Boutons action -->
+      <div class="anime-action-row">
+        <a href="#" class="btn-primary watch-crunchy" id="watchCrunchyBtn" target="_blank" rel="noopener">
+          <img src="https://www.crunchyroll.com/favicons/favicon-32x32.png"
+               width="15" height="15" alt="" onerror="this.style.display='none'"/>
+          Crunchyroll
+        </a>
+        <a href="#" class="btn-primary watch-netflix" id="watchNetflixBtn" target="_blank" rel="noopener">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M5 3l4.5 9L5 21h3l2.25-4.5L12.75 21h3L11.25 12 15.75 3h-3L10.5 7.5 8.25 3H5z"/>
+          </svg>
+          Netflix
+        </a>
+        <button class="btn-secondary" id="animeFavBtn" data-id="">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06
+                     a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78
+                     1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <span id="favBtnLabel">+ Favori</span>
+        </button>
+      </div>
 
-/* ──────────────────────────────────────
-   TRAILER LOGIC
-────────────────────────────────────── */
-const trailerState = { youtubeId: null, playing: false, muted: true };
-
-function embedTrailer(youtubeId) {
-  trailerState.youtubeId = youtubeId;
-  const playBtn   = el('playTrailerBtn');
-  const unmuteBtn = el('unmuteBtn');
-  playBtn.classList.remove('hidden');
-
-  playBtn.addEventListener('click', () => {
-    if (!trailerState.playing) {
-      startTrailer(youtubeId);
-    }
-  });
-
-  unmuteBtn.addEventListener('click', () => {
-    toggleMute();
-  });
-}
-
-function startTrailer(youtubeId) {
-  const container = el('trailerContainer');
-  const banner    = el('animeBanner');
-  const frame     = el('trailerFrame');
-  const playBtn   = el('playTrailerBtn');
-  const unmuteBtn = el('unmuteBtn');
-
-  // Autoplay muted via YouTube embed params
-  frame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&enablejsapi=1`;
-
-  container.classList.add('active');
-  banner.style.opacity = '0';
-  playBtn.classList.add('hidden');
-  unmuteBtn.classList.remove('hidden');
-  trailerState.playing = true;
-  trailerState.muted   = true;
-  el('muteLabel').textContent = 'Activer le son';
-  el('muteIcon').innerHTML = `
-    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-    <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
-  `;
-}
-
-function toggleMute() {
-  const frame     = el('trailerFrame');
-  const youtubeId = trailerState.youtubeId;
-  const muteIcon  = el('muteIcon');
-  const muteLabel = el('muteLabel');
-
-  trailerState.muted = !trailerState.muted;
-
-  // Re-embed with mute param toggled (simplest approach without postMessage auth)
-  const muteParam = trailerState.muted ? 1 : 0;
-  frame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=${muteParam}&controls=0&modestbranding=1&rel=0`;
-
-  if (trailerState.muted) {
-    muteLabel.textContent = 'Activer le son';
-    muteIcon.innerHTML = `
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-      <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
-    `;
-  } else {
-    muteLabel.textContent = 'Couper le son';
-    muteIcon.innerHTML = `
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-    `;
-  }
-}
-
-/* ──────────────────────────────────────
-   CAROUSEL NAV (recommendations)
-────────────────────────────────────── */
-function initCarouselButtons() {
-  document.querySelectorAll('.carousel-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id       = btn.dataset.carousel;
-      const carousel = el(`carousel-${id}`);
-      if (!carousel) return;
-      const step = carousel.clientWidth * 0.75;
-      carousel.scrollBy({ left: btn.classList.contains('prev') ? -step : step, behavior: 'smooth' });
-    });
-  });
-}
-
-/* ──────────────────────────────────────
-   NAVBAR SCROLL
-────────────────────────────────────── */
-function initNavbar() {
-  const nav = el('navbar');
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 100) {
-      nav.classList.remove('transparent');
-      nav.classList.add('scrolled');
-    } else {
-      nav.classList.add('transparent');
-      nav.classList.remove('scrolled');
-    }
-  }, { passive: true });
-}
-
-/* ──────────────────────────────────────
-   RENDER ANIME DETAIL
-────────────────────────────────────── */
-function renderDetail(anime) {
-  const id      = anime.mal_id;
-  const title   = anime.title_english || anime.title || '';
-  const titleJp = anime.title_japanese || '';
-  const img     = anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url || '';
-  const synopsis = (anime.synopsis || 'Aucun synopsis disponible.')
-                   .replace(/\[Written by MAL Rewrite\]/gi, '').trim();
-
-  // Page title
-  document.title = `VoirAnime — ${title}`;
-
-  // Banner
-  el('bannerImg').src = img;
-  el('bannerImg').alt = title;
-  el('bannerImg').onerror = () => {
-    el('bannerImg').src = 'https://placehold.co/1200x600/111118/555?text=No+Image';
-  };
-
-  // Trailer
-  const trailer = anime.trailer?.youtube_id;
-  if (trailer) {
-    embedTrailer(trailer);
-    el('trailerRating').textContent = anime.rating ? anime.rating.split(' ')[0] : '';
-  } else {
-    el('playTrailerBtn').style.opacity = '0.4';
-    el('playTrailerBtn').disabled = true;
-    el('playTrailerBtn').textContent = 'Aucune bande-annonce disponible';
-  }
-
-  // Badges
-  const badges = [];
-  if (anime.score)  badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
-  if (anime.type)   badges.push(`<span class="badge badge-muted">${anime.type}</span>`);
-  if (anime.status === 'Currently Airing') badges.push(`<span class="badge badge-green">● En cours</span>`);
-  if (anime.rating) badges.push(`<span class="badge badge-muted">${anime.rating.split(' ')[0]}</span>`);
-  el('animeBadges').innerHTML = badges.join('');
-
-  // Title
-  el('animeTitle').textContent = title;
-  el('animeTitleJp').textContent = titleJp;
-
-  // Quick stats
-  const stats = [
-    anime.score    ? { val: anime.score.toFixed(1), label: 'Score' }  : null,
-    anime.episodes ? { val: anime.episodes, label: 'Épisodes' }       : null,
-    anime.year     ? { val: anime.year, label: 'Année' }              : null,
-    anime.members  ? { val: fmtNum(anime.members), label: 'Membres' } : null,
-  ].filter(Boolean);
-
-  el('animeQuickStats').innerHTML = stats.map(s => `
-    <div class="stat-item">
-      <div class="stat-value">${s.val}</div>
-      <div class="stat-label">${s.label}</div>
+      <!-- Notation personnelle -->
+      <div class="rating-widget" id="ratingWidget">
+        <div class="rating-label">Ma note</div>
+        <div class="rating-stars" id="ratingStars">
+          <button class="rating-star" data-v="1">★</button>
+          <button class="rating-star" data-v="2">★</button>
+          <button class="rating-star" data-v="3">★</button>
+          <button class="rating-star" data-v="4">★</button>
+          <button class="rating-star" data-v="5">★</button>
+          <button class="rating-star" data-v="6">★</button>
+          <button class="rating-star" data-v="7">★</button>
+          <button class="rating-star" data-v="8">★</button>
+          <button class="rating-star" data-v="9">★</button>
+          <button class="rating-star" data-v="10">★</button>
+        </div>
+        <span class="rating-value" id="ratingValue">—</span>
+        <button class="rating-clear hidden" id="ratingClear" title="Effacer">✕</button>
+      </div>
     </div>
-  `).join('');
 
-  // Watch buttons + Streaming aside links (avec tracking Firebase)
-  const titleEnc   = encodeURIComponent(title);
-  const crunchyUrl = `https://www.crunchyroll.com/search?q=${titleEnc}`;
-  const netflixUrl = `https://www.netflix.com/search?q=${titleEnc}`;
-  const adnUrl     = `https://animedigitalnetwork.fr/video/search?q=${titleEnc}`;
-
-  // Helper : attache tracking + ouverture sur n'importe quel lien streaming
-  function bindStream(elemId, platform, url) {
-    const btn = el(elemId);
-    if (!btn) return;
-    btn.href = url;
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      trackClick(platform, id);
-      window.open(url, '_blank');
-    });
-  }
-
-  bindStream('watchCrunchyBtn',  'crunchyroll', crunchyUrl);
-  bindStream('watchNetflixBtn',  'netflix',     netflixUrl);
-  bindStream('streamCrunchyroll','crunchyroll', crunchyUrl);
-  bindStream('streamNetflix',    'netflix',     netflixUrl);
-  bindStream('streamADN',        'adn',         adnUrl);
-
-  // Fav buttons
-  const fav = isFav(id);
-  [el('animeFavBtn'), el('navFavBtn')].forEach(btn => {
-    if (!btn) return;
-    btn.dataset.id = id;
-    btn.classList.toggle('active', fav);
-    el('favBtnLabel').textContent = fav ? '❤ En favoris' : '+ Favori';
-
-    btn.addEventListener('click', () => {
-      const added = toggleFav(id, title, img);
-      [el('animeFavBtn'), el('navFavBtn')].forEach(b => b && b.classList.toggle('active', added));
-      el('favBtnLabel').textContent = added ? '❤ En favoris' : '+ Favori';
-    });
-  });
-
-  // Synopsis
-  const synEl = el('animeSynopsis');
-  synEl.textContent = synopsis;
-  const toggleEl = el('synopsisToggle');
-  let expanded = false;
-  toggleEl.addEventListener('click', () => {
-    expanded = !expanded;
-    synEl.classList.toggle('expanded', expanded);
-    toggleEl.textContent = expanded ? 'Réduire ▲' : 'Lire plus ▼';
-  });
-
-  // Genres
-  const genres = [...(anime.genres || []), ...(anime.themes || []), ...(anime.demographics || [])];
-  el('animeGenres').innerHTML = genres.length
-    ? genres.map(g => `<span class="tag">${g.name}</span>`).join('')
-    : '<span class="tag">Non renseigné</span>';
-
-  // Score widget
-  if (anime.score) {
-    el('scoreValue').textContent = anime.score.toFixed(1);
-    el('scoreVoters').textContent = anime.scored_by ? `${fmtNum(anime.scored_by)} votes` : '';
-    el('scoreRank').textContent   = anime.rank ? `Rang #${anime.rank}` : '';
-  }
-
-  // Info table
-  const rows = [
-    { k: 'Titre JP',   v: titleJp || '—' },
-    { k: 'Type',       v: anime.type || '—' },
-    { k: 'Épisodes',   v: anime.episodes ? `${anime.episodes}` : '—' },
-    { k: 'Durée',      v: anime.duration || '—' },
-    { k: 'Statut',     v: anime.status || '—' },
-    { k: 'Diffusion',  v: anime.aired?.string || '—' },
-    { k: 'Studio',     v: (anime.studios || []).map(s => s.name).join(', ') || '—' },
-    { k: 'Source',     v: anime.source || '—' },
-    { k: 'Saison',     v: anime.season ? `${cap(anime.season)} ${anime.year}` : '—' },
-    { k: 'Popularité', v: anime.popularity ? `#${anime.popularity}` : '—' },
-  ];
-
-  el('infoTable').innerHTML = rows.map(r => `
-    <div class="info-row">
-      <span class="info-key">${r.k}</span>
-      <span class="info-val">${r.v}</span>
+    <!-- Synopsis -->
+    <div class="anime-synopsis-block">
+      <h2 class="block-title">Synopsis</h2>
+      <p class="anime-synopsis" id="animeSynopsis"></p>
+      <button class="synopsis-toggle" id="synopsisToggle">Lire plus ▼</button>
     </div>
-  `).join('');
 
-  // Add to history
-  addToHistory(id, title, img, 0);
-}
+    <!-- Genres & Thèmes -->
+    <div class="anime-genres-block">
+      <h2 class="block-title">Genres &amp; Thèmes</h2>
+      <div class="tags-list" id="animeGenres"></div>
+    </div>
 
-function fmtNum(n) {
-  if (!n) return '';
-  if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
-  if (n >= 1_000)     return (n / 1_000).toFixed(0) + 'k';
-  return n.toString();
-}
+  </div>
 
-function cap(s) {
-  return s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
-}
+  <!-- ── Colonne aside ── -->
+  <aside class="anime-aside-col" id="animeAside">
 
-/* ──────────────────────────────────────
-   RECOMMENDATIONS
-────────────────────────────────────── */
-async function loadRecommendations(id) {
-  const carousel = el('carousel-reco');
-  carousel.innerHTML = '<p style="color:var(--muted);padding:16px;font-size:0.85rem;">Chargement…</p>';
+    <!-- Score -->
+    <div class="score-widget" id="scoreWidget">
+      <div class="score-circle">
+        <div class="score-value" id="scoreValue">—</div>
+        <div class="score-max">/10</div>
+      </div>
+      <div class="score-info">
+        <div class="score-label">Score MAL</div>
+        <div class="score-voters" id="scoreVoters"></div>
+        <div class="score-rank"   id="scoreRank"></div>
+      </div>
+    </div>
 
-  try {
-    await sleep(600); // respect rate limit
-    const data = await jikanFetch(`/anime/${id}/recommendations`);
-    const items = (data.data || []).slice(0, 20);
+    <!-- Tableau d'infos -->
+    <div class="info-table" id="infoTable"></div>
 
-    carousel.innerHTML = '';
-    if (items.length === 0) {
-      carousel.innerHTML = '<p style="color:var(--muted);padding:16px;font-size:0.85rem;">Aucune recommandation disponible.</p>';
-      return;
-    }
+    <!-- Liens streaming -->
+    <div class="streaming-block">
+      <h3 class="block-title small">Où regarder</h3>
+      <div class="stream-links">
+        <a href="#" id="streamCrunchyroll" class="stream-link crunchyroll-link" target="_blank" rel="noopener">
+          <span class="stream-icon">🟠</span> Crunchyroll
+        </a>
+        <a href="#" id="streamNetflix" class="stream-link netflix-link" target="_blank" rel="noopener">
+          <span class="stream-icon">🔴</span> Netflix
+        </a>
+        <a href="#" id="streamADN" class="stream-link adn-link" target="_blank" rel="noopener">
+          <span class="stream-icon">🔵</span> ADN
+        </a>
+      </div>
+    </div>
 
-    items.forEach(item => {
-      const anime = item.entry;
-      carousel.appendChild(buildRecoCard({
-        mal_id: anime.mal_id,
-        title: anime.title,
-        title_english: anime.title,
-        images: anime.images,
-        score: null,
-        type: null,
-      }));
-    });
-  } catch (e) {
-    carousel.innerHTML = '<p style="color:var(--muted);padding:16px;font-size:0.85rem;">Impossible de charger les recommandations.</p>';
-    console.error('Reco error:', e);
-  }
-}
+  </aside>
+</main>
 
-/* ──────────────────────────────────────
-   SKELETON
-────────────────────────────────────── */
-function showDetailSkeleton() {
-  const sk = el('detailSkeleton');
-  if (sk) sk.style.display = 'block';
-  // Hide real content
-  ['animeHeader', 'animeSynopsisBlock', 'animeGenresBlock'].forEach(id => {
-    const e = document.querySelector(`.${id.replace(/([A-Z])/g, '-$1').toLowerCase()}`);
+<!-- ════════════════════════════════
+     RECOMMANDATIONS
+════════════════════════════════ -->
+<section class="recommendations-section" id="recommendationsSection">
+  <div class="content-section">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="section-dot violet"></span>
+        Animes similaires
+      </h2>
+    </div>
+    <div class="carousel-wrapper">
+      <button class="carousel-btn prev" data-carousel="reco">‹</button>
+      <div class="carousel" id="carousel-reco"></div>
+      <button class="carousel-btn next" data-carousel="reco">›</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+     FOOTER
+════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="footer-logo">Voir<span>Anime</span></div>
+  <p class="footer-text">
+    Données fournies par
+    <a href="https://jikan.moe" target="_blank" rel="noopener">Jikan API</a>
+    · MyAnimeList
+  </p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- ════════════════════════════════
+     SCRIPT
+════════════════════════════════ -->
+<script type="module" src="anime.js"></script>
+
+<script>
+/* Transition cinématique entre pages */
+(function(){
+  var overlay = document.createElement("div");
+  overlay.className = "page-transition-overlay in";
+  document.body.appendChild(overlay);
+  setTimeout(function(){ overlay.remove(); }, 450);
+
+  document.addEventListener("click", function(e){
+    var link = e.target.closest("a[href]");
+    if (!link) return;
+    var href = link.getAttribute("href");
+    if (!href || href.startsWith("#") || href.startsWith("http") ||
+        href.startsWith("mailto") || link.target === "_blank") return;
+    e.preventDefault();
+    var ov = document.createElement("div");
+    ov.className = "page-transition-overlay out";
+    document.body.appendChild(ov);
+    setTimeout(function(){ window.location.href = href; }, 340);
   });
-}
-
-function hidePageLoader() {
-  const loader = el('pageLoader');
-  if (loader) {
-    loader.classList.add('fade-out');
-    setTimeout(() => loader.remove(), 450);
-  }
-  const sk = el('detailSkeleton');
-  if (sk) sk.style.display = 'none';
-}
-
-/* ──────────────────────────────────────
-   NOTATION PERSONNELLE (1–10 étoiles)
-────────────────────────────────────── */
-function getRatings() {
-  try { return JSON.parse(localStorage.getItem('VoirAnime_ratings') || '{}'); }
-  catch { return {}; }
-}
-function saveRating(animeId, value) {
-  const r = getRatings();
-  if (value === null) delete r[String(animeId)];
-  else r[String(animeId)] = value;
-  localStorage.setItem('VoirAnime_ratings', JSON.stringify(r));
-}
-
-function initRating(animeId) {
-  const widget    = el('ratingWidget');
-  const stars     = el('ratingStars');
-  const valueEl   = el('ratingValue');
-  const clearBtn  = el('ratingClear');
-  if (!widget || !stars) return;
-
-  const ratings  = getRatings();
-  let current    = ratings[String(animeId)] || 0;
-
-  function renderStars(hovered = 0) {
-    const active = hovered || current;
-    stars.querySelectorAll('.rating-star').forEach(s => {
-      const v = Number(s.dataset.v);
-      s.classList.toggle('active',  v <= active);
-      s.classList.toggle('hovered', hovered > 0 && v <= hovered);
-    });
-    valueEl.textContent = hovered ? `${hovered}/10` : (current ? `${current}/10` : '—');
-    if (clearBtn) clearBtn.classList.toggle('hidden', current === 0);
-  }
-
-  renderStars();
-
-  // Hover
-  stars.querySelectorAll('.rating-star').forEach(s => {
-    s.addEventListener('mouseenter', () => renderStars(Number(s.dataset.v)));
-    s.addEventListener('mouseleave', () => renderStars(0));
-    s.addEventListener('click', () => {
-      const v = Number(s.dataset.v);
-      current = (current === v) ? 0 : v; // toggle si même note
-      saveRating(animeId, current || null);
-      renderStars(0);
-      showToast(current ? `Note enregistrée : ${current}/10 ⭐` : 'Note supprimée');
-    });
-  });
-
-  if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      current = 0;
-      saveRating(animeId, null);
-      renderStars(0);
-      showToast('Note supprimée');
-    });
-  }
-}
-
-/* ──────────────────────────────────────
-   INIT
-────────────────────────────────────── */
-async function init() {
-  initNavbar();
-  initCarouselButtons();
-
-  const params  = new URLSearchParams(window.location.search);
-  const animeId = params.get('id');
-
-  if (!animeId) {
-    hidePageLoader();
-    el('pageLoader').innerHTML = `
-      <div style="text-align:center;color:var(--muted)">
-        <p style="font-size:2rem;margin-bottom:12px">（；￣д￣）</p>
-        <p>Aucun anime spécifié. <a href="index.html" style="color:var(--accent)">← Retour</a></p>
-      </div>`;
-    return;
-  }
-
-  trackView(animeId); // ← après le guard : on sait que l'id est valide
-
-  try {
-    const data = await jikanFetch(`/anime/${animeId}/full`);
-    renderDetail(data.data);
-    initRating(animeId);
-    hidePageLoader();
-    loadRecommendations(animeId);
-  } catch (e) {
-    hidePageLoader();
-    const content = el('animeContent');
-    if (content) content.innerHTML = `
-      <div style="text-align:center;color:var(--muted);padding:80px 20px;grid-column:1/-1">
-        <p style="font-size:2rem;margin-bottom:12px">（；￣д￣）</p>
-        <p>Impossible de charger cet anime.</p>
-        <a href="index.html" style="color:var(--accent);margin-top:16px;display:inline-block">← Retour à l'accueil</a>
-      </div>`;
-    console.error('Init error:', e);
-  }
-}
-
-document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>
