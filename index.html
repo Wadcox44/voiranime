@@ -123,15 +123,33 @@
 </div>
 
 <!-- ════════════════════════════════
-     HERO
+     HERO — PORTAIL ANIME
 ════════════════════════════════ -->
 <section class="hero" id="hero">
+
+  <!-- Canvas particules (fond vivant) -->
+  <canvas class="hero-particles" id="heroParticles"></canvas>
+
+  <!-- Fond image avec parallax -->
   <div class="hero-bg" id="heroBg">
     <img id="heroImg" src="" alt=""/>
     <div class="hero-gradient"></div>
   </div>
 
+  <!-- Aura lumineuse autour du poster (couleur selon genre) -->
+  <div class="hero-aura" id="heroAura"></div>
+
+  <!-- Poster flottant central -->
+  <div class="hero-poster-wrap" id="heroPosterWrap">
+    <div class="hero-poster-ring"></div>
+    <img class="hero-poster-img" id="heroPosterImg" src="" alt=""/>
+    <div class="hero-poster-shine"></div>
+  </div>
+
+  <!-- Contenu texte -->
   <div class="hero-content" id="heroContent">
+
+    <!-- Skeleton -->
     <div class="hero-skeleton" id="heroSkeleton">
       <div class="sk-block sk-title"></div>
       <div class="sk-block sk-text"></div>
@@ -142,32 +160,50 @@
       </div>
     </div>
 
+    <!-- Info réelle -->
     <div class="hero-info hidden" id="heroInfo">
+      <div class="hero-eyebrow" id="heroEyebrow">
+        <span class="hero-live-dot"></span>
+        <span id="heroEyebrowText">En diffusion</span>
+      </div>
       <div class="hero-badges" id="heroBadges"></div>
-      <h1 class="hero-title"  id="heroTitle"></h1>
+      <h1 class="hero-title" id="heroTitle"></h1>
       <p  class="hero-synopsis" id="heroSynopsis"></p>
+
+      <!-- 2 CTA principaux + favori -->
       <div class="hero-actions">
-        <a href="#" class="btn-play" id="heroPlayBtn">
+        <a href="#" class="hero-cta-explore" id="heroPlayBtn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-          Voir l'anime
+          Explorer
         </a>
-        <button class="btn-more" id="heroMoreBtn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+        <button class="hero-cta-surprise" id="heroSurpriseBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+            <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
           </svg>
-          Plus d'infos
+          Surprise-moi
         </button>
-        <button class="btn-fav" id="heroFavBtn" data-id="" aria-label="Ajouter aux favoris">
+        <button class="btn-fav hero-cta-fav" id="heroFavBtn" data-id="" aria-label="Ajouter aux favoris">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
         </button>
       </div>
+      <!-- btn-more caché mais requis par main.js -->
+      <button class="btn-more" id="heroMoreBtn" style="display:none">Plus d'infos</button>
       <div class="hero-meta" id="heroMeta"></div>
     </div>
   </div>
 
+  <!-- Dots navigation -->
   <div class="hero-dots" id="heroDots"></div>
+
+  <!-- Scroll indicator -->
+  <div class="hero-scroll-hint">
+    <div class="hero-scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+
 </section>
 
 <!-- ════════════════════════════════
@@ -513,6 +549,106 @@
     document.body.appendChild(ov);
     setTimeout(function(){ window.location.href = href; }, 340);
   });
+})();
+</script>
+
+<script>
+/* ════════════════════════════════════════
+   HERO PORTAL ENGINE
+   Particules · Parallax souris · Aura · Surprise
+   ════════════════════════════════════════ */
+(function(){
+  /* ── Canvas particules ── */
+  const canvas = document.getElementById('heroParticles');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize(){
+    W = canvas.width  = canvas.offsetWidth  || window.innerWidth;
+    H = canvas.height = canvas.offsetHeight || window.innerHeight * 0.92;
+  }
+  window.addEventListener('resize', resize, {passive:true});
+  resize();
+
+  function spawnParticles(){
+    particles = [];
+    const n = Math.min(90, Math.floor(W * H / 14000));
+    for(let i = 0; i < n; i++){
+      particles.push({
+        x:  Math.random() * W,
+        y:  Math.random() * H,
+        r:  0.4 + Math.random() * 1.6,
+        vx: (Math.random() - 0.5) * 0.15,
+        vy: -0.04 - Math.random() * 0.2,
+        o:  0.08 + Math.random() * 0.42,
+        h:  [280, 315, 200, 260][Math.floor(Math.random() * 4)],
+      });
+    }
+  }
+  spawnParticles();
+  window.addEventListener('resize', spawnParticles, {passive:true});
+
+  let mx = 0.5, my = 0.5;
+  document.getElementById('hero')?.addEventListener('mousemove', e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    mx = (e.clientX - r.left) / r.width;
+    my = (e.clientY - r.top)  / r.height;
+  }, {passive:true});
+
+  (function tick(){
+    ctx.clearRect(0, 0, W, H);
+    for(const p of particles){
+      p.x += p.vx + (mx - 0.5) * 0.1;
+      p.y += p.vy + (my - 0.5) * 0.05;
+      if(p.y < -4) p.y = H + 4;
+      if(p.x < -4) p.x = W + 4;
+      if(p.x > W + 4) p.x = -4;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.h},75%,70%,${p.o})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(tick);
+  })();
+
+  /* ── Parallax souris ── */
+  const heroBg     = document.getElementById('heroBg');
+  const posterWrap = document.getElementById('heroPosterWrap');
+  const heroAura   = document.getElementById('heroAura');
+
+  document.getElementById('hero')?.addEventListener('mousemove', e => {
+    const r  = e.currentTarget.getBoundingClientRect();
+    const dx = (e.clientX - r.left  - r.width  / 2) / r.width;
+    const dy = (e.clientY - r.top   - r.height / 2) / r.height;
+    if(heroBg)     heroBg.style.transform     = `translate(${dx*-16}px,${dy*-9}px) scale(1.07)`;
+    if(posterWrap) posterWrap.style.transform = `translateY(-50%) translate(${dx*14}px,${dy*8}px) rotateY(${dx*6}deg) rotateX(${-dy*3}deg)`;
+    if(heroAura)   heroAura.style.transform   = `translate(${dx*22}px,${dy*14}px)`;
+  }, {passive:true});
+
+  document.getElementById('hero')?.addEventListener('mouseleave', () => {
+    if(heroBg)     heroBg.style.transform     = 'translate(0,0) scale(1.07)';
+    if(posterWrap) posterWrap.style.transform = 'translateY(-50%)';
+    if(heroAura)   heroAura.style.transform   = 'translate(0,0)';
+  }, {passive:true});
+
+  /* ── Surprise-moi ── */
+  document.getElementById('heroSurpriseBtn')?.addEventListener('click', () => {
+    const pool = window._heroAnimesPool;
+    if(!pool || pool.length < 2) return;
+    let idx;
+    do { idx = Math.floor(Math.random() * pool.length); }
+    while(idx === (window._heroCurrentIndex || 0));
+    window._heroCurrentIndex = idx;
+    if(window._renderHero) window._renderHero(pool[idx]);
+    if(window._updateHeroDots) window._updateHeroDots();
+    // Flash visuel
+    const flash = document.createElement('div');
+    flash.style.cssText = 'position:fixed;inset:0;z-index:9000;background:#08070f;opacity:.4;pointer-events:none;transition:opacity .4s';
+    document.body.appendChild(flash);
+    requestAnimationFrame(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 420); });
+  });
+
 })();
 </script>
 </body>
