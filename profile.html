@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VoirAnime — Mon Profil</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+  <style>
+    /* Logo néon */
+    .nav-logo{text-decoration:none;display:inline-flex;align-items:center}
+    .logo-glitch{display:inline-block;font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:-.5px;transform:skewX(-6deg);position:relative;user-select:none}
+    .logo-glitch::before,.logo-glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:0;pointer-events:none}
+    .logo-glitch::before{color:#ff2d78;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%)}
+    .logo-glitch::after{color:#2de4ff;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%)}
+    .logo-glitch::before{animation:va-gr-auto 5s steps(2) infinite;opacity:1}
+    .logo-glitch::after{animation:va-gb-auto 5s steps(2) .06s infinite;opacity:1}
+    @keyframes va-gr-auto{0%{transform:translate(-2px,1px);opacity:1}4%{transform:translate(2px,-1px);opacity:1}8%{transform:translate(-1px,2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
+    @keyframes va-gb-auto{0%{transform:translate(2px,-1px);opacity:1}4%{transform:translate(-2px,1px);opacity:1}8%{transform:translate(1px,-2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
+    .logo-voir{color:#fff;animation:va-gw 2.6s ease-in-out infinite}
+    .logo-anime{color:#ff4fd8;animation:va-gp 2.6s ease-in-out infinite .4s}
+    @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(255,79,216,.4),0 0 10px rgba(255,79,216,.2)}50%{text-shadow:0 0 8px rgba(255,79,216,.9),0 0 20px rgba(255,79,216,.5),0 0 36px rgba(124,77,255,.3)}}
+    @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(255,79,216,.6),0 0 14px rgba(124,77,255,.3)}50%{text-shadow:0 0 10px #ff4fd8,0 0 24px rgba(255,79,216,.7),0 0 40px rgba(124,77,255,.45)}}
+    @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
+
+    /* ── Profile page styles ── */
+    .profile-hero {
+      padding: calc(var(--nav-h) + 48px) 48px 40px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      max-width: 1160px;
+      margin: 0 auto;
+    }
+    .profile-avatar {
+      width: 96px; height: 96px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c4dff, #ff4fd8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.8rem;
+      flex-shrink: 0;
+      box-shadow: 0 0 32px rgba(124,77,255,0.35);
+    }
+    .profile-info { flex: 1; }
+    .profile-name {
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .profile-since {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .profile-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+    .profile-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: var(--ink3);
+      border: 1px solid var(--b2);
+      color: var(--text2);
+    }
+    .profile-badge.gold { background: rgba(255,209,102,.12); border-color: rgba(255,209,102,.3); color: var(--gold); }
+    .profile-badge.pink { background: var(--pink-dim); border-color: var(--b-pink); color: #ffaaee; }
+
+    /* Stats grid */
+    .profile-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      max-width: 1160px;
+      margin: 0 auto 40px;
+      padding: 0 48px;
+    }
+    .stat-card {
+      background: var(--ink3);
+      border: 1px solid var(--b1);
+      border-radius: var(--r-lg);
+      padding: 20px 16px;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .stat-card:hover { border-color: var(--b2); transform: translateY(-2px); }
+    .stat-card-num {
+      font-size: 2rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-card-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* Sections profil */
+    .profile-section {
+      max-width: 1160px;
+      margin: 0 auto 40px;
+      padding: 0 48px;
+    }
+    .profile-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    /* Grille favoris / historique */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 14px;
+    }
+    .profile-anime-card {
+      cursor: pointer;
+      border-radius: var(--r);
+      overflow: hidden;
+      background: var(--ink3);
+      border: 1px solid var(--b1);
+      transition: transform 0.25s var(--ease-spring), border-color 0.2s;
+    }
+    .profile-anime-card:hover {
+      transform: translateY(-6px) scale(1.03);
+      border-color: var(--b-pink);
+    }
+    .profile-card-img {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+    }
+    .profile-card-body { padding: 8px; }
+    .profile-card-title {
+      font-size: 0.76rem;
+      font-weight: 600;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .profile-card-title:hover { color: var(--pink); }
+
+    /* Activité timeline */
+    .activity-list { display: flex; flex-direction: column; gap: 8px; }
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--ink3);
+      border: 1px solid var(--b1);
+      border-radius: var(--r);
+      transition: border-color 0.2s;
+    }
+    .activity-item:hover { border-color: var(--b2); }
+    .activity-thumb {
+      width: 40px; height: 56px;
+      border-radius: 6px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--ink4);
+    }
+    .activity-info { flex: 1; min-width: 0; }
+    .activity-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 3px;
+    }
+    .activity-time { font-size: 0.72rem; color: var(--muted); }
+    .activity-remove {
+      color: var(--muted);
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .activity-remove:hover { color: var(--pink); background: var(--pink-dim); }
+
+    /* Bouton reset */
+    .profile-reset-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border-radius: var(--r-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(230,57,70,0.1);
+      border: 1px solid rgba(230,57,70,0.25);
+      color: #ff8080;
+      transition: all 0.2s;
+      font-family: var(--font);
+      cursor: pointer;
+    }
+    .profile-reset-btn:hover { background: rgba(230,57,70,0.2); border-color: rgba(230,57,70,0.5); }
+
+    /* Empty state */
+    .profile-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .profile-empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+    @media (max-width: 768px) {
+      .profile-hero { padding: calc(var(--nav-h) + 24px) 16px 28px; flex-direction: column; gap: 20px; }
+      .profile-stats { padding: 0 16px; }
+      .profile-section { padding: 0 16px; }
+      .profile-avatar { width: 72px; height: 72px; font-size: 2rem; }
+      .profile-name { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar scrolled" id="navbar">
+  <div class="nav-left">
+    <a href="index.html" class="nav-logo" aria-label="VoirAnime">
+      <span class="logo-glitch" data-text="VoirAnime">
+        <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
+      </span>
+    </a>
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Accueil
+    </a>
+  </div>
+  <div class="nav-right">
+    <a href="duel.html" class="back-link">⚔ Duels</a>
+  </div>
+</nav>
+
+<!-- HERO PROFIL -->
+<div class="profile-hero">
+  <div class="profile-avatar" id="profileAvatar">👤</div>
+  <div class="profile-info">
+    <h1 class="profile-name">Mon Profil</h1>
+    <p class="profile-since" id="profileSince">Membre depuis aujourd'hui</p>
+    <div class="profile-badges" id="profileBadges"></div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="profile-stats" id="profileStats">
+  <div class="stat-card">
+    <div class="stat-card-num" id="statFavCount" style="color:var(--pink)">0</div>
+    <div class="stat-card-label">Favoris</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-num" id="statHistCount" style="color:var(--violet)">0</div>
+    <div class="stat-card-label">Animes visités</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-num" id="statDuelCount" style="color:var(--gold)">0</div>
+    <div class="stat-card-label">Duels joués</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-num" id="statStreakCount" style="color:#ff8c42">0</div>
+    <div class="stat-card-label">Streak 🔥</div>
+  </div>
+</div>
+
+<!-- FAVORIS -->
+<section class="profile-section">
+  <div class="profile-section-title">
+    <span class="section-dot red"></span>
+    ❤ Mes Favoris
+    <span style="font-size:0.72rem;font-weight:400;color:var(--muted)" id="favSubtitle"></span>
+  </div>
+  <div class="profile-grid" id="favGrid"></div>
+  <div class="profile-empty hidden" id="favEmpty">
+    <div class="profile-empty-icon">（；￣д￣）</div>
+    <p>Aucun favori pour l'instant.<br>Clique sur ❤ sur n'importe quelle fiche anime !</p>
+  </div>
+</section>
+
+<!-- HISTORIQUE -->
+<section class="profile-section">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div class="profile-section-title" style="margin-bottom:0">
+      <span class="section-dot violet"></span>
+      🕐 Historique de navigation
+    </div>
+    <button class="profile-reset-btn" id="clearHistoryBtn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+      Effacer
+    </button>
+  </div>
+  <div class="activity-list" id="historyList"></div>
+  <div class="profile-empty hidden" id="histEmpty">
+    <div class="profile-empty-icon">🎌</div>
+    <p>Ton historique est vide.<br>Commence à explorer des animes !</p>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-logo">Voir<span>Anime</span></div>
+  <p class="footer-text">© 2025 VoirAnime — Projet open source</p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  function el(id) { return document.getElementById(id); }
+
+  function showToast(msg) {
+    const t = el('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  function getFavs() {
+    try { return JSON.parse(localStorage.getItem('VoirAnime_favs') || '[]'); } catch { return []; }
+  }
+  function saveFavs(f) { localStorage.setItem('VoirAnime_favs', JSON.stringify(f)); }
+
+  function getHistory() {
+    try { return JSON.parse(localStorage.getItem('VoirAnime_history') || '[]'); } catch { return []; }
+  }
+  function saveHistory(h) { localStorage.setItem('VoirAnime_history', JSON.stringify(h)); }
+
+  function timeAgo(ts) {
+    const diff = Date.now() - ts;
+    const m = Math.floor(diff / 60000);
+    const h = Math.floor(diff / 3600000);
+    const d = Math.floor(diff / 86400000);
+    if (m < 2)  return 'À l\'instant';
+    if (m < 60) return `Il y a ${m} min`;
+    if (h < 24) return `Il y a ${h}h`;
+    if (d < 30) return `Il y a ${d} jour${d > 1 ? 's' : ''}`;
+    return `Il y a ${Math.floor(d/30)} mois`;
+  }
+
+  function getBadges(favs, history, duels) {
+    const badges = [];
+    if (favs.length >= 1)   badges.push({ label: '⭐ Premier favori', cls: 'gold' });
+    if (favs.length >= 10)  badges.push({ label: '❤ Fan confirmé',    cls: 'pink' });
+    if (history.length >= 10) badges.push({ label: '🎌 Explorateur',  cls: '' });
+    if (duels >= 5)           badges.push({ label: '⚔ Duelliste',     cls: '' });
+    if (duels >= 20)          badges.push({ label: '🏆 Champion',      cls: 'gold' });
+    return badges;
+  }
+
+  function renderStats() {
+    const favs    = getFavs();
+    const hist    = getHistory();
+    const duels   = parseInt(localStorage.getItem('voiranime_duels')  || '0');
+    const streak  = parseInt(localStorage.getItem('voiranime_streak') || '0');
+
+    el('statFavCount').textContent   = favs.length;
+    el('statHistCount').textContent  = hist.length;
+    el('statDuelCount').textContent  = duels;
+    el('statStreakCount').textContent = streak;
+
+    // Badge "membre depuis"
+    const firstVisit = parseInt(localStorage.getItem('VoirAnime_firstVisit') || '0');
+    if (!firstVisit) {
+      localStorage.setItem('VoirAnime_firstVisit', Date.now().toString());
+      el('profileSince').textContent = 'Membre depuis aujourd\'hui';
+    } else {
+      el('profileSince').textContent = 'Membre depuis ' + timeAgo(firstVisit).toLowerCase().replace('il y a ', '');
+    }
+
+    // Badges
+    const badges = getBadges(favs, hist, duels);
+    const badgesEl = el('profileBadges');
+    badgesEl.innerHTML = badges.length
+      ? badges.map(b => `<span class="profile-badge ${b.cls}">${b.label}</span>`).join('')
+      : '<span class="profile-badge">🌱 Nouvelle recrue</span>';
+
+    // Avatar emoji selon niveau
+    const total = favs.length + hist.length + duels;
+    const avatar = total < 5 ? '🌱' : total < 20 ? '⭐' : total < 50 ? '🔥' : '👑';
+    el('profileAvatar').textContent = avatar;
+  }
+
+  function renderFavs() {
+    const favs   = getFavs();
+    const grid   = el('favGrid');
+    const empty  = el('favEmpty');
+    const sub    = el('favSubtitle');
+
+    sub.textContent = favs.length ? `(${favs.length})` : '';
+
+    if (favs.length === 0) {
+      grid.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    grid.innerHTML = '';
+
+    favs.forEach(f => {
+      const card = document.createElement('div');
+      card.className = 'profile-anime-card';
+      card.innerHTML = `
+        <img class="profile-card-img" src="${f.img || ''}"
+             alt="${f.title}"
+             onerror="this.src='https://placehold.co/130x195/0f0e1a/555?text=?'"/>
+        <div class="profile-card-body">
+          <div class="profile-card-title">${f.title}</div>
+        </div>`;
+      card.addEventListener('click', () => {
+        window.location.href = `anime.html?id=${f.id}`;
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  function renderHistory() {
+    const hist  = getHistory();
+    const list  = el('historyList');
+    const empty = el('histEmpty');
+
+    if (hist.length === 0) {
+      list.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    list.innerHTML = '';
+
+    hist.slice(0, 20).forEach(h => {
+      const item = document.createElement('div');
+      item.className = 'activity-item';
+      item.innerHTML = `
+        <img class="activity-thumb" src="${h.img || ''}" alt="${h.title}"
+             onerror="this.src='https://placehold.co/40x56/0f0e1a/555?text=?'"/>
+        <div class="activity-info">
+          <div class="activity-title">${h.title}</div>
+          <div class="activity-time">${timeAgo(h.ts)}</div>
+        </div>
+        <button class="activity-remove" data-id="${h.id}" title="Supprimer">✕</button>`;
+
+      // Click → fiche anime
+      item.querySelector('.activity-info').addEventListener('click', () => {
+        window.location.href = `anime.html?id=${h.id}`;
+      });
+      item.querySelector('.activity-thumb').addEventListener('click', () => {
+        window.location.href = `anime.html?id=${h.id}`;
+      });
+
+      // Supprimer de l'historique
+      item.querySelector('.activity-remove').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id  = Number(e.currentTarget.dataset.id);
+        const newH = getHistory().filter(x => Number(x.id) !== id);
+        saveHistory(newH);
+        renderHistory();
+        renderStats();
+        showToast('Entrée supprimée de l\'historique');
+      });
+
+      list.appendChild(item);
+    });
+  }
+
+  // Clear history
+  el('clearHistoryBtn').addEventListener('click', () => {
+    if (!confirm('Effacer tout l\'historique ?')) return;
+    saveHistory([]);
+    renderHistory();
+    renderStats();
+    showToast('Historique effacé');
+  });
+
+  // Init
+  renderStats();
+  renderFavs();
+  renderHistory();
+
+})();
+</script>
+
+</body>
+</html>

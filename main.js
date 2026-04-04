@@ -592,25 +592,197 @@ async function loadHero() {
 }
 
 /* ──────────────────────────────────────
+   MOOD PILLS — endpoints Jikan par ambiance
+────────────────────────────────────── */
+const MOOD_CONFIG = {
+  all:           { label: 'Tout',          endpoint: null },
+  action:        { label: '⚡ Adrénaline', endpoint: '/anime?genres=1&order_by=score&sort=desc&limit=20&sfw=true' },
+  romance:       { label: '🌸 Romance',    endpoint: '/anime?genres=22&order_by=score&sort=desc&limit=20&sfw=true' },
+  dark:          { label: '🌑 Univers Sombre', endpoint: '/anime?genres=8&rating=r&order_by=score&sort=desc&limit=20&sfw=true' },
+  comedy:        { label: '😄 Bonne Humeur',   endpoint: '/anime?genres=4&order_by=score&sort=desc&limit=20&sfw=true' },
+  scifi:         { label: '🚀 Sci-fi & Mecha', endpoint: '/anime?genres=24&order_by=score&sort=desc&limit=20&sfw=true' },
+  psychological: { label: '🤯 Mind-bending',   endpoint: '/anime?genres=40&order_by=score&sort=desc&limit=20&sfw=true' },
+  slice:         { label: '🍃 Zen & Calme',    endpoint: '/anime?genres=36&order_by=score&sort=desc&limit=20&sfw=true' },
+};
+
+function initMoodPills() {
+  const row = el('moodRow');
+  if (!row) return;
+
+  row.addEventListener('click', async (e) => {
+    const pill = e.target.closest('.mood-pill');
+    if (!pill) return;
+
+    // Toggle actif
+    row.querySelectorAll('.mood-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+
+    const mood    = pill.dataset.mood || 'all';
+    const config  = MOOD_CONFIG[mood];
+    const section = el('section-mood');
+    const titleEl = el('moodSectionTitle');
+
+    // "Tout" → cache la section mood
+    if (mood === 'all' || !config?.endpoint) {
+      if (section) section.style.display = 'none';
+      return;
+    }
+
+    // Affiche section + skeleton
+    section.style.display = 'block';
+    titleEl.innerHTML = `<span class="section-dot violet"></span>${config.label}`;
+    const carousel = el('carousel-mood');
+    buildSkeletons(carousel, 10);
+
+    // Scroll smooth vers la section
+    setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+
+    try {
+      const data   = await jikanFetch(config.endpoint);
+      const animes = data.data || [];
+      renderCarousel('mood', animes);
+    } catch (e) {
+      const c = el('carousel-mood');
+      if (c) c.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">Impossible de charger cette ambiance.</p>`;
+    }
+  });
+}
+
+/* ──────────────────────────────────────
+   RECHERCHE AVANCÉE
+────────────────────────────────────── */
+function initAdvancedSearch() {
+  const toggle  = el('advSearchToggle');
+  const body    = el('advSearchBody');
+  const arrow   = el('advArrow');
+  const btnSearch = el('advBtnSearch');
+  const clearBtn  = el('advClearBtn');
+
+  if (!toggle) return;
+
+  // Toggle ouverture
+  toggle.addEventListener('click', () => {
+    const open = body.style.display === 'none';
+    body.style.display  = open ? 'block' : 'none';
+    arrow.textContent   = open ? '▲' : '▼';
+  });
+
+  // Lancer la recherche
+  btnSearch.addEventListener('click', () => runAdvancedSearch());
+
+  // Effacer résultats
+  if (clearBtn) clearBtn.addEventListener('click', () => {
+    el('section-adv-results').style.display = 'none';
+    // Reset selects
+    ['advGenre','advType','advScore','advStatus','advYear'].forEach(id => {
+      const s = el(id); if (s) s.value = '';
+    });
+  });
+}
+
+async function runAdvancedSearch() {
+  const genre  = el('advGenre')?.value  || '';
+  const type   = el('advType')?.value   || '';
+  const score  = el('advScore')?.value  || '';
+  const status = el('advStatus')?.value || '';
+  const year   = el('advYear')?.value   || '';
+
+  // Build endpoint
+  let params = 'limit=20&sfw=true&order_by=score&sort=desc';
+  if (genre)  params += `&genres=${genre}`;
+  if (type)   params += `&type=${type}`;
+  if (score)  params += `&min_score=${score}`;
+  if (status) params += `&status=${status}`;
+  if (year)   params += `&start_date=${year}-01-01${year === '2010' ? '&end_date=2019-12-31' : year === '2000' ? '&end_date=2009-12-31' : ''}`;
+
+  const section = el('section-adv-results');
+  const titleEl = el('advResultsTitle');
+  const carousel = el('carousel-adv-results');
+
+  section.style.display = 'block';
+
+  // Label résumé
+  const parts = [];
+  if (genre)  parts.push(el('advGenre').options[el('advGenre').selectedIndex].text);
+  if (type)   parts.push(el('advType').options[el('advType').selectedIndex].text);
+  if (score)  parts.push(`Score ${score}+`);
+  if (status) parts.push(el('advStatus').options[el('advStatus').selectedIndex].text);
+  if (year)   parts.push(el('advYear').options[el('advYear').selectedIndex].text);
+  titleEl.innerHTML = `<span class="section-dot blue"></span>${parts.length ? parts.join(' · ') : 'Tous les animes'}`;
+
+  buildSkeletons(carousel, 10);
+  section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  try {
+    const data   = await jikanFetch(`/anime?${params}`);
+    const animes = data.data || [];
+    if (animes.length === 0) {
+      carousel.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">Aucun résultat pour ces critères.</p>`;
+      return;
+    }
+    renderCarousel('adv-results', animes);
+  } catch (e) {
+    carousel.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">Erreur de connexion.</p>`;
+    console.error('Advanced search:', e);
+  }
+}
+
+/* ──────────────────────────────────────
+   TRENDING (Firebase)
+────────────────────────────────────── */
+async function loadTrending() {
+  try {
+    const { getTrendingAnime } = await import('./firebase.js');
+    const trending = await getTrendingAnime(15, 48); // 48h de fenêtre
+
+    if (!trending || trending.length === 0) return;
+
+    const section = el('section-trending');
+    if (!section) return;
+
+    // Récupère les vrais animes depuis Jikan pour avoir les images/titres
+    const ids = trending.slice(0, 10).map(t => t.animeId);
+    const animes = [];
+
+    for (const id of ids) {
+      try {
+        const data = await jikanFetch(`/anime/${id}`);
+        if (data.data) animes.push(data.data);
+      } catch (_) {}
+    }
+
+    if (animes.length === 0) return;
+
+    section.style.display = 'block';
+    renderCarousel('trending', animes);
+  } catch (e) {
+    // Firebase ou réseau indispo → on cache silencieusement
+    console.warn('Trending load failed:', e);
+  }
+}
+
+/* ──────────────────────────────────────
    INIT
 ────────────────────────────────────── */
 async function init() {
   initNavbar();
   initSearch();
   initCarouselButtons();
+  initMoodPills();
+  initAdvancedSearch();
   updateFavUI();
   renderFavoritesSection();
   renderContinueWatching();
 
   await loadHero();
 
-  // Les sections sont maintenant chargées via la queue séquentielle :
-  // chaque loadSection attend la fin de la précédente avant d'envoyer
-  // sa requête réseau. Plus besoin de délais arbitraires.
   await loadSection('/top/anime?filter=bypopularity&limit=20', 'popular', 'skel-popular', 10, { showRank: true });
   await loadSection('/top/anime?limit=20',                     'top',     'skel-top',     10);
   await loadSection('/top/anime?filter=airing&limit=20',       'airing',  'skel-airing',  10);
   await loadSection('/top/anime?type=movie&limit=20',          'movies',  'skel-movies',  10);
+
+  // Trending Firebase — chargé en dernier, non bloquant
+  loadTrending();
 }
 
 document.addEventListener('DOMContentLoaded', init);

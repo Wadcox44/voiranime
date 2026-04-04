@@ -83,6 +83,7 @@
           ❤ Favoris <span class="fav-count-badge" id="navFavCount">0</span>
         </a>
       </li>
+      <li><a href="profile.html" class="nav-link">👤 Profil</a></li>
     </ul>
   </div>
   <div class="nav-right">
@@ -173,14 +174,122 @@
 ════════════════════════════════ -->
 <section class="mood-section" aria-label="Filtrer par ambiance">
   <div class="mood-row" id="moodRow">
-    <button class="mood-pill active"><span class="mood-pill-icon">✦</span><span class="mood-pill-label">Tout</span></button>
-    <button class="mood-pill"><span class="mood-pill-icon">⚡</span><span class="mood-pill-label">Adrénaline</span></button>
-    <button class="mood-pill"><span class="mood-pill-icon">🌸</span><span class="mood-pill-label">Romance</span></button>
-    <button class="mood-pill"><span class="mood-pill-icon">🌑</span><span class="mood-pill-label">Univers Sombre</span></button>
-    <button class="mood-pill"><span class="mood-pill-icon">😄</span><span class="mood-pill-label">Bonne Humeur</span></button>
-    <button class="mood-pill"><span class="mood-pill-icon">🚀</span><span class="mood-pill-label">Sci-fi &amp; Mecha</span></button>
-    <button class="mood-pill"><span class="mood-pill-icon">🤯</span><span class="mood-pill-label">Mind-bending</span></button>
-    <button class="mood-pill"><span class="mood-pill-icon">🍃</span><span class="mood-pill-label">Zen &amp; Calme</span></button>
+    <button class="mood-pill active" data-mood="all"><span class="mood-pill-icon">✦</span><span class="mood-pill-label">Tout</span></button>
+    <button class="mood-pill" data-mood="action"><span class="mood-pill-icon">⚡</span><span class="mood-pill-label">Adrénaline</span></button>
+    <button class="mood-pill" data-mood="romance"><span class="mood-pill-icon">🌸</span><span class="mood-pill-label">Romance</span></button>
+    <button class="mood-pill" data-mood="dark"><span class="mood-pill-icon">🌑</span><span class="mood-pill-label">Univers Sombre</span></button>
+    <button class="mood-pill" data-mood="comedy"><span class="mood-pill-icon">😄</span><span class="mood-pill-label">Bonne Humeur</span></button>
+    <button class="mood-pill" data-mood="scifi"><span class="mood-pill-icon">🚀</span><span class="mood-pill-label">Sci-fi &amp; Mecha</span></button>
+    <button class="mood-pill" data-mood="psychological"><span class="mood-pill-icon">🤯</span><span class="mood-pill-label">Mind-bending</span></button>
+    <button class="mood-pill" data-mood="slice"><span class="mood-pill-icon">🍃</span><span class="mood-pill-label">Zen &amp; Calme</span></button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+     SECTION MOOD (peuplée par JS)
+════════════════════════════════ -->
+<section class="content-section" id="section-mood" style="display:none">
+  <div class="section-header">
+    <h2 class="section-title" id="moodSectionTitle"><span class="section-dot violet"></span>Ambiance</h2>
+  </div>
+  <div class="carousel-wrapper">
+    <button class="carousel-btn prev" data-carousel="mood">‹</button>
+    <div class="carousel" id="carousel-mood"></div>
+    <button class="carousel-btn next" data-carousel="mood">›</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+     RECHERCHE AVANCÉE
+════════════════════════════════ -->
+<section class="adv-search-section" id="advSearchSection">
+  <div class="adv-search-toggle" id="advSearchToggle">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+    Recherche avancée
+    <span class="adv-arrow" id="advArrow">▼</span>
+  </div>
+  <div class="adv-search-body" id="advSearchBody" style="display:none">
+    <div class="adv-filters">
+      <div class="adv-filter-group">
+        <label class="adv-label">Genre</label>
+        <select id="advGenre" class="adv-select">
+          <option value="">Tous</option>
+          <option value="1">Action</option>
+          <option value="22">Romance</option>
+          <option value="4">Comedy</option>
+          <option value="7">Mystery</option>
+          <option value="8">Drama</option>
+          <option value="10">Fantasy</option>
+          <option value="14">Horror</option>
+          <option value="24">Sci-Fi</option>
+          <option value="36">Slice of Life</option>
+          <option value="37">Supernatural</option>
+          <option value="40">Psychological</option>
+          <option value="50">Sports</option>
+        </select>
+      </div>
+      <div class="adv-filter-group">
+        <label class="adv-label">Type</label>
+        <select id="advType" class="adv-select">
+          <option value="">Tous</option>
+          <option value="tv">Série TV</option>
+          <option value="movie">Film</option>
+          <option value="ova">OVA</option>
+          <option value="ona">ONA</option>
+          <option value="special">Spécial</option>
+        </select>
+      </div>
+      <div class="adv-filter-group">
+        <label class="adv-label">Score minimum</label>
+        <select id="advScore" class="adv-select">
+          <option value="">Tous</option>
+          <option value="9">9+</option>
+          <option value="8">8+</option>
+          <option value="7">7+</option>
+          <option value="6">6+</option>
+        </select>
+      </div>
+      <div class="adv-filter-group">
+        <label class="adv-label">Statut</label>
+        <select id="advStatus" class="adv-select">
+          <option value="">Tous</option>
+          <option value="airing">En cours</option>
+          <option value="complete">Terminé</option>
+          <option value="upcoming">À venir</option>
+        </select>
+      </div>
+      <div class="adv-filter-group">
+        <label class="adv-label">Année</label>
+        <select id="advYear" class="adv-select">
+          <option value="">Toutes</option>
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+          <option value="2021">2021</option>
+          <option value="2020">2020</option>
+          <option value="2010">2010–2019</option>
+          <option value="2000">2000–2009</option>
+        </select>
+      </div>
+      <button class="adv-btn-search" id="advBtnSearch">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Rechercher
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- RÉSULTATS RECHERCHE AVANCÉE -->
+<section class="content-section" id="section-adv-results" style="display:none">
+  <div class="section-header">
+    <h2 class="section-title" id="advResultsTitle"><span class="section-dot blue"></span>Résultats</h2>
+    <button class="adv-clear-btn" id="advClearBtn">✕ Effacer</button>
+  </div>
+  <div class="carousel-wrapper">
+    <button class="carousel-btn prev" data-carousel="adv-results">‹</button>
+    <div class="carousel" id="carousel-adv-results"></div>
+    <button class="carousel-btn next" data-carousel="adv-results">›</button>
   </div>
 </section>
 
@@ -270,6 +379,23 @@
       <div class="carousel-skeleton" id="skel-movies"></div>
     </div>
     <button class="carousel-btn next" data-carousel="movies">›</button>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ════════════════════════════════
+     TRENDING (Firebase)
+════════════════════════════════ -->
+<section class="content-section" id="section-trending" style="display:none">
+  <div class="section-header">
+    <h2 class="section-title"><span class="section-dot pink"></span>📈 Trending sur VoirAnime</h2>
+    <span class="section-badge">Temps réel</span>
+  </div>
+  <div class="carousel-wrapper">
+    <button class="carousel-btn prev" data-carousel="trending">‹</button>
+    <div class="carousel" id="carousel-trending"></div>
+    <button class="carousel-btn next" data-carousel="trending">›</button>
   </div>
 </section>
 
