@@ -7,192 +7,224 @@
   <link rel="stylesheet" href="style.css"/>
   <link rel="stylesheet" href="duel.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+  <style>
+    /* Logo néon */
+    .nav-logo{text-decoration:none;display:inline-flex;align-items:center}
+    .logo-glitch{display:inline-block;font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:-.5px;transform:skewX(-6deg);position:relative;user-select:none}
+    .logo-glitch::before,.logo-glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:0;pointer-events:none}
+    .logo-glitch::before{color:#ff2d78;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%)}
+    .logo-glitch::after{color:#2de4ff;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%)}
+    .nav-logo:hover .logo-glitch::before{animation:va-gr .45s steps(2) infinite;opacity:1}
+    .nav-logo:hover .logo-glitch::after{animation:va-gb .45s steps(2) .06s infinite;opacity:1}
+    @keyframes va-gr{0%{transform:translate(-2px,1px)}50%{transform:translate(2px,-1px)}100%{transform:translate(-1px,2px)}}
+    @keyframes va-gb{0%{transform:translate(2px,-1px)}50%{transform:translate(-2px,1px)}100%{transform:translate(1px,-2px)}}
+    .logo-voir{color:#fff;animation:va-gw 2.6s ease-in-out infinite}
+    .logo-anime{color:#ff4fd8;animation:va-gp 2.6s ease-in-out infinite .4s}
+    @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(255,79,216,.4),0 0 10px rgba(255,79,216,.2)}50%{text-shadow:0 0 8px rgba(255,79,216,.9),0 0 20px rgba(255,79,216,.5),0 0 36px rgba(124,77,255,.3)}}
+    @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(255,79,216,.6),0 0 14px rgba(124,77,255,.3)}50%{text-shadow:0 0 10px #ff4fd8,0 0 24px rgba(255,79,216,.7),0 0 40px rgba(124,77,255,.45)}}
+    @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
+  </style>
 </head>
 <body class="page-duel">
 
-<!-- ═══════════════════════════════════════════
-     NAVBAR
-═══════════════════════════════════════════ -->
-<nav class="navbar scrolled" id="navbar">
-  <div class="nav-left">
-    <a href="index.html" class="nav-logo">VOIR<span>Anime</span></a>
-    <a href="index.html" class="back-link">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Accueil
-    </a>
-  </div>
-  <div class="nav-right">
-    <div class="duel-counter-nav">
-      <span class="duel-counter-label">Duels joués</span>
-      <span class="duel-counter-value" id="navDuelCount">0</span>
-    </div>
-  </div>
-</nav>
-
-<!-- ═══════════════════════════════════════════
+<!-- ════════════════════════════════
      PAGE LOADER
-═══════════════════════════════════════════ -->
+════════════════════════════════ -->
 <div class="duel-page-loader" id="duelPageLoader">
-  <div class="loader-content">
-    <div class="loader-logo">VOIR<span>Anime</span></div>
-    <div class="loader-sub">Chargement du duel…</div>
+  <div class="duel-loader-inner">
+    <div class="duel-loader-logo">Voir<span>Anime</span></div>
+    <div class="duel-loader-sub">Chargement du duel…</div>
     <div class="sk-dots large"><span></span><span></span><span></span></div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     HEADER SECTION
-═══════════════════════════════════════════ -->
-<header class="duel-header">
-  <div class="duel-header-inner">
-    <p class="duel-eyebrow">⚔ Mode Duel</p>
-    <h1 class="duel-main-title">Lequel est le meilleur ?</h1>
-    <p class="duel-subtitle">Vote pour ton favori — vois ce que pensent les autres.</p>
-    <div class="duel-session-stats" id="duelSessionStats">
-      <span id="statDuelsPlayed">0 duels joués</span>
-      <span class="stat-sep">·</span>
-      <span id="statStreak">0 🔥</span>
+<!-- ════════════════════════════════
+     NAVBAR
+════════════════════════════════ -->
+<nav class="navbar scrolled" id="navbar">
+  <div class="nav-left">
+    <a href="index.html" class="nav-logo" aria-label="VoirAnime">
+      <span class="logo-glitch" data-text="VoirAnime">
+        <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
+      </span>
+    </a>
+    <a href="index.html" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+      Accueil
+    </a>
+  </div>
+  <div class="nav-right">
+    <div class="duel-nav-stats">
+      <span class="duel-nav-label">Duels joués</span>
+      <span class="duel-nav-count" id="navDuelCount">0</span>
     </div>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════
+     HEADER DUEL
+════════════════════════════════ -->
+<header class="duel-header">
+  <p class="duel-eyebrow">⚔ Mode Duel</p>
+  <h1 class="duel-main-title">Lequel est le meilleur ?</h1>
+  <p class="duel-subtitle">Vote pour ton favori — vois ce que pensent les autres.</p>
+  <div class="duel-session-bar">
+    <span id="statDuelsPlayed">0 duel joué</span>
+    <span class="duel-sep">·</span>
+    <span id="statStreak">0 🔥</span>
+    <span class="duel-sep">·</span>
+    <span class="duel-hint">← → ou clic</span>
   </div>
 </header>
 
-<!-- ═══════════════════════════════════════════
-     DUEL ARENA
-═══════════════════════════════════════════ -->
+<!-- ════════════════════════════════
+     ARENA
+════════════════════════════════ -->
 <main class="duel-arena" id="duelArena">
 
-  <!-- VS divider -->
-  <div class="duel-vs-divider">
-    <div class="vs-line"></div>
-    <div class="vs-badge" id="vsBadge">VS</div>
-    <div class="vs-line"></div>
+  <!-- Séparateur VS central -->
+  <div class="duel-vs">
+    <div class="duel-vs-line"></div>
+    <div class="duel-vs-badge" id="vsBadge">VS</div>
+    <div class="duel-vs-line"></div>
   </div>
 
-  <!-- CARD A -->
+  <!-- ── CARTE A ── -->
   <div class="duel-card duel-card-a" id="duelCardA" data-side="A">
     <div class="duel-card-inner">
-      <div class="duel-img-wrapper">
+      <div class="duel-img-wrap">
         <img class="duel-img" id="imgA" src="" alt="" loading="lazy"/>
-        <div class="duel-img-overlay"></div>
-        <div class="duel-rank-label">A</div>
+        <div class="duel-img-vignette"></div>
+        <span class="duel-side-letter">A</span>
       </div>
       <div class="duel-card-body">
-        <h2 class="duel-anime-title" id="titleA">—</h2>
-        <div class="duel-anime-meta" id="metaA"></div>
-        <button class="duel-vote-btn" id="voteBtnA" data-side="A">
-          <span class="vote-btn-icon">👈</span>
-          <span class="vote-btn-label">Voter pour lui</span>
+        <h2 class="duel-title" id="titleA">—</h2>
+        <div class="duel-meta" id="metaA"></div>
+        <button class="duel-vote-btn duel-vote-a" id="voteBtnA" data-side="A">
+          <span class="duel-vote-icon">👈</span>
+          <span>Voter pour lui</span>
         </button>
       </div>
     </div>
-    <!-- Result overlay (shown after vote) -->
-    <div class="duel-result-overlay hidden" id="resultA">
-      <div class="result-percent" id="percentA">—%</div>
-      <div class="result-label" id="resultLabelA"></div>
+    <!-- Overlay résultat -->
+    <div class="duel-result hidden" id="resultA">
+      <div class="duel-result-pct" id="percentA">—%</div>
+      <div class="duel-result-lbl" id="resultLabelA"></div>
     </div>
   </div>
 
-  <!-- CARD B -->
+  <!-- ── CARTE B ── -->
   <div class="duel-card duel-card-b" id="duelCardB" data-side="B">
     <div class="duel-card-inner">
-      <div class="duel-img-wrapper">
+      <div class="duel-img-wrap">
         <img class="duel-img" id="imgB" src="" alt="" loading="lazy"/>
-        <div class="duel-img-overlay"></div>
-        <div class="duel-rank-label">B</div>
+        <div class="duel-img-vignette"></div>
+        <span class="duel-side-letter">B</span>
       </div>
       <div class="duel-card-body">
-        <h2 class="duel-anime-title" id="titleB">—</h2>
-        <div class="duel-anime-meta" id="metaB"></div>
-        <button class="duel-vote-btn" id="voteBtnB" data-side="B">
-          <span class="vote-btn-label">Voter pour lui</span>
-          <span class="vote-btn-icon">👉</span>
+        <h2 class="duel-title" id="titleB">—</h2>
+        <div class="duel-meta" id="metaB"></div>
+        <button class="duel-vote-btn duel-vote-b" id="voteBtnB" data-side="B">
+          <span>Voter pour lui</span>
+          <span class="duel-vote-icon">👉</span>
         </button>
       </div>
     </div>
-    <div class="duel-result-overlay hidden" id="resultB">
-      <div class="result-percent" id="percentB">—%</div>
-      <div class="result-label" id="resultLabelB"></div>
+    <!-- Overlay résultat -->
+    <div class="duel-result hidden" id="resultB">
+      <div class="duel-result-pct" id="percentB">—%</div>
+      <div class="duel-result-lbl" id="resultLabelB"></div>
     </div>
   </div>
 
 </main>
 
-<!-- ═══════════════════════════════════════════
-     POST-VOTE PANEL
-═══════════════════════════════════════════ -->
+<!-- ════════════════════════════════
+     PANEL POST-VOTE
+════════════════════════════════ -->
 <div class="duel-post-vote hidden" id="duelPostVote">
-  <div class="post-vote-inner">
-    <div class="agreement-msg" id="agreementMsg"></div>
+  <div class="duel-post-inner">
+
+    <!-- Message accord / désaccord -->
+    <p class="duel-agreement" id="agreementMsg"></p>
+
+    <!-- Barre de résultats -->
     <div class="duel-bar-wrap">
       <div class="duel-bar">
-        <div class="duel-bar-fill-a" id="barFillA" style="width:50%"></div>
-        <div class="duel-bar-fill-b" id="barFillB" style="width:50%"></div>
+        <div class="duel-bar-a" id="barFillA" style="width:50%"></div>
+        <div class="duel-bar-b" id="barFillB" style="width:50%"></div>
       </div>
       <div class="duel-bar-labels">
-        <span id="barLabelA">0%</span>
-        <span id="barLabelB">0%</span>
+        <span id="barLabelA" class="bar-lbl-a">50%</span>
+        <span id="barLabelB" class="bar-lbl-b">50%</span>
       </div>
     </div>
-    <div class="post-vote-actions">
-      <button class="btn-next-duel" id="nextDuelBtn">
+
+    <!-- Actions -->
+    <div class="duel-post-actions">
+      <button class="duel-btn-next" id="nextDuelBtn">
         Duel suivant
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
       </button>
-      <a class="btn-detail-link" id="winnerLink" href="#">Voir l'anime ›</a>
+      <a class="duel-btn-detail" id="winnerLink" href="#">Voir l'anime ›</a>
     </div>
+
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
+<!-- ════════════════════════════════
      LEADERBOARD
-═══════════════════════════════════════════ -->
-<section class="duel-leaderboard-section">
-  <div class="leaderboard-header">
-    <h2 class="leaderboard-title">🏆 Classement des duels</h2>
-    <button class="leaderboard-toggle" id="leaderboardToggle">Afficher ▼</button>
+════════════════════════════════ -->
+<section class="duel-lb-section">
+  <div class="duel-lb-header">
+    <h2 class="duel-lb-title">🏆 Classement populaire</h2>
+    <button class="duel-lb-toggle" id="leaderboardToggle">Afficher ▼</button>
   </div>
-  <div class="leaderboard-body hidden" id="leaderboardBody">
-    <div class="leaderboard-grid" id="leaderboardGrid">
-      <p class="leaderboard-empty">Aucune donnée disponible. Joue quelques duels !</p>
+  <div class="duel-lb-body hidden" id="leaderboardBody">
+    <div class="duel-lb-grid" id="leaderboardGrid">
+      <p class="duel-lb-empty">Joue quelques duels pour voir le classement !</p>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
+<!-- ════════════════════════════════
+     FOOTER
+════════════════════════════════ -->
 <footer class="site-footer">
-  <div class="footer-logo">VOIR<span>Anime</span></div>
-  <p class="footer-text">Données : <a href="https://jikan.moe" target="_blank">Jikan API</a> · Votes : Firebase Firestore</p>
+  <div class="footer-logo">Voir<span>Anime</span></div>
+  <p class="footer-text">
+    Données : <a href="https://jikan.moe" target="_blank" rel="noopener">Jikan API</a>
+    · Votes : Firebase Firestore
+  </p>
 </footer>
 
 <div class="toast" id="toast"></div>
 
+<!-- ════════════════════════════════
+     SCRIPT (inline JS conservé)
+════════════════════════════════ -->
 <script type="module">
-/* ═══════════════════════════════════════════════════════
-   duel.js — logique inlinée dans duel.html
-   (Peut être extrait dans duel.js si tu préfères)
-═══════════════════════════════════════════════════════ */
-
 import { trackView, voteDuel, getDuelData, getTopAnime } from './firebase.js';
 
 const API = 'https://api.jikan.moe/v4';
 
-/* ──────────────────────────────────────
-   STATE
-────────────────────────────────────── */
 const state = {
-  animePool:    [],         // pool d'animés chargés
-  currentA:     null,       // anime objet côté A
-  currentB:     null,       // anime objet côté B
-  voted:        false,      // l'user a-t-il voté ce round ?
-  duelsPlayed:  parseInt(localStorage.getItem('voiranime_duels') || '0'),
-  streak:       parseInt(localStorage.getItem('voiranime_streak') || '0'),
-  winnerSide:   null,
+  animePool:   [],
+  currentA:    null,
+  currentB:    null,
+  voted:       false,
+  duelsPlayed: parseInt(localStorage.getItem('voiranime_duels')  || '0'),
+  streak:      parseInt(localStorage.getItem('voiranime_streak') || '0'),
+  winnerSide:  null,
 };
 
-/* ──────────────────────────────────────
-   UTILS
-────────────────────────────────────── */
 function el(id) { return document.getElementById(id); }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
@@ -230,36 +262,26 @@ function pct(votes, total) {
   return Math.round((votes / total) * 100);
 }
 
-/* ──────────────────────────────────────
-   LOAD POOL
-────────────────────────────────────── */
 async function loadPool() {
   try {
-    // Charge 2 pages de top anime populaires pour avoir un pool varié
     const [p1, p2] = await Promise.all([
       jikanFetch('/top/anime?filter=bypopularity&limit=25'),
       jikanFetch('/top/anime?filter=bypopularity&limit=25&page=2'),
     ]);
     const all = [...(p1.data || []), ...(p2.data || [])];
-    // Garde seulement ceux avec une image
     state.animePool = all.filter(a => a.images?.jpg?.large_image_url);
-    console.debug(`[Duel] Pool chargé : ${state.animePool.length} animés`);
   } catch (e) {
     console.error('[Duel] loadPool error:', e);
     showToast('⚠ Impossible de charger les animés. Vérifie ta connexion.');
   }
 }
 
-/* ──────────────────────────────────────
-   RENDER DUEL
-────────────────────────────────────── */
 function renderDuel(animeA, animeB) {
-  state.currentA = animeA;
-  state.currentB = animeB;
-  state.voted    = false;
+  state.currentA   = animeA;
+  state.currentB   = animeB;
+  state.voted      = false;
   state.winnerSide = null;
 
-  // Reset UI
   el('duelCardA').classList.remove('winner', 'loser', 'voted');
   el('duelCardB').classList.remove('winner', 'loser', 'voted');
   el('resultA').classList.add('hidden');
@@ -270,82 +292,61 @@ function renderDuel(animeA, animeB) {
   el('vsBadge').textContent = 'VS';
   el('vsBadge').classList.remove('voted');
 
-  // Rempli les cartes
   fillCard('A', animeA);
   fillCard('B', animeB);
 
-  // Légère animation d'entrée
   el('duelArena').classList.remove('anim-in');
-  void el('duelArena').offsetWidth; // reflow
+  void el('duelArena').offsetWidth;
   el('duelArena').classList.add('anim-in');
 }
 
 function fillCard(side, anime) {
-  const s     = side; // 'A' ou 'B'
   const title = anime.title_english || anime.title;
   const img   = anime.images?.jpg?.large_image_url || '';
   const score = anime.score ? `★ ${anime.score.toFixed(1)}` : '';
   const type  = anime.type || '';
   const year  = anime.year || '';
 
-  el(`img${s}`).src = img;
-  el(`img${s}`).alt = title;
-  el(`img${s}`).onerror = () => {
-    el(`img${s}`).src = 'https://placehold.co/400x560/111118/555?text=No+Image';
+  el(`img${side}`).src = img;
+  el(`img${side}`).alt = title;
+  el(`img${side}`).onerror = () => {
+    el(`img${side}`).src = 'https://placehold.co/400x560/0f0e1a/555?text=No+Image';
   };
-  el(`title${s}`).textContent = title;
-  el(`meta${s}`).innerHTML = [score, type, year].filter(Boolean)
+  el(`title${side}`).textContent = title;
+  el(`meta${side}`).innerHTML = [score, type, year].filter(Boolean)
     .map(m => `<span class="duel-meta-tag">${m}</span>`).join('');
 }
 
-/* ──────────────────────────────────────
-   VOTE
-────────────────────────────────────── */
 async function handleVote(winnerSide) {
   if (state.voted) return;
   state.voted      = true;
   state.winnerSide = winnerSide;
 
-  const loserSide  = winnerSide === 'A' ? 'B' : 'A';
-  const winnerCard = el(`duelCard${winnerSide}`);
-  const loserCard  = el(`duelCard${loserSide}`);
-
-  // Disable buttons
+  const loserSide = winnerSide === 'A' ? 'B' : 'A';
+  el(`duelCard${winnerSide}`).classList.add('winner');
+  el(`duelCard${loserSide}`).classList.add('loser');
   el('voteBtnA').disabled = true;
   el('voteBtnB').disabled = true;
-
-  // Flash animation sur le gagnant
-  winnerCard.classList.add('winner');
-  loserCard.classList.add('loser');
   el('vsBadge').textContent = '⚔';
   el('vsBadge').classList.add('voted');
 
-  // Stats session
   state.duelsPlayed++;
   state.streak++;
-  localStorage.setItem('voiranime_duels', state.duelsPlayed);
+  localStorage.setItem('voiranime_duels',  state.duelsPlayed);
   localStorage.setItem('voiranime_streak', state.streak);
   updateSessionStats();
   el('navDuelCount').textContent = state.duelsPlayed;
 
-  // Firebase vote
   let votesA = 1, votesB = 0;
   try {
     const idA = state.currentA.mal_id;
     const idB = state.currentB.mal_id;
     const result = await voteDuel(idA, idB, winnerSide);
-    // Normalise selon l'ordre affiché vs ordre canonique
     const [canonA] = [String(idA), String(idB)].sort();
-    if (String(idA) === canonA) {
-      votesA = result.votesA;
-      votesB = result.votesB;
-    } else {
-      votesA = result.votesB;
-      votesB = result.votesA;
-    }
+    if (String(idA) === canonA) { votesA = result.votesA; votesB = result.votesB; }
+    else                        { votesA = result.votesB; votesB = result.votesA; }
   } catch (e) {
     console.warn('[Duel] Firebase vote error:', e);
-    // Fallback : simule des votes pour ne pas bloquer l'UX
     votesA = winnerSide === 'A' ? 1 : 0;
     votesB = winnerSide === 'B' ? 1 : 0;
   }
@@ -354,29 +355,26 @@ async function handleVote(winnerSide) {
 }
 
 function showResults(winnerSide, votesA, votesB) {
-  const total  = votesA + votesB;
-  const pctA   = pct(votesA, total);
-  const pctB   = pct(votesB, total);
+  const total = votesA + votesB;
+  const pctA  = pct(votesA, total);
+  const pctB  = pct(votesB, total);
 
-  // Result overlays sur les cartes
-  el('percentA').textContent  = `${pctA}%`;
-  el('percentB').textContent  = `${pctB}%`;
-  el('resultLabelA').textContent = votesA === 1 && total === 1 ? 'Premier vote !' :
-    `${votesA} vote${votesA > 1 ? 's' : ''}`;
-  el('resultLabelB').textContent = votesB === 1 && total === 1 ? 'Premier vote !' :
-    `${votesB} vote${votesB > 1 ? 's' : ''}`;
+  el('percentA').textContent    = `${pctA}%`;
+  el('percentB').textContent    = `${pctB}%`;
+  el('resultLabelA').textContent = votesA === 1 && total === 1 ? 'Premier vote !'
+    : `${votesA} vote${votesA > 1 ? 's' : ''}`;
+  el('resultLabelB').textContent = votesB === 1 && total === 1 ? 'Premier vote !'
+    : `${votesB} vote${votesB > 1 ? 's' : ''}`;
 
   el('resultA').classList.remove('hidden');
   el('resultB').classList.remove('hidden');
 
-  // Post-vote panel
-  const winnerPct = winnerSide === 'A' ? pctA : pctB;
+  const winnerPct   = winnerSide === 'A' ? pctA : pctB;
   const winnerTitle = winnerSide === 'A'
     ? (state.currentA.title_english || state.currentA.title)
     : (state.currentB.title_english || state.currentB.title);
 
-  const agree = winnerPct >= 50;
-  el('agreementMsg').innerHTML = agree
+  el('agreementMsg').innerHTML = winnerPct >= 50
     ? `✅ Tu es <strong>d'accord</strong> avec <strong>${winnerPct}%</strong> des votants — <em>${winnerTitle}</em> domine !`
     : `🤔 Tu es <strong>contre</strong> la majorité — seulement <strong>${winnerPct}%</strong> ont voté comme toi.`;
 
@@ -386,59 +384,36 @@ function showResults(winnerSide, votesA, votesB) {
   el('barLabelB').textContent = `${pctB}%`;
 
   const winnerId = winnerSide === 'A' ? state.currentA.mal_id : state.currentB.mal_id;
-  el('winnerLink').href = `anime.html?id=${winnerId}`;
+  el('winnerLink').href        = `anime.html?id=${winnerId}`;
   el('winnerLink').textContent = `Voir ${winnerTitle.slice(0, 22)}… ›`;
 
   el('duelPostVote').classList.remove('hidden');
-
-  // Scroll vers le panel
-  setTimeout(() => {
-    el('duelPostVote').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, 300);
+  setTimeout(() => el('duelPostVote').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 300);
 }
 
-/* ──────────────────────────────────────
-   NEXT DUEL
-────────────────────────────────────── */
 function nextDuel() {
-  if (state.animePool.length < 2) {
-    showToast('Pool épuisé, rechargement…');
-    loadPool().then(startDuel);
-    return;
-  }
-  const [a, b] = pickTwo(state.animePool);
-  renderDuel(a, b);
+  if (state.animePool.length < 2) { loadPool().then(startDuel); return; }
+  renderDuel(...pickTwo(state.animePool));
 }
 
 function startDuel() {
   const [a, b] = pickTwo(state.animePool);
-  if (!a || !b) {
-    showToast('⚠ Impossible de lancer le duel.');
-    return;
-  }
+  if (!a || !b) { showToast('⚠ Impossible de lancer le duel.'); return; }
   renderDuel(a, b);
 }
 
-/* ──────────────────────────────────────
-   SESSION STATS
-────────────────────────────────────── */
 function updateSessionStats() {
   el('statDuelsPlayed').textContent = `${state.duelsPlayed} duel${state.duelsPlayed > 1 ? 's' : ''} joué${state.duelsPlayed > 1 ? 's' : ''}`;
   el('statStreak').textContent      = `${state.streak} 🔥`;
   el('navDuelCount').textContent    = state.duelsPlayed;
 }
 
-/* ──────────────────────────────────────
-   LEADERBOARD
-────────────────────────────────────── */
 async function loadLeaderboard() {
   try {
     const top = await getTopAnime(10);
     if (!top.length) return;
-
     const grid = el('leaderboardGrid');
     grid.innerHTML = '';
-
     top.forEach((item, i) => {
       const div = document.createElement('div');
       div.className = 'lb-item';
@@ -448,73 +423,43 @@ async function loadLeaderboard() {
         <div class="lb-stats">
           <span class="lb-views">👁 ${item.views}</span>
           <span class="lb-clicks">🖱 ${item.clicks}</span>
-        </div>
-      `;
+        </div>`;
       grid.appendChild(div);
     });
-  } catch (e) {
-    console.warn('[Duel] loadLeaderboard error:', e);
-  }
+  } catch (e) { console.warn('[Duel] loadLeaderboard error:', e); }
 }
 
-/* ──────────────────────────────────────
-   EVENTS
-────────────────────────────────────── */
 function initEvents() {
-  // Vote buttons
   el('voteBtnA').addEventListener('click', () => handleVote('A'));
   el('voteBtnB').addEventListener('click', () => handleVote('B'));
-
-  // Click sur les cartes aussi
-  el('duelCardA').addEventListener('click', (e) => {
-    if (e.target.closest('.duel-vote-btn')) return;
-    if (!state.voted) handleVote('A');
-  });
-  el('duelCardB').addEventListener('click', (e) => {
-    if (e.target.closest('.duel-vote-btn')) return;
-    if (!state.voted) handleVote('B');
-  });
-
-  // Next duel
+  el('duelCardA').addEventListener('click', (e) => { if (!e.target.closest('.duel-vote-btn') && !state.voted) handleVote('A'); });
+  el('duelCardB').addEventListener('click', (e) => { if (!e.target.closest('.duel-vote-btn') && !state.voted) handleVote('B'); });
   el('nextDuelBtn').addEventListener('click', nextDuel);
-
-  // Keyboard shortcut: ← pour A, → pour B, Enter pour suivant
+  el('leaderboardToggle').addEventListener('click', () => {
+    const body = el('leaderboardBody');
+    body.classList.toggle('hidden');
+    el('leaderboardToggle').textContent = body.classList.contains('hidden') ? 'Afficher ▼' : 'Masquer ▲';
+    if (!body.classList.contains('hidden')) loadLeaderboard();
+  });
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT') return;
     if (e.key === 'ArrowLeft'  && !state.voted) handleVote('A');
     if (e.key === 'ArrowRight' && !state.voted) handleVote('B');
-    if (e.key === 'Enter' && state.voted) nextDuel();
-  });
-
-  // Leaderboard toggle
-  el('leaderboardToggle').addEventListener('click', () => {
-    const body = el('leaderboardBody');
-    const btn  = el('leaderboardToggle');
-    body.classList.toggle('hidden');
-    btn.textContent = body.classList.contains('hidden') ? 'Afficher ▼' : 'Masquer ▲';
-    if (!body.classList.contains('hidden')) loadLeaderboard();
+    if (e.key === 'Enter'      &&  state.voted) nextDuel();
   });
 }
 
-/* ──────────────────────────────────────
-   INIT
-────────────────────────────────────── */
 async function init() {
   updateSessionStats();
-  el('navDuelCount').textContent = state.duelsPlayed;
-
   await loadPool();
-
-  // Cache loader
   const loader = el('duelPageLoader');
-  loader.style.opacity = '0';
-  setTimeout(() => loader.remove(), 400);
-
+  if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 400); }
   startDuel();
   initEvents();
 }
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
+
 </body>
 </html>
