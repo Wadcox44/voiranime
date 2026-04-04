@@ -3369,3 +3369,454 @@ body {
   outline-offset: 3px;
   border-radius: 4px;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   PREMIUM FINITION — VoirAnime v4
+   Micro-interactions · Respiration UI · Cohérence globale
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────
+   1. NAVBAR — Finition premium
+───────────────────────────────────────────────────────── */
+
+/* Indicateur de page active — underline animé */
+.nav-link {
+  position: relative;
+  padding: 6px 14px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--text2);
+  border-radius: 20px;
+  transition:
+    color      120ms var(--ease),
+    background 120ms var(--ease);
+  letter-spacing: 0.01em;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--pink);
+  border-radius: 1px;
+  transform: translateX(-50%);
+  transition: width 250ms var(--ease-spring);
+  box-shadow: var(--glow-pink-sm);
+}
+.nav-link:hover        { color: var(--text); background: rgba(255,255,255,0.05); }
+.nav-link:hover::after { width: 60%; }
+.nav-link.active       { color: var(--pink); background: var(--pink-dim); }
+.nav-link.active::after{ width: 0; }  /* pas de underline si pill active */
+
+/* Navbar — logo scale au hover */
+.nav-logo {
+  transition: transform 200ms var(--ease-spring), opacity 200ms;
+}
+.nav-logo:hover { transform: scale(1.04); }
+
+/* ─────────────────────────────────────────────────────────
+   2. SCROLL PROGRESS BAR
+───────────────────────────────────────────────────────── */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--violet), var(--pink));
+  z-index: 9999;
+  transition: width 60ms linear;
+  box-shadow: 0 0 8px rgba(255,79,216,0.5);
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────────────
+   3. CURSOR GLOW (desktop uniquement)
+───────────────────────────────────────────────────────── */
+.cursor-glow {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9998;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(124,77,255,0.07) 0%,
+    rgba(255,79,216,0.04) 40%,
+    transparent           70%);
+  transform: translate(-50%,-50%);
+  transition: opacity 400ms ease;
+  mix-blend-mode: screen;
+}
+
+/* ─────────────────────────────────────────────────────────
+   4. CARDS — Stagger dans les carousels
+───────────────────────────────────────────────────────── */
+
+/* Animation d'entrée staggerée */
+@keyframes cardReveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Appliqué via JS sur chaque card au chargement du carousel */
+.anime-card.card-entering {
+  animation: cardReveal 0.4s var(--ease-out) both;
+}
+
+/* Card — état focus clavier accessible */
+.anime-card:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 4px;
+  border-radius: var(--r);
+}
+
+/* ─────────────────────────────────────────────────────────
+   5. SECTIONS — Respiration verticale
+───────────────────────────────────────────────────────── */
+
+/* Espacement cohérent entre sections */
+.content-section + .content-section {
+  margin-top: 8px;
+}
+.zone-separator + .content-section {
+  margin-top: 0;
+}
+
+/* Hover sur le titre de section → légère élévation */
+.section-header:hover .section-title {
+  color: var(--text);
+  transition: color 200ms var(--ease);
+}
+.section-header:hover .section-dot {
+  transform: scale(1.3);
+  transition: transform 250ms var(--ease-spring);
+}
+
+/* ─────────────────────────────────────────────────────────
+   6. MOOD PILLS — Transition d'ambiance fluide
+───────────────────────────────────────────────────────── */
+
+/* Fond de page réagit à l'ambiance active */
+.page-mood-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: background 800ms ease, opacity 800ms ease;
+  background: transparent;
+}
+.page-mood-overlay.mood-active {
+  opacity: 1;
+}
+
+/* Mood pills — gap entre icône et label réduit sur mobile */
+.mood-pill {
+  transition:
+    background    200ms var(--ease),
+    border-color  200ms var(--ease),
+    transform     250ms var(--ease-spring),
+    box-shadow    250ms var(--ease);
+}
+.mood-pill:active {
+  transform: scale(0.96) !important;
+  transition-duration: 80ms;
+}
+
+/* ─────────────────────────────────────────────────────────
+   7. SEARCH OVERLAY — Animations premium
+───────────────────────────────────────────────────────── */
+.search-overlay {
+  transition:
+    opacity   300ms var(--ease),
+    transform 300ms var(--ease-out);
+}
+.search-results-grid .anime-card {
+  animation: cardReveal 0.35s var(--ease-out) both;
+}
+
+/* ─────────────────────────────────────────────────────────
+   8. ANIME DU JOUR — Hover depth
+───────────────────────────────────────────────────────── */
+.adj-inner {
+  transition:
+    box-shadow  300ms var(--ease),
+    border-color 300ms var(--ease),
+    transform   300ms var(--ease);
+}
+.adj-inner:hover {
+  border-color: rgba(124,77,255,0.3);
+  box-shadow: 0 8px 40px rgba(124,77,255,0.12);
+  transform: translateY(-2px);
+}
+.adj-img {
+  transition:
+    transform   400ms var(--ease-spring),
+    box-shadow  300ms var(--ease);
+}
+.adj-inner:hover .adj-img {
+  transform: scale(1.04) rotate(-1.5deg);
+  box-shadow:
+    0 0 0 2px rgba(124,77,255,0.3),
+    0 12px 32px rgba(0,0,0,0.5);
+}
+
+/* ─────────────────────────────────────────────────────────
+   9. INFO TABLE — Hover row feedback
+───────────────────────────────────────────────────────── */
+.info-row {
+  transition: background 150ms var(--ease);
+}
+.info-row:hover {
+  background: rgba(255,255,255,0.025);
+}
+
+/* ─────────────────────────────────────────────────────────
+   10. SCORE WIDGET — Respiration
+───────────────────────────────────────────────────────── */
+.score-value {
+  animation: scoreBreath 4s ease-in-out infinite;
+}
+@keyframes scoreBreath {
+  0%,100% { text-shadow: 0 0 8px rgba(255,209,102,0.4); }
+  50%     { text-shadow: 0 0 16px rgba(255,209,102,0.7), 0 0 32px rgba(255,209,102,0.3); }
+}
+
+/* ─────────────────────────────────────────────────────────
+   11. ZONE SÉPARATEURS — Entrance animation
+───────────────────────────────────────────────────────── */
+.zone-separator.revealed .zone-separator-line {
+  animation: lineGrow 0.8s var(--ease-out) both;
+}
+@keyframes lineGrow {
+  from { transform: scaleX(0); opacity: 0; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+.zone-separator.revealed .zone-separator-num {
+  animation: labelReveal 0.5s var(--ease-out) 0.2s both;
+}
+.zone-separator.revealed .zone-separator-title {
+  animation: labelReveal 0.5s var(--ease-out) 0.3s both;
+}
+.zone-separator.revealed .zone-separator-sub {
+  animation: labelReveal 0.5s var(--ease-out) 0.4s both;
+}
+@keyframes labelReveal {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─────────────────────────────────────────────────────────
+   12. PERSONAL ZONE — Entrance premium
+───────────────────────────────────────────────────────── */
+.personal-zone-inner {
+  transition:
+    box-shadow  400ms var(--ease),
+    border-color 400ms var(--ease);
+}
+.personal-zone.revealed .personal-zone-inner {
+  animation: personalReveal 0.6s var(--ease-out) 0.15s both;
+}
+@keyframes personalReveal {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+    box-shadow: none;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    box-shadow: 0 0 60px rgba(124,77,255,0.08);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
+   13. PAGE TRANSITIONS — Améliorées
+───────────────────────────────────────────────────────── */
+.page-transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: var(--ink);
+  pointer-events: none;
+}
+.page-transition-overlay.in {
+  animation: pageReveal 0.5s var(--ease-out) forwards;
+}
+.page-transition-overlay.out {
+  animation: pageLeave 0.32s var(--ease) forwards;
+}
+@keyframes pageReveal {
+  from { opacity: 1; }
+  to   { opacity: 0; pointer-events: none; }
+}
+@keyframes pageLeave {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Body entrance — chaque page arrive depuis le bas */
+@keyframes bodyReveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+body {
+  animation: bodyReveal 0.55s var(--ease-out) both;
+}
+
+/* ─────────────────────────────────────────────────────────
+   14. FEEDBACK TACTILE — Active states globaux
+───────────────────────────────────────────────────────── */
+
+/* Tout bouton/lien cliquable a un retour tactile */
+button:active:not(:disabled),
+a:active {
+  transform: scale(0.97);
+  transition-duration: 80ms !important;
+}
+
+/* Exceptions — éléments qui ont leur propre active */
+.hero-cta-explore:active,
+.hero-cta-surprise:active,
+.va-btn-primary:active,
+.va-btn-secondary:active,
+.duel-btn-next:active {
+  transform: scale(0.98) translateY(0) !important;
+}
+
+/* ─────────────────────────────────────────────────────────
+   15. CATALOGUE — Cards grid stagger
+───────────────────────────────────────────────────────── */
+.cat-grid .anime-card:nth-child(1)  { animation-delay: 0.00s; }
+.cat-grid .anime-card:nth-child(2)  { animation-delay: 0.03s; }
+.cat-grid .anime-card:nth-child(3)  { animation-delay: 0.06s; }
+.cat-grid .anime-card:nth-child(4)  { animation-delay: 0.09s; }
+.cat-grid .anime-card:nth-child(5)  { animation-delay: 0.12s; }
+.cat-grid .anime-card:nth-child(6)  { animation-delay: 0.15s; }
+.cat-grid .anime-card:nth-child(7)  { animation-delay: 0.18s; }
+.cat-grid .anime-card:nth-child(8)  { animation-delay: 0.21s; }
+.cat-grid .anime-card:nth-child(n+9){ animation-delay: 0.24s; }
+.cat-grid .anime-card {
+  animation: cardReveal 0.4s var(--ease-out) both;
+}
+
+/* ─────────────────────────────────────────────────────────
+   16. PROFIL — Stat cards animation
+───────────────────────────────────────────────────────── */
+.stat-card {
+  transition:
+    transform   250ms var(--ease-spring),
+    border-color 200ms var(--ease),
+    box-shadow  200ms var(--ease);
+  cursor: default;
+}
+.stat-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: rgba(255,79,216,0.2);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35), 0 0 20px rgba(255,79,216,0.08);
+}
+.stat-card-num {
+  transition: transform 300ms var(--ease-spring);
+}
+.stat-card:hover .stat-card-num {
+  transform: scale(1.08);
+}
+
+/* ─────────────────────────────────────────────────────────
+   17. DUEL — Finition hover/focus
+───────────────────────────────────────────────────────── */
+.duel-card {
+  transition:
+    transform    300ms var(--ease-spring),
+    box-shadow   300ms var(--ease),
+    border-color 200ms var(--ease),
+    opacity      300ms var(--ease),
+    filter       300ms var(--ease);
+}
+.duel-vote-btn {
+  transition:
+    background   200ms var(--ease),
+    border-color 200ms var(--ease),
+    transform    200ms var(--ease-spring),
+    box-shadow   200ms var(--ease);
+}
+
+/* ─────────────────────────────────────────────────────────
+   18. FOOTER — Entrée douce
+───────────────────────────────────────────────────────── */
+.site-footer {
+  position: relative;
+  overflow: hidden;
+}
+.site-footer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 200px; height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255,79,216,0.3) 50%,
+    transparent);
+}
+.footer-logo {
+  transition: opacity 200ms var(--ease);
+}
+.footer-logo:hover { opacity: 0.7; }
+
+/* ─────────────────────────────────────────────────────────
+   19. SCROLL INDICATOR NAVBAR — Active section tracking
+───────────────────────────────────────────────────────── */
+.nav-link.section-active {
+  color: var(--cyan);
+  background: rgba(76,201,240,0.08);
+}
+.nav-link.section-active::after {
+  width: 60%;
+  background: var(--cyan);
+  box-shadow: var(--glow-cyan-sm);
+}
+
+/* ─────────────────────────────────────────────────────────
+   20. MEDIA QUERIES FINITION
+───────────────────────────────────────────────────────── */
+@media (hover: none) {
+  /* Touch devices — désactive les effets hover coûteux */
+  .cursor-glow         { display: none; }
+  .anime-card:hover    { transform: none; }
+  .card-fav-btn        { opacity: 1; transform: scale(1); }
+  .card-thumb-overlay  { opacity: 0.7; }
+  .card-play-icon      { transform: scale(1); opacity: 1; }
+  .card-score-badge    { opacity: 1; transform: none; }
+  .carousel-btn        { opacity: 1; pointer-events: all; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Accessibilité — réduit toutes les animations */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  body { animation: none; }
+}
+
+@media (max-width: 768px) {
+  .scroll-progress { height: 1.5px; }
+  .zone-separator  { padding: 24px 16px 18px; }
+  .personal-zone-inner { margin: 0 16px; }
+}
