@@ -3,31 +3,80 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VoirAnime — Streaming Anime Premium</title>
+  <title>VoirAnime — Ton portail anime</title>
   <link rel="stylesheet" href="style.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+  <style>
+    /* Logo néon */
+    .nav-logo{text-decoration:none;display:inline-flex;align-items:center}
+    .logo-glitch{display:inline-block;font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:-.5px;transform:skewX(-6deg);position:relative;user-select:none}
+    .logo-glitch::before,.logo-glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:0;pointer-events:none}
+    .logo-glitch::before{color:#ff2d78;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%)}
+    .logo-glitch::after{color:#2de4ff;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%)}
+    .nav-logo:hover .logo-glitch::before{animation:va-gr .45s steps(2) infinite;opacity:1}
+    .nav-logo:hover .logo-glitch::after{animation:va-gb .45s steps(2) .06s infinite;opacity:1}
+    @keyframes va-gr{0%{transform:translate(-2px,1px)}50%{transform:translate(2px,-1px)}100%{transform:translate(-1px,2px)}}
+    @keyframes va-gb{0%{transform:translate(2px,-1px)}50%{transform:translate(-2px,1px)}100%{transform:translate(1px,-2px)}}
+    .logo-voir{color:#fff;animation:va-gw 2.6s ease-in-out infinite}
+    .logo-anime{color:#ff4fd8;animation:va-gp 2.6s ease-in-out infinite .4s}
+    @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(255,79,216,.4),0 0 10px rgba(255,79,216,.2)}50%{text-shadow:0 0 8px rgba(255,79,216,.9),0 0 20px rgba(255,79,216,.5),0 0 36px rgba(124,77,255,.3)}}
+    @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(255,79,216,.6),0 0 14px rgba(124,77,255,.3)}50%{text-shadow:0 0 10px #ff4fd8,0 0 24px rgba(255,79,216,.7),0 0 40px rgba(124,77,255,.45)}}
+    .nav-logo:hover .logo-voir{text-shadow:0 0 10px #fff,0 0 20px #ff4fd8,0 0 40px rgba(124,77,255,.6)}
+    .nav-logo:hover .logo-anime{text-shadow:0 0 12px #ff4fd8,0 0 28px #ff4fd8,0 0 50px rgba(124,77,255,.7)}
+    @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
+
+    /* Séparateur néon */
+    .section-divider{height:1px;background:linear-gradient(to right,transparent,rgba(124,77,255,.18) 30%,rgba(255,79,216,.18) 70%,transparent);margin:4px 48px}
+
+    /* Mood pills */
+    .mood-section{padding:12px 48px 24px;max-width:1600px;margin:0 auto;width:100%}
+    .mood-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+    .mood-row::-webkit-scrollbar{display:none}
+    .mood-pill{flex-shrink:0;display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:24px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.04);cursor:pointer;transition:all .22s;white-space:nowrap;font-family:'Outfit',sans-serif}
+    .mood-pill:hover{background:rgba(124,77,255,.12);border-color:rgba(124,77,255,.3);transform:translateY(-2px)}
+    .mood-pill.active{background:rgba(255,79,216,.14);border-color:rgba(255,79,216,.4)}
+    .mood-pill-icon{font-size:15px;line-height:1}
+    .mood-pill-label{font-size:.78rem;font-weight:600;color:#a8a6c4}
+    .mood-pill:hover .mood-pill-label,.mood-pill.active .mood-pill-label{color:#eceaf8}
+
+    @media(max-width:768px){
+      .mood-section{padding:10px 16px 20px}
+      .section-divider{margin:4px 16px}
+    }
+  </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════
+<!-- ════════════════════════════════
      NAVBAR
-═══════════════════════════════════════════ -->
+════════════════════════════════ -->
 <nav class="navbar" id="navbar">
   <div class="nav-left">
-    <a href="index.html" class="nav-logo">VOIR<span>Anime</span></a>
+    <a href="index.html" class="nav-logo" aria-label="VoirAnime">
+      <span class="logo-glitch" data-text="VoirAnime">
+        <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
+      </span>
+    </a>
     <ul class="nav-links">
-      <li><a href="#" class="nav-link active">Accueil</a></li>
+      <li><a href="#"                class="nav-link active">Accueil</a></li>
       <li><a href="#section-popular" class="nav-link">Populaires</a></li>
-      <li><a href="#section-top" class="nav-link">Top Rated</a></li>
-      <li><a href="#section-airing" class="nav-link">En cours</a></li>
-      <li><a href="#" class="nav-link" id="navFavLink">❤ Favoris <span class="fav-count-badge" id="navFavCount">0</span></a></li>
+      <li><a href="#section-top"     class="nav-link">Top Rated</a></li>
+      <li><a href="#section-airing"  class="nav-link">En cours</a></li>
+      <li><a href="duel.html"        class="nav-link">⚔ Duels</a></li>
+      <li>
+        <a href="#" class="nav-link" id="navFavLink">
+          ❤ Favoris <span class="fav-count-badge" id="navFavCount">0</span>
+        </a>
+      </li>
     </ul>
   </div>
   <div class="nav-right">
     <div class="search-container" id="searchContainer">
       <button class="search-toggle" id="searchToggle" aria-label="Rechercher">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
       </button>
       <div class="search-expand" id="searchExpand">
         <input type="text" id="searchInput" placeholder="Titre, genre, personnage…" autocomplete="off" spellcheck="false"/>
@@ -37,9 +86,9 @@
   </div>
 </nav>
 
-<!-- ═══════════════════════════════════════════
+<!-- ════════════════════════════════
      SEARCH OVERLAY
-═══════════════════════════════════════════ -->
+════════════════════════════════ -->
 <div class="search-overlay" id="searchOverlay">
   <div class="search-overlay-inner">
     <div class="search-overlay-header">
@@ -57,14 +106,15 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
+<!-- ════════════════════════════════
      HERO
-═══════════════════════════════════════════ -->
+════════════════════════════════ -->
 <section class="hero" id="hero">
   <div class="hero-bg" id="heroBg">
-    <img id="heroImg" src="" alt="" />
+    <img id="heroImg" src="" alt=""/>
     <div class="hero-gradient"></div>
   </div>
+
   <div class="hero-content" id="heroContent">
     <div class="hero-skeleton" id="heroSkeleton">
       <div class="sk-block sk-title"></div>
@@ -75,32 +125,56 @@
         <div class="sk-block sk-btn"></div>
       </div>
     </div>
+
     <div class="hero-info hidden" id="heroInfo">
       <div class="hero-badges" id="heroBadges"></div>
-      <h1 class="hero-title" id="heroTitle"></h1>
-      <p class="hero-synopsis" id="heroSynopsis"></p>
+      <h1 class="hero-title"  id="heroTitle"></h1>
+      <p  class="hero-synopsis" id="heroSynopsis"></p>
       <div class="hero-actions">
         <a href="#" class="btn-play" id="heroPlayBtn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
           Voir l'anime
         </a>
         <button class="btn-more" id="heroMoreBtn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+          </svg>
           Plus d'infos
         </button>
-        <button class="btn-fav" id="heroFavBtn" data-id="">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <button class="btn-fav" id="heroFavBtn" data-id="" aria-label="Ajouter aux favoris">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
         </button>
       </div>
       <div class="hero-meta" id="heroMeta"></div>
     </div>
   </div>
+
   <div class="hero-dots" id="heroDots"></div>
 </section>
 
-<!-- ═══════════════════════════════════════════
-     CONTINUE WATCHING
-═══════════════════════════════════════════ -->
+<!-- ════════════════════════════════
+     AMBIANCES
+════════════════════════════════ -->
+<section class="mood-section" aria-label="Filtrer par ambiance">
+  <div class="mood-row" id="moodRow">
+    <button class="mood-pill active"><span class="mood-pill-icon">✦</span><span class="mood-pill-label">Tout</span></button>
+    <button class="mood-pill"><span class="mood-pill-icon">⚡</span><span class="mood-pill-label">Adrénaline</span></button>
+    <button class="mood-pill"><span class="mood-pill-icon">🌸</span><span class="mood-pill-label">Romance</span></button>
+    <button class="mood-pill"><span class="mood-pill-icon">🌑</span><span class="mood-pill-label">Univers Sombre</span></button>
+    <button class="mood-pill"><span class="mood-pill-icon">😄</span><span class="mood-pill-label">Bonne Humeur</span></button>
+    <button class="mood-pill"><span class="mood-pill-icon">🚀</span><span class="mood-pill-label">Sci-fi &amp; Mecha</span></button>
+    <button class="mood-pill"><span class="mood-pill-icon">🤯</span><span class="mood-pill-label">Mind-bending</span></button>
+    <button class="mood-pill"><span class="mood-pill-icon">🍃</span><span class="mood-pill-label">Zen &amp; Calme</span></button>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ════════════════════════════════
+     CONTINUER À REGARDER
+════════════════════════════════ -->
 <section class="content-section" id="section-continue" style="display:none">
   <div class="section-header">
     <h2 class="section-title"><span class="section-dot red"></span>Continuer à regarder</h2>
@@ -112,9 +186,9 @@
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════
-     SECTIONS CATALOGUE
-═══════════════════════════════════════════ -->
+<!-- ════════════════════════════════
+     POPULAIRES
+════════════════════════════════ -->
 <section class="content-section" id="section-popular">
   <div class="section-header">
     <h2 class="section-title"><span class="section-dot orange"></span>🔥 Les plus populaires</h2>
@@ -129,6 +203,11 @@
   </div>
 </section>
 
+<div class="section-divider"></div>
+
+<!-- ════════════════════════════════
+     MIEUX NOTÉS
+════════════════════════════════ -->
 <section class="content-section" id="section-top">
   <div class="section-header">
     <h2 class="section-title"><span class="section-dot gold"></span>⭐ Mieux notés</h2>
@@ -143,6 +222,11 @@
   </div>
 </section>
 
+<div class="section-divider"></div>
+
+<!-- ════════════════════════════════
+     EN DIFFUSION
+════════════════════════════════ -->
 <section class="content-section" id="section-airing">
   <div class="section-header">
     <h2 class="section-title"><span class="section-dot green"></span>📡 En diffusion</h2>
@@ -157,6 +241,11 @@
   </div>
 </section>
 
+<div class="section-divider"></div>
+
+<!-- ════════════════════════════════
+     FILMS
+════════════════════════════════ -->
 <section class="content-section" id="section-movies">
   <div class="section-header">
     <h2 class="section-title"><span class="section-dot blue"></span>🎬 Films anime</h2>
@@ -170,6 +259,11 @@
   </div>
 </section>
 
+<div class="section-divider"></div>
+
+<!-- ════════════════════════════════
+     FAVORIS
+════════════════════════════════ -->
 <section class="content-section" id="section-favorites" style="display:none">
   <div class="section-header">
     <h2 class="section-title"><span class="section-dot red"></span>❤ Mes Favoris</h2>
@@ -181,20 +275,52 @@
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════════
+<!-- ════════════════════════════════
      FOOTER
-═══════════════════════════════════════════ -->
+════════════════════════════════ -->
 <footer class="site-footer">
-  <div class="footer-logo">VOIR<span>Anime</span></div>
-  <p class="footer-text">Données fournies par <a href="https://jikan.moe" target="_blank">Jikan API</a> · MyAnimeList · Aucune vidéo n'est hébergée sur ce site.</p>
+  <div class="footer-logo">Voir<span>Anime</span></div>
+  <p class="footer-text">
+    Données fournies par <a href="https://jikan.moe" target="_blank" rel="noopener">Jikan API</a>
+    · MyAnimeList · Aucune vidéo n'est hébergée sur ce site.
+  </p>
   <p class="footer-copy">© 2025 VoirAnime — Projet open source</p>
 </footer>
 
-<!-- ═══════════════════════════════════════════
-     TOAST
-═══════════════════════════════════════════ -->
 <div class="toast" id="toast"></div>
 
-<script src="main.js"></script>
+<!-- ════════════════════════════════
+     SCRIPTS
+════════════════════════════════ -->
+<script type="module" src="main.js"></script>
+
+<script>
+/* Tilt 3D cards */
+(function(){
+  var lastCard = null;
+  document.addEventListener('mousemove', function(e){
+    var card = e.target.closest('.anime-card');
+    if(!card){ if(lastCard){ lastCard.style.transform=''; lastCard=null; } return; }
+    var r = card.getBoundingClientRect();
+    var dx = (e.clientX - r.left - r.width/2)  / (r.width/2);
+    var dy = (e.clientY - r.top  - r.height/2) / (r.height/2);
+    card.style.transform = 'translateY(-8px) scale(1.05) rotateY('+( dx*6)+'deg) rotateX('+(-dy*4)+'deg)';
+    lastCard = card;
+  });
+  document.addEventListener('mouseleave', function(e){
+    var card = e.target.closest('.anime-card');
+    if(card) card.style.transform='';
+  }, true);
+
+  /* Mood pills — UI only */
+  var row = document.getElementById('moodRow');
+  if(row) row.addEventListener('click', function(e){
+    var pill = e.target.closest('.mood-pill');
+    if(!pill) return;
+    row.querySelectorAll('.mood-pill').forEach(function(p){ p.classList.remove('active'); });
+    pill.classList.add('active');
+  });
+})();
+</script>
 </body>
 </html>
