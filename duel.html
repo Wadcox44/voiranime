@@ -16,7 +16,7 @@
 ═══════════════════════════════════════════ -->
 <nav class="navbar scrolled" id="navbar">
   <div class="nav-left">
-    <a href="index.html" class="nav-logo">ANI<span>VAULT</span></a>
+    <a href="index.html" class="nav-logo">VOIR<span>Anime</span></a>
     <a href="index.html" class="back-link">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
       Accueil
@@ -35,7 +35,7 @@
 ═══════════════════════════════════════════ -->
 <div class="duel-page-loader" id="duelPageLoader">
   <div class="loader-content">
-    <div class="loader-logo">ANI<span>VAULT</span></div>
+    <div class="loader-logo">VOIR<span>Anime</span></div>
     <div class="loader-sub">Chargement du duel…</div>
     <div class="sk-dots large"><span></span><span></span><span></span></div>
   </div>
@@ -161,7 +161,7 @@
 
 <!-- FOOTER -->
 <footer class="site-footer">
-  <div class="footer-logo">ANI<span>VAULT</span></div>
+  <div class="footer-logo">VOIR<span>Anime</span></div>
   <p class="footer-text">Données : <a href="https://jikan.moe" target="_blank">Jikan API</a> · Votes : Firebase Firestore</p>
 </footer>
 
@@ -185,8 +185,8 @@ const state = {
   currentA:     null,       // anime objet côté A
   currentB:     null,       // anime objet côté B
   voted:        false,      // l'user a-t-il voté ce round ?
-  duelsPlayed:  parseInt(localStorage.getItem('VoirAnime_duels') || '0'),
-  streak:       parseInt(localStorage.getItem('VoirAnime_streak') || '0'),
+  duelsPlayed:  parseInt(localStorage.getItem('voiranime_duels') || '0'),
+  streak:       parseInt(localStorage.getItem('voiranime_streak') || '0'),
   winnerSide:   null,
 };
 
@@ -323,8 +323,8 @@ async function handleVote(winnerSide) {
   // Stats session
   state.duelsPlayed++;
   state.streak++;
-  localStorage.setItem('VoirAnime_duels', state.duelsPlayed);
-  localStorage.setItem('VoirAnime_streak', state.streak);
+  localStorage.setItem('voiranime_duels', state.duelsPlayed);
+  localStorage.setItem('voiranime_streak', state.streak);
   updateSessionStats();
   el('navDuelCount').textContent = state.duelsPlayed;
 
