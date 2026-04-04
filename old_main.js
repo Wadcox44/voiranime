@@ -334,6 +334,26 @@ function renderHero(anime) {
   imgEl.src = img;
   imgEl.onload = () => { imgEl.style.opacity = '1'; };
 
+  // Aura dynamique selon les genres de l'anime
+  const auraEl = document.getElementById('heroAura');
+  const posterImg = document.getElementById('heroPosterImg');
+  if (auraEl) {
+    const genres = (anime.genres || []).map(g => g.name.toLowerCase());
+    auraEl.className = 'hero-aura';
+    if      (genres.some(g => ['action','martial arts','sports'].includes(g)))          auraEl.classList.add('aura-action');
+    else if (genres.some(g => ['romance','shoujo'].includes(g)))                        auraEl.classList.add('aura-romance');
+    else if (genres.some(g => ['sci-fi','mecha','space'].includes(g)))                  auraEl.classList.add('aura-scifi');
+    else if (genres.some(g => ['horror','psychological','thriller'].includes(g)))       auraEl.classList.add('aura-horror');
+    else if (genres.some(g => ['sports','racing'].includes(g)))                         auraEl.classList.add('aura-sports');
+    else                                                                                auraEl.classList.add('aura-fantasy');
+  }
+  // Poster flottant = même image
+  if (posterImg) {
+    posterImg.src = img;
+    posterImg.alt = title;
+    posterImg.onerror = () => { posterImg.style.display = 'none'; };
+  }
+
   // textContent : jamais de XSS
   titleEl.textContent = title;
   synEl.textContent   = synopsis.slice(0, 200) + (synopsis.length > 200 ? '…' : '');
@@ -581,6 +601,11 @@ async function loadHero() {
     const data = await jikanFetch('/top/anime?filter=airing&limit=10');
     state.heroAnimes = (data.data || []).filter(a => a.images?.jpg?.large_image_url);
     if (state.heroAnimes.length === 0) return;
+    // Expose pour le bouton Surprise-moi
+    window._heroAnimesPool    = state.heroAnimes;
+    window._heroCurrentIndex  = 0;
+    window._renderHero        = renderHero;
+    window._updateHeroDots    = updateHeroDots;
     renderHero(state.heroAnimes[0]);
     updateHeroDots();
     startHeroRotation();
