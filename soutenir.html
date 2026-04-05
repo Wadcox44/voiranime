@@ -583,188 +583,269 @@
 
 </main>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-/* ═══════════════════════════════════════════════════════
-   VOIRANIME — Système de don Pi Network (SDK officiel)
+<script>
+/* ═══════════════════════════════════════════════════════════
+   VOIRANIME — Paiement Pi Network
+   SDK officiel · Clé API côté serveur (Vercel)
+   Aucun pseudo requis · Wallet app automatique
+   ═══════════════════════════════════════════════════════════ */
 
-   CONFIGURATION (à faire une seule fois) :
-   ─────────────────────────────────────────
-   1. Ouvre le Pi Developer Portal dans Pi Browser
-   2. Sélectionne ton app VoirAnime
-   3. Copie ta "API Key" (section tout en bas du dashboard)
-   4. Colle-la ci-dessous à la place de REMPLACE_PAR_TA_CLE_API
-
-   Le wallet de réception est automatiquement celui
-   de l'app VoirAnime enregistré dans le Developer Portal.
-   Tu n'as pas à saisir d'adresse ou de pseudo.
-   ═══════════════════════════════════════════════════════ */
-
-const PI_APP_API_KEY = 'REMPLACE_PAR_TA_CLE_API'; // ← CLE API du Developer Portal
-
+// ── État global ──
 let selectedAmount = 2;
+let piInitialized  = false;
+let paymentInProgress = false;
 
-/* ── Sélection montant prédéfini ── */
-document.querySelectorAll('.amount-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    document.getElementById('customAmount').value = '';
-    selectedAmount = parseFloat(btn.dataset.amount);
-    updatePayBtn(selectedAmount);
-  });
+// ── Init Pi SDK au chargement ──
+document.addEventListener('DOMContentLoaded', () => {
+  initPiSdk();
+  initAmountSelection();
 });
 
-/* ── Montant libre ── */
-document.getElementById('customAmount')?.addEventListener('input', function () {
-  const val = parseFloat(this.value);
-  if (val > 0) {
-    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
-    selectedAmount = val;
-    updatePayBtn(val);
+function initPiSdk() {
+  if (typeof window.Pi === 'undefined') {
+    console.info('[Pi] SDK non disponible — hors Pi Browser');
+    showPiBrowserWarning();
+    return;
   }
-});
+  try {
+    Pi.init({ version: '2.0', sandbox: false });
+    piInitialized = true;
+    console.info('[Pi] SDK initialisé ✅');
+  } catch (e) {
+    console.error('[Pi] Erreur init:', e.message);
+  }
+}
+
+// ── Avertissement si hors Pi Browser ──
+function showPiBrowserWarning() {
+  const btn = document.getElementById('payBtn');
+  if (!btn) return;
+  btn.disabled = true;
+  btn.style.opacity = '0.5';
+  btn.title = 'Ouvre ce site dans Pi Browser pour payer en Pi';
+  setStatus('ℹ️', 'Pour payer en Pi, ouvre VoirAnime dans Pi Browser.', 'info');
+}
+
+// ── Sélection des montants ──
+function initAmountSelection() {
+  document.querySelectorAll('.amount-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      document.getElementById('customAmount').value = '';
+      selectedAmount = parseFloat(btn.dataset.amount);
+      updatePayBtn(selectedAmount);
+    });
+  });
+
+  document.getElementById('customAmount')?.addEventListener('input', function () {
+    const val = parseFloat(this.value);
+    if (val > 0) {
+      document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
+      selectedAmount = val;
+      updatePayBtn(val);
+    }
+  });
+}
 
 function updatePayBtn(amount) {
   const btn = document.getElementById('payBtn');
-  if (!btn) return;
+  if (!btn || btn.disabled) return;
   btn.innerHTML = `
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2.5">
       <circle cx="12" cy="12" r="10"/>
       <path d="M8 12h8M12 8l4 4-4 4"/>
     </svg>
     Envoyer ${amount} Pi — Soutenir VoirAnime`;
 }
 
-/* ── Lancement du paiement Pi SDK ── */
+/* ════════════════════════════════════════════════════════
+   FLOW PAIEMENT PI — 3 étapes officielles
+
+   1. authenticate(['payments'])
+   2. createPayment(data, callbacks)
+      → onReadyForServerApproval → POST /api/pi-approve
+      → (utilisateur signe dans son wallet)
+      → onReadyForServerCompletion → POST /api/pi-complete
+   3. UI success
+   ════════════════════════════════════════════════════════ */
 async function initiatePiPayment() {
-  /* Garde-fous */
-  if (typeof window.Pi === 'undefined') {
-    setStatus('⚠️', 'Ouvre VoirAnime dans Pi Browser pour payer en Pi.');
+  if (!piInitialized || typeof window.Pi === 'undefined') {
+    setStatus('⚠️', 'Ouvre VoirAnime dans Pi Browser pour payer en Pi.', 'warn');
+    return;
+  }
+  if (paymentInProgress) {
+    setStatus('⏳', 'Un paiement est déjà en cours…', 'info');
     return;
   }
   if (!selectedAmount || selectedAmount <= 0) {
-    setStatus('⚠️', 'Choisis un montant avant de continuer.');
+    setStatus('⚠️', 'Choisis un montant avant de continuer.', 'warn');
     return;
   }
 
-  const btn = document.getElementById('payBtn');
-  if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
-  setStatus('⏳', 'Connexion au wallet Pi…');
+  paymentInProgress = true;
+  const payBtn = document.getElementById('payBtn');
+  if (payBtn) { payBtn.disabled = true; payBtn.style.opacity = '0.6'; }
+  setStatus('⏳', 'Connexion à ton wallet Pi…', 'loading');
 
-  /* 1. Authentification avec scope payments */
+  // ── Étape 1 : authentification ──
   try {
-    await Pi.authenticate(['payments', 'username'], onIncompletePaymentFound);
+    await Pi.authenticate(
+      ['payments', 'username'],
+      onIncompletePaymentFound   // gère les paiements incomplets précédents
+    );
+    console.log('[Pi] Authentification OK');
   } catch (e) {
     console.error('[Pi] Auth échouée:', e);
-    setStatus('❌', 'Connexion Pi échouée. Vérifie que tu es dans Pi Browser.');
-    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+    setStatus('❌', 'Connexion Pi échouée. Réessaie depuis Pi Browser.', 'error');
+    resetPayBtn();
     return;
   }
 
-  /* 2. Création du paiement — le wallet destination est celui de l'app */
+  // ── Étape 2 : création du paiement ──
   const paymentData = {
     amount:   selectedAmount,
-    memo:     `Don VoirAnime — merci pour ton soutien ! (${selectedAmount} Pi)`,
+    memo:     `Don VoirAnime (${selectedAmount} Pi) — merci !`,
     metadata: {
       app:     'voiranime',
       type:    'donation',
       amount:  selectedAmount,
-      version: '1.0'
+      ts:      Date.now(),
     },
   };
 
-  const paymentCallbacks = {
-    /* Étape 1 : Pi a créé le paiement, il attend l'approbation serveur */
-    onReadyForServerApproval: function (paymentId) {
-      console.log('[Pi] Approbation requise, paymentId:', paymentId);
-      setStatus('⏳', 'Approbation du paiement…');
+  const callbacks = {
 
-      /* Appel à l'API Pi pour approuver côté serveur.
-         Pour une app statique GitHub Pages, on appelle directement
-         depuis le frontend avec la clé API de l'app.
-         Note : en production, cet appel devrait se faire depuis un backend. */
-      fetch(`https://api.minepi.com/v2/payments/${paymentId}/approve`, {
-        method: 'POST',
-        headers: { Authorization: `Key ${PI_APP_API_KEY}` },
+    // ── Approbation serveur ──
+    onReadyForServerApproval(paymentId) {
+      console.log('[Pi] onReadyForServerApproval:', paymentId);
+      setStatus('⏳', 'Approbation du paiement…', 'loading');
+
+      fetch('/api/pi-approve', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ paymentId }),
       })
-        .then(r => r.json())
+        .then(r => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.json();
+        })
         .then(data => {
-          console.log('[Pi] Approbation OK:', data);
-          setStatus('⏳', 'En attente de ta confirmation dans le wallet…');
+          console.log('[Pi] Approbation OK ✅', data);
+          setStatus('⏳', 'Signe le paiement dans ton wallet Pi…', 'loading');
         })
         .catch(err => {
-          console.error('[Pi] Approbation échouée:', err);
-          setStatus('⚠️', 'Approbation en attente — confirme dans ton wallet Pi.');
+          // L'approbation a échoué côté serveur
+          // Le SDK Pi gère l'état — on informe l'utilisateur sans bloquer
+          console.error('[Pi] Approbation serveur échouée:', err.message);
+          setStatus('⚠️', 'Erreur d'approbation. Contacte le support si le problème persiste.', 'warn');
         });
     },
 
-    /* Étape 2 : transaction blockchain confirmée */
-    onReadyForServerCompletion: function (paymentId, txid) {
-      console.log('[Pi] Complétion requise, txid:', txid);
-      setStatus('⏳', 'Finalisation du paiement…');
+    // ── Complétion serveur ──
+    onReadyForServerCompletion(paymentId, txid) {
+      console.log('[Pi] onReadyForServerCompletion:', paymentId, txid);
+      setStatus('⏳', 'Finalisation du don…', 'loading');
 
-      fetch(`https://api.minepi.com/v2/payments/${paymentId}/complete`, {
-        method: 'POST',
-        headers: { Authorization: `Key ${PI_APP_API_KEY}` },
-        body: JSON.stringify({ txid }),
+      fetch('/api/pi-complete', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ paymentId, txid }),
       })
-        .then(r => r.json())
+        .then(r => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.json();
+        })
         .then(() => {
-          console.log('[Pi] Paiement complété !');
-          setStatus('✅', `Don de ${selectedAmount} Pi reçu. Merci pour ton soutien 💜`);
-          if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; }
+          console.log('[Pi] Paiement complété ✅');
+          setStatus(
+            '✅',
+            `Don de ${selectedAmount} Pi confirmé. Merci pour ton soutien 💜`,
+            'success'
+          );
+          if (payBtn) { payBtn.disabled = true; payBtn.style.opacity = '0.4'; }
+          paymentInProgress = false;
         })
         .catch(err => {
-          console.error('[Pi] Complétion échouée:', err);
-          /* Même si la complétion API échoue, la transaction blockchain est réelle */
-          setStatus('✅', `Don de ${selectedAmount} Pi confirmé sur la blockchain. Merci 💜`);
-          if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; }
+          // La complétion API a échoué MAIS la tx blockchain est réelle
+          console.error('[Pi] Complétion serveur échouée:', err.message);
+          setStatus(
+            '✅',
+            `Don de ${selectedAmount} Pi confirmé sur la blockchain. Merci 💜`,
+            'success'
+          );
+          if (payBtn) { payBtn.disabled = true; payBtn.style.opacity = '0.4'; }
+          paymentInProgress = false;
         });
     },
 
-    /* Annulation par l'utilisateur */
-    onCancel: function (paymentId) {
-      console.log('[Pi] Annulé:', paymentId);
+    // ── Annulation utilisateur ──
+    onCancel(paymentId) {
+      console.log('[Pi] Annulé par l'utilisateur:', paymentId);
       hideStatus();
-      if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+      resetPayBtn();
     },
 
-    /* Erreur générique */
-    onError: function (error, payment) {
-      console.error('[Pi] Erreur:', error, payment);
-      setStatus('❌', 'Erreur inattendue. Réessaie depuis Pi Browser.');
-      if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+    // ── Erreur Pi SDK ──
+    onError(error, payment) {
+      console.error('[Pi] Erreur SDK:', error, payment);
+      const msg = error?.message || 'Erreur inattendue';
+      setStatus('❌', `Erreur : ${msg}. Réessaie depuis Pi Browser.`, 'error');
+      resetPayBtn();
     },
   };
 
   try {
-    Pi.createPayment(paymentData, paymentCallbacks);
+    Pi.createPayment(paymentData, callbacks);
   } catch (e) {
-    console.error('[Pi] createPayment échoué:', e);
-    setStatus('❌', 'Impossible de lancer le paiement. Vérifie ton accès Pi Browser.');
-    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+    console.error('[Pi] createPayment échoué:', e.message);
+    setStatus('❌', 'Impossible de lancer le paiement. Vérifie ton accès Pi Browser.', 'error');
+    resetPayBtn();
   }
 }
 
-/* ── Paiement incomplet trouvé au lancement ── */
+// ── Paiement incomplet détecté à l'auth ──
 function onIncompletePaymentFound(payment) {
-  console.warn('[Pi] Paiement incomplet trouvé:', payment?.identifier);
-  /* On tente de le compléter automatiquement */
-  if (payment?.identifier) {
-    fetch(`https://api.minepi.com/v2/payments/${payment.identifier}/complete`, {
-      method: 'POST',
-      headers: { Authorization: `Key ${PI_APP_API_KEY}` },
-      body: JSON.stringify({ txid: payment?.transaction?.txid }),
-    }).catch(() => {});
+  if (!payment?.identifier) return;
+  console.warn('[Pi] Paiement incomplet trouvé:', payment.identifier);
+
+  // Tente de compléter automatiquement
+  const txid = payment?.transaction?.txid;
+  if (txid) {
+    fetch('/api/pi-complete', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ paymentId: payment.identifier, txid }),
+    })
+      .then(r => r.json())
+      .then(() => console.log('[Pi] Paiement incomplet complété:', payment.identifier))
+      .catch(e  => console.warn('[Pi] Impossible de compléter le paiement incomplet:', e.message));
   }
 }
 
-/* ── Helpers UI statut ── */
-function setStatus(icon, msg) {
+// ── Helpers UI ──
+function resetPayBtn() {
+  paymentInProgress = false;
+  const btn = document.getElementById('payBtn');
+  if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+}
+
+const STATUS_COLORS = {
+  loading: 'rgba(124,77,255,0.15)',
+  success: 'rgba(6,214,160,0.12)',
+  error:   'rgba(230,57,70,0.12)',
+  warn:    'rgba(255,209,102,0.12)',
+  info:    'rgba(76,201,240,0.1)',
+};
+
+function setStatus(icon, msg, type = 'info') {
   const s = document.getElementById('payStatus');
   const i = document.getElementById('payStatusIcon');
   const m = document.getElementById('payStatusMsg');
-  if (s) s.classList.remove('hidden');
+  if (!s) return;
+  s.classList.remove('hidden');
+  s.style.background = STATUS_COLORS[type] || STATUS_COLORS.info;
   if (i) i.textContent = icon;
   if (m) m.textContent = msg;
 }
@@ -773,23 +854,24 @@ function hideStatus() {
   if (s) setTimeout(() => s.classList.add('hidden'), 300);
 }
 
-/* ── Page transition ── */
+// ── Page transition ──
 (function () {
-  var overlay = document.createElement('div');
+  const overlay = document.createElement('div');
   overlay.className = 'page-transition-overlay in';
   document.body.appendChild(overlay);
-  setTimeout(function () { overlay.remove(); }, 450);
-  document.addEventListener('click', function (e) {
-    var link = e.target.closest('a[href]');
+  setTimeout(() => overlay.remove(), 450);
+
+  document.addEventListener('click', e => {
+    const link = e.target.closest('a[href]');
     if (!link) return;
-    var href = link.getAttribute('href');
+    const href = link.getAttribute('href');
     if (!href || href.startsWith('#') || href.startsWith('http') ||
         href.startsWith('mailto') || link.target === '_blank') return;
     e.preventDefault();
-    var ov = document.createElement('div');
+    const ov = document.createElement('div');
     ov.className = 'page-transition-overlay out';
     document.body.appendChild(ov);
-    setTimeout(function () { window.location.href = href; }, 340);
+    setTimeout(() => { window.location.href = href; }, 340);
   });
 })();
 </script>
