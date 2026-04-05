@@ -113,26 +113,67 @@ function buildRecoCard(anime) {
 }
 
 /* ──────────────────────────────────────
-   TRAILER LOGIC — Autoplay + YouTube search fallback
+   YOUTUBE API — Clé à remplacer sur GitHub
 ────────────────────────────────────── */
-const trailerState = { youtubeId: null, playing: false, muted: true };
+const YT_API_KEY = 'AIzaSyBaES8Vu4pR4Gk7SQiXHCMt-p0yDvh5W2g';
+const YT_SEARCH  = 'https://www.googleapis.com/youtube/v3/search';
 
-// Suffixes de recherche YouTube par priorité
-const YT_SUFFIXES = ['trailer', 'opening', 'ending', 'teaser', 'official clip'];
+// Cache sessionStorage pour éviter de reconsommer le quota
+function ytCacheGet(key) {
+  try { const c = sessionStorage.getItem(`yt_${key}`); return c ? JSON.parse(c) : null; } catch { return null; }
+}
+function ytCacheSet(key, value) {
+  try { sessionStorage.setItem(`yt_${key}`, JSON.stringify(value)); } catch {}
+}
 
+/**
+ * Cherche une vidéo YouTube pour un anime donné.
+ * Ordre de priorité : trailer → opening → ending → teaser → official clip
+ * Retourne le premier videoId trouvé, ou null si rien.
+ */
 async function findYouTubeId(title) {
-  // Tente chaque suffix dans l'ordre
-  for (const suffix of YT_SUFFIXES) {
-    const q   = encodeURIComponent(`${title} anime ${suffix}`);
-    const url = `https://www.youtube.com/results?search_query=${q}`;
+  if (!YT_API_KEY || YT_API_KEY === 'REMPLACE_PAR_TA_CLE') return null;
+
+  const cacheKey = `search_${title}`;
+  const cached   = ytCacheGet(cacheKey);
+  if (cached !== null) return cached; // peut être une string ou false
+
+  const suffixes = ['official trailer', 'trailer', 'opening', 'ending', 'teaser', 'official clip'];
+
+  for (const suffix of suffixes) {
     try {
-      // On ne peut pas appeler l'API YT sans clé — on utilise l'ID fourni par Jikan si disponible
-      // Cette fonction est un fallback si Jikan ne fournit pas d'ID
-      break; // sort de la boucle, géré en amont via Jikan trailer.youtube_id
-    } catch (_) {}
+      const q    = encodeURIComponent(`${title} anime ${suffix}`);
+      const url  = `${YT_SEARCH}?part=snippet&q=${q}&type=video&maxResults=1&key=${YT_API_KEY}`;
+      const res  = await fetch(url);
+
+      // Quota épuisé ou clé invalide → arrête les tentatives
+      if (res.status === 403 || res.status === 400) {
+        console.warn('[YT] Quota ou clé invalide — abandon');
+        ytCacheSet(cacheKey, null);
+        return null;
+      }
+      if (!res.ok) continue;
+
+      const data  = await res.json();
+      const id    = data.items?.[0]?.id?.videoId;
+      if (id) {
+        ytCacheSet(cacheKey, id);
+        return id;
+      }
+    } catch (e) {
+      console.warn(`[YT] Erreur recherche "${suffix}":`, e);
+    }
   }
+
+  // Aucun résultat sur tous les suffixes
+  ytCacheSet(cacheKey, null);
   return null;
 }
+
+/* ──────────────────────────────────────
+   TRAILER LOGIC — Autoplay + fallback
+────────────────────────────────────── */
+const trailerState = { youtubeId: null, playing: false, muted: true };
 
 function embedTrailer(youtubeId, autoplay = true) {
   trailerState.youtubeId = youtubeId;
@@ -140,52 +181,55 @@ function embedTrailer(youtubeId, autoplay = true) {
   const unmuteBtn = el('unmuteBtn');
 
   if (autoplay) {
-    // Autoplay immédiat (muted pour respecter les politiques navigateur)
     startTrailer(youtubeId);
   } else {
-    playBtn.classList.remove('hidden');
-    playBtn.addEventListener('click', () => {
-      if (!trailerState.playing) startTrailer(youtubeId);
-    }, { once: true });
+    if (playBtn) {
+      playBtn.classList.remove('hidden');
+      playBtn.addEventListener('click', () => {
+        if (!trailerState.playing) startTrailer(youtubeId);
+      }, { once: true });
+    }
   }
-
-  unmuteBtn.addEventListener('click', toggleMute);
+  if (unmuteBtn) unmuteBtn.addEventListener('click', toggleMute);
 }
 
 function startTrailer(youtubeId) {
-  const container  = el('trailerContainer');
-  const banner     = el('animeBanner');
-  const frame      = el('trailerFrame');
-  const playBtn    = el('playTrailerBtn');
-  const unmuteBtn  = el('unmuteBtn');
-  const fsBtn      = el('fullscreenBtn');
+  const container = el('trailerContainer');
+  const banner    = el('animeBanner');
+  const frame     = el('trailerFrame');
+  const playBtn   = el('playTrailerBtn');
+  const unmuteBtn = el('unmuteBtn');
+  const fsBtn     = el('fullscreenBtn');
 
-  // Autoplay muted — seul mode accepté sans interaction utilisateur
   frame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&enablejsapi=1&playsinline=1`;
 
-  container.classList.add('active');
-  banner.style.opacity     = '0';
-  banner.style.transition  = 'opacity 0.8s ease';
-  playBtn.classList.add('hidden');
-  unmuteBtn.classList.remove('hidden');
-  if (fsBtn) fsBtn.classList.remove('hidden');
+  if (container) container.classList.add('active');
+  if (banner)    { banner.style.opacity = '0'; banner.style.transition = 'opacity 0.8s ease'; }
+  if (playBtn)   playBtn.classList.add('hidden');
+  if (unmuteBtn) unmuteBtn.classList.remove('hidden');
+  if (fsBtn)     fsBtn.classList.remove('hidden');
 
   trailerState.playing = true;
   trailerState.muted   = true;
-  el('muteLabel').textContent = 'Activer le son';
-  el('muteIcon').innerHTML = mutedSVG();
+  const muteLabel = el('muteLabel');
+  const muteIcon  = el('muteIcon');
+  if (muteLabel) muteLabel.textContent = 'Activer le son';
+  if (muteIcon)  muteIcon.innerHTML    = mutedSVG();
 }
 
 function toggleMute() {
   const frame     = el('trailerFrame');
   const youtubeId = trailerState.youtubeId;
+  if (!frame || !youtubeId) return;
 
   trailerState.muted = !trailerState.muted;
   const muteParam    = trailerState.muted ? 1 : 0;
   frame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=${muteParam}&controls=0&modestbranding=1&rel=0&playsinline=1`;
 
-  el('muteLabel').textContent = trailerState.muted ? 'Activer le son' : 'Couper le son';
-  el('muteIcon').innerHTML    = trailerState.muted ? mutedSVG() : unmutedSVG();
+  const muteLabel = el('muteLabel');
+  const muteIcon  = el('muteIcon');
+  if (muteLabel) muteLabel.textContent = trailerState.muted ? 'Activer le son' : 'Couper le son';
+  if (muteIcon)  muteIcon.innerHTML    = trailerState.muted ? mutedSVG() : unmutedSVG();
 }
 
 function mutedSVG() {
@@ -198,19 +242,35 @@ function unmutedSVG() {
     <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>`;
 }
 
+function showNoVideo() {
+  // Affichage propre quand aucune vidéo n'est disponible
+  const playBtn = el('playTrailerBtn');
+  const banner  = el('animeBanner');
+  if (playBtn) {
+    playBtn.style.opacity = '0.4';
+    playBtn.disabled      = true;
+    playBtn.innerHTML     = `
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="16"/>
+        <line x1="8" y1="12" x2="16" y2="12"/>
+      </svg>
+      Aucune vidéo disponible`;
+  }
+  // Bannière reste visible, légèrement assombrie pour indiquer l'absence de vidéo
+  if (banner) banner.style.filter = 'brightness(0.7)';
+}
+
 function initFullscreen() {
   const btn       = el('fullscreenBtn');
   const container = el('trailerContainer');
   if (!btn || !container) return;
   btn.addEventListener('click', () => {
-    if (!document.fullscreenElement) {
-      container.requestFullscreen?.();
-    } else {
-      document.exitFullscreen?.();
-    }
+    if (!document.fullscreenElement) container.requestFullscreen?.();
+    else                             document.exitFullscreen?.();
   });
   document.addEventListener('fullscreenchange', () => {
-    btn.title = document.fullscreenElement ? 'Quitter le plein écran' : 'Plein écran';
+    if (btn) btn.title = document.fullscreenElement ? 'Quitter le plein écran' : 'Plein écran';
   });
 }
 
@@ -266,20 +326,41 @@ function renderDetail(anime) {
     el('bannerImg').src = 'https://placehold.co/1200x600/111118/555?text=No+Image';
   };
 
-  // Trailer — autoplay si disponible, sinon message + fallback
-  const trailer = anime.trailer?.youtube_id;
-  if (trailer) {
-    embedTrailer(trailer, true); // autoplay=true
-    el('trailerRating').textContent = anime.rating ? anime.rating.split(' ')[0] : '';
+  // ── Trailer : Jikan en priorité → YouTube API en fallback ──
+  const jikanTrailerId = anime.trailer?.youtube_id;
+  if (jikanTrailerId) {
+    // Jikan a un ID → on l'utilise directement, zéro quota YT consommé
+    embedTrailer(jikanTrailerId, true);
+    const ratingEl = el('trailerRating');
+    if (ratingEl) ratingEl.textContent = anime.rating ? anime.rating.split(' ')[0] : '';
     initFullscreen();
   } else {
-    // Fallback : bouton désactivé + message
+    // Pas d'ID Jikan → on cherche sur YouTube (consomme ~100 unités/recherche)
     const playBtn = el('playTrailerBtn');
     if (playBtn) {
-      playBtn.style.opacity  = '0.4';
-      playBtn.disabled       = true;
-      playBtn.innerHTML      = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> Aucune vidéo disponible`;
+      // État "recherche en cours" pendant la requête YT
+      playBtn.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             style="animation:spin 1s linear infinite">
+          <circle cx="12" cy="12" r="10" stroke-dasharray="30" stroke-dashoffset="10"/>
+        </svg>
+        Recherche vidéo…`;
+      playBtn.style.opacity = '0.7';
+      playBtn.disabled      = true;
     }
+
+    // Recherche async — n'empêche pas le reste de la page de s'afficher
+    findYouTubeId(title).then(ytId => {
+      if (ytId) {
+        embedTrailer(ytId, true);
+        initFullscreen();
+        // Badge discret indiquant que la vidéo vient de YouTube
+        const ratingEl = el('trailerRating');
+        if (ratingEl) ratingEl.textContent = 'YouTube';
+      } else {
+        showNoVideo();
+      }
+    });
   }
 
   // ── Badge épisode — uniquement si statut STRICTEMENT "Currently Airing" ──
