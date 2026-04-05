@@ -4,7 +4,7 @@
  * Variable requise : PI_API_KEY
  */
 
-const PI_API = 'https://api.testnet.minepi.com/v2';
+const PI_API = 'https://api.minepi.com/v2';
 
 async function parseBody(req) {
   return new Promise((resolve, reject) => {
