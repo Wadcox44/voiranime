@@ -1906,27 +1906,31 @@ body {
   .hero-scroll-hint { display:none; }
 }
 
-/* ── MOBILE ≤768px — fond image uniquement, sans poster ── */
+/* ── MOBILE ≤768px — ÉTAPE 3 : fond + texte ── */
 @media (max-width: 768px) {
   .hero {
     display: block !important;
     position: relative;
-    height: 56vw;
-    min-height: 180px;
-    max-height: 260px;
-    overflow: hidden;
+    overflow: visible;
+    min-height: 0;
+    max-height: none;
   }
 
+  /* Masqués */
   .hero-particles,
   .hero-aura,
   .hero-poster-wrap,
-  .hero-content,
   .hero-dots,
   .hero-scroll-hint { display: none !important; }
 
+  /* Fond image */
   .hero-bg {
-    position: absolute;
-    inset: 0;
+    position: relative !important;
+    width: 100%;
+    height: 52vw;
+    min-height: 170px;
+    max-height: 250px;
+    overflow: hidden;
   }
   .hero-bg img {
     filter: brightness(0.5) !important;
@@ -1938,6 +1942,27 @@ body {
       rgba(8,7,15,0.8) 70%,
       rgba(8,7,15,1.0) 100%) !important;
   }
+
+  /* Bloc texte */
+  .hero-content {
+    position: relative !important;
+    transform: none !important;
+    padding: 16px 20px 24px !important;
+    max-width: 100% !important;
+    text-align: center;
+    background: #08070f;
+  }
+  .hero-info        { text-align: center; }
+  .hero-eyebrow     { justify-content: center; margin-bottom: 8px; }
+  .hero-badges      { justify-content: center; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .hero-title       { font-size: 1.55rem !important; padding: 0 !important; margin-bottom: 8px; line-height: 1.2; animation: none !important; }
+  .hero-synopsis    { font-size: 0.82rem !important; -webkit-line-clamp: 2; margin-bottom: 14px; padding: 0 !important; animation: none !important; }
+  .hero-actions     { justify-content: center; gap: 8px; flex-wrap: wrap; animation: none !important; }
+  .hero-meta        { justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; animation: none !important; }
+  .hero-meta-item   { font-size: 0.72rem; }
+  .hero-cta-explore { font-size: 0.88rem !important; padding: 11px 22px !important; }
+  .hero-cta-surprise{ font-size: 0.82rem !important; padding: 10px 16px !important; }
+  .hero-cta-fav     { width: 42px !important; height: 42px !important; }
 }
 
 
