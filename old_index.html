@@ -160,7 +160,7 @@
     <div class="hero-info hidden" id="heroInfo">
       <div class="hero-eyebrow" id="heroEyebrow">
         <span class="hero-live-dot"></span>
-        <span id="heroEyebrowText">En diffusion</span>
+        <span id="heroEyebrowText">En cours</span>
       </div>
       <div class="hero-badges" id="heroBadges"></div>
       <h1 class="hero-title" id="heroTitle"></h1>
@@ -177,7 +177,7 @@
             <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
             <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
           </svg>
-          Surprise-moi
+          Découverte aléatoire
         </button>
         <button class="btn-fav hero-cta-fav" id="heroFavBtn" data-id="" aria-label="Ajouter aux favoris">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -318,8 +318,8 @@
         <label class="adv-label">Type</label>
         <select id="advType" class="adv-select">
           <option value="">Tous</option>
-          <option value="tv">Série TV</option>
-          <option value="movie">Film</option>
+          <option value="tv">Série</option>
+          <option value="movie">Film d'anime d'anime</option>
           <option value="ova">OVA</option>
           <option value="ona">ONA</option>
           <option value="special">Spécial</option>
@@ -450,8 +450,8 @@
 <!-- EN DIFFUSION -->
 <section class="content-section" id="section-airing">
   <div class="section-header">
-    <h2 class="section-title"><span class="section-dot green"></span>📡 En diffusion</h2>
-    <span class="section-badge">Saison actuelle</span>
+    <h2 class="section-title"><span class="section-dot green"></span>📡 En cours</h2>
+    <span class="section-badge">Saison en cours</span>
   </div>
   <div class="carousel-wrapper">
     <button class="carousel-btn prev" data-carousel="airing">‹</button>
@@ -885,7 +885,7 @@
     if(heroAura)   heroAura.style.transform   = 'translate(0,0)';
   }, {passive:true});
 
-  /* ── Surprise-moi ── */
+  /* ── Découverte aléatoire ── */
   document.getElementById('heroSurpriseBtn')?.addEventListener('click', () => {
     const pool = window._heroAnimesPool;
     if(!pool || pool.length < 2) return;
