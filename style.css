@@ -1906,9 +1906,40 @@ body {
   .hero-scroll-hint { display:none; }
 }
 
-/* ── MOBILE ≤768px — TOUT EN COLONNE ── */
+/* ── MOBILE ≤768px — ÉTAPE 1 : fond image uniquement ── */
 @media (max-width: 768px) {
-  .hero { display: none !important; }
+  .hero {
+    display: block !important;
+    position: relative;
+    height: 56vw;
+    min-height: 180px;
+    max-height: 260px;
+    overflow: hidden;
+  }
+
+  /* Tous les enfants masqués sauf le fond */
+  .hero-particles,
+  .hero-aura,
+  .hero-poster-wrap,
+  .hero-content,
+  .hero-dots,
+  .hero-scroll-hint { display: none !important; }
+
+  /* Fond image */
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+  }
+  .hero-bg img {
+    filter: brightness(0.5) !important;
+    transform: none !important;
+  }
+  .hero-gradient {
+    background: linear-gradient(to bottom,
+      transparent 0%,
+      rgba(8,7,15,0.8) 70%,
+      rgba(8,7,15,1.0) 100%) !important;
+  }
 }
 
 
