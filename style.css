@@ -1906,7 +1906,7 @@ body {
   .hero-scroll-hint { display:none; }
 }
 
-/* ── MOBILE ≤768px — ÉTAPE 4 : fond + texte + dots ── */
+/* ── MOBILE ≤768px — ÉTAPE 5 : + skeleton chargement ── */
 @media (max-width: 768px) {
   .hero {
     display: block !important;
@@ -1940,6 +1940,12 @@ body {
       transparent 0%,
       rgba(8,7,15,0.8) 70%,
       rgba(8,7,15,1.0) 100%) !important;
+  }
+
+  /* Skeleton */
+  .hero-skeleton {
+    padding: 16px 20px 12px;
+    background: #08070f;
   }
 
   /* Bloc texte */
