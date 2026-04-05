@@ -674,7 +674,7 @@ function initiatePiPayment() {
   Pi.authenticate(['payments', 'username'], function onIncomplete(payment) {
     if (!payment || !payment.identifier) return;
     log('⚠️ Paiement incomplet trouvé, tentative de complétion…', 'warn');
-    fetch('/api/pi-complete', {
+    fetch('https://voir-anime.vercel.app/api/pi-complete', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -698,7 +698,7 @@ function initiatePiPayment() {
       {
         onReadyForServerApproval: function(paymentId) {
           log('⏳ Approbation serveur…', 'info');
-          fetch('/api/pi-approve', {
+          fetch('https://voir-anime.vercel.app/api/pi-approve', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ paymentId: paymentId })
@@ -717,7 +717,7 @@ function initiatePiPayment() {
 
         onReadyForServerCompletion: function(paymentId, txid) {
           log('⏳ Finalisation…', 'info');
-          fetch('/api/pi-complete', {
+          fetch('https://voir-anime.vercel.app/api/pi-complete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ paymentId: paymentId, txid: txid })
