@@ -310,11 +310,101 @@
       .support-why  { grid-template-columns: 1fr; gap: 10px; }
       .support-amounts { grid-template-columns: repeat(2, 1fr); }
       .support-badge-section { flex-direction: column; text-align: center; }
+      .pi-pay-block { padding: 20px 16px; }
     }
     @media (max-width: 480px) {
       .support-amounts { grid-template-columns: repeat(2, 1fr); gap: 8px; }
       .amount-value { font-size: 1.3rem; }
     }
+
+    /* ── Pi Network styles ── */
+    .pi-badge-info {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(124,77,255,0.12);
+      border: 1px solid rgba(124,77,255,0.3);
+      border-radius: 20px;
+      padding: 8px 18px;
+      font-size: 0.84rem;
+      color: #c0adff;
+      margin-top: 12px;
+    }
+    .pi-logo {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--violet);
+    }
+
+    /* Bloc instructions Pi */
+    .pi-pay-block {
+      width: 100%;
+      background: var(--ink3);
+      border: 1px solid rgba(124,77,255,0.2);
+      border-radius: var(--r-xl);
+      padding: 28px 24px;
+      margin-bottom: 16px;
+    }
+    .pi-pay-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    .pi-address-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--ink4);
+      border: 1px solid var(--b2);
+      border-radius: var(--r);
+      padding: 12px 16px;
+      margin-bottom: 20px;
+    }
+    .pi-address {
+      flex: 1;
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: var(--violet);
+      word-break: break-all;
+      background: none;
+      border: none;
+      outline: none;
+    }
+    .pi-copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      font-family: var(--font);
+      font-weight: 600;
+      color: var(--text2);
+      background: var(--ink3);
+      border: 1px solid var(--b2);
+      border-radius: var(--r-sm);
+      padding: 6px 12px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .pi-copy-btn:hover {
+      color: var(--violet);
+      border-color: var(--b-violet);
+      background: var(--violet-dim);
+    }
+    .pi-pay-steps {
+      font-size: 0.84rem;
+      color: var(--text2);
+      line-height: 2;
+      padding-left: 20px;
+      margin: 0;
+    }
+    .pi-pay-steps li { margin-bottom: 2px; }
+    .pi-pay-steps strong { color: var(--text); }
   </style>
 </head>
 <body>
@@ -357,12 +447,16 @@
 
   <!-- Hero -->
   <div class="support-hero">
-    <span class="support-icon">💜</span>
+    <span class="support-icon">π</span>
     <h1 class="support-title">Soutenir VoirAnime</h1>
     <p class="support-subtitle">
-      VoirAnime est un projet indépendant, développé avec passion et sans publicité.
-      Ton soutien finance les serveurs, le développement et les nouvelles fonctionnalités.
+      VoirAnime est un projet indépendant, sans publicité, déployé sur Pi Network.
+      Ton soutien en Pi finance les serveurs, le développement et les nouvelles fonctionnalités.
     </p>
+    <div class="pi-badge-info">
+      <span class="pi-logo">π</span>
+      Paiements en <strong>Pi</strong> · Disponible via Pi Browser ou l'app Pi Network
+    </div>
   </div>
 
   <!-- Pourquoi soutenir -->
@@ -381,24 +475,24 @@
     </div>
   </div>
 
-  <!-- Montants prédéfinis -->
-  <p class="support-amounts-title">Choisir un montant</p>
+  <!-- Montants prédéfinis en Pi -->
+  <p class="support-amounts-title">Choisir un montant (π Pi)</p>
   <div class="support-amounts" id="amountsGrid">
-    <button class="amount-btn" data-amount="2">
-      <span class="amount-value">2€</span>
+    <button class="amount-btn" data-amount="1">
+      <span class="amount-value">1 π</span>
       <span class="amount-label">Café ☕</span>
     </button>
     <button class="amount-btn selected" data-amount="5">
-      <span class="amount-value">5€</span>
+      <span class="amount-value">5 π</span>
       <span class="amount-label">Soutien</span>
       <span class="amount-badge">Populaire</span>
     </button>
     <button class="amount-btn" data-amount="10">
-      <span class="amount-value">10€</span>
+      <span class="amount-value">10 π</span>
       <span class="amount-label">Généreux</span>
     </button>
-    <button class="amount-btn" data-amount="20">
-      <span class="amount-value">20€</span>
+    <button class="amount-btn" data-amount="25">
+      <span class="amount-value">25 π</span>
       <span class="amount-label">Champion</span>
       <span class="amount-badge">★ Supporter</span>
     </button>
@@ -407,26 +501,33 @@
   <!-- Montant libre -->
   <div class="support-custom">
     <label for="customAmount">Montant libre</label>
-    <input type="number" id="customAmount" placeholder="Autre montant" min="1" step="1"/>
-    <span class="support-custom-currency">€</span>
+    <input type="number" id="customAmount" placeholder="Autre montant" min="1" step="0.01"/>
+    <span class="support-custom-currency">π</span>
   </div>
 
-  <!-- CTA -->
+  <!-- Instructions envoi Pi -->
   <div class="support-cta">
-    <a href="https://ko-fi.com/REMPLACE_PAR_TON_KOFI" target="_blank" rel="noopener"
-       class="support-btn-main" id="donateBtn">
-      💜 Soutenir maintenant
-    </a>
-    <a href="https://paypal.me/REMPLACE_PAR_TON_PAYPAL" target="_blank" rel="noopener"
-       class="support-btn-secondary" id="paypalBtn">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-        <path d="M12 6v6l4 2"/>
-      </svg>
-      Ou via PayPal
-    </a>
+    <div class="pi-pay-block">
+      <p class="pi-pay-label">Envoie ton don à ce compte Pi</p>
+      <div class="pi-address-wrap">
+        <code class="pi-address" id="piAddress">REMPLACE_PAR_TON_USERNAME_PI</code>
+        <button class="pi-copy-btn" id="piCopyBtn" title="Copier">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <span id="copyLabel">Copier</span>
+        </button>
+      </div>
+      <ol class="pi-pay-steps">
+        <li>Ouvre <strong>Pi Browser</strong> ou l'app <strong>Pi Network</strong></li>
+        <li>Va dans <strong>Portefeuille → Envoyer</strong></li>
+        <li>Colle le nom d'utilisateur ci-dessus</li>
+        <li>Entre le montant et confirme</li>
+      </ol>
+    </div>
     <p class="support-note">
-      🔒 Paiement sécurisé via Ko-fi ou PayPal · Aucune donnée bancaire stockée sur VoirAnime
+      π Réseau Pi Network · Décentralisé · Aucune donnée bancaire collectée
     </p>
   </div>
 
@@ -443,7 +544,7 @@
       <p>
         Après ton don, envoie un message à
         <strong style="color:var(--pink)">voiranime.contact@gmail.com</strong>
-        avec ton pseudo et la confirmation de paiement.
+        avec ton pseudo Pi et une capture de la transaction.
         On t'attribue le badge <strong>Supporter ⭐</strong> sur ton profil
         et on ajoute ton prénom sur la page de remerciements.
       </p>
@@ -452,43 +553,37 @@
 
   <!-- Remerciements -->
   <div class="support-thanks">
-    <p class="support-thanks-title">Nos supporters — Merci à vous 💜</p>
+    <p class="support-thanks-title">Nos Pioneers — Merci à vous 💜</p>
     <div class="thanks-grid" id="thanksGrid">
-      <!-- Exemples — à remplacer par les vrais noms -->
-      <span class="thanks-name"><span class="thanks-name-star">⭐</span> Premier supporter</span>
-      <span class="thanks-name"><span class="thanks-name-star">⭐</span> Ton nom ici</span>
+      <span class="thanks-name"><span class="thanks-name-star">π</span> Premier Pioneer</span>
+      <span class="thanks-name"><span class="thanks-name-star">π</span> Ton nom ici</span>
     </div>
   </div>
 
 </main>
 
 <script>
-// Sélection des montants prédéfinis
+// Sélection des montants
 document.querySelectorAll('.amount-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
     btn.classList.add('selected');
     document.getElementById('customAmount').value = '';
-    updateDonateLink(btn.dataset.amount);
   });
 });
 
-// Montant libre
-document.getElementById('customAmount').addEventListener('input', function() {
-  if (this.value) {
-    document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('selected'));
-    updateDonateLink(this.value);
-  }
+// Bouton copier l'adresse Pi
+document.getElementById('piCopyBtn')?.addEventListener('click', () => {
+  const addr  = document.getElementById('piAddress').textContent.trim();
+  const label = document.getElementById('copyLabel');
+  navigator.clipboard.writeText(addr).then(() => {
+    label.textContent = '✓ Copié !';
+    setTimeout(() => { label.textContent = 'Copier'; }, 2000);
+  }).catch(() => {
+    label.textContent = 'Erreur';
+    setTimeout(() => { label.textContent = 'Copier'; }, 2000);
+  });
 });
-
-function updateDonateLink(amount) {
-  const btn = document.getElementById('donateBtn');
-  btn.textContent = `💜 Soutenir avec ${amount}€`;
-  // Ko-fi ne supporte pas les montants via URL — le lien reste générique
-  // Pour PayPal on peut passer le montant
-  const paypal = document.getElementById('paypalBtn');
-  paypal.href = `https://paypal.me/REMPLACE_PAR_TON_PAYPAL/${amount}EUR`;
-}
 
 // Page transition
 (function(){
