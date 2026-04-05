@@ -760,8 +760,10 @@
     }
   });
 
-  /* ── 6. Tilt 3D cards ── */
+  /* ── 6. Tilt 3D cards — desktop uniquement ── */
+  const isTouch = window.matchMedia('(hover: none)').matches;
   var lastCard = null;
+  if (!isTouch) {
   document.addEventListener('mousemove', function(e){
     var card = e.target.closest('.anime-card');
     if(!card){
@@ -778,6 +780,7 @@
     var card = e.target.closest('.anime-card');
     if(card) card.style.transform = '';
   }, true);
+  } // end !isTouch
 
   /* ── 7. Navbar active link + Section tracking ── */
   const navLinks = document.querySelectorAll('.nav-link');
@@ -870,6 +873,7 @@
   const posterWrap = document.getElementById('heroPosterWrap');
   const heroAura   = document.getElementById('heroAura');
 
+  if (!isTouch) {
   document.getElementById('hero')?.addEventListener('mousemove', e => {
     const r  = e.currentTarget.getBoundingClientRect();
     const dx = (e.clientX - r.left  - r.width  / 2) / r.width;
@@ -884,6 +888,7 @@
     if(posterWrap) posterWrap.style.transform = 'translateY(-50%)';
     if(heroAura)   heroAura.style.transform   = 'translate(0,0)';
   }, {passive:true});
+  } // end !isTouch
 
   /* ── Découverte aléatoire ── */
   document.getElementById('heroSurpriseBtn')?.addEventListener('click', () => {
