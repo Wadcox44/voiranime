@@ -701,7 +701,7 @@ function initiatePiPayment() {
           fetch('https://voir-anime.vercel.app/api/pi-approve', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ paymentId: paymentId })
+            body: JSON.stringify({ paymentId: paymentId, payment: { identifier: paymentId } })
           })
           .then(function(r) {
             if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -720,7 +720,7 @@ function initiatePiPayment() {
           fetch('https://voir-anime.vercel.app/api/pi-complete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ paymentId: paymentId, txid: txid })
+            body: JSON.stringify({ paymentId: paymentId, txid: txid, payment: { identifier: paymentId, transaction: { txid: txid } } })
           })
           .then(function(r) {
             if (!r.ok) throw new Error('HTTP ' + r.status);
