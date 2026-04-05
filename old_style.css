@@ -3820,3 +3820,128 @@ a:active {
   .zone-separator  { padding: 24px 16px 18px; }
   .personal-zone-inner { margin: 0 16px; }
 }
+
+/* ═══════════════════════════════════════════════════════
+   MODIFICATIONS UI v4
+   Episode badge · Traduction · Favori simplifié · Fullscreen
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Badge épisode ── */
+.episode-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  letter-spacing: 0.06em;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  animation: epBadgeIn 0.4s var(--ease-spring) both;
+}
+@keyframes epBadgeIn {
+  from { opacity:0; transform: scale(0.8) translateY(-4px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+
+/* ── Synopsis actions row ── */
+.synopsis-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.synopsis-translate {
+  font-size: 0.76rem;
+  color: var(--cyan);
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(76,201,240,0.25);
+  background: rgba(76,201,240,0.06);
+  cursor: pointer;
+  font-family: var(--font);
+  font-weight: 500;
+  transition: all 200ms var(--ease);
+}
+.synopsis-translate:hover {
+  background: rgba(76,201,240,0.14);
+  border-color: var(--b-cyan);
+}
+.synopsis-translate:disabled { opacity: 0.5; cursor: wait; }
+
+/* ── Favori simplifié — btn-fav uniquement ── */
+.btn-fav {
+  position: relative;
+  overflow: hidden;
+}
+.btn-fav svg {
+  transition: fill 220ms var(--ease), stroke 220ms var(--ease), transform 300ms var(--ease-spring);
+}
+.btn-fav.active svg {
+  fill: var(--pink);
+  stroke: var(--pink);
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 6px rgba(255,79,216,0.6));
+}
+.btn-fav:hover svg { transform: scale(1.08); }
+
+/* Ripple sur le cœur */
+.btn-fav::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background: var(--pink);
+  opacity:0;
+  transform: scale(0);
+  pointer-events:none;
+}
+.btn-fav:active::after {
+  animation: favRipple 0.35s ease-out forwards;
+}
+@keyframes favRipple {
+  to { transform: scale(2.5); opacity: 0; }
+}
+
+/* ── Bouton plein écran (même style que unmute) ── */
+#fullscreenBtn {
+  min-width: 40px;
+  padding: 8px 10px;
+}
+
+/* ── Tooltip sur les badges type/rating ── */
+[title] {
+  position: relative;
+}
+.badge[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink4);
+  border: 1px solid var(--b2);
+  color: var(--text2);
+  font-size: 0.68rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 4px 10px;
+  border-radius: var(--r-sm);
+  white-space: nowrap;
+  box-shadow: var(--shadow-2);
+  z-index: 100;
+  pointer-events: none;
+  animation: tooltipIn 150ms var(--ease-out) both;
+}
+@keyframes tooltipIn {
+  from { opacity:0; transform: translateX(-50%) translateY(4px); }
+  to   { opacity:1; transform: translateX(-50%) translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .synopsis-actions { gap: 6px; }
+  .synopsis-translate { font-size: 0.7rem; padding: 4px 10px; }
+}
