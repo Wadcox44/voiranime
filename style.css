@@ -1907,81 +1907,10 @@ body {
 }
 
 /* ── MOBILE ≤768px — TOUT EN COLONNE ── */
-@media (max-width:768px) {
-  .hero,.hero *,.hero *::before,.hero *::after {
-    position:static!important;
-    transform:none!important;
-    animation:none!important;
-  }
-  .hero {
-    display:flex!important;
-    flex-direction:column!important;
-    min-height:0!important;
-    max-height:none!important;
-    overflow:visible!important;
-    padding-top:var(--nav-h)!important;
-    background:#08070f;
-  }
-  .hero-particles  { display:none!important; }
-  .hero-aura       { display:none!important; }
-  .hero-poster-ring{ display:none!important; }
-  .hero-poster-shine{display:none!important; }
-  .hero-scroll-hint{ display:none!important; }
-  .hero-dots       { display:flex!important; justify-content:center; padding:8px 0 12px; gap:7px; }
-  .hero-bg {
-    display:block!important;
-    width:100%!important;
-    height:56vw!important;
-    min-height:180px!important;
-    max-height:260px!important;
-    flex-shrink:0!important;
-    overflow:hidden!important;
-  }
-  .hero-bg img { filter:brightness(0.5)!important; transform:none!important; }
-  .hero-gradient { background:linear-gradient(to bottom, transparent 0%, rgba(8,7,15,0.8) 70%, rgba(8,7,15,1) 100%)!important; }
-  .hero-poster-wrap {
-    display:flex!important;
-    justify-content:center!important;
-    width:100%!important;
-    padding:0!important;
-    margin-top:-32px!important;
-    z-index:5!important;
-  }
-  .hero-poster-img { width:88px!important; height:auto!important; border-radius:10px!important; box-shadow:0 6px 20px rgba(0,0,0,0.7)!important; }
-  .hero-content {
-    display:block!important;
-    padding:14px 20px 24px!important;
-    text-align:center!important;
-    background:#08070f!important;
-    max-width:100%!important;
-  }
-  .hero-info { text-align:center; }
-  .hero-eyebrow { display:flex!important; justify-content:center; margin-bottom:8px; }
-  .hero-badges  { display:flex!important; justify-content:center; margin-bottom:8px; flex-wrap:wrap; gap:6px; }
-  .hero-title { font-size:1.55rem!important; padding:0!important; margin-bottom:8px; line-height:1.2; }
-  .hero-synopsis { font-size:0.82rem!important; -webkit-line-clamp:2; max-width:100%!important; margin-bottom:14px; padding:0!important; }
-  .hero-actions { display:flex!important; justify-content:center; gap:8px; flex-wrap:wrap; }
-  .hero-meta    { display:flex!important; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:10px; }
-  .hero-meta-item { font-size:0.72rem; }
-  .hero-cta-explore  { font-size:0.88rem!important; padding:11px 22px!important; white-space:nowrap; }
-  .hero-cta-surprise { font-size:0.82rem!important; padding:10px 16px!important; }
-  .hero-cta-fav      { width:42px!important; height:42px!important; border-radius:50%!important; display:flex!important; align-items:center!important; justify-content:center!important; }
+@media (max-width: 768px) {
+  .hero { display: none !important; }
 }
 
-@media (max-width:480px) {
-  .hero-bg    { height:52vw!important; min-height:160px!important; }
-  .hero-poster-img { width:76px!important; }
-  .hero-poster-wrap{ margin-top:-26px!important; }
-  .hero-title { font-size:1.4rem!important; }
-  .hero-cta-surprise { display:none!important; }
-}
-
-@media (max-width:360px) {
-  .hero-bg    { height:48vw!important; min-height:140px!important; }
-  .hero-poster-img { width:64px!important; }
-  .hero-title { font-size:1.25rem!important; }
-  .hero-synopsis { display:none!important; }
-}
 
 /* ═══════════════════════════════════════════════════════
    GAP 1 — Navbar simplifiée + search label
