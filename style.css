@@ -1906,34 +1906,27 @@ body {
   .hero-scroll-hint { display:none; }
 }
 
-/* ── MOBILE ≤768px — ÉTAPE 2 : fond + poster centré ── */
+/* ── MOBILE ≤768px — fond image uniquement, sans poster ── */
 @media (max-width: 768px) {
   .hero {
-    display: flex !important;
-    flex-direction: column;
+    display: block !important;
     position: relative;
+    height: 56vw;
+    min-height: 180px;
+    max-height: 260px;
     overflow: hidden;
-    min-height: 0;
-    max-height: none;
   }
 
-  /* Masqués */
   .hero-particles,
   .hero-aura,
-  .hero-poster-ring,
-  .hero-poster-shine,
+  .hero-poster-wrap,
   .hero-content,
   .hero-dots,
   .hero-scroll-hint { display: none !important; }
 
-  /* Fond image */
   .hero-bg {
-    position: relative !important;
-    width: 100%;
-    height: 52vw;
-    min-height: 170px;
-    max-height: 250px;
-    flex-shrink: 0;
+    position: absolute;
+    inset: 0;
   }
   .hero-bg img {
     filter: brightness(0.5) !important;
@@ -1944,23 +1937,6 @@ body {
       transparent 0%,
       rgba(8,7,15,0.8) 70%,
       rgba(8,7,15,1.0) 100%) !important;
-  }
-
-  /* Poster statique centré */
-  .hero-poster-wrap {
-    position: relative !important;
-    transform: none !important;
-    animation: none !important;
-    display: flex !important;
-    justify-content: center;
-    width: 100%;
-    margin-top: -32px;
-  }
-  .hero-poster-img {
-    width: 88px !important;
-    height: auto !important;
-    border-radius: 10px !important;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.7) !important;
   }
 }
 
