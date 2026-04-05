@@ -608,22 +608,22 @@ function initPiSdk() {
     return;
   }
   try {
-    Pi.init({ version: '2.0', sandbox: false });
+    Pi.init({ version: '2.0', sandbox: true }); // ← true pour sandbox Dev Portal, false pour production
     piInitialized = true;
-    console.info('[Pi] SDK initialisé ✅');
+    console.info('[Pi] SDK initialisé ✅ (sandbox mode)');
   } catch (e) {
     console.error('[Pi] Erreur init:', e.message);
+    setStatus('❌', 'Erreur initialisation Pi SDK : ' + e.message, 'error');
   }
 }
 
 // ── Avertissement si hors Pi Browser ──
 function showPiBrowserWarning() {
-  const btn = document.getElementById('payBtn');
-  if (!btn) return;
-  btn.disabled = true;
-  btn.style.opacity = '0.5';
-  btn.title = 'Ouvre ce site dans Pi Browser pour payer en Pi';
+  // Hors Pi Browser — bouton visible mais message informatif
+  // Ne pas désactiver : l'utilisateur peut quand même naviguer sur le site
   setStatus('ℹ️', 'Pour payer en Pi, ouvre VoirAnime dans Pi Browser.', 'info');
+  const btn = document.getElementById('payBtn');
+  if (btn) btn.title = 'Ouvre ce site dans Pi Browser pour payer en Pi';
 }
 
 // ── Sélection des montants ──
@@ -671,6 +671,13 @@ function updatePayBtn(amount) {
    3. UI success
    ════════════════════════════════════════════════════════ */
 async function initiatePiPayment() {
+  // Re-tente l'init si Pi SDK existe mais n'est pas encore initialisé
+  if (typeof window.Pi !== 'undefined' && !piInitialized) {
+    try {
+      Pi.init({ version: '2.0', sandbox: true });
+      piInitialized = true;
+    } catch(e) { console.error('[Pi] Re-init échoué:', e.message); }
+  }
   if (!piInitialized || typeof window.Pi === 'undefined') {
     setStatus('⚠️', 'Ouvre VoirAnime dans Pi Browser pour payer en Pi.', 'warn');
     return;
