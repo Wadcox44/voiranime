@@ -39,26 +39,26 @@ export default async function handler(req, res) {
 
   const { paymentId, txid } = body;
   if (!paymentId || !txid) {
-    console.error('[pi-complete] ❌ paymentId ou txid manquant', { paymentId, txid });
     return res.status(400).json({ error: 'Missing paymentId or txid' });
   }
 
   const url = `${PI_API}/payments/${paymentId}/complete`;
+  const authHeader = `key ${apiKey}`;
+
   console.log(`[pi-complete] POST ${url}`);
 
   try {
     const piRes = await fetch(url, {
       method:  'POST',
       headers: {
-        'Authorization': `Key ${apiKey}`,
+        'authorization': authHeader,
         'Content-Type':  'application/json',
       },
       body: JSON.stringify({ txid }),
     });
 
     const rawText = await piRes.text();
-    console.log(`[pi-complete] Pi API status: ${piRes.status}`);
-    console.log(`[pi-complete] Pi API response: ${rawText}`);
+    console.log(`[pi-complete] Status: ${piRes.status} | Response: ${rawText}`);
 
     let data;
     try { data = JSON.parse(rawText); } catch { data = { raw: rawText }; }
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true, payment: data });
 
   } catch (e) {
-    console.error('[pi-complete] ❌ Fetch error:', e.message);
+    console.error('[pi-complete] ❌ Network error:', e.message);
     return res.status(500).json({ error: e.message });
   }
 }

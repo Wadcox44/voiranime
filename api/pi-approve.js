@@ -20,8 +20,17 @@ async function parseBody(req) {
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin',  '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS, GET');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // GET : test rapide pour vérifier que la variable est chargée
+  if (req.method === 'GET') {
+    const apiKey = process.env.PI_API_KEY;
+    return res.status(200).json({
+      configured: !!apiKey,
+      prefix: apiKey ? apiKey.substring(0, 6) + '...' : 'MISSING'
+    });
+  }
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST')
@@ -39,35 +48,36 @@ export default async function handler(req, res) {
 
   const { paymentId } = body;
   if (!paymentId) {
-    console.error('[pi-approve] ❌ paymentId manquant');
     return res.status(400).json({ error: 'Missing paymentId' });
   }
 
   const url = `${PI_API}/payments/${paymentId}/approve`;
+  // Format exact de la doc Pi : "key APIKEY" (lowercase)
+  const authHeader = `key ${apiKey}`;
+
   console.log(`[pi-approve] POST ${url}`);
-  console.log(`[pi-approve] Key prefix: ${apiKey.substring(0, 8)}...`);
+  console.log(`[pi-approve] Auth header prefix: ${authHeader.substring(0, 12)}...`);
 
   try {
     const piRes = await fetch(url, {
       method:  'POST',
       headers: {
-        'Authorization': `Key ${apiKey}`,
+        'authorization': authHeader,
         'Content-Type':  'application/json',
       },
     });
 
     const rawText = await piRes.text();
-    console.log(`[pi-approve] Pi API status: ${piRes.status}`);
-    console.log(`[pi-approve] Pi API response: ${rawText}`);
+    console.log(`[pi-approve] Status: ${piRes.status} | Response: ${rawText}`);
 
     let data;
     try { data = JSON.parse(rawText); } catch { data = { raw: rawText }; }
 
     if (!piRes.ok) {
       return res.status(piRes.status).json({
-        error:    'Pi API error',
-        status:   piRes.status,
-        details:  data,
+        error:   'Pi API error',
+        status:  piRes.status,
+        details: data,
       });
     }
 
@@ -75,7 +85,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true, payment: data });
 
   } catch (e) {
-    console.error('[pi-approve] ❌ Fetch error:', e.message);
+    console.error('[pi-approve] ❌ Network error:', e.message);
     return res.status(500).json({ error: e.message });
   }
 }
