@@ -1432,7 +1432,6 @@ ul, ol { list-style: none; }
     overflow-x: auto;
     scrollbar-width: none;
     gap: 2px;
-    padding: 0;
     flex-wrap: nowrap;
   }
   .nav-links::-webkit-scrollbar { display: none; }
@@ -1927,6 +1926,7 @@ body {
     overflow: visible;
     min-height: 0;
     max-height: none;
+    padding-top: 88px; /* navbar 2 lignes ~88px sur mobile */
   }
 
   /* Masqués */
@@ -3723,34 +3723,68 @@ a:active {
 }
 
 /* ─────────────────────────────────────────────────────────
-   NAVBAR MOBILE
+   NAVBAR MOBILE — 2 lignes : logo centré + menu pleine largeur
 ───────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .navbar {
-    padding: 0 16px;
-    height: var(--nav-h);
+    height: auto !important;
+    flex-direction: column;
+    padding: 10px 16px 0;
+    align-items: center;
+    gap: 0;
+    background: rgba(8,7,15,0.97) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
   }
 
-  /* Cache les nav-links — menu hamburger à implémenter si besoin */
+  /* Ligne 1 : logo centré + recherche à droite */
+  .nav-left {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding-bottom: 8px;
+    gap: 0;
+  }
+
+  /* Logo au centre */
+  .nav-logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .logo-glitch { font-size: 1.25rem; }
+
+  /* Recherche à droite sur la ligne logo */
+  .nav-right {
+    position: absolute;
+    right: 16px;
+    top: 10px;
+  }
+
+  /* Masque le label "Recherche" */
+  .search-toggle-label { display: none; }
+
+  /* Ligne 2 : liens en ligne, répartis sur toute la largeur */
   .nav-links {
     display: flex !important;
-    overflow-x: auto;
-    scrollbar-width: none;
-    gap: 2px;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
     flex-wrap: nowrap;
-  }
-  .nav-links::-webkit-scrollbar { display: none; }
-  .nav-link { font-size: 0.78rem; padding: 5px 10px; white-space: nowrap; }
-
-  /* Recherche plus compacte */
-  .search-toggle-label { display: none; }
-  .search-expand {
-    width: calc(100vw - 80px);
-    right: -8px;
+    gap: 0;
+    padding: 4px 0 8px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    overflow: visible;
   }
 
-  /* Logo légèrement plus petit */
-  .logo-glitch { font-size: 1.2rem; }
+  .nav-link {
+    font-size: 0.76rem !important;
+    padding: 6px 8px !important;
+    white-space: nowrap;
+    flex: 1;
+    text-align: center;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────
