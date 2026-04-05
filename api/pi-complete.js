@@ -1,8 +1,6 @@
 /**
- * /api/pi-complete.js — Complétion paiement Pi Network
- *
- * Appelé par le frontend via onReadyForServerCompletion.
- * Variable d'environnement requise : PI_API_KEY
+ * /api/pi-complete.js
+ * Variable requise : PI_API_KEY
  */
 
 const PI_API = 'https://api.minepi.com/v2';
@@ -21,7 +19,6 @@ async function parseBody(req) {
 }
 
 export default async function handler(req, res) {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin',  '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -30,54 +27,55 @@ export default async function handler(req, res) {
   if (req.method !== 'POST')
     return res.status(405).json({ error: 'Method not allowed' });
 
-  // Variable Vercel PI_API_KEY
   const apiKey = process.env.PI_API_KEY;
   if (!apiKey) {
-    console.error('[pi-complete] PI_API_KEY non définie dans les variables Vercel');
-    return res.status(500).json({ error: 'Server configuration error' });
+    console.error('[pi-complete] ❌ PI_API_KEY manquante');
+    return res.status(500).json({ error: 'PI_API_KEY not set' });
   }
 
-  // Parse body
   let body;
   try { body = await parseBody(req); }
-  catch { return res.status(400).json({ error: 'Invalid request body' }); }
+  catch (e) { return res.status(400).json({ error: 'Invalid JSON body' }); }
 
   const { paymentId, txid } = body;
-  if (!paymentId || typeof paymentId !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid paymentId' });
-  }
-  if (!txid || typeof txid !== 'string') {
-    return res.status(400).json({ error: 'Missing or invalid txid' });
+  if (!paymentId || !txid) {
+    console.error('[pi-complete] ❌ paymentId ou txid manquant', { paymentId, txid });
+    return res.status(400).json({ error: 'Missing paymentId or txid' });
   }
 
-  console.log(`[pi-complete] Completing payment: ${paymentId} | txid: ${txid}`);
+  const url = `${PI_API}/payments/${paymentId}/complete`;
+  console.log(`[pi-complete] POST ${url}`);
 
   try {
-    const piRes = await fetch(`${PI_API}/payments/${paymentId}/complete`, {
+    const piRes = await fetch(url, {
       method:  'POST',
       headers: {
-        Authorization:  `Key ${apiKey}`,
-        'Content-Type': 'application/json',
+        'Authorization': `Key ${apiKey}`,
+        'Content-Type':  'application/json',
       },
       body: JSON.stringify({ txid }),
     });
 
+    const rawText = await piRes.text();
+    console.log(`[pi-complete] Pi API status: ${piRes.status}`);
+    console.log(`[pi-complete] Pi API response: ${rawText}`);
+
     let data;
-    try { data = await piRes.json(); } catch { data = {}; }
+    try { data = JSON.parse(rawText); } catch { data = { raw: rawText }; }
 
     if (!piRes.ok) {
-      console.error(`[pi-complete] Pi API error ${piRes.status}:`, data);
       return res.status(piRes.status).json({
-        error:   data?.error_message || data?.error || 'Completion failed',
+        error:   'Pi API error',
+        status:  piRes.status,
         details: data,
       });
     }
 
-    console.log(`[pi-complete] ✅ Completed: ${paymentId} | txid: ${txid}`);
+    console.log(`[pi-complete] ✅ Completed: ${paymentId}`);
     return res.status(200).json({ success: true, payment: data });
 
   } catch (e) {
-    console.error('[pi-complete] Network error:', e.message);
-    return res.status(500).json({ error: 'Could not reach Pi API' });
+    console.error('[pi-complete] ❌ Fetch error:', e.message);
+    return res.status(500).json({ error: e.message });
   }
 }
