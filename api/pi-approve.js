@@ -1,5 +1,6 @@
 /**
  * /api/pi-approve.js
+ * Reçoit { paymentId } depuis le frontend
  * Variable requise : PI_API_KEY
  */
 
@@ -19,11 +20,14 @@ async function parseBody(req) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin',  '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS, GET');
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // GET : test rapide pour vérifier que la variable est chargée
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  // GET : test de config
   if (req.method === 'GET') {
     const apiKey = process.env.PI_API_KEY;
     return res.status(200).json({
@@ -32,12 +36,11 @@ export default async function handler(req, res) {
     });
   }
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST')
     return res.status(405).json({ error: 'Method not allowed' });
 
-  const apiKey = process.env.PI_API_KEY;
-  if (!apiKey) {
+  const PI_API_KEY = process.env.PI_API_KEY;
+  if (!PI_API_KEY) {
     console.error('[pi-approve] ❌ PI_API_KEY manquante');
     return res.status(500).json({ error: 'PI_API_KEY not set' });
   }
@@ -46,24 +49,21 @@ export default async function handler(req, res) {
   try { body = await parseBody(req); }
   catch (e) { return res.status(400).json({ error: 'Invalid JSON body' }); }
 
-  const { paymentId } = body;
+  // Accepte { paymentId } ou { payment: { identifier } }
+  const paymentId = body.paymentId || body.payment?.identifier;
   if (!paymentId) {
     return res.status(400).json({ error: 'Missing paymentId' });
   }
 
   const url = `${PI_API}/payments/${paymentId}/approve`;
-  // Format exact de la doc Pi : "key APIKEY" (lowercase)
-  const authHeader = `key ${apiKey}`;
-
   console.log(`[pi-approve] POST ${url}`);
-  console.log(`[pi-approve] Auth header prefix: ${authHeader.substring(0, 12)}...`);
 
   try {
     const piRes = await fetch(url, {
-      method:  'POST',
+      method: 'POST',
       headers: {
-        'authorization': authHeader,
-        'Content-Type':  'application/json',
+        'Authorization': `Key ${PI_API_KEY}`,
+        'Content-Type': 'application/json',
       },
     });
 
@@ -74,18 +74,14 @@ export default async function handler(req, res) {
     try { data = JSON.parse(rawText); } catch { data = { raw: rawText }; }
 
     if (!piRes.ok) {
-      return res.status(piRes.status).json({
-        error:   'Pi API error',
-        status:  piRes.status,
-        details: data,
-      });
+      return res.status(piRes.status).json({ error: 'Pi API error', status: piRes.status, details: data });
     }
 
     console.log(`[pi-approve] ✅ Approved: ${paymentId}`);
     return res.status(200).json({ success: true, payment: data });
 
   } catch (e) {
-    console.error('[pi-approve] ❌ Network error:', e.message);
+    console.error('[pi-approve] ❌', e.message);
     return res.status(500).json({ error: e.message });
   }
 }
