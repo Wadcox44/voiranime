@@ -1427,7 +1427,20 @@ ul, ol { list-style: none; }
 
 @media (max-width: 768px) {
   .navbar { padding: 0 16px; }
-  .nav-links { display: none; }
+  .nav-links {
+    display: flex !important;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 2px;
+    padding: 0;
+    flex-wrap: nowrap;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-link {
+    font-size: 0.78rem;
+    padding: 5px 10px;
+    white-space: nowrap;
+  }
   .hero::after { display: none; }
   .content-section { padding: 8px 14px 20px; }
   .anime-card { width: 140px; }
@@ -1969,15 +1982,21 @@ body {
   .hero-cta-surprise{ font-size: 0.82rem !important; padding: 10px 16px !important; }
   .hero-cta-fav     { width: 42px !important; height: 42px !important; }
 
-  /* Dots centrés */
+  /* Dots centrés sous l'image */
   .hero-dots {
     position: relative !important;
     bottom: auto !important;
     left: auto !important;
+    right: auto !important;
     display: flex !important;
     justify-content: center;
-    padding: 10px 0 14px;
+    padding: 8px 0 12px;
     background: #08070f;
+    gap: 7px;
+  }
+  .hero-dot {
+    width: 20px !important;
+    height: 3px !important;
   }
 }
 
@@ -3713,7 +3732,15 @@ a:active {
   }
 
   /* Cache les nav-links — menu hamburger à implémenter si besoin */
-  .nav-links { display: none; }
+  .nav-links {
+    display: flex !important;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 2px;
+    flex-wrap: nowrap;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-link { font-size: 0.78rem; padding: 5px 10px; white-space: nowrap; }
 
   /* Recherche plus compacte */
   .search-toggle-label { display: none; }
