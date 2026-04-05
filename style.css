@@ -1906,7 +1906,7 @@ body {
   .hero-scroll-hint { display:none; }
 }
 
-/* ── MOBILE ≤768px — ÉTAPE 3 : fond + texte ── */
+/* ── MOBILE ≤768px — ÉTAPE 4 : fond + texte + dots ── */
 @media (max-width: 768px) {
   .hero {
     display: block !important;
@@ -1920,7 +1920,6 @@ body {
   .hero-particles,
   .hero-aura,
   .hero-poster-wrap,
-  .hero-dots,
   .hero-scroll-hint { display: none !important; }
 
   /* Fond image */
@@ -1947,7 +1946,7 @@ body {
   .hero-content {
     position: relative !important;
     transform: none !important;
-    padding: 16px 20px 24px !important;
+    padding: 16px 20px 8px !important;
     max-width: 100% !important;
     text-align: center;
     background: #08070f;
@@ -1963,6 +1962,17 @@ body {
   .hero-cta-explore { font-size: 0.88rem !important; padding: 11px 22px !important; }
   .hero-cta-surprise{ font-size: 0.82rem !important; padding: 10px 16px !important; }
   .hero-cta-fav     { width: 42px !important; height: 42px !important; }
+
+  /* Dots centrés */
+  .hero-dots {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    display: flex !important;
+    justify-content: center;
+    padding: 10px 0 14px;
+    background: #08070f;
+  }
 }
 
 
