@@ -873,7 +873,10 @@
   const posterWrap = document.getElementById('heroPosterWrap');
   const heroAura   = document.getElementById('heroAura');
 
-  if (!isTouch) {
+  // Parallax uniquement desktop — désactivé sur touch ET sur écrans < 1025px
+  const isDesktop = !isTouch && window.innerWidth > 1024;
+
+  if (isDesktop) {
   document.getElementById('hero')?.addEventListener('mousemove', e => {
     const r  = e.currentTarget.getBoundingClientRect();
     const dx = (e.clientX - r.left  - r.width  / 2) / r.width;
@@ -888,7 +891,7 @@
     if(posterWrap) posterWrap.style.transform = 'translateY(-50%)';
     if(heroAura)   heroAura.style.transform   = 'translate(0,0)';
   }, {passive:true});
-  } // end !isTouch
+  } // end isDesktop
 
   /* ── Découverte aléatoire ── */
   document.getElementById('heroSurpriseBtn')?.addEventListener('click', () => {

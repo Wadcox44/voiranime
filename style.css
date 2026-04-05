@@ -1428,37 +1428,25 @@ ul, ol { list-style: none; }
 @media (max-width: 768px) {
   .navbar { padding: 0 16px; }
   .nav-links { display: none; }
-
-  .hero-content { padding: 0 20px 64px; max-width: 100%; }
-  .hero-title   { font-size: clamp(1.7rem, 7vw, 2.4rem); }
-  .hero::after  { display: none; }
-
-  .content-section { padding: 8px 16px 20px; }
-
-  .anime-card { width: 132px; }
-  .anime-card:hover { transform: scale(1.04) translateY(-4px); }
-
+  .hero::after { display: none; }
+  .content-section { padding: 8px 14px 20px; }
+  .anime-card { width: 140px; }
+  .anime-card:hover { transform: scale(1.03) translateY(-3px); }
   .carousel-btn { display: none; }
-
-  .trailer-controls { left: 16px; right: 16px; bottom: 20px; }
-
-  .anime-content { padding: 0 16px 40px; }
+  .trailer-controls { left: 12px; right: 12px; bottom: 16px; }
+  .anime-content { padding: 0 14px 40px; }
   .anime-aside-col { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
-  .hero { min-height: 80vh; }
   .hero-actions { gap: 8px; }
   .btn-play, .btn-more { font-size: 0.83rem; padding: 11px 18px; }
   .btn-fav { width: 42px; height: 42px; }
-
-  .anime-card { width: 118px; }
-  .anime-card:hover { transform: scale(1.03) translateY(-3px); }
-
-  .search-overlay { padding: 72px 14px 32px; }
-  .search-results-grid { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); }
-
-  .anime-quick-stats { gap: 16px; padding: 12px 14px; }
+  .anime-card { width: 124px; }
+  .anime-card:hover { transform: scale(1.02) translateY(-2px); }
+  .search-overlay { padding: 72px 12px 32px; }
+  .search-results-grid { grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); }
+  .anime-quick-stats { gap: 14px; padding: 12px 12px; }
   .stat-value { font-size: 0.95rem; }
 }
 
@@ -1863,6 +1851,8 @@ body {
   align-items: center;
   overflow: hidden;
   gap: 0;
+  /* Garantit que le poster reste dans les limites du hero */
+  contain: layout;
 }
 
 /* ── Canvas particules ── */
@@ -2208,37 +2198,189 @@ body {
 }
 
 /* ── Responsive hero ── */
+/* ═══════════════════════════════════════════════════════
+   HERO MOBILE — Layout colonne, poster statique centré
+   Suppression : particules · aura · parallax · absolute
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Tablette (≤1024px) — poster réduit mais encore flottant ── */
 @media (max-width: 1024px) {
   .hero {
     grid-template-columns: 1fr;
     align-items: flex-end;
     min-height: 88vh;
+    contain: layout;
   }
   .hero-poster-wrap {
-    right: 5%;
-    width: 160px;
-    top: calc(var(--nav-h) + 30px);
-    transform: none;
+    position: absolute;
+    right: 4%;
+    top: calc(var(--nav-h) + 20px);
+    width: 140px;
+    transform: none !important;
     animation: posterFloat 4s ease-in-out infinite;
+    z-index: 4;
   }
-  .hero-aura {
-    width: 300px; height: 300px;
-    right: 3%;
-    top: calc(var(--nav-h) + 30px);
-    transform: none;
-  }
-  .hero-content { padding: 0 24px 72px; max-width: 100%; }
-  .hero-dots    { left: 24px; }
+  .hero-poster-img  { width: 140px; }
+  .hero-aura        { width: 240px; height: 240px; right: 2%; top: calc(var(--nav-h) + 10px); transform: none !important; }
+  .hero-content     { padding: calc(var(--nav-h) + 20px) 24px 72px; max-width: 100%; }
+  .hero-title       { padding-right: 160px; }
+  .hero-dots        { left: 24px; }
   .hero-scroll-hint { display: none; }
 }
 
+/* ── Mobile (≤768px) — layout colonne complet ── */
+@media (max-width: 768px) {
+
+  /* Hero : flex colonne, hauteur auto */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    contain: none;
+    padding-top: var(--nav-h);
+  }
+
+  /* Fond image : hauteur fixe, couvre le haut */
+  .hero-bg {
+    position: relative;
+    width: 100%;
+    height: 52vw;
+    min-height: 200px;
+    max-height: 280px;
+    flex-shrink: 0;
+  }
+  .hero-bg img {
+    filter: brightness(0.55) saturate(1.1);
+    transform: none;
+    object-position: center 20%;
+  }
+  .hero-gradient {
+    background: linear-gradient(to bottom,
+      transparent 0%,
+      rgba(8,7,15,0.6) 60%,
+      rgba(8,7,15,1.0) 100%);
+  }
+
+  /* Suppression totale des effets lourds */
+  .hero-particles  { display: none !important; }
+  .hero-aura       { display: none !important; }
+  .hero-scroll-hint{ display: none !important; }
+  .hero-poster-ring{ display: none !important; }
+  .hero-poster-shine{ display: none !important; }
+
+  /* Poster : sorti du flux absolu, centré statiquement */
+  .hero-poster-wrap {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    left: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    animation: none !important;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: -40px; /* chevauchement léger sur le fond */
+    z-index: 5;
+    padding: 0 20px;
+  }
+  .hero-poster-img {
+    width: 100px;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    display: block;
+  }
+
+  /* Contenu texte : flux normal, centré */
+  .hero-content {
+    position: relative;
+    z-index: 5;
+    padding: 14px 20px 28px;
+    max-width: 100%;
+    text-align: center;
+    background: var(--ink);
+  }
+
+  /* Eyebrow + badges : centrés */
+  .hero-eyebrow  { justify-content: center; margin-bottom: 6px; }
+  .hero-badges   { justify-content: center; margin-bottom: 8px; }
+
+  /* Titre */
+  .hero-title {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+    padding-right: 0 !important;
+    margin-bottom: 8px;
+    line-height: 1.15;
+  }
+
+  /* Synopsis */
+  .hero-synopsis {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    -webkit-line-clamp: 2;
+    margin-bottom: 16px;
+    padding-right: 0;
+    color: rgba(236,234,248,0.65);
+    text-align: center;
+  }
+
+  /* Actions : centrées */
+  .hero-actions {
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* Meta */
+  .hero-meta {
+    margin-top: 10px;
+    gap: 10px;
+    justify-content: center;
+  }
+  .hero-meta-item { font-size: 0.72rem; }
+
+  /* Skeleton adapté */
+  .hero-skeleton {
+    padding: 14px 20px;
+    text-align: left;
+  }
+
+  /* Dots : sous le contenu */
+  .hero-dots {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 16px;
+    gap: 7px;
+  }
+}
+
+/* ── Petit mobile (≤480px) ── */
 @media (max-width: 480px) {
-  .hero { min-height: 82vh; }
-  .hero-title { font-size: 2rem; }
-  .hero-poster-wrap { width: 120px; right: 16px; }
-  .hero-aura { width: 220px; height: 220px; }
-  .hero-cta-explore  { padding: 12px 22px; font-size: 0.88rem; }
-  .hero-cta-surprise { padding: 11px 16px; font-size: 0.84rem; }
+  .hero-bg     { height: 48vw; min-height: 180px; max-height: 240px; }
+  .hero-poster-img  { width: 84px; border-radius: 10px; }
+  .hero-poster-wrap { margin-top: -32px; }
+  .hero-title       { font-size: clamp(1.3rem, 6.5vw, 1.65rem); }
+  .hero-cta-explore { font-size: 0.85rem; padding: 11px 20px; }
+  .hero-cta-surprise{ font-size: 0.8rem; padding: 10px 14px; }
+  .hero-cta-fav     { width: 40px; height: 40px; }
+}
+
+/* ── Très petit mobile (≤360px) ── */
+@media (max-width: 360px) {
+  .hero-bg          { height: 44vw; min-height: 160px; }
+  .hero-poster-img  { width: 72px; }
+  .hero-title       { font-size: 1.3rem; }
+  .hero-synopsis    { display: none; }
+  .hero-cta-surprise{ display: none; }
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -3986,134 +4128,8 @@ a:active {
 }
 
 /* ─────────────────────────────────────────────────────────
-   HERO — Restructuration mobile
+   HERO mobile — géré dans le bloc hero ci-dessus
 ───────────────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  .hero {
-    grid-template-columns: 1fr;
-    min-height: 100svh;  /* svh = small viewport height, meilleur sur mobile */
-    align-items: flex-end;
-    padding-bottom: 0;
-  }
-
-  /* Fond : assombri plus fort pour lisibilité du texte */
-  .hero-bg img {
-    filter: brightness(0.22) saturate(1.2);
-    object-position: center 15%;
-  }
-  .hero-gradient {
-    background:
-      linear-gradient(to right,
-        rgba(8,7,15,0.99) 0%,
-        rgba(8,7,15,0.92) 50%,
-        rgba(8,7,15,0.75) 100%),
-      linear-gradient(to top,
-        rgba(8,7,15,1.0)  0%,
-        rgba(8,7,15,0.6)  25%,
-        transparent       60%);
-  }
-
-  /* Poster flottant : coin haut droit, plus petit */
-  .hero-poster-wrap {
-    position: absolute;
-    top: calc(var(--nav-h) + 16px);
-    right: 16px;
-    width: 100px;
-    transform: none !important; /* désactive le parallax JS sur mobile */
-    animation: posterFloat 4s ease-in-out infinite;
-    z-index: 4;
-  }
-
-  /* Rings plus discrets sur mobile */
-  .hero-poster-ring { inset: -10px; border-radius: 12px; }
-  .hero-poster-ring::before { inset: -6px; }
-
-  .hero-poster-img {
-    width: 100px;
-    border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.7);
-  }
-
-  /* Aura : réduite et repositionnée */
-  .hero-aura {
-    width: 180px; height: 180px;
-    top: calc(var(--nav-h) + 10px);
-    right: 0;
-    transform: none !important;
-  }
-
-  /* Contenu texte : padding adapté, espace pour le poster */
-  .hero-content {
-    padding: calc(var(--nav-h) + 24px) 20px 80px;
-    max-width: 100%;
-  }
-
-  /* Titre hero : plus petit, bonne lisibilité */
-  .hero-title {
-    font-size: clamp(1.55rem, 6.5vw, 2.2rem);
-    margin-bottom: 10px;
-    /* Réserve de l'espace à droite pour le poster */
-    padding-right: 120px;
-  }
-
-  /* Eyebrow + badges : pas de padding droit */
-  .hero-eyebrow,
-  .hero-badges { padding-right: 0; }
-
-  /* Synopsis : 2 lignes max sur mobile */
-  .hero-synopsis {
-    font-size: 0.82rem;
-    -webkit-line-clamp: 2;
-    margin-bottom: 20px;
-    padding-right: 0;
-  }
-
-  /* Actions : colonne sur très petit écran */
-  .hero-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  /* Meta : compacte */
-  .hero-meta {
-    margin-top: 12px;
-    gap: 10px;
-  }
-  .hero-meta-item { font-size: 0.72rem; }
-
-  /* Dots : bas gauche */
-  .hero-dots {
-    left: 20px;
-    bottom: 24px;
-  }
-
-  /* Particles canvas : désactivé sur mobile (performance) */
-  .hero-particles { display: none; }
-}
-
-@media (max-width: 480px) {
-  .hero { min-height: 92svh; }
-
-  .hero-poster-wrap { width: 80px; top: calc(var(--nav-h) + 12px); right: 12px; }
-  .hero-poster-img  { width: 80px; border-radius: 8px; }
-  .hero-aura        { width: 140px; height: 140px; }
-
-  .hero-title {
-    font-size: clamp(1.4rem, 7vw, 1.9rem);
-    padding-right: 96px;
-  }
-
-  .hero-cta-explore  { font-size: 0.86rem; padding: 11px 20px; }
-  .hero-cta-surprise { font-size: 0.82rem; padding: 10px 14px; gap: 6px; }
-  .btn-fav           { width: 42px; height: 42px; }
-}
-
-@media (max-width: 360px) {
-  .hero-title { padding-right: 86px; font-size: 1.35rem; }
-  .hero-poster-wrap { width: 70px; right: 8px; }
-  .hero-synopsis { display: none; } /* trop étroit, priorité au titre + CTA */
-}
 
 /* ─────────────────────────────────────────────────────────
    MOOD PILLS — Scroll horizontal mobile
@@ -4485,4 +4501,10 @@ a:active {
 
   /* Cards : pas de tilt 3D (géré en JS avec matchMedia) */
   .anime-card { transform-style: flat; }
+}
+
+/* ── Spinner recherche vidéo ── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
