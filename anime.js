@@ -115,7 +115,7 @@ function buildRecoCard(anime) {
 /* ──────────────────────────────────────
    YOUTUBE API — Clé à remplacer sur GitHub
 ────────────────────────────────────── */
-const YT_API_KEY = 'AIzaSyBaES8Vu4pR4Gk7SQiXHCMt-p0yDvh5W2g';
+const YT_API_KEY = 'REMPLACE_PAR_TA_CLE';
 const YT_SEARCH  = 'https://www.googleapis.com/youtube/v3/search';
 
 // Cache sessionStorage pour éviter de reconsommer le quota
@@ -265,12 +265,22 @@ function initFullscreen() {
   const btn       = el('fullscreenBtn');
   const container = el('trailerContainer');
   if (!btn || !container) return;
+
+  const iconExpand   = `<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>`;
+  const iconCompress = `<polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/>`;
+
   btn.addEventListener('click', () => {
-    if (!document.fullscreenElement) container.requestFullscreen?.();
-    else                             document.exitFullscreen?.();
+    if (!document.fullscreenElement) {
+      container.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
   });
+
   document.addEventListener('fullscreenchange', () => {
-    if (btn) btn.title = document.fullscreenElement ? 'Quitter le plein écran' : 'Plein écran';
+    const isFS = !!document.fullscreenElement;
+    btn.querySelector('svg').innerHTML = isFS ? iconCompress : iconExpand;
+    btn.title = isFS ? 'Réduire' : 'Plein écran';
   });
 }
 

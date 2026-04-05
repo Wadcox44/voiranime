@@ -4150,3 +4150,13 @@ a:active {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
+
+/* ── Lien Soutenir dans la navbar ── */
+.nav-link-support {
+  color: var(--pink) !important;
+  background: var(--pink-dim) !important;
+}
+.nav-link-support:hover {
+  background: rgba(255,79,216,0.2) !important;
+  box-shadow: 0 0 12px rgba(255,79,216,0.3);
+}
