@@ -282,25 +282,47 @@ function renderDetail(anime) {
     }
   }
 
-  // ── Point 6 : Badge épisode dynamique ──
-  const airing = anime.status === 'Currently Airing' || anime.status?.includes('Airing');
-  if (airing && anime.broadcast?.day) {
+  // ── Badge épisode — uniquement si statut STRICTEMENT "Currently Airing" ──
+  // Jikan retourne : "Currently Airing" | "Finished Airing" | "Not yet aired"
+  // On n'affiche jamais de badge épisode si l'anime est terminé ou à venir.
+  const STATUS_AIRING   = 'Currently Airing';
+  const STATUS_FINISHED = 'Finished Airing';
+  const STATUS_UPCOMING = 'Not yet aired';
+
+  const isStrictlyAiring  = anime.status === STATUS_AIRING;
+  const isFinished        = anime.status === STATUS_FINISHED || anime.status?.includes('Finished');
+  const isUpcoming        = anime.status === STATUS_UPCOMING;
+
+  const epBadge = el('episodeBadge');
+  if (epBadge) epBadge.style.display = 'none'; // masqué par défaut
+
+  if (isStrictlyAiring && anime.broadcast?.day && !isFinished) {
+    // Vérifie qu'on a bien un jour de broadcast valide
     const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
     const daysFR = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
     const today  = new Date().getDay();
-    const epIdx  = days.findIndex(d => anime.broadcast.day.toLowerCase().includes(d.toLowerCase()));
-    if (epIdx >= 0) {
-      const diff   = ((epIdx - today) + 7) % 7;
-      const epBadge = el('episodeBadge');
-      if (epBadge) {
-        if      (diff === 0) { epBadge.textContent = '🆕 Nouvel épisode aujourd\'hui !'; epBadge.className = 'badge badge-green episode-badge'; }
-        else if (diff === 1) { epBadge.textContent = '⏰ Épisode demain';                epBadge.className = 'badge badge-gold episode-badge'; }
-        else if (diff <= 3)  { epBadge.textContent = `⏰ Épisode ${daysFR[epIdx]}`;     epBadge.className = 'badge badge-muted episode-badge'; }
-        else                 { epBadge.textContent = ''; }
-        if (epBadge.textContent) epBadge.style.display = 'inline-flex';
+    const epIdx  = days.findIndex(d =>
+      anime.broadcast.day.toLowerCase().startsWith(d.toLowerCase())
+    );
+
+    if (epIdx >= 0 && epBadge) {
+      const diff = ((epIdx - today) + 7) % 7;
+      let label = '', cls = '';
+
+      if      (diff === 0) { label = '🆕 Nouvel épisode aujourd\'hui';  cls = 'badge badge-green episode-badge'; }
+      else if (diff === 1) { label = '⏰ Épisode demain';               cls = 'badge badge-gold episode-badge'; }
+      else if (diff <= 3)  { label = `⏰ Épisode ${daysFR[epIdx]}`;    cls = 'badge badge-muted episode-badge'; }
+      // diff > 3 → pas de badge, trop loin dans la semaine
+
+      if (label) {
+        epBadge.textContent = label;
+        epBadge.className   = cls;
+        epBadge.style.display = 'inline-flex';
       }
     }
   }
+  // Garantie absolue : jamais de badge épisode sur un anime terminé
+  if (isFinished && epBadge) epBadge.style.display = 'none';
 
   // Badges
   const badges = [];
@@ -309,8 +331,9 @@ function renderDetail(anime) {
     const typeMap = { TV:'Série', Movie:"Film d'anime", OVA:'Spécial', ONA:'Streaming', Special:'Spécial' };
     badges.push(`<span class="badge badge-muted" title="${anime.type}">${typeMap[anime.type]||anime.type}</span>`);
   }
-  if (airing) badges.push('<span class="badge badge-green">● En cours</span>');
-  else if (anime.status?.includes('Not yet')) badges.push('<span class="badge badge-blue">À venir</span>');
+  if (isStrictlyAiring) badges.push('<span class="badge badge-green">● En cours</span>');
+  else if (isUpcoming)  badges.push('<span class="badge badge-blue">À venir</span>');
+  // isFinished → pas de badge statut (info déjà dans le tableau)
   if (anime.rating) {
     const rMap = {'R':'18+','R+':'18+','Rx':'18+','PG-13':'13+','PG':'Enfants','G':'Tout public'};
     const rCode = anime.rating.split(' ')[0];
@@ -439,7 +462,7 @@ function renderDetail(anime) {
     { k:'Type',       v: tMap2[anime.type]||anime.type||'—' },
     { k:'Épisodes',   v: anime.episodes ? `${anime.episodes}`:'—' },
     { k:'Durée',      v: anime.duration||'—' },
-    { k:'Statut',     v: (() => { const s=anime.status||''; if(s.includes('Airing')&&!s.includes('Not'))return'En cours'; if(s.includes('Finished'))return'Terminé'; if(s.includes('Not yet'))return'À venir'; return s||'—'; })() },
+    { k:'Statut', v: isStrictlyAiring ? 'En cours' : isFinished ? 'Terminé' : isUpcoming ? 'À venir' : anime.status || '—' },
     { k:'Diffusion',  v: anime.aired?.string||'—' },
     { k:'Studio',     v: (anime.studios||[]).map(s=>s.name).join(', ')||'—' },
     { k:'Source',     v: anime.source||'—' },
