@@ -1,7 +1,7 @@
 /**
  * /api/pi-approve.js
  * Reçoit { paymentId } depuis le frontend
- * Variable requise : PI_API_KEY
+ * Variable requise : PI_APP_API_KEY
  */
 
 const PI_API = 'https://api.minepi.com/v2';
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
 
   // GET : test de config
   if (req.method === 'GET') {
-    const apiKey = process.env.PI_API_KEY;
+    const apiKey = process.env.PI_APP_API_KEY;
     return res.status(200).json({
       configured: !!apiKey,
       prefix: apiKey ? apiKey.substring(0, 6) + '...' : 'MISSING'
@@ -39,10 +39,10 @@ export default async function handler(req, res) {
   if (req.method !== 'POST')
     return res.status(405).json({ error: 'Method not allowed' });
 
-  const PI_API_KEY = process.env.PI_API_KEY;
+  const PI_API_KEY = process.env.PI_APP_API_KEY;
   if (!PI_API_KEY) {
     console.error('[pi-approve] ❌ PI_API_KEY manquante');
-    return res.status(500).json({ error: 'PI_API_KEY not set' });
+    return res.status(500).json({ error: 'PI_APP_API_KEY not set' });
   }
 
   let body;
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
     const piRes = await fetch(url, {
       method: 'POST',
       headers: {
-        'Authorization': `Key ${PI_API_KEY}`,
+        'Authorization': `Key ${PI_APP_API_KEY}`,
         'Content-Type': 'application/json',
       },
     });
