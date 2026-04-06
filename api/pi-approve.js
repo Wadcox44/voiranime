@@ -1,7 +1,6 @@
 /**
- * /api/pi-approve.js
- * Reçoit { paymentId } depuis le frontend
- * Variable requise : PI_APP_API_KEY
+ * /api/pi-approve.js — VoirAnime
+ * Variable Vercel requise : PI_APP_API_KEY
  */
 
 const PI_API = 'https://api.minepi.com/v2';
@@ -9,10 +8,10 @@ const PI_API = 'https://api.minepi.com/v2';
 async function parseBody(req) {
   return new Promise((resolve, reject) => {
     if (req.body && typeof req.body === 'object') return resolve(req.body);
-    let data = '';
-    req.on('data', chunk => (data += chunk));
+    let raw = '';
+    req.on('data', chunk => (raw += chunk));
     req.on('end', () => {
-      try { resolve(JSON.parse(data || '{}')); }
+      try { resolve(JSON.parse(raw || '{}')); }
       catch { reject(new Error('Invalid JSON')); }
     });
     req.on('error', reject);
@@ -20,38 +19,38 @@ async function parseBody(req) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   // GET : test de config
   if (req.method === 'GET') {
-    const apiKey = process.env.PI_APP_API_KEY;
+    const k = process.env.PI_APP_API_KEY;
     return res.status(200).json({
-      configured: !!apiKey,
-      prefix: apiKey ? apiKey.substring(0, 6) + '...' : 'MISSING'
+      configured: !!k,
+      prefix: k ? k.substring(0, 6) + '...' : 'MISSING'
     });
   }
 
   if (req.method !== 'POST')
     return res.status(405).json({ error: 'Method not allowed' });
 
-  const PI_API_KEY = process.env.PI_APP_API_KEY;
-  if (!PI_API_KEY) {
-    console.error('[pi-approve] ❌ PI_API_KEY manquante');
-    return res.status(500).json({ error: 'PI_APP_API_KEY not set' });
+  const PI_APP_API_KEY = process.env.PI_APP_API_KEY;
+  if (!PI_APP_API_KEY) {
+    console.error('[pi-approve] ❌ PI_APP_API_KEY manquante dans Vercel');
+    return res.status(500).json({ error: 'PI_APP_API_KEY not configured' });
   }
 
   let body;
   try { body = await parseBody(req); }
-  catch (e) { return res.status(400).json({ error: 'Invalid JSON body' }); }
+  catch { return res.status(400).json({ error: 'Invalid JSON body' }); }
 
-  // Accepte { paymentId } ou { payment: { identifier } }
   const paymentId = body.paymentId || body.payment?.identifier;
   if (!paymentId) {
+    console.error('[pi-approve] ❌ paymentId manquant');
     return res.status(400).json({ error: 'Missing paymentId' });
   }
 
@@ -68,20 +67,24 @@ export default async function handler(req, res) {
     });
 
     const rawText = await piRes.text();
-    console.log(`[pi-approve] Status: ${piRes.status} | Response: ${rawText}`);
+    console.log(`[pi-approve] ${piRes.status} | ${rawText}`);
 
     let data;
     try { data = JSON.parse(rawText); } catch { data = { raw: rawText }; }
 
     if (!piRes.ok) {
-      return res.status(piRes.status).json({ error: 'Pi API error', status: piRes.status, details: data });
+      return res.status(piRes.status).json({
+        error: 'Pi API error',
+        status: piRes.status,
+        details: data,
+      });
     }
 
     console.log(`[pi-approve] ✅ Approved: ${paymentId}`);
     return res.status(200).json({ success: true, payment: data });
 
   } catch (e) {
-    console.error('[pi-approve] ❌', e.message);
+    console.error('[pi-approve] ❌ Network error:', e.message);
     return res.status(500).json({ error: e.message });
   }
 }
