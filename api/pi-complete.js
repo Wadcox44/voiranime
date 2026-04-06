@@ -1,7 +1,7 @@
 /**
  * /api/pi-complete.js
  * Reçoit { paymentId, txid } ou { payment } depuis le frontend
- * Variable requise : PI_API_KEY
+ * Variable requise : PI_APP_API_KEY
  */
 
 const PI_API = 'https://api.minepi.com/v2';
@@ -29,10 +29,10 @@ export default async function handler(req, res) {
   if (req.method !== 'POST')
     return res.status(405).json({ error: 'Method not allowed' });
 
-  const PI_API_KEY = process.env.PI_API_KEY;
-  if (!PI_API_KEY) {
-    console.error('[pi-complete] ❌ PI_API_KEY manquante');
-    return res.status(500).json({ error: 'PI_API_KEY not set' });
+  const PI_APP_API_KEY = process.env.PI_APP_API_KEY;
+  if (!PI_APP_API_KEY) {
+    console.error('[pi-complete] ❌ PI_APP_API_KEY manquante');
+    return res.status(500).json({ error: 'PI_APP_API_KEY not set' });
   }
 
   let body;
@@ -55,7 +55,7 @@ export default async function handler(req, res) {
     fetchOptions = {
       method: 'POST',
       headers: {
-        'Authorization': `Key ${PI_API_KEY}`,
+        'Authorization': `Key ${PI_APP_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ txid }),
@@ -66,7 +66,7 @@ export default async function handler(req, res) {
     url = `${PI_API}/payments/${paymentId}/cancel`;
     fetchOptions = {
       method: 'POST',
-      headers: { 'Authorization': `Key ${PI_API_KEY}` },
+      headers: { 'Authorization': `Key ${PI_APP_API_KEY}` },
     };
     console.log(`[pi-complete] POST cancel ${paymentId} (no txid)`);
   }
