@@ -115,10 +115,11 @@ function buildRecoCard(anime) {
 /* ──────────────────────────────────────
    YOUTUBE API — Clé à remplacer sur GitHub
 ────────────────────────────────────── */
-const YT_API_KEY = 'REMPLACE_PAR_TA_CLE';
-const YT_SEARCH  = 'https://www.googleapis.com/youtube/v3/search';
+/* ──────────────────────────────────────
+   YOUTUBE — Proxy via /api/youtube (Vercel)
+   La clé API est côté serveur, jamais exposée au client
+────────────────────────────────────── */
 
-// Cache sessionStorage pour éviter de reconsommer le quota
 function ytCacheGet(key) {
   try { const c = sessionStorage.getItem(`yt_${key}`); return c ? JSON.parse(c) : null; } catch { return null; }
 }
@@ -126,48 +127,24 @@ function ytCacheSet(key, value) {
   try { sessionStorage.setItem(`yt_${key}`, JSON.stringify(value)); } catch {}
 }
 
-/**
- * Cherche une vidéo YouTube pour un anime donné.
- * Ordre de priorité : trailer → opening → ending → teaser → official clip
- * Retourne le premier videoId trouvé, ou null si rien.
- */
 async function findYouTubeId(title) {
-  if (!YT_API_KEY || YT_API_KEY === 'REMPLACE_PAR_TA_CLE') return null;
-
-  const cacheKey = `search_${title}`;
+  const cacheKey = `search_${encodeURIComponent(title)}`;
   const cached   = ytCacheGet(cacheKey);
-  if (cached !== null) return cached; // peut être une string ou false
+  if (cached !== null) return cached;
 
-  const suffixes = ['official trailer', 'trailer', 'opening', 'ending', 'teaser', 'official clip'];
+  try {
+    const res  = await fetch(`/api/youtube?title=${encodeURIComponent(title)}`);
+    if (res.status === 404) { ytCacheSet(cacheKey, null); return null; }
+    if (!res.ok) { console.warn('[YT] API error:', res.status); return null; }
 
-  for (const suffix of suffixes) {
-    try {
-      const q    = encodeURIComponent(`${title} anime ${suffix}`);
-      const url  = `${YT_SEARCH}?part=snippet&q=${q}&type=video&maxResults=1&key=${YT_API_KEY}`;
-      const res  = await fetch(url);
-
-      // Quota épuisé ou clé invalide → arrête les tentatives
-      if (res.status === 403 || res.status === 400) {
-        console.warn('[YT] Quota ou clé invalide — abandon');
-        ytCacheSet(cacheKey, null);
-        return null;
-      }
-      if (!res.ok) continue;
-
-      const data  = await res.json();
-      const id    = data.items?.[0]?.id?.videoId;
-      if (id) {
-        ytCacheSet(cacheKey, id);
-        return id;
-      }
-    } catch (e) {
-      console.warn(`[YT] Erreur recherche "${suffix}":`, e);
-    }
+    const data = await res.json();
+    const id   = data.videoId || null;
+    ytCacheSet(cacheKey, id);
+    return id;
+  } catch (e) {
+    console.warn('[YT] Fetch error:', e.message);
+    return null;
   }
-
-  // Aucun résultat sur tous les suffixes
-  ytCacheSet(cacheKey, null);
-  return null;
 }
 
 /* ──────────────────────────────────────
@@ -726,6 +703,7 @@ async function init() {
     initRating(animeId);
     hidePageLoader();
     loadRecommendations(animeId);
+    loadVoixMusiques(animeId, data.data);
   } catch (e) {
     hidePageLoader();
     const content = el('animeContent');
@@ -737,6 +715,169 @@ async function init() {
       </div>`;
     console.error('Init error:', e);
   }
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   VOIX & MUSIQUES — Section accordion
+   Données : Jikan /anime/{id}/characters + /full themes
+   ═══════════════════════════════════════════════════════ */
+
+async function loadVoixMusiques(animeId, animeData) {
+  const section = document.getElementById('animeExtra');
+  if (!section) return;
+
+  // Affiche la section (était display:none)
+  section.style.display = '';
+
+  // ── Accordion toggle ──
+  document.querySelectorAll('.accordion-header').forEach(function(header) {
+    header.addEventListener('click', function() {
+      const isOpen   = header.getAttribute('aria-expanded') === 'true';
+      const targetId = header.getAttribute('aria-controls');
+      const content  = document.getElementById(targetId);
+      if (!content) return;
+
+      header.setAttribute('aria-expanded', String(!isOpen));
+      content.classList.toggle('open', !isOpen);
+    });
+  });
+
+  // ── Musiques (depuis /full — déjà chargé) ──
+  renderMusiques(animeData);
+
+  // ── Voix (appel séparé) ──
+  renderVoixSkeleton();
+  try {
+    const res  = await jikanFetch(`/anime/${animeId}/characters`);
+    renderVoix(res.data || []);
+  } catch (e) {
+    console.warn('[VoixMusiques] Voix indisponibles:', e.message);
+    const list = document.getElementById('voiceList');
+    if (list) list.innerHTML = '<div class="extra-empty">Aucune information disponible</div>';
+  }
+}
+
+/* ── Render Voix ── */
+function renderVoix(characters) {
+  const list = document.getElementById('voiceList');
+  if (!list) return;
+
+  // Filtre : personnages principaux en premier, max 20
+  const sorted = characters
+    .filter(function(c) { return c.character; })
+    .sort(function(a, b) {
+      const order = { Main: 0, Supporting: 1 };
+      return (order[a.role] || 2) - (order[b.role] || 2);
+    })
+    .slice(0, 20);
+
+  if (!sorted.length) {
+    list.innerHTML = '<div class="extra-empty">Aucune information disponible</div>';
+    return;
+  }
+
+  list.innerHTML = sorted.map(function(entry) {
+    const char    = entry.character;
+    const va      = entry.voice_actors && entry.voice_actors.find(function(v) {
+      return v.language === 'Japanese';
+    });
+    const imgSrc  = char.images && char.images.jpg && char.images.jpg.image_url || '';
+    const charName = char.name || '—';
+    const vaName   = va && va.person && va.person.name || '—';
+    const role     = entry.role === 'Main' ? 'Principal' : 'Secondaire';
+
+    return [
+      '<div class="voice-card">',
+        imgSrc
+          ? '<img class="voice-img" src="' + imgSrc + '" alt="' + _esc(charName) + '" loading="lazy" onerror="this.src=''"/>'
+          : '<div class="voice-img" style="background:var(--ink3)"></div>',
+        '<div class="voice-info">',
+          '<div class="voice-character">' + _esc(charName) + '</div>',
+          '<div class="voice-actor">' + _esc(vaName) + '</div>',
+          '<div class="voice-role">' + role + '</div>',
+        '</div>',
+      '</div>',
+    ].join('');
+  }).join('');
+}
+
+/* ── Skeleton pendant le chargement des voix ── */
+function renderVoixSkeleton() {
+  const list = document.getElementById('voiceList');
+  if (!list) return;
+  list.innerHTML = [1,2,3,4,5].map(function() {
+    return [
+      '<div class="voice-skeleton">',
+        '<div class="sk-block sk-img"></div>',
+        '<div class="sk-block sk-line" style="margin:8px 9px 4px"></div>',
+        '<div class="sk-block sk-line short" style="margin:4px 9px 8px;width:60%"></div>',
+      '</div>',
+    ].join('');
+  }).join('');
+}
+
+/* ── Render Musiques ── */
+function renderMusiques(anime) {
+  const list = document.getElementById('musicList');
+  if (!list) return;
+
+  var openings = anime.theme && anime.theme.openings || [];
+  var endings  = anime.theme && anime.theme.endings  || [];
+
+  if (!openings.length && !endings.length) {
+    list.innerHTML = '<div class="extra-empty">Aucune information disponible</div>';
+    return;
+  }
+
+  var cards = [];
+
+  openings.forEach(function(title, i) {
+    cards.push(buildMusicCard('Opening ' + (i + 1), title));
+  });
+  endings.forEach(function(title, i) {
+    cards.push(buildMusicCard('Ending ' + (i + 1), title));
+  });
+
+  list.innerHTML = cards.join('');
+}
+
+function buildMusicCard(type, rawTitle) {
+  // rawTitle peut contenir : "1: "Guren no Yumiya" by Linked Horizon"
+  var title = rawTitle
+    .replace(/^\d+:\s*/, '')          // Supprime le numéro préfixe
+    .replace(/^["\u201c]|["\u201d]$/g, '') // Supprime les guillemets
+    .trim();
+
+  // Construit la query YouTube
+  var ytQuery = encodeURIComponent(title + ' anime ' + type.toLowerCase());
+  var ytUrl   = 'https://www.youtube.com/results?search_query=' + ytQuery;
+  var spQuery = encodeURIComponent(title);
+  var spUrl   = 'https://open.spotify.com/search/' + spQuery;
+
+  return [
+    '<div class="music-card">',
+      '<div class="music-info">',
+        '<div class="music-type">' + _esc(type) + '</div>',
+        '<div class="music-title">' + _esc(title) + '</div>',
+      '</div>',
+      '<div class="music-actions">',
+        '<a href="' + ytUrl + '" class="btn-music youtube" target="_blank" rel="noopener">',
+          '▶ YouTube',
+        '</a>',
+        '<a href="' + spUrl + '" class="btn-music spotify" target="_blank" rel="noopener">',
+          '🎧 Spotify',
+        '</a>',
+      '</div>',
+    '</div>',
+  ].join('');
+}
+
+/* ── Escape HTML ── */
+function _esc(s) {
+  return String(s).replace(/[&<>"']/g, function(c) {
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+  });
 }
 
 document.addEventListener('DOMContentLoaded', init);

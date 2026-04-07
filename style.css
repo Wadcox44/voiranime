@@ -4160,3 +4160,378 @@ a:active {
   background: rgba(255,79,216,0.2) !important;
   box-shadow: 0 0 12px rgba(255,79,216,0.3);
 }
+
+/* ═══════════════════════════════════════════════════════
+   PI NETWORK — Auth UI
+   ═══════════════════════════════════════════════════════ */
+
+/* Slot conteneur dans la navbar */
+.pi-auth-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Bouton connexion */
+.pi-connect-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(124,77,255,0.15);
+  border: 1px solid rgba(124,77,255,0.35);
+  border-radius: 20px;
+  color: #c0adff;
+  font-family: var(--font);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  white-space: nowrap;
+}
+.pi-connect-btn:hover {
+  background: rgba(124,77,255,0.25);
+  border-color: rgba(124,77,255,0.55);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(124,77,255,0.3);
+}
+.pi-btn-logo {
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--violet);
+}
+
+/* Bouton utilisateur connecté */
+.pi-user-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(124,77,255,0.12);
+  border: 1px solid rgba(124,77,255,0.25);
+  border-radius: 20px;
+  color: var(--text2);
+  font-family: var(--font);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 13px;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  white-space: nowrap;
+}
+.pi-user-btn:hover {
+  background: rgba(124,77,255,0.2);
+  color: var(--text);
+}
+.pi-user-avatar {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: var(--violet);
+}
+.pi-user-name {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Menu dropdown utilisateur */
+.pi-user-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 160px;
+  background: var(--ink4);
+  border: 1px solid var(--b2);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-3);
+  z-index: 999;
+  overflow: hidden;
+  animation: fadeInDown 0.18s var(--ease-out);
+}
+.pi-user-menu.hidden { display: none; }
+@keyframes fadeInDown {
+  from { opacity:0; transform:translateY(-6px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.pi-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  font-family: var(--font);
+  font-size: 0.82rem;
+  color: var(--text2);
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.pi-menu-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+.pi-menu-item-danger { color: rgba(255,100,100,0.7); }
+.pi-menu-item-danger:hover { color: #ff8080; background: rgba(230,57,70,0.08); }
+
+/* Lien fallback hors Pi Browser */
+.pi-fallback-link {
+  font-size: 0.75rem;
+  color: var(--muted);
+  padding: 6px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--b1);
+  transition: color 0.2s;
+}
+.pi-fallback-link:hover { color: var(--violet); }
+
+/* Nom inline sur le lien profil */
+.pi-inline-name {
+  font-size: 0.72rem;
+  color: var(--violet);
+  font-weight: 400;
+}
+
+@media (max-width: 768px) {
+  .pi-user-name  { max-width: 70px; }
+  .pi-connect-btn{ font-size: 0.74rem; padding: 6px 11px; }
+  .pi-user-btn   { font-size: 0.74rem; padding: 5px 10px; }
+}
+
+/* ═══════════════════════════════════════════════════
+   SECTION VOIX & MUSIQUES — Accordion premium
+   ═══════════════════════════════════════════════════ */
+
+.anime-extra {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 48px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Accordion ── */
+.accordion {
+  background: var(--ink3);
+  border: 1px solid var(--b1);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.25s var(--ease);
+}
+.accordion:hover { border-color: var(--b2); }
+
+.accordion-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  color: var(--text);
+  text-align: left;
+  transition: background 0.2s var(--ease);
+}
+.accordion-header:hover { background: rgba(255,255,255,0.03); }
+.accordion-header[aria-expanded="true"] { background: rgba(124,77,255,0.06); }
+
+.accordion-icon  { font-size: 1.1rem; flex-shrink: 0; }
+.accordion-label { font-size: 0.95rem; font-weight: 700; flex: 1; }
+.accordion-arrow {
+  font-size: 0.75rem;
+  color: var(--muted);
+  transition: transform 0.3s var(--ease);
+  flex-shrink: 0;
+}
+.accordion-header[aria-expanded="true"] .accordion-arrow {
+  transform: rotate(180deg);
+  color: var(--violet);
+}
+
+/* ── Contenu replié/déplié ── */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.accordion-content.open { max-height: 600px; }
+
+/* ── Empty state ── */
+.extra-empty {
+  padding: 24px 22px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ── Voice cards — scroll horizontal ── */
+.voice-list {
+  display: flex;
+  gap: 10px;
+  padding: 4px 22px 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.voice-list::-webkit-scrollbar { display: none; }
+
+.voice-card {
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  width: 130px;
+  background: var(--ink4);
+  border: 1px solid var(--b1);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s var(--ease-spring), border-color 0.2s;
+  cursor: default;
+}
+.voice-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(124,77,255,0.35);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+.voice-img {
+  width: 100%;
+  aspect-ratio: 3/4;
+  object-fit: cover;
+  display: block;
+  background: var(--ink3);
+}
+.voice-info {
+  padding: 8px 9px 10px;
+}
+.voice-character {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.voice-actor {
+  font-size: 0.68rem;
+  color: var(--violet);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.voice-role {
+  font-size: 0.62rem;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+/* ── Music cards ── */
+.music-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 22px 20px;
+}
+.music-card {
+  background: var(--ink4);
+  border: 1px solid var(--b1);
+  border-radius: 12px;
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.music-card:hover {
+  border-color: rgba(255,79,216,0.25);
+  background: rgba(255,79,216,0.04);
+}
+.music-info { flex: 1; min-width: 0; }
+.music-type {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--violet);
+  margin-bottom: 3px;
+}
+.music-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.music-actions {
+  display: flex;
+  gap: 7px;
+  flex-shrink: 0;
+}
+.btn-music {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: var(--font);
+  padding: 6px 12px;
+  border-radius: 20px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.2s var(--ease);
+  border: 1px solid transparent;
+}
+.btn-music.youtube {
+  background: rgba(255,0,0,0.12);
+  color: #ff6b6b;
+  border-color: rgba(255,0,0,0.2);
+}
+.btn-music.youtube:hover {
+  background: rgba(255,0,0,0.22);
+  border-color: rgba(255,0,0,0.4);
+  transform: translateY(-1px);
+}
+.btn-music.spotify {
+  background: rgba(30,215,96,0.1);
+  color: #1ed760;
+  border-color: rgba(30,215,96,0.2);
+}
+.btn-music.spotify:hover {
+  background: rgba(30,215,96,0.2);
+  border-color: rgba(30,215,96,0.4);
+  transform: translateY(-1px);
+}
+
+/* ── Skeleton loading voix ── */
+.voice-skeleton {
+  flex-shrink: 0;
+  width: 130px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--ink4);
+}
+.voice-skeleton .sk-img {
+  width: 100%;
+  aspect-ratio: 3/4;
+}
+.voice-skeleton .sk-line {
+  height: 10px;
+  margin: 8px 9px 4px;
+  border-radius: 4px;
+}
+.voice-skeleton .sk-line.short { width: 60%; }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .anime-extra { padding: 0 12px 32px; gap: 10px; }
+  .accordion-header { padding: 15px 16px; }
+  .accordion-label  { font-size: 0.88rem; }
+  .voice-list  { padding: 4px 14px 16px; gap: 8px; }
+  .music-list  { padding: 4px 14px 16px; }
+  .voice-card  { width: 110px; }
+  .music-card  { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .music-actions { width: 100%; }
+  .btn-music   { flex: 1; justify-content: center; padding: 8px 10px; }
+  .accordion-content.open { max-height: 800px; }
+}

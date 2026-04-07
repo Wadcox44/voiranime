@@ -25,6 +25,9 @@
     @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(255,79,216,.6),0 0 14px rgba(124,77,255,.3)}50%{text-shadow:0 0 10px #ff4fd8,0 0 24px rgba(255,79,216,.7),0 0 40px rgba(124,77,255,.45)}}
     @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
   </style>
+  <!-- Pi Network SDK -->
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <script src="pi-auth.js" defer></script>
 </head>
 <body class="page-anime">
 
@@ -63,7 +66,8 @@
       </svg>
       <span id="favBtnLabel">+ Favori</span>
     </button>
-  </div>
+  
+    <div class="pi-auth-slot"></div></div>
 </nav>
 
 <!-- ════════════════════════════════
@@ -242,6 +246,42 @@
 
   </aside>
 </main>
+
+
+<!-- ════════════════════════════════
+     VOIX & MUSIQUES
+════════════════════════════════ -->
+<section class="anime-extra" id="animeExtra" style="display:none">
+
+  <!-- Accordion Voix -->
+  <div class="accordion" id="accordionVoix">
+    <button class="accordion-header" aria-expanded="false" aria-controls="contentVoix">
+      <span class="accordion-icon">🎙️</span>
+      <span class="accordion-label">Voix des personnages</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="contentVoix" role="region">
+      <div class="voice-list" id="voiceList">
+        <div class="extra-empty">Aucune information disponible</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Accordion Musiques -->
+  <div class="accordion" id="accordionMusiques">
+    <button class="accordion-header" aria-expanded="false" aria-controls="contentMusiques">
+      <span class="accordion-icon">🎵</span>
+      <span class="accordion-label">Musiques</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="contentMusiques" role="region">
+      <div class="music-list" id="musicList">
+        <div class="extra-empty">Aucune information disponible</div>
+      </div>
+    </div>
+  </div>
+
+</section>
 
 <!-- ════════════════════════════════
      RECOMMANDATIONS
