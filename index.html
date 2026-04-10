@@ -593,6 +593,7 @@
     lastCard = card;
   });
   document.addEventListener('mouseleave', function(e){
+    if (!e.target || typeof e.target.closest !== 'function') return;
     var card = e.target.closest('.anime-card');
     if(card) card.style.transform='';
   }, true);
@@ -780,6 +781,7 @@
     lastCard = card;
   });
   document.addEventListener('mouseleave', function(e){
+    if (!e.target || typeof e.target.closest !== 'function') return;
     var card = e.target.closest('.anime-card');
     if(card) card.style.transform = '';
   }, true);
@@ -876,6 +878,8 @@
   const posterWrap = document.getElementById('heroPosterWrap');
   const heroAura   = document.getElementById('heroAura');
 
+  const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  
   // Parallax uniquement desktop — désactivé sur touch ET sur écrans < 1025px
   const isDesktop = !isTouch && window.innerWidth > 1024;
 
