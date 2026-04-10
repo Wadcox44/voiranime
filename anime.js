@@ -790,7 +790,7 @@ function renderVoix(characters) {
     return [
       '<div class="voice-card">',
         imgSrc
-          ? '<img class="voice-img" src="' + imgSrc + '" alt="' + _esc(charName) + '" loading="lazy" onerror="this.src=''"/>'
+         ? '<img class="voice-img" src="' + imgSrc + '" alt="' + _esc(charName) + '" loading="lazy" onerror="this.src=\'\'"/>'
           : '<div class="voice-img" style="background:var(--ink3)"></div>',
         '<div class="voice-info">',
           '<div class="voice-character">' + _esc(charName) + '</div>',
