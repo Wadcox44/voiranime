@@ -726,6 +726,7 @@ function initAdvancedSearch() {
 }
 
 async function runAdvancedSearch() {
+  const q      = el('searchInput')?.value.trim() || '';
   const genre  = el('advGenre')?.value  || '';
   const type   = el('advType')?.value   || '';
   const score  = el('advScore')?.value  || '';
@@ -734,20 +735,21 @@ async function runAdvancedSearch() {
 
   // Build endpoint
   let params = 'limit=20&sfw=true&order_by=score&sort=desc';
+  if (q)      params += `&q=${encodeURIComponent(q)}`;  // ← q seulement si non vide
   if (genre)  params += `&genres=${genre}`;
   if (type)   params += `&type=${type}`;
   if (score)  params += `&min_score=${score}`;
   if (status) params += `&status=${status}`;
   if (year)   params += `&start_date=${year}-01-01${year === '2010' ? '&end_date=2019-12-31' : year === '2000' ? '&end_date=2009-12-31' : ''}`;
 
-  const section = el('section-adv-results');
-  const titleEl = el('advResultsTitle');
+  const section  = el('section-adv-results');
+  const titleEl  = el('advResultsTitle');
   const carousel = el('carousel-adv-results');
 
   section.style.display = 'block';
 
-  // Label résumé
   const parts = [];
+  if (q)      parts.push(`« ${q} »`);
   if (genre)  parts.push(el('advGenre').options[el('advGenre').selectedIndex].text);
   if (type)   parts.push(el('advType').options[el('advType').selectedIndex].text);
   if (score)  parts.push(`Score ${score}+`);
