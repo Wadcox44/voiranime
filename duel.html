@@ -657,9 +657,9 @@ document.addEventListener('DOMContentLoaded', init);
 /* Transition cinématique entre pages */
 (function(){
   var overlay = document.createElement("div");
-  overlay.className = "page-transition-overlay in";
-  document.body.appendChild(overlay);
-  setTimeout(function(){ overlay.remove(); }, 450);
+overlay.className = "page-transition-overlay in";
+document.body.appendChild(overlay);
+setTimeout(function(){ overlay.remove(); }, 450);
 
   document.addEventListener("click", function(e){
     var link = e.target.closest("a[href]");
