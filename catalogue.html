@@ -545,17 +545,29 @@ function buildEndpoint(page = 1) {
   const sort   = el('catSort').value;
 
   if (q) {
-    // Mode recherche textuelle
+    // Mode recherche textuelle — q présent
     let params = `q=${encodeURIComponent(q)}&limit=${PER_PAGE}&page=${page}&sfw=true`;
     if (type)   params += `&type=${type}`;
     if (genre)  params += `&genres=${genre}`;
     if (score)  params += `&min_score=${score}`;
     if (status) params += `&status=${status}`;
+    if (year) {
+      const endYear = year === '2015' ? '2019' : year === '2010' ? '2014' : year === '2000' ? '2009' : year;
+      params += `&start_date=${year}-01-01&end_date=${endYear}-12-31`;
+    }
     return `/anime?${params}`;
   }
 
-  // Mode top/filtres
-  let params = `limit=${PER_PAGE}&page=${page}&sfw=true`;
+  // Mode filtres sans texte
+  const hasFilter = genre || type || score || status || year;
+
+  if (!hasFilter) {
+    // Aucun filtre → top anime
+    return `/top/anime?filter=bypopularity&limit=${PER_PAGE}&page=${page}`;
+  }
+
+  // Filtres présents → /anime avec order_by en premier
+  let params = `limit=${PER_PAGE}&page=${page}&sfw=true&order_by=${sort}&sort=desc`;
   if (genre)  params += `&genres=${genre}`;
   if (type)   params += `&type=${type}`;
   if (score)  params += `&min_score=${score}`;
@@ -564,13 +576,6 @@ function buildEndpoint(page = 1) {
     const endYear = year === '2015' ? '2019' : year === '2010' ? '2014' : year === '2000' ? '2009' : year;
     params += `&start_date=${year}-01-01&end_date=${endYear}-12-31`;
   }
-
-  // Sort : si pas de filtres → top anime
-  const hasFilter = genre || type || score || status || year;
-  if (!hasFilter) {
-    return `/top/anime?filter=${sort === 'score' ? 'bypopularity' : sort === 'bypopularity' ? 'bypopularity' : 'bypopularity'}&limit=${PER_PAGE}&page=${page}`;
-  }
-  params += `&order_by=${sort}&sort=desc`;
   return `/anime?${params}`;
 }
 
