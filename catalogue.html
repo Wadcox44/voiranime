@@ -567,7 +567,8 @@ function buildEndpoint(page = 1) {
   }
 
   // Filtres présents → /anime avec order_by en premier
-  let params = `limit=${PER_PAGE}&page=${page}&sfw=true&order_by=${sort}&sort=desc`;
+  const validSort = ['score','title','start_date','rank','members'].includes(sort) ? sort : 'score';
+let params = `limit=${PER_PAGE}&page=${page}&sfw=true&order_by=${validSort}&sort=desc`;
   if (genre)  params += `&genres=${genre}`;
   if (type)   params += `&type=${type}`;
   if (score)  params += `&min_score=${score}`;
