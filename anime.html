@@ -41,33 +41,24 @@
 <!-- ════════════════════════════════
      NAVBAR
 ════════════════════════════════ -->
-<nav class="navbar transparent" id="navbar">
-  <div class="nav-left">
-    <a href="index.html" class="nav-logo" aria-label="VoirAnime">
-      <span class="logo-glitch" data-text="VoirAnime">
-        <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
-      </span>
-    </a>
-    <a href="index.html" class="back-link">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.5">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-      Retour
-    </a>
+<nav class="navbar scrolled" id="navbar">
+  <div class="nav-top">
+    <div class="nav-left">
+      <a href="index.html" class="nav-logo" aria-label="VoirAnime">
+        <span class="logo-glitch" data-text="VoirAnime">
+          <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
+        </span>
+      </a>
+    </div>
+    <div class="nav-right"></div>
   </div>
-  <div class="nav-right">
-    <button class="nav-fav-btn" id="navFavBtn" data-id="">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2">
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06
-                 a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78
-                 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-      </svg>
-      <span id="favBtnLabel">+ Favori</span>
-    </button>
-  
-    <div class="pi-auth-slot"></div></div>
+  <ul class="nav-links">
+    <li><a href="index.html"     class="nav-link">Accueil</a></li>
+    <li><a href="catalogue.html" class="nav-link active">Catalogue</a></li>
+    <li><a href="duel.html"      class="nav-link">⚔ Duels</a></li>
+    <li><a href="profile.html"   class="nav-link">Profil</a></li>
+    <li><a href="soutenir.html"  class="nav-link nav-link-support">💜 Soutenir</a></li>
+  </ul>
 </nav>
 
 <!-- ════════════════════════════════
