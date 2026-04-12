@@ -574,11 +574,14 @@ function startDuel() {
 }
 
 function updateSessionStats() {
-  el('statDuelsPlayed').textContent = `${state.duelsPlayed} duel${state.duelsPlayed > 1 ? 's' : ''} joué${state.duelsPlayed > 1 ? 's' : ''}`;
-  el('statStreak').textContent      = `${state.streak} 🔥`;
-  el('navDuelCount').textContent    = state.duelsPlayed;
+  const statDuels = el('statDuelsPlayed');
+  const statStreak = el('statStreak');
+  const navCount = el('navDuelCount');
 
-  // Milestone streaks
+  if (statDuels) statDuels.textContent = `${state.duelsPlayed} duel${state.duelsPlayed > 1 ? 's' : ''} joué${state.duelsPlayed > 1 ? 's' : ''}`;
+  if (statStreak) statStreak.textContent = `${state.streak} 🔥`;
+  if (navCount) navCount.textContent = state.duelsPlayed;
+
   const milestones = { 5: '5 duels 🔥 En feu !', 10: '10 duels 💪 Incroyable !', 25: '25 duels 👑 Légende !' };
   if (milestones[state.streak]) showMilestone(milestones[state.streak]);
 }
