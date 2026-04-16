@@ -4505,3 +4505,173 @@ a:active {
   .btn-music   { flex: 1; justify-content: center; padding: 8px 10px; }
   .accordion-content.open { max-height: 800px; }
 }
+/* ─────────────────────────────────────────────────────────
+   ANIME DU JOUR — Hero vidéo
+───────────────────────────────────────────────────────── */
+.anime-du-jour {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.adj-video-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.adj-video-bg iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Trick pour masquer les bords YouTube */
+  transform: scale(1.08);
+  pointer-events: none;
+}
+
+.adj-img-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.adj-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(8,7,15,0.92) 0%,
+    rgba(8,7,15,0.55) 50%,
+    rgba(8,7,15,0.1) 100%
+  ),
+  linear-gradient(
+    to top,
+    rgba(8,7,15,0.8) 0%,
+    transparent 40%
+  );
+  z-index: 1;
+}
+
+.adj-inner {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 40px 52px;
+  max-width: 680px;
+}
+
+.adj-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pink);
+  margin-bottom: 14px;
+}
+
+.adj-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--pink);
+  box-shadow: 0 0 8px var(--pink);
+  animation: adjPulse 2s ease-in-out infinite;
+}
+
+@keyframes adjPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+.adj-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.adj-title {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #fff;
+  margin: 0 0 12px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+}
+
+.adj-synopsis {
+  font-size: 0.88rem;
+  color: var(--text2);
+  line-height: 1.65;
+  margin: 0 0 24px;
+  max-width: 520px;
+}
+
+.adj-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.adj-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 24px;
+  background: var(--pink);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.88rem;
+  border-radius: var(--r-sm);
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+.adj-btn-primary:hover {
+  background: #e03fa8;
+  transform: translateY(-2px);
+}
+
+.adj-btn-shuffle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: var(--text2);
+  font-size: 0.84rem;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.adj-btn-shuffle:hover {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .anime-du-jour { height: 420px; }
+  .adj-inner { padding: 24px 18px; }
+  .adj-title { font-size: 1.4rem; }
+  .adj-synopsis { display: none; }
+  .adj-overlay {
+    background: linear-gradient(
+      to top,
+      rgba(8,7,15,0.95) 0%,
+      rgba(8,7,15,0.4) 60%,
+      transparent 100%
+    );
+  }
+}
