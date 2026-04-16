@@ -839,41 +839,54 @@ async function loadAnimeDuJour() {
 }
 
 function renderAnimeDuJour(anime, shuffle = false) {
-  const section  = el('animeDuJour');
-  const imgEl    = el('adjImg');
-  const titleEl  = el('adjTitle');
-  const synEl    = el('adjSynopsis');
-  const badgesEl = el('adjBadges');
-  const linkEl   = el('adjLink');
+  const section     = el('animeDuJour');
+  const iframe      = el('adjIframe');
+  const imgFallback = el('adjImgFallback');
+  const titleEl     = el('adjTitle');
+  const synEl       = el('adjSynopsis');
+  const badgesEl    = el('adjBadges');
+  const linkEl      = el('adjLink');
 
   if (!section) return;
 
   const title    = anime.title_english || anime.title;
   const img      = anime.images?.jpg?.large_image_url || '';
   const synopsis = (anime.synopsis || '').replace(/\[Written by MAL Rewrite\]/gi, '').trim();
+  const youtubeId = anime.trailer?.youtube_id || null;
 
-  // Animation de remplacement si shuffle
   if (shuffle) {
     section.style.opacity = '0';
     setTimeout(() => { section.style.opacity = '1'; }, 300);
   }
 
-  imgEl.src = img;
-  imgEl.alt = title;
   titleEl.textContent = title;
-  synEl.textContent   = synopsis.slice(0, 160) + (synopsis.length > 160 ? '…' : '');
+  synEl.textContent   = synopsis.slice(0, 180) + (synopsis.length > 180 ? '…' : '');
   linkEl.href         = `anime.html?id=${anime.mal_id}`;
+
+  // Vidéo YouTube autoplay mute, sinon image fallback
+  if (youtubeId) {
+    iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${youtubeId}&modestbranding=1&rel=0&showinfo=0`;
+    iframe.style.display = 'block';
+    imgFallback.style.display = 'none';
+  } else {
+    // Fallback : recherche YouTube par titre
+    const query = encodeURIComponent(title + ' anime trailer');
+    iframe.src = `https://www.youtube.com/embed?listType=search&list=${query}&autoplay=1&mute=1&controls=0&modestbranding=1`;
+    iframe.style.display = 'block';
+    imgFallback.src = img;
+    imgFallback.style.display = 'block'; // image visible en cas d'échec iframe
+  }
 
   const badges = [];
   if (anime.score) badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
   if (anime.type) {
     const tMap = { TV:'Série', Movie:"Film d'anime", OVA:'Spécial', ONA:'Streaming', Special:'Spécial' };
-    badges.push(`<span class="badge badge-muted">${esc(tMap[anime.type]||anime.type)}</span>`);
+    badges.push(`<span class="badge badge-muted">${tMap[anime.type] || anime.type}</span>`);
   }
   badgesEl.innerHTML = badges.join('');
 
   section.style.display = 'block';
-  section.style.transition = 'opacity 0.3s ease';
+  section.style.transition = 'opacity 0.4s ease';
 }
 async function init() {
   initNavbar();
