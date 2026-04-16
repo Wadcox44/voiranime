@@ -209,27 +209,29 @@
      ANIME DU JOUR
 ════════════════════════════════ -->
 <section class="anime-du-jour" id="animeDuJour" style="display:none">
+  <div class="adj-video-bg" id="adjVideoBg">
+    <iframe id="adjIframe" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <img class="adj-img-fallback" id="adjImgFallback" src="" alt=""/>
+    <div class="adj-overlay"></div>
+  </div>
   <div class="adj-inner">
     <div class="adj-label">
       <span class="adj-dot"></span>
       Anime du jour
     </div>
-    <div class="adj-content">
-      <img class="adj-img" id="adjImg" src="" alt=""/>
-      <div class="adj-info">
-        <div class="adj-badges" id="adjBadges"></div>
-        <h2 class="adj-title" id="adjTitle"></h2>
-        <p  class="adj-synopsis" id="adjSynopsis"></p>
-        <div class="adj-actions">
-          <a href="#" class="adj-btn-primary" id="adjLink">Voir l'anime →</a>
-          <button class="adj-btn-shuffle" id="adjShuffle" title="Autre suggestion">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
-              <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
-            </svg>
-            Autre suggestion
-          </button>
-        </div>
+    <div class="adj-info">
+      <div class="adj-badges" id="adjBadges"></div>
+      <h2 class="adj-title" id="adjTitle"></h2>
+      <p class="adj-synopsis" id="adjSynopsis"></p>
+      <div class="adj-actions">
+        <a href="#" class="adj-btn-primary" id="adjLink">Voir l'anime →</a>
+        <button class="adj-btn-shuffle" id="adjShuffle" title="Autre suggestion">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+            <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+          </svg>
+          Autre suggestion
+        </button>
       </div>
     </div>
   </div>
