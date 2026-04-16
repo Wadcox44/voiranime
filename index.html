@@ -918,6 +918,58 @@
   });
 
 })();
+  /* ── Carousel : flèches + swipe ── */
+(function () {
+  const SCROLL_AMOUNT = 900; // px scrollés par clic
+
+  // --- Flèches ---
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.carousel-btn');
+    if (!btn) return;
+    const id = btn.dataset.carousel;
+    const track = document.getElementById('carousel-' + id);
+    if (!track) return;
+    const dir = btn.classList.contains('prev') ? -1 : 1;
+    track.scrollBy({ left: dir * SCROLL_AMOUNT, behavior: 'smooth' });
+  });
+
+  // --- Swipe tactile ---
+  document.querySelectorAll('.carousel').forEach(function (track) {
+    let startX = 0, startScroll = 0, dragging = false;
+
+    track.addEventListener('touchstart', function (e) {
+      startX = e.touches[0].clientX;
+      startScroll = track.scrollLeft;
+      dragging = true;
+    }, { passive: true });
+
+    track.addEventListener('touchmove', function (e) {
+      if (!dragging) return;
+      const dx = startX - e.touches[0].clientX;
+      track.scrollLeft = startScroll + dx;
+    }, { passive: true });
+
+    track.addEventListener('touchend', function () { dragging = false; });
+
+    // --- Drag souris (desktop) ---
+    track.addEventListener('mousedown', function (e) {
+      startX = e.pageX;
+      startScroll = track.scrollLeft;
+      dragging = true;
+      track.style.cursor = 'grabbing';
+      track.style.userSelect = 'none';
+    });
+    window.addEventListener('mousemove', function (e) {
+      if (!dragging) return;
+      track.scrollLeft = startScroll - (e.pageX - startX);
+    });
+    window.addEventListener('mouseup', function () {
+      dragging = false;
+      track.style.cursor = '';
+      track.style.userSelect = '';
+    });
+  });
+})();
 </script>
 </body>
 </html>
