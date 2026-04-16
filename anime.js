@@ -567,7 +567,7 @@ async function loadFranchise(animeId) {
   if (!section) return;
 
   try {
-    const franchise = await buildFranchise(animeId, jikanFetch);
+    const franchise = await buildFranchise(animeId);
 
     const categories = [
       { key: 'seasons', label: '📺 Saisons',   dot: 'violet' },
