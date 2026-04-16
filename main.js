@@ -815,23 +815,27 @@ async function loadTrending() {
 ────────────────────────────────────── */
 async function loadAnimeDuJour() {
   try {
-    // Seed basé sur le jour (YYYYMMDD) → même résultat toute la journée
-    const today    = new Date();
-    const seed     = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-    const page     = (seed % 4) + 1;  // pages 1-4
-    const offset   = seed % 25;       // position dans la page
+    const today  = new Date();
+    const seed   = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    const page   = (seed % 4) + 1;
+    const offset = seed % 25;
 
     const data   = await jikanFetch(`/top/anime?filter=bypopularity&limit=25&page=${page}`);
     const animes = (data.data || []).filter(a => a.images?.jpg?.large_image_url && a.synopsis);
     if (animes.length === 0) return;
 
-    const anime = animes[offset % animes.length];
+    const picked = animes[offset % animes.length];
+
+    // Fetch /full pour récupérer trailer.youtube_id
+    const fullData = await jikanFetch(`/anime/${picked.mal_id}/full`);
+    const anime    = fullData.data || picked;
+
     renderAnimeDuJour(anime);
 
-    // Bouton shuffle → anime aléatoire parmi la liste
-    el('adjShuffle')?.addEventListener('click', () => {
-      const random = animes[Math.floor(Math.random() * animes.length)];
-      renderAnimeDuJour(random, true);
+    el('adjShuffle')?.addEventListener('click', async () => {
+      const random   = animes[Math.floor(Math.random() * animes.length)];
+      const rFull    = await jikanFetch(`/anime/${random.mal_id}/full`);
+      renderAnimeDuJour(rFull.data || random, true);
     });
   } catch (e) {
     console.warn('Anime du jour:', e);
@@ -849,9 +853,9 @@ function renderAnimeDuJour(anime, shuffle = false) {
 
   if (!section) return;
 
-  const title    = anime.title_english || anime.title;
-  const img      = anime.images?.jpg?.large_image_url || '';
-  const synopsis = (anime.synopsis || '').replace(/\[Written by MAL Rewrite\]/gi, '').trim();
+  const title     = anime.title_english || anime.title;
+  const img       = anime.images?.jpg?.large_image_url || '';
+  const synopsis  = (anime.synopsis || '').replace(/\[Written by MAL Rewrite\]/gi, '').trim();
   const youtubeId = anime.trailer?.youtube_id || null;
 
   if (shuffle) {
@@ -863,18 +867,23 @@ function renderAnimeDuJour(anime, shuffle = false) {
   synEl.textContent   = synopsis.slice(0, 180) + (synopsis.length > 180 ? '…' : '');
   linkEl.href         = `anime.html?id=${anime.mal_id}`;
 
-  // Vidéo YouTube autoplay mute, sinon image fallback
   if (youtubeId) {
-    iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${youtubeId}&modestbranding=1&rel=0&showinfo=0`;
+    // YouTube autoplay mute — on cache l'image
+    iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${youtubeId}&modestbranding=1&rel=0&playsinline=1`;
     iframe.style.display = 'block';
     imgFallback.style.display = 'none';
+    // Si l'iframe échoue (bloqué), on affiche l'image
+    iframe.onerror = () => {
+      iframe.style.display = 'none';
+      imgFallback.src = img;
+      imgFallback.style.display = 'block';
+    };
   } else {
-    // Fallback : recherche YouTube par titre
-    const query = encodeURIComponent(title + ' anime trailer');
-    iframe.src = `https://www.youtube.com/embed?listType=search&list=${query}&autoplay=1&mute=1&controls=0&modestbranding=1`;
-    iframe.style.display = 'block';
+    // Pas de trailer → image de couverture en fond
+    iframe.style.display = 'none';
+    iframe.src = '';
     imgFallback.src = img;
-    imgFallback.style.display = 'block'; // image visible en cas d'échec iframe
+    imgFallback.style.display = 'block';
   }
 
   const badges = [];
