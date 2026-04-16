@@ -3,6 +3,7 @@
    Gère : Détails anime · Trailer YouTube · Favoris · Recommandations
    ═══════════════════════════════════════════════════ */
 import { trackView, trackClick } from './firebase.js';
+import { buildFranchise } from './animeFranchise.js';
 
 const API = 'https://api.jikan.moe/v4';
 
@@ -61,7 +62,7 @@ function addToHistory(id, title, img, progress = 0) {
 /* ──────────────────────────────────────
    CARD BUILDER (for recommendations)
 ────────────────────────────────────── */
-function buildRecoCard(anime) {
+function buildRecoCard(anime, isCurrent = false) {
   const id    = anime.mal_id;
   const title = anime.title_english || anime.title || 'Titre inconnu';
   const img   = anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url || '';
@@ -70,7 +71,7 @@ function buildRecoCard(anime) {
   const fav   = isFav(id);
 
   const card = document.createElement('article');
-  card.className = 'anime-card';
+  card.className = 'anime-card' + (isCurrent ? ' franchise-current' : '');
 
   card.innerHTML = `
     <div class="card-thumb">
@@ -559,6 +560,73 @@ function cap(s) {
 }
 
 /* ──────────────────────────────────────
+   FRANCHISE
+────────────────────────────────────── */
+async function loadFranchise(animeId) {
+  const section = el('franchiseSection');
+  if (!section) return;
+
+  try {
+    const franchise = await buildFranchise(animeId, jikanFetch);
+
+    const categories = [
+      { key: 'seasons', label: '📺 Saisons',   dot: 'violet' },
+      { key: 'movies',  label: '🎬 Films',      dot: 'blue'   },
+      { key: 'ova',     label: '📼 OVA',        dot: 'gold'   },
+      { key: 'special', label: '⭐ Spéciaux',   dot: 'orange' },
+      { key: 'spinOff', label: '🌀 Spin-offs',  dot: 'pink'   },
+    ];
+
+    const hasContent = categories.some(c => franchise[c.key].length > 0);
+    if (!hasContent) return;
+
+    section.style.display = '';
+    const container = el('franchiseContainer');
+    container.innerHTML = '';
+
+    categories.forEach(({ key, label, dot }) => {
+      const items = franchise[key];
+      if (items.length === 0) return;
+
+      const block = document.createElement('div');
+      block.className = 'content-section';
+      block.innerHTML = `
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="section-dot ${dot}"></span>${label}
+          </h2>
+        </div>
+        <div class="carousel-wrapper">
+          <button class="carousel-btn prev" data-carousel="franchise-${key}">‹</button>
+          <div class="carousel" id="carousel-franchise-${key}"></div>
+          <button class="carousel-btn next" data-carousel="franchise-${key}">›</button>
+        </div>`;
+      container.appendChild(block);
+
+      const carousel = document.getElementById(`carousel-franchise-${key}`);
+      items.forEach(anime => {
+        // Highlight current anime
+        const isCurrent = anime.mal_id === animeId;
+        carousel.appendChild(buildRecoCard(anime, isCurrent));
+      });
+    });
+
+    // Bind carousel buttons
+    container.querySelectorAll('.carousel-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id  = btn.dataset.carousel;
+        const car = document.getElementById(`carousel-${id}`);
+        if (!car) return;
+        car.scrollBy({ left: btn.classList.contains('prev') ? -800 : 800, behavior: 'smooth' });
+      });
+    });
+
+  } catch (e) {
+    console.warn('[Franchise] Erreur:', e);
+  }
+}
+
+/* ──────────────────────────────────────
    RECOMMENDATIONS
 ────────────────────────────────────── */
 async function loadRecommendations(id) {
@@ -702,6 +770,7 @@ async function init() {
     renderDetail(data.data);
     initRating(animeId);
     hidePageLoader();
+    loadFranchise(animeId);
     loadRecommendations(animeId);
     loadVoixMusiques(animeId, data.data);
   } catch (e) {
