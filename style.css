@@ -1465,7 +1465,7 @@ ul, ol { list-style: none; }
   .content-section { padding: 8px 14px 20px; }
   .anime-card { width: 140px; }
   .anime-card:hover { transform: scale(1.03) translateY(-3px); }
-  .carousel-btn { display: none; }
+  .carousel-btn { display: flex; opacity: 1; pointer-events: all; width: 32px; height: 64px; font-size: 1.1rem; }
   .trailer-controls { left: 12px; right: 12px; bottom: 16px; }
   .anime-content { padding: 0 14px 40px; }
   .anime-aside-col { grid-template-columns: 1fr; }
@@ -3794,7 +3794,7 @@ a:active {
   .card-sub   { font-size: 0.64rem; }
 
   /* Boutons carousel masqués */
-  .carousel-btn { display: none !important; }
+  .carousel-btn { display: flex !important; opacity: 1 !important; pointer-events: all !important; width: 28px; height: 56px; font-size: 1rem; }
 
   /* Carousel : snap scroll natif */
   .carousel {
@@ -4105,7 +4105,7 @@ a:active {
 @media (max-width: 768px) {
   /* Agrandit les zones tactiles minimum 44px */
   .card-fav-btn  { width: 36px; height: 36px; opacity: 1; transform: scale(1); }
-  .carousel-btn  { display: none !important; }
+  .carousel-btn  { display: flex !important; opacity: 1 !important; pointer-events: all !important; }
   .nav-fav-btn   { padding: 10px 14px; }
   .back-link     { padding: 8px 12px; }
 
