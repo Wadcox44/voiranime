@@ -682,9 +682,9 @@ async function loadPage(page = 1) {
 
     const from = (page - 1) * PER_PAGE + 1;
     const to   = Math.min(page * PER_PAGE, total);
-    count.innerHTML = total
-      ? `<strong>${from}–${to}</strong> sur <strong>${total.toLocaleString()}</strong> animes`
-      : '';
+    count.innerHTML = animes.length
+  ? `<strong>${animes.length}</strong> animes affichés`
+  : '';
 
     el('catSubtitle').textContent = `Page ${page} · ${animes.length} résultats affichés`;
 
