@@ -907,7 +907,7 @@ async function init() {
   renderFavoritesSection();
   renderContinueWatching();
 
-  await loadHero();
+  // Hero supprimé — remplacé par Anime du jour
   loadAnimeDuJour();
 
   await loadSection('/top/anime?filter=bypopularity&limit=20', 'popular', 'skel-popular', 10, { showRank: true });
