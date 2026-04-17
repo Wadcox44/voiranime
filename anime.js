@@ -709,12 +709,12 @@ async function loadFranchise(animeId) {
 /* ──────────────────────────────────────
    RECOMMENDATIONS
 ────────────────────────────────────── */
-async function loadRecommendations(id) {
+async function loadRecommendations(id, currentAnime) {
   const carousel = el('carousel-reco');
   carousel.innerHTML = '<p style="color:var(--muted);padding:16px;font-size:0.85rem;">Chargement…</p>';
 
   try {
-    await sleep(600); // respect rate limit
+    await sleep(600);
     const data = await jikanFetch(`/anime/${id}/recommendations`);
     const items = (data.data || []).slice(0, 20);
 
@@ -724,15 +724,32 @@ async function loadRecommendations(id) {
       return;
     }
 
-    items.forEach(item => {
-      const anime = item.entry;
+    // Score de pertinence basé sur genres + type de l'anime courant
+    const currentGenreIds = new Set((currentAnime?.genres || []).map(g => g.mal_id));
+    const currentType     = currentAnime?.type || null;
+
+    function scoreItem(entry) {
+      let score = (entry.votes || 0) * 0.5; // votes Jikan
+      (entry.genres || []).forEach(g => { if (currentGenreIds.has(g.mal_id)) score += 4; });
+      if (currentType && entry.type === currentType) score += 2;
+      if (entry.score) score += entry.score;
+      if (entry.members) score += Math.log10(entry.members || 1);
+      return score;
+    }
+
+    const sorted = items
+      .map(item => ({ ...item.entry, _score: scoreItem(item.entry) }))
+      .sort((a, b) => b._score - a._score)
+      .slice(0, 12);
+
+    sorted.forEach(anime => {
       carousel.appendChild(buildRecoCard({
-        mal_id: anime.mal_id,
-        title: anime.title,
+        mal_id:        anime.mal_id,
+        title:         anime.title,
         title_english: anime.title,
-        images: anime.images,
-        score: null,
-        type: null,
+        images:        anime.images,
+        score:         anime.score || null,
+        type:          anime.type  || null,
       }));
     });
   } catch (e) {
@@ -920,7 +937,7 @@ async function init() {
     });
     hidePageLoader();
     loadFranchise(animeId);
-    loadRecommendations(animeId);
+    loadRecommendations(animeId, data.data);
     loadVoixMusiques(animeId, data.data);
   } catch (e) {
     hidePageLoader();

@@ -897,6 +897,86 @@ function renderAnimeDuJour(anime, shuffle = false) {
   section.style.display = 'block';
   section.style.transition = 'opacity 0.4s ease';
 }
+/* ──────────────────────────────────────
+   POUR TOI — Recommandations basées sur l'historique
+────────────────────────────────────── */
+async function loadForYou() {
+  const section = el('section-for-you');
+  if (!section) return;
+
+  const history = getHistory();
+  if (history.length === 0) return;
+
+  // Collecte les genres des animes visités (stockés dans history)
+  // On fetch les détails des 5 derniers pour avoir leurs genres
+  const recentIds = history.slice(0, 5).map(h => h.id);
+
+  const genreCount = {};
+  let seenType = null;
+
+  // Fetch genres depuis Jikan pour chaque anime récent
+  for (const id of recentIds) {
+    try {
+      const d = await jikanFetch(`/anime/${id}`);
+      const anime = d.data;
+      if (!anime) continue;
+      (anime.genres || []).forEach(g => {
+        genreCount[g.mal_id] = (genreCount[g.mal_id] || 0) + 1;
+      });
+      if (!seenType && anime.type) seenType = anime.type;
+    } catch {}
+  }
+
+  if (Object.keys(genreCount).length === 0) return;
+
+  // Top 2 genres les plus vus
+  const topGenres = Object.entries(genreCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 2)
+    .map(([id]) => id);
+
+  // Fetch animes par ces genres
+  const genreParam = topGenres.join(',');
+  let candidates = [];
+  try {
+    const d = await jikanFetch(`/anime?genres=${genreParam}&order_by=score&sort=desc&limit=25&sfw=true`);
+    candidates = d.data || [];
+  } catch { return; }
+
+  // Filtre les animes déjà vus
+  const seenIds = new Set(history.map(h => String(h.id)));
+
+  // Score de pertinence
+  function scoreAnime(anime) {
+    let score = 0;
+    // Genres en commun
+    (anime.genres || []).forEach(g => {
+      if (genreCount[g.mal_id]) score += genreCount[g.mal_id] * 3;
+    });
+    // Même type
+    if (seenType && anime.type === seenType) score += 2;
+    // Popularité (membres)
+    if (anime.members) score += Math.log10(anime.members);
+    return score;
+  }
+
+  const results = candidates
+    .filter(a => !seenIds.has(String(a.mal_id)))
+    .map(a => ({ ...a, _score: scoreAnime(a) }))
+    .sort((a, b) => b._score - a._score)
+    .slice(0, 12);
+
+  if (results.length === 0) return;
+
+  section.style.display = '';
+  const badge = el('forYouBadge');
+  if (badge) badge.textContent = `Basé sur tes ${Math.min(history.length, 5)} derniers animes`;
+
+  const carousel = el('carousel-for-you');
+  carousel.innerHTML = '';
+  results.forEach(anime => carousel.appendChild(buildCard(anime)));
+}
+
 async function init() {
   initNavbar();
   initSearch();
@@ -909,6 +989,7 @@ async function init() {
 
   // Hero supprimé — remplacé par Anime du jour
   loadAnimeDuJour();
+  loadForYou();
 
   await loadSection('/top/anime?filter=bypopularity&limit=20', 'popular', 'skel-popular', 10, { showRank: true });
   await loadSection('/top/anime?limit=20',                     'top',     'skel-top',     10);
