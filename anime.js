@@ -62,6 +62,71 @@ function addToHistory(id, title, img, progress = 0) {
 /* ──────────────────────────────────────
    CARD BUILDER (for recommendations)
 ────────────────────────────────────── */
+/* ──────────────────────────────────────
+   FRANCHISE CARD — avec numéro de saison + année
+────────────────────────────────────── */
+function buildFranchiseCard(anime, isCurrent = false, seasonNum = null) {
+  const id    = anime.mal_id;
+  const title = anime.title_english || anime.title || 'Titre inconnu';
+  const img   = anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url || '';
+  const score = anime.score;
+  const type  = anime.type || '';
+  const fav   = isFav(id);
+
+  // Année de sortie
+  const year = anime.aired?.from ? new Date(anime.aired.from).getFullYear() : null;
+
+  // Label affiché sous le titre
+  const seasonLabel = seasonNum ? `Saison ${seasonNum}` : null;
+  const subParts = [
+    seasonLabel,
+    year ? String(year) : null,
+    score ? `★ ${score.toFixed(1)}` : null,
+  ].filter(Boolean);
+
+  const card = document.createElement('article');
+  card.className = 'anime-card' + (isCurrent ? ' franchise-current' : '');
+
+  card.innerHTML = `
+    <div class="card-thumb">
+      <img src="${img}" alt="${title}" loading="lazy"
+           onerror="this.src='https://placehold.co/160x230/111118/555?text=No+Image'"/>
+      <div class="card-thumb-overlay">
+        <div class="card-play-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
+        </div>
+        ${score ? `<div class="card-score-badge">★ ${score.toFixed(1)}</div>` : ''}
+      </div>
+      ${seasonNum ? `<span class="card-type-badge">S${seasonNum}</span>` : (type ? `<span class="card-type-badge">${({TV:'Série',Movie:'Film',OVA:'OVA',ONA:'Streaming',Special:'Spécial'}[type]||type)}</span>` : '')}
+      <button class="card-fav-btn ${fav ? 'active' : ''}" data-fav-id="${id}" aria-label="Favori">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="${fav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="card-info">
+      <h3 class="card-title">${title}</h3>
+      <p class="card-sub">${subParts.join(' · ')}</p>
+    </div>
+  `;
+
+  card.addEventListener('click', (e) => {
+    if (e.target.closest('.card-fav-btn')) return;
+    addToHistory(id, title, img);
+    window.location.href = `anime.html?id=${id}`;
+  });
+
+  card.querySelector('.card-fav-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const added = toggleFav(id, title, img);
+    const btn = e.currentTarget;
+    btn.classList.toggle('active', added);
+    btn.querySelector('svg').setAttribute('fill', added ? 'currentColor' : 'none');
+  });
+
+  return card;
+}
+
 function buildRecoCard(anime, isCurrent = false) {
   const id    = anime.mal_id;
   const title = anime.title_english || anime.title || 'Titre inconnu';
@@ -604,10 +669,10 @@ async function loadFranchise(animeId) {
       container.appendChild(block);
 
       const carousel = document.getElementById(`carousel-franchise-${key}`);
-      items.forEach(anime => {
-        // Highlight current anime
+      items.forEach((anime, index) => {
         const isCurrent = anime.mal_id === animeId;
-        carousel.appendChild(buildRecoCard(anime, isCurrent));
+        const seasonNum = key === 'seasons' ? index + 1 : null;
+        carousel.appendChild(buildFranchiseCard(anime, isCurrent, seasonNum));
       });
     });
 
