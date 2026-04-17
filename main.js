@@ -996,7 +996,8 @@ async function loadForYou() {
   }
 
   // Filtre les animes déjà vus
-  const seenIds = new Set(history.map(h => String(h.id)));
+  const seenIds  = new Set(history.map(h => String(h.id)));
+  const seenType = history.length > 0 ? history[0].type || null : null;
 
   // Score de pertinence
   function scoreAnime(anime) {
