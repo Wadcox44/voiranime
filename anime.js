@@ -631,6 +631,22 @@ async function loadFranchise(animeId) {
   const section = el('franchiseSection');
   if (!section) return;
 
+  // Skeleton loader immédiat
+  section.style.display = '';
+  const container = el('franchiseContainer');
+  container.innerHTML = `
+    <div class="content-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-dot violet"></span>📺 Franchise
+        </h2>
+      </div>
+      <div style="padding:16px;color:var(--muted);font-size:0.85rem;display:flex;align-items:center;gap:10px">
+        <div class="sk-dots"><span></span><span></span><span></span></div>
+        Chargement de la franchise…
+      </div>
+    </div>`;
+
   try {
     const franchise = await buildFranchise(animeId);
 
@@ -643,10 +659,11 @@ async function loadFranchise(animeId) {
     ];
 
     const hasContent = categories.some(c => franchise[c.key].length > 0);
-    if (!hasContent) return;
+    if (!hasContent) {
+      section.style.display = 'none';
+      return;
+    }
 
-    section.style.display = '';
-    const container = el('franchiseContainer');
     container.innerHTML = '';
 
     categories.forEach(({ key, label, dot }) => {
