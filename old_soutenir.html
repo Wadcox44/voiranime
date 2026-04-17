@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VoirAnime — Soutenir le projet</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+  <style>
+    .logo-glitch{display:inline-block;font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:-.5px;transform:skewX(-6deg);position:relative;user-select:none}
+    .logo-glitch::before,.logo-glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:0;pointer-events:none}
+    .logo-glitch::before{color:#ff2d78;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%)}
+    .logo-glitch::after{color:#2de4ff;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%)}
+    .logo-glitch::before{animation:va-gr-auto 5s steps(2) infinite;opacity:1}
+    .logo-glitch::after{animation:va-gb-auto 5s steps(2) .06s infinite;opacity:1}
+    @keyframes va-gr-auto{0%{transform:translate(-2px,1px);opacity:1}4%{transform:translate(2px,-1px);opacity:1}8%{transform:translate(-1px,2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
+    @keyframes va-gb-auto{0%{transform:translate(2px,-1px);opacity:1}4%{transform:translate(-2px,1px);opacity:1}8%{transform:translate(1px,-2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
+    .logo-voir{color:#fff}
+    .logo-anime{color:#ff4fd8}
+
+    /* ── Page Soutenir ── */
+    .support-page {
+      min-height: 100vh;
+      padding: calc(var(--nav-h) + 16px) 24px 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .support-hero {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .support-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      display: block;
+      animation: heartbeat 1.8s ease-in-out infinite;
+    }
+    @keyframes heartbeat {
+      0%,100% { transform: scale(1); }
+      14%     { transform: scale(1.15); }
+      28%     { transform: scale(1); }
+      42%     { transform: scale(1.08); }
+      56%     { transform: scale(1); }
+    }
+    .support-title {
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #fff 30%, var(--pink) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .support-subtitle {
+      font-size: 0.88rem;
+      color: var(--text2);
+      line-height: 1.5;
+      max-width: 480px;
+      margin: 0 auto;
+      font-weight: 300;
+    }
+
+    /* Montants */
+    .support-amounts-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text2);
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 10px;
+      margin-top: 16px;
+    }
+    .support-amounts {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .amount-btn {
+      background: var(--ink3);
+      border: 1.5px solid var(--b2);
+      border-radius: var(--r-lg);
+      padding: 12px 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s var(--ease-spring);
+      font-family: var(--font);
+    }
+    .amount-btn:hover {
+      border-color: var(--b-pink);
+      background: var(--pink-dim);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(255,79,216,0.2);
+    }
+    .amount-btn.selected {
+      border-color: var(--pink);
+      background: var(--pink-dim);
+      box-shadow: 0 0 0 1px var(--pink), 0 8px 24px rgba(255,79,216,0.25);
+    }
+    .amount-value {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--text);
+      display: block;
+      margin-bottom: 2px;
+    }
+    .amount-btn.selected .amount-value { color: var(--pink); }
+    .amount-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .amount-badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      background: var(--gold-dim);
+      color: var(--gold);
+      border: 1px solid var(--b-gold);
+      border-radius: 20px;
+      padding: 2px 7px;
+      margin-top: 6px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* Montant libre */
+    .support-custom {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--ink3);
+      border: 1.5px solid var(--b2);
+      border-radius: var(--r-lg);
+      padding: 10px 16px;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+    .support-custom:focus-within {
+      border-color: rgba(124,77,255,0.4);
+      box-shadow: 0 0 0 3px rgba(124,77,255,0.1);
+    }
+    .support-custom label {
+      font-size: 0.8rem;
+      color: var(--text2);
+      white-space: nowrap;
+      font-weight: 500;
+    }
+    .support-custom input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      font-family: var(--font);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text);
+      min-width: 0;
+    }
+    .support-custom input::placeholder { color: var(--muted); font-weight: 400; font-size: 0.95rem; }
+    .support-custom-currency {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--violet);
+    }
+
+    /* CTA don */
+    .support-cta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .support-btn-main {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: #fff;
+      font-family: var(--font);
+      font-weight: 800;
+      font-size: 1.05rem;
+      padding: 13px 36px;
+      border-radius: var(--r-lg);
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s var(--ease-spring), box-shadow 0.2s;
+      box-shadow: 0 4px 24px rgba(249,115,22,0.45);
+      text-decoration: none;
+      animation: support-glow 2.6s ease-in-out infinite;
+    }
+    .support-btn-main:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 10px 40px rgba(249,115,22,0.65);
+      animation: none;
+    }
+    .support-btn-main:disabled { opacity: 0.6; animation: none; }
+    @keyframes support-glow {
+      0%,100% { box-shadow: 0 4px 24px rgba(249,115,22,0.4); }
+      50%      { box-shadow: 0 4px 32px rgba(249,115,22,0.75), 0 0 0 6px rgba(249,115,22,0.12); }
+    }
+    .support-btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      color: var(--text2);
+      font-family: var(--font);
+      font-size: 0.84rem;
+      padding: 10px 20px;
+      border-radius: var(--r);
+      border: 1px solid var(--b2);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .support-btn-secondary:hover { color: var(--text); border-color: var(--b3); background: rgba(255,255,255,0.04); }
+
+    /* Remerciements */
+    .support-thanks {
+      margin-bottom: 16px;
+    }
+    .support-thanks-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .thanks-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .thanks-name {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--ink3);
+      border: 1px solid var(--b1);
+      border-radius: 20px;
+      padding: 5px 13px;
+      font-size: 0.8rem;
+      color: var(--text2);
+      transition: all 0.2s;
+    }
+    .thanks-name:hover { border-color: var(--b-violet); color: #c0adff; }
+    .thanks-name-star { color: var(--gold); font-size: 0.7rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .support-page { padding: calc(var(--nav-h) + 12px) 16px 32px; }
+      .support-amounts { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .support-amounts { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .amount-value { font-size: 1.1rem; }
+    }
+
+    /* ── Message merci ── */
+    .support-merci {
+      background: rgba(6,214,160,0.08);
+      border: 1px solid rgba(6,214,160,0.3);
+      border-radius: var(--r-lg);
+      padding: 20px 24px;
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
+    .support-merci-text { font-size: 1.05rem; font-weight: 700; color: #06d6a0; margin-bottom: 12px; }
+    .support-merci-close {
+      background: transparent;
+      border: 1px solid rgba(6,214,160,0.35);
+      color: #06d6a0;
+      border-radius: 20px;
+      padding: 6px 18px;
+      font-size: 0.82rem;
+      font-family: var(--font);
+      cursor: pointer;
+    }
+    .support-merci-close:hover { background: rgba(6,214,160,0.1); }
+
+    /* ── Statut paiement ── */
+    .pay-status {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 24px;
+      background: var(--ink3);
+      border: 1px solid var(--b2);
+      border-radius: var(--r-lg);
+      width: 100%;
+      max-width: 400px;
+      transition: opacity 0.3s;
+    }
+    .pay-status.hidden { display: none; }
+    .pay-status-icon { font-size: 1.8rem; }
+    .pay-status-msg {
+      font-size: 0.88rem;
+      color: var(--text2);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+  </style>
+  <!-- Pi Network SDK -->
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <script src="pi-auth.js" defer></script>
+</head>
+<body>
+
+<!-- ════════════════════════════════
+     NAVBAR
+════════════════════════════════ -->
+<nav class="navbar scrolled" id="navbar">
+  <div class="nav-top">
+    <div class="nav-left">
+      <a href="index.html" class="nav-logo" aria-label="VoirAnime">
+        <span class="logo-glitch" data-text="VoirAnime">
+          <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
+        </span>
+      </a>
+    </div>
+    <div class="nav-right"></div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html"     class="nav-link">Accueil</a></li>
+    <li><a href="catalogue.html" class="nav-link active">Catalogue</a></li>
+    <li><a href="duel.html"      class="nav-link">⚔ Duels</a></li>
+    <li><a href="profile.html"   class="nav-link">Profil</a></li>
+    <li><a href="soutenir.html"  class="nav-link nav-link-support">💜 Soutenir</a></li>
+  </ul>
+</nav>
+
+<!-- ════════════════════════════════
+     CONTENU
+════════════════════════════════ -->
+<main class="support-page">
+
+  <!-- Hero -->
+  <div class="support-hero">
+    <span class="support-icon">Pi</span>
+    <h1 class="support-title">Soutenir VoirAnime</h1>
+    <p class="support-subtitle">Projet 100% indépendant : les dons servent à couvrir les coûts du serveur et à financer le développement.</p>
+  </div>
+
+  <!-- Montants -->
+  <p class="support-amounts-title">Choisir un montant (Pi)</p>
+  <div class="support-amounts" id="amountsGrid">
+    <button class="amount-btn" data-amount="1">
+      <span class="amount-value">1 Pi</span>
+      <span class="amount-label">Curieux</span>
+    </button>
+    <button class="amount-btn selected" data-amount="2">
+      <span class="amount-value">2 Pi</span>
+      <span class="amount-label">Contributeur</span>
+    </button>
+    <button class="amount-btn" data-amount="5">
+      <span class="amount-value">5 Pi</span>
+      <span class="amount-label">Soutien</span>
+      <span class="amount-badge">Populaire</span>
+    </button>
+    <button class="amount-btn" data-amount="10">
+      <span class="amount-value">10 Pi</span>
+      <span class="amount-label">Pilier</span>
+      <span class="amount-badge">★ Top</span>
+    </button>
+  </div>
+
+  <!-- Montant libre -->
+  <div class="support-custom">
+    <label for="customAmount">Montant libre</label>
+    <input type="number" id="customAmount" placeholder="Autre montant" min="0.01" step="0.01"/>
+    <span class="support-custom-currency">Pi</span>
+  </div>
+
+  <!-- Bouton de paiement Pi direct -->
+  <div class="support-cta">
+    <button class="support-btn-main" id="payBtn" onclick="initiatePiPayment()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+        <path d="M8 12h8M12 8l4 4-4 4"/>
+      </svg>
+      Envoyer 2 Pi via Pi Wallet
+    </button>
+
+    <!-- État de paiement -->
+    <div class="pay-status hidden" id="payStatus">
+      <div class="pay-status-icon" id="payStatusIcon">⏳</div>
+      <p class="pay-status-msg" id="payStatusMsg">Paiement en cours…</p>
+    </div>
+
+    <!-- Message de remerciement — affiché uniquement après paiement validé -->
+    <div class="support-merci" id="supportMerci" style="display:none">
+      <p class="support-merci-text">Merci pour ton soutien 🙏</p>
+      <button class="support-merci-close" onclick="document.getElementById('supportMerci').style.display='none'">Fermer</button>
+    </div>
+  </div>
+
+  <!-- Donateurs — masqué si aucun don -->
+  <div class="support-thanks" id="thanksSection" style="display:none">
+    <p class="support-thanks-title">Nos Pioneers — Merci à vous 💜</p>
+    <div class="thanks-grid" id="thanksGrid"></div>
+  </div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════
+   VOIRANIME — Pi Payment (sandbox)
+   ═══════════════════════════════════ */
+
+let selectedAmount = 2;
+let piReady = false;
+let paying   = false;
+
+/* ── 1. Init SDK au chargement ── */
+window.addEventListener('load', function () {
+
+  /* Boutons montant */
+  document.querySelectorAll('.amount-btn').forEach(function(btn) {
+    btn.onclick = function() {
+      document.querySelectorAll('.amount-btn').forEach(function(b) {
+        b.classList.remove('selected');
+        b.style.borderColor = '';
+        b.style.background  = '';
+      });
+      btn.classList.add('selected');
+      btn.style.borderColor = '#ff4fd8';
+      btn.style.background  = 'rgba(255,79,216,0.15)';
+      selectedAmount = parseFloat(btn.getAttribute('data-amount'));
+      document.getElementById('customAmount').value = '';
+      document.getElementById('payBtn').textContent = 'Envoyer ' + selectedAmount + ' Pi';
+    };
+  });
+
+  /* Montant libre */
+  var customInput = document.getElementById('customAmount');
+  if (customInput) {
+    customInput.oninput = function() {
+      var val = parseFloat(this.value);
+      if (val > 0) {
+        document.querySelectorAll('.amount-btn').forEach(function(b) {
+          b.classList.remove('selected');
+          b.style.borderColor = '';
+          b.style.background  = '';
+        });
+        selectedAmount = val;
+        document.getElementById('payBtn').textContent = 'Envoyer ' + val + ' Pi';
+      }
+    };
+  }
+
+  /* Init Pi SDK */
+  if (typeof window.Pi === 'undefined') {
+    return;
+  }
+
+  try {
+    Pi.init({ version: '2.0', sandbox: true });
+    piReady = true;
+  } catch (e) {
+    log('❌ Erreur Pi.init : ' + e.message, 'error');
+  }
+});
+
+/* ── 2. Bouton payer ── */
+function initiatePiPayment() {
+  if (paying) { log('⏳ Paiement déjà en cours…', 'info'); return; }
+
+  if (!piReady || typeof window.Pi === 'undefined') {
+    /* Dernier essai d'init */
+    if (typeof window.Pi !== 'undefined') {
+      try { Pi.init({ version: '2.0', sandbox: true }); piReady = true; }
+      catch(e) {}
+    }
+    if (!piReady) {
+      log('⚠️ Ouvre VoirAnime dans Pi Browser pour payer en Pi.', 'warn');
+      return;
+    }
+  }
+
+  if (!selectedAmount || selectedAmount <= 0) {
+    log('⚠️ Choisis un montant.', 'warn');
+    return;
+  }
+
+  paying = true;
+  var btn = document.getElementById('payBtn');
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+  log('⏳ Authentification Pi…', 'info');
+
+  /* Authenticate */
+  Pi.authenticate(['payments', 'username'], function onIncomplete(payment) {
+    if (!payment || !payment.identifier) return;
+    log('⚠️ Paiement incomplet trouvé, tentative de complétion…', 'warn');
+    fetch('https://voir-anime.vercel.app/api/pi-complete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        paymentId: payment.identifier,
+        txid: payment.transaction && payment.transaction.txid
+      })
+    }).catch(function() {});
+  })
+  .then(function(auth) {
+    log('✅ Connecté : ' + (auth.user && auth.user.username || 'Pioneer'), 'success');
+    log('⏳ Création du paiement…', 'info');
+
+    var amount = selectedAmount;
+
+    Pi.createPayment(
+      {
+        amount:   amount,
+        memo:     'Don VoirAnime (' + amount + ' Pi)',
+        metadata: { app: 'voiranime', type: 'donation' }
+      },
+      {
+        onReadyForServerApproval: function(paymentId) {
+          log('⏳ Approbation serveur…', 'info');
+          fetch('https://voir-anime.vercel.app/api/pi-approve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentId: paymentId, payment: { identifier: paymentId } })
+          })
+          .then(function(r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+          })
+          .then(function() {
+            log('✅ Approuvé — signe dans ton wallet Pi', 'success');
+          })
+          .catch(function(e) {
+            log('⚠️ Approbation échouée : ' + e.message, 'warn');
+          });
+        },
+
+        onReadyForServerCompletion: function(paymentId, txid) {
+          log('⏳ Finalisation…', 'info');
+          fetch('https://voir-anime.vercel.app/api/pi-complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentId: paymentId, txid: txid, payment: { identifier: paymentId, transaction: { txid: txid } } })
+          })
+          .then(function(r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+          })
+          .then(function() {
+            log('💜 Don de ' + amount + ' Pi reçu. Merci !', 'success');
+            afficherMerci();
+            paying = false;
+          })
+          .catch(function(e) {
+            log('✅ Don confirmé sur la blockchain. Merci !', 'success');
+            afficherMerci();
+            paying = false;
+          });
+        },
+
+        onCancel: function(paymentId) {
+          log('Don annulé.', 'info');
+          reset();
+        },
+
+        onError: function(error) {
+          log('❌ Erreur : ' + (error && error.message || String(error)), 'error');
+          reset();
+        }
+      }
+    );
+  })
+  .catch(function(e) {
+    log('❌ Auth échouée : ' + (e && e.message || String(e)), 'error');
+    reset();
+  });
+}
+
+function reset() {
+  paying = false;
+  var btn = document.getElementById('payBtn');
+  if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+}
+
+function afficherMerci() {
+  var merci = document.getElementById('supportMerci');
+  if (!merci) return;
+  merci.style.display = 'block';
+  setTimeout(function() { merci.style.display = 'none'; }, 6000);
+}
+
+function chargerDonateurs(pseudos) {
+  var section = document.getElementById('thanksSection');
+  var grid = document.getElementById('thanksGrid');
+  if (!section || !grid) return;
+  if (!pseudos || pseudos.length === 0) { section.style.display = 'none'; return; }
+  grid.innerHTML = '';
+  pseudos.forEach(function(p) {
+    var span = document.createElement('span');
+    span.className = 'thanks-name';
+    span.innerHTML = '<span class="thanks-name-star">⭐</span> ' + (p.startsWith('@') ? p : '@' + p);
+    grid.appendChild(span);
+  });
+  section.style.display = 'block';
+}
+
+/* ── Logger visible à l'écran ── */
+function log(msg, type) {
+  console.log('[Pi]', msg);
+  var s = document.getElementById('payStatus');
+  var i = document.getElementById('payStatusIcon');
+  var m = document.getElementById('payStatusMsg');
+  if (!s) return;
+  s.classList.remove('hidden');
+  var colors = {
+    info:    'rgba(76,201,240,0.1)',
+    success: 'rgba(6,214,160,0.15)',
+    warn:    'rgba(255,209,102,0.12)',
+    error:   'rgba(230,57,70,0.15)'
+  };
+  var icons = { info:'ℹ️', success:'✅', warn:'⚠️', error:'❌' };
+  s.style.background = colors[type] || colors.info;
+  if (i) i.textContent = icons[type] || 'ℹ️';
+  if (m) m.textContent = msg;
+}
+
+/* ── Page transition ── */
+(function() {
+  var ov = document.createElement('div');
+  ov.className = 'page-transition-overlay in';
+  document.body.appendChild(ov);
+  setTimeout(function() { ov.remove(); }, 450);
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('a[href]');
+    if (!link) return;
+    var href = link.getAttribute('href');
+    if (!href || href[0] === '#' || href.startsWith('http') ||
+        href.startsWith('mailto') || link.target === '_blank') return;
+    e.preventDefault();
+    var o = document.createElement('div');
+    o.className = 'page-transition-overlay out';
+    document.body.appendChild(o);
+    setTimeout(function() { location.href = href; }, 340);
+  });
+})();
+</script>
+
+</body>
+</html>
