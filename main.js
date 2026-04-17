@@ -611,7 +611,7 @@ async function loadSection(endpointPath, carouselId, skeletonId, count = 8, opts
     renderCarousel(carouselId, animes, opts);
   } catch (e) {
     const c = el(`carousel-${carouselId}`);
-    if (c) c.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">' + t('section.error') + '</p>`;
+    if (c) c.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">${t('section.error')}</p>`;
     console.error(`Section ${carouselId}:`, e);
   }
 }
@@ -632,7 +632,7 @@ async function loadHero() {
   } catch (e) {
     console.error('Hero load error:', e);
     const sk = el('heroSkeleton');
-    if (sk) sk.innerHTML = '<p style="color:var(--muted)">' + t('adj.error') + '</p>';
+    if (sk) sk.innerHTML = `<p style="color:var(--muted)">${t('adj.error')}</p>`;
   }
 }
 
@@ -688,7 +688,7 @@ function initMoodPills() {
       renderCarousel('mood', animes);
     } catch (e) {
       const c = el('carousel-mood');
-      if (c) c.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">' + t('common.error_load') + '</p>`;
+      if (c) c.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">${t('common.error_load')}</p>`;
     }
   });
 }
@@ -764,12 +764,12 @@ async function runAdvancedSearch() {
     const data   = await jikanFetch(`/anime?${params}`);
     const animes = data.data || [];
     if (animes.length === 0) {
-      carousel.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">' + t('adv.no_results') + '</p>`;
+      carousel.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">${t('adv.no_results')}</p>`;
       return;
     }
     renderCarousel('adv-results', animes);
   } catch (e) {
-    carousel.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">' + t('adv.error') + '</p>`;
+    carousel.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">${t('adv.error')}</p>`;
     console.error('Advanced search:', e);
   }
 }
