@@ -365,7 +365,7 @@ function renderHero(anime) {
     const tMap = { TV:'Série', Movie:"Film d'anime", OVA:'Spécial', ONA:'Streaming', Special:'Spécial' };
     badges.push(`<span class="badge badge-muted">${esc(tMap[anime.type]||anime.type)}</span>`);
   }
-  if (anime.status === 'Currently Airing') badges.push('<span class="badge badge-green">● En cours</span>');
+  if (anime.status === 'Currently Airing') badges.push(`<span class="badge badge-green">${t('anime.airing_badge')}</span>`);
   if (anime.status === 'Not yet aired')    badges.push('<span class="badge badge-blue">À venir</span>');
   badgesEl.innerHTML = badges.join('');
 
@@ -493,7 +493,7 @@ async function performSearch(query) {
   grid.innerHTML = '';
   empty.classList.remove('visible');
   loader.classList.add('visible');
-  label.textContent = `Recherche : « ${query} »`;
+  label.textContent = t('search.label', query);
 
   try {
     const data    = await jikanFetch(`/anime?q=${encodeURIComponent(query)}&limit=20&sfw=true`);
@@ -504,12 +504,12 @@ async function performSearch(query) {
       empty.classList.add('visible');
       return;
     }
-    label.textContent = `${results.length} résultat${results.length > 1 ? 's' : ''} pour « ${query} »`;
+    label.textContent = t('search.count', results.length, query);
     results.forEach(anime => grid.appendChild(buildCard(anime)));
 
   } catch (e) {
     loader.classList.remove('visible');
-    label.textContent = 'Erreur de connexion. Réessaie dans quelques secondes.';
+    label.textContent = t('search.error');
     console.error(e);
   }
 }
@@ -611,7 +611,7 @@ async function loadSection(endpointPath, carouselId, skeletonId, count = 8, opts
     renderCarousel(carouselId, animes, opts);
   } catch (e) {
     const c = el(`carousel-${carouselId}`);
-    if (c) c.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">Impossible de charger cette section.</p>`;
+    if (c) c.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">' + t('section.error') + '</p>`;
     console.error(`Section ${carouselId}:`, e);
   }
 }
@@ -632,7 +632,7 @@ async function loadHero() {
   } catch (e) {
     console.error('Hero load error:', e);
     const sk = el('heroSkeleton');
-    if (sk) sk.innerHTML = '<p style="color:var(--muted)">Impossible de charger le hero.</p>';
+    if (sk) sk.innerHTML = '<p style="color:var(--muted)">' + t('adj.error') + '</p>';
   }
 }
 
@@ -688,7 +688,7 @@ function initMoodPills() {
       renderCarousel('mood', animes);
     } catch (e) {
       const c = el('carousel-mood');
-      if (c) c.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">Impossible de charger cette ambiance.</p>`;
+      if (c) c.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">' + t('common.error_load') + '</p>`;
     }
   });
 }
@@ -755,7 +755,7 @@ async function runAdvancedSearch() {
   if (score)  parts.push(`Score ${score}+`);
   if (status) parts.push(el('advStatus').options[el('advStatus').selectedIndex].text);
   if (year)   parts.push(el('advYear').options[el('advYear').selectedIndex].text);
-  titleEl.innerHTML = `<span class="section-dot blue"></span>${parts.length ? parts.join(' · ') : 'Tous les animes'}`;
+  titleEl.innerHTML = `<span class="section-dot blue"></span>${parts.length ? parts.join(' · ') : t('adv.results', [])}`;
 
   buildSkeletons(carousel, 10);
   section.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -764,12 +764,12 @@ async function runAdvancedSearch() {
     const data   = await jikanFetch(`/anime?${params}`);
     const animes = data.data || [];
     if (animes.length === 0) {
-      carousel.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">Aucun résultat pour ces critères.</p>`;
+      carousel.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">' + t('adv.no_results') + '</p>`;
       return;
     }
     renderCarousel('adv-results', animes);
   } catch (e) {
-    carousel.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">Erreur de connexion.</p>`;
+    carousel.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">' + t('adv.error') + '</p>`;
     console.error('Advanced search:', e);
   }
 }
@@ -930,7 +930,7 @@ async function loadForYou() {
       if (!dismissed.includes(id) && a.title) {
         const titleLink = `<a href="anime.html?id=${animeId}" class="pt-alert-title-link">${a.title}</a>`;
         alerts.push({ id, type: 'episode', icon: '🎬',
-          text: `Nouvel épisode disponible pour ${titleLink}`,
+          text: t('alert.episode', titleLink),
           link: null });
       }
     });
@@ -940,7 +940,7 @@ async function loadForYou() {
       const id = 'plan_' + animeId;
       if (!dismissed.includes(id) && a.title)
         alerts.push({ id, type: 'plan', icon: '📋',
-          text: `<strong>${a.title}</strong> attend dans ta liste — prêt ?`,
+          text: t('alert.plan', `<strong>${a.title}</strong>`),
           link: `anime.html?id=${animeId}` });
     }
 
@@ -1025,8 +1025,8 @@ async function loadForYou() {
   section.style.display = '';
   const badge = el('forYouBadge');
   if (badge) badge.textContent = usedFallback
-    ? 'Sélection du moment'
-    : `Basé sur tes ${Math.min(history.length + favs.length, 5)} animes`;
+    ? t('alert.badge_fallback')
+    : t('alert.badge_based', Math.min(history.length + favs.length, 5));
 
   const carousel = el('carousel-for-you');
   carousel.innerHTML = '';

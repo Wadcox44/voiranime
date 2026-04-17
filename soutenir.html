@@ -316,6 +316,7 @@
   <!-- Pi Network SDK -->
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <script src="pi-auth.js" defer></script>
+  <script src="i18n.js"></script>
 </head>
 <body>
 
@@ -331,17 +332,17 @@
             <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
           </span>
         </a>
-        <span class="logo-tagline">Découvre autrement.</span>
+        <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
       </div>
     </div>
     <div class="nav-right"></div>
   </div>
   <ul class="nav-links">
-    <li><a href="index.html"     class="nav-link">Accueil</a></li>
-    <li><a href="catalogue.html" class="nav-link">Catalogue</a></li>
-    <li><a href="duel.html"      class="nav-link">⚔ Duels</a></li>
-    <li><a href="profile.html"   class="nav-link">Profil</a></li>
-    <li><a href="soutenir.html"  class="nav-link nav-link-support">💜 Soutenir</a></li>
+    <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="catalogue.html" class="nav-link" data-i18n="nav.catalogue">Catalogue</a></li>
+    <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
+    <li><a href="profile.html"   class="nav-link" data-i18n="nav.profile">Profil</a></li>
+    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Soutenir</a></li>
   </ul>
 </nav>
 
@@ -353,36 +354,36 @@
   <!-- Hero -->
   <div class="support-hero">
     <span class="support-icon">Pi</span>
-    <h1 class="support-title">Soutenir VoirAnime</h1>
-    <p class="support-subtitle">Projet 100% indépendant : les dons servent à couvrir les coûts du serveur et à financer le développement.</p>
+    <h1 class="support-title" data-i18n="sup.title">Soutenir VoirAnime</h1>
+    <p class="support-subtitle" data-i18n="sup.subtitle">Projet 100% indépendant : les dons servent à couvrir les coûts du serveur et à financer le développement.</p>
   </div>
 
   <!-- Montants -->
-  <p class="support-amounts-title">Choisir un montant (Pi)</p>
+  <p class="support-amounts-title" data-i18n="sup.amounts_title">Choisir un montant (Pi)</p>
   <div class="support-amounts" id="amountsGrid">
     <button class="amount-btn" data-amount="1">
       <span class="amount-value">1 Pi</span>
-      <span class="amount-label">Curieux</span>
+      <span class="amount-label" data-i18n="sup.label_1">Curieux</span>
     </button>
     <button class="amount-btn selected" data-amount="2">
       <span class="amount-value">2 Pi</span>
-      <span class="amount-label">Contributeur</span>
+      <span class="amount-label" data-i18n="sup.label_2">Contributeur</span>
     </button>
     <button class="amount-btn" data-amount="5">
       <span class="amount-value">5 Pi</span>
-      <span class="amount-label">Soutien</span>
-      <span class="amount-badge">Populaire</span>
+      <span class="amount-label" data-i18n="sup.label_5">Soutien</span>
+      <span class="amount-badge" data-i18n="sup.popular">Populaire</span>
     </button>
     <button class="amount-btn" data-amount="10">
       <span class="amount-value">10 Pi</span>
-      <span class="amount-label">Pilier</span>
-      <span class="amount-badge">★ Top</span>
+      <span class="amount-label" data-i18n="sup.label_10">Pilier</span>
+      <span class="amount-badge" data-i18n="sup.top">★ Top</span>
     </button>
   </div>
 
   <!-- Montant libre -->
   <div class="support-custom">
-    <label for="customAmount">Montant libre</label>
+    <label for="customAmount" data-i18n="sup.custom">Montant libre</label>
     <input type="number" id="customAmount" placeholder="Autre montant" min="0.01" step="0.01"/>
     <span class="support-custom-currency">Pi</span>
   </div>
@@ -405,14 +406,14 @@
 
     <!-- Message de remerciement — affiché uniquement après paiement validé -->
     <div class="support-merci" id="supportMerci" style="display:none">
-      <p class="support-merci-text">Merci pour ton soutien 🙏</p>
-      <button class="support-merci-close" onclick="document.getElementById('supportMerci').style.display='none'">Fermer</button>
+      <p class="support-merci-text" data-i18n="sup.merci">Merci pour ton soutien 🙏</p>
+      <button class="support-merci-close" onclick="document.getElementById('supportMerci').style.display='none'" data-i18n="sup.close">Fermer</button>
     </div>
   </div>
 
   <!-- Donateurs — masqué si aucun don -->
   <div class="support-thanks" id="thanksSection" style="display:none">
-    <p class="support-thanks-title">Nos Pioneers — Merci à vous 💜</p>
+    <p class="support-thanks-title" data-i18n="sup.pioneers">Nos Pioneers — Merci à vous 💜</p>
     <div class="thanks-grid" id="thanksGrid"></div>
   </div>
 
@@ -443,7 +444,7 @@ window.addEventListener('load', function () {
       btn.style.background  = 'rgba(255,79,216,0.15)';
       selectedAmount = parseFloat(btn.getAttribute('data-amount'));
       document.getElementById('customAmount').value = '';
-      document.getElementById('payBtn').textContent = 'Envoyer ' + selectedAmount + ' Pi';
+      document.getElementById('payBtn').querySelector('.va-pay-label') && (document.getElementById('payBtn').querySelector('.va-pay-label').textContent = t('sup.btn', selectedAmount));
     };
   });
 

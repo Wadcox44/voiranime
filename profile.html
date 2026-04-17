@@ -233,6 +233,7 @@
     .watch-filter-btn:hover { border-color: var(--pink); color: var(--pink); }
     .watch-filter-btn.active { background: var(--pink); border-color: var(--pink); color: #fff; }
   </style>
+  <script src="i18n.js"></script>
 </head>
 <body>
 
@@ -246,24 +247,24 @@
             <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
           </span>
         </a>
-        <span class="logo-tagline">Découvre autrement.</span>
+        <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
       </div>
     </div>
     <div class="nav-right"></div>
   </div>
   <ul class="nav-links">
-    <li><a href="index.html"     class="nav-link">Accueil</a></li>
-    <li><a href="catalogue.html" class="nav-link">Catalogue</a></li>
-    <li><a href="duel.html"      class="nav-link">⚔ Duels</a></li>
+    <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="catalogue.html" class="nav-link" data-i18n="nav.catalogue">Catalogue</a></li>
+    <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
     <li><a href="profile.html"   class="nav-link">Profil</a></li>
-    <li><a href="soutenir.html"  class="nav-link nav-link-support">💜 Soutenir</a></li>
+    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Soutenir</a></li>
   </ul>
 </nav>
 <!-- HERO PROFIL -->
 <div class="profile-hero">
   <div class="profile-avatar" id="profileAvatar">👤</div>
   <div class="profile-info">
-    <h1 class="profile-name">Mon Profil</h1>
+    <h1 class="profile-name" data-i18n="profile.title">Mon Profil</h1>
     <p class="profile-since" id="profileSince">Membre depuis aujourd'hui</p>
     <div class="profile-badges" id="profileBadges"></div>
   </div>
@@ -273,39 +274,39 @@
 <div class="profile-stats" id="profileStats">
   <div class="stat-card">
     <div class="stat-card-num" id="statFavCount" style="color:var(--pink)">0</div>
-    <div class="stat-card-label">Favoris</div>
+    <div class="stat-card-label" data-i18n="profile.favs">Favoris</div>
   </div>
   <div class="stat-card">
     <div class="stat-card-num" id="statHistCount" style="color:var(--violet)">0</div>
-    <div class="stat-card-label">Animes visités</div>
+    <div class="stat-card-label" data-i18n="profile.visited">Animes visités</div>
   </div>
   <div class="stat-card">
     <div class="stat-card-num" id="statRatingCount" style="color:var(--gold)">0</div>
-    <div class="stat-card-label">Animes notés</div>
+    <div class="stat-card-label" data-i18n="profile.rated">Animes notés</div>
   </div>
   <div class="stat-card">
     <div class="stat-card-num" id="statDuelCount" style="color:#ff8c42">0</div>
-    <div class="stat-card-label">Duels joués</div>
+    <div class="stat-card-label" data-i18n="profile.duels">Duels joués</div>
   </div>
   <div class="stat-card">
     <div class="stat-card-num" id="statStreakCount" style="color:#4cc9f0">0</div>
-    <div class="stat-card-label">Streak 🔥</div>
+    <div class="stat-card-label" data-i18n="profile.streak">Streak 🔥</div>
   </div>
   <div class="stat-card">
     <div class="stat-card-num" id="statCompletedCount" style="color:#4ade80">0</div>
-    <div class="stat-card-label">Terminés ✓</div>
+    <div class="stat-card-label" data-i18n="profile.completed">Terminés ✓</div>
   </div>
   <div class="stat-card">
     <div class="stat-card-num" id="statWatchingCount" style="color:#60a5fa">0</div>
-    <div class="stat-card-label">En cours ▶</div>
+    <div class="stat-card-label" data-i18n="profile.watching">En cours ▶</div>
   </div>
   <div class="stat-card">
     <div class="stat-card-num" id="statPlanCount" style="color:#f59e0b">0</div>
-    <div class="stat-card-label">À regarder 🔖</div>
+    <div class="stat-card-label" data-i18n="profile.plan">À regarder 🔖</div>
   </div>
   <div class="stat-card">
     <div class="stat-card-num" id="statHoursCount" style="color:#a78bfa">0h</div>
-    <div class="stat-card-label">Heures vues</div>
+    <div class="stat-card-label" data-i18n="profile.hours">Heures vues</div>
   </div>
 </div>
 
@@ -317,15 +318,15 @@
     <span style="font-size:0.72rem;font-weight:400;color:var(--muted)" id="watchSubtitle"></span>
   </div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
-    <button class="watch-filter-btn active" data-filter="all">Tous</button>
-    <button class="watch-filter-btn" data-filter="completed">✓ Terminés</button>
-    <button class="watch-filter-btn" data-filter="watching">▶ En cours</button>
+    <button class="watch-filter-btn active" data-filter="all" data-i18n="adv.all">Tous</button>
+    <button class="watch-filter-btn" data-filter="completed" data-i18n="watch.filter_completed">✓ Terminés</button>
+    <button class="watch-filter-btn" data-filter="watching" data-i18n="watch.filter_watching">▶ En cours</button>
     <button class="watch-filter-btn" data-filter="planToWatch">🔖 À regarder</button>
   </div>
   <div class="profile-grid" id="watchGrid"></div>
   <div class="profile-empty hidden" id="watchEmpty">
     <div class="profile-empty-icon">📋</div>
-    <p>Aucun anime dans ton suivi.<br>Utilise les boutons "En cours", "Terminé" ou "À regarder" sur les fiches animés !</p>
+    <p data-i18n="profile.no_tracking">Aucun anime dans ton suivi.<br>Utilise les boutons "En cours", "Terminé" ou "À regarder" sur les fiches animés !</p>
   </div>
 </section>
 
@@ -353,7 +354,7 @@
   <div class="profile-grid" id="ratingGrid"></div>
   <div class="profile-empty hidden" id="ratingEmpty">
     <div class="profile-empty-icon">⭐</div>
-    <p>Tu n'as encore noté aucun anime.<br>Visite une fiche anime et clique sur les étoiles !</p>
+    <p data-i18n="profile.no_ratings">Tu n'as encore noté aucun anime.<br data-i18n="profile.no_ratings_hint">Visite une fiche anime et clique sur les étoiles !</p>
   </div>
 </section>
 
@@ -372,13 +373,13 @@
   <div class="activity-list" id="historyList"></div>
   <div class="profile-empty hidden" id="histEmpty">
     <div class="profile-empty-icon">🎌</div>
-    <p>Ton historique est vide.<br>Commence à explorer des animes !</p>
+    <p data-i18n="profile.no_history">Ton historique est vide.<br data-i18n="profile.no_history_hint">Commence à explorer des animes !</p>
   </div>
 </section>
 
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
-  <p class="footer-text">© 2025 VoirAnime — Projet open source</p>
+  <p class="footer-text" data-i18n="footer.copy">© 2025 VoirAnime — Projet open source</p>
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -420,20 +421,20 @@
     const m = Math.floor(diff / 60000);
     const h = Math.floor(diff / 3600000);
     const d = Math.floor(diff / 86400000);
-    if (m < 2)  return 'À l\'instant';
-    if (m < 60) return `Il y a ${m} min`;
-    if (h < 24) return `Il y a ${h}h`;
-    if (d < 30) return `Il y a ${d} jour${d > 1 ? 's' : ''}`;
-    return `Il y a ${Math.floor(d/30)} mois`;
+    if (m < 2)  return t('profile.timeago_now');
+    if (m < 60) return t('profile.timeago_min', m);
+    if (h < 24) return t('profile.timeago_h', h);
+    if (d < 30) return t('profile.timeago_d', d);
+    return t('profile.timeago_mo', Math.floor(d/30));
   }
 
   function getBadges(favs, history, duels) {
     const badges = [];
-    if (favs.length >= 1)   badges.push({ label: '⭐ Premier favori', cls: 'gold' });
-    if (favs.length >= 10)  badges.push({ label: '❤ Fan confirmé',    cls: 'pink' });
-    if (history.length >= 10) badges.push({ label: '🎌 Explorateur',  cls: '' });
-    if (duels >= 5)           badges.push({ label: '⚔ Duelliste',     cls: '' });
-    if (duels >= 20)          badges.push({ label: '🏆 Champion',      cls: 'gold' });
+    if (favs.length >= 1)   badges.push({ label: t('profile.badge_first_fav'), cls: 'gold' });
+    if (favs.length >= 10)  badges.push({ label: t('profile.badge_fan'), cls: 'pink' });
+    if (history.length >= 10) badges.push({ label: t('profile.badge_explorer'), cls: '' });
+    if (duels >= 5)           badges.push({ label: t('profile.badge_duelist'), cls: '' });
+    if (duels >= 20)          badges.push({ label: t('profile.badge_champion'), cls: 'gold' });
     return badges;
   }
 
@@ -466,7 +467,7 @@
     const firstVisit = parseInt(localStorage.getItem('VoirAnime_firstVisit') || '0');
     if (!firstVisit) {
       localStorage.setItem('VoirAnime_firstVisit', Date.now().toString());
-      el('profileSince').textContent = 'Membre depuis aujourd\'hui';
+      el('profileSince').textContent = t('profile.since');
     } else {
       el('profileSince').textContent = 'Membre depuis ' + timeAgo(firstVisit).toLowerCase().replace('il y a ', '');
     }
@@ -545,7 +546,7 @@
     }
     empty.classList.add('hidden');
 
-    const statusLabel = { watching: 'En cours', completed: 'Terminé', planToWatch: 'À regarder' };
+    const statusLabel = { watching: t('watch.watching'), completed: t('watch.completed'), planToWatch: t('watch.plan') };
     const statusColor = { watching: '#60a5fa', completed: '#4ade80', planToWatch: '#f59e0b' };
 
     grid.innerHTML = filtered.map(a => `

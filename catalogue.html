@@ -238,6 +238,7 @@
       .cat-search-wrap { max-width: 100%; }
     }
   </style>
+  <script src="i18n.js"></script>
 </head>
 <body>
 
@@ -251,24 +252,24 @@
             <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
           </span>
         </a>
-        <span class="logo-tagline">Découvre autrement.</span>
+        <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
       </div>
     </div>
     <div class="nav-right"></div>
   </div>
   <ul class="nav-links">
-    <li><a href="index.html"     class="nav-link">Accueil</a></li>
+    <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
     <li><a href="catalogue.html" class="nav-link">Catalogue</a></li>
-    <li><a href="duel.html"      class="nav-link">⚔ Duels</a></li>
-    <li><a href="profile.html"   class="nav-link">Profil</a></li>
-    <li><a href="soutenir.html"  class="nav-link nav-link-support">💜 Soutenir</a></li>
+    <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
+    <li><a href="profile.html"   class="nav-link" data-i18n="nav.profile">Profil</a></li>
+    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Soutenir</a></li>
   </ul>
 </nav>
 
 <!-- HEADER -->
 <div class="cat-header">
   <h1 class="cat-title">Catalogue <span>Anime</span></h1>
-  <p class="cat-subtitle" id="catSubtitle">Explore tous les animes — filtre, trie, découvre.</p>
+  <p class="cat-subtitle" id="catSubtitle" data-i18n="cat.subtitle">Explore tous les animes — filtre, trie, découvre.</p>
 </div>
 
 <!-- FILTRES -->
@@ -384,7 +385,7 @@
     </div>
     <div class="cat-empty" id="catEmpty">
       <div class="cat-empty-icon">（；￣д￣）</div>
-      <p>Aucun anime trouvé pour ces critères.<br>Essaie d'autres filtres !</p>
+      <p data-i18n="cat.empty">Aucun anime trouvé pour ces critères.<br data-i18n="cat.empty_hint">Essaie d'autres filtres !</p>
     </div>
   </div>
 </div>
@@ -395,7 +396,7 @@
 <!-- FOOTER -->
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
-  <p class="footer-text">Données fournies par <a href="https://jikan.moe" target="_blank" rel="noopener">Jikan API</a> · MyAnimeList</p>
+  <p class="footer-text" data-i18n="footer.data">Données fournies par <a href="https://jikan.moe" target="_blank" rel="noopener">Jikan API</a> · MyAnimeList</p>
 </footer>
 
 <div class="toast" id="toast"></div>

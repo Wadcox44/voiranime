@@ -44,8 +44,8 @@ function isFav(id) { return getFavs().some(f => f.id === id); }
 function toggleFav(id, title, img) {
   const favs = getFavs();
   const idx  = favs.findIndex(f => f.id === id);
-  if (idx > -1) { favs.splice(idx, 1); showToast(`💔 ${title} retiré des favoris`); }
-  else           { favs.unshift({ id, title, img }); showToast(`❤ ${title} ajouté aux favoris`); }
+  if (idx > -1) { favs.splice(idx, 1); showToast(t('anime.fav_removed', title)); }
+  else           { favs.unshift({ id, title, img }); showToast(t('anime.fav_added', title)); }
   saveFavs(favs);
   return idx === -1;
 }
@@ -67,7 +67,7 @@ function addToHistory(id, title, img, progress = 0, genres = []) {
 ────────────────────────────────────── */
 function buildFranchiseCard(anime, isCurrent = false, seasonNum = null) {
   const id    = anime.mal_id;
-  const title = anime.title_english || anime.title || 'Titre inconnu';
+  const title = anime.title_english || anime.title || t('anime.unknown_title');
   const img   = anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url || '';
   const score = anime.score;
   const type  = anime.type || '';
@@ -256,7 +256,7 @@ function startTrailer(youtubeId) {
   trailerState.muted   = true;
   const muteLabel = el('muteLabel');
   const muteIcon  = el('muteIcon');
-  if (muteLabel) muteLabel.textContent = 'Activer le son';
+  if (muteLabel) muteLabel.textContent = t('anime.sound_on');
   if (muteIcon)  muteIcon.innerHTML    = mutedSVG();
 }
 
@@ -284,7 +284,7 @@ function toggleMute() {
 
   const muteLabel = el('muteLabel');
   const muteIcon  = el('muteIcon');
-  if (muteLabel) muteLabel.textContent = trailerState.muted ? 'Activer le son' : 'Couper le son';
+  if (muteLabel) muteLabel.textContent = trailerState.muted ? t('anime.sound_on') : t('anime.sound_off');
   if (muteIcon)  muteIcon.innerHTML    = trailerState.muted ? mutedSVG() : unmutedSVG();
 }
 
@@ -311,7 +311,7 @@ function showNoVideo() {
         <line x1="12" y1="8" x2="12" y2="16"/>
         <line x1="8" y1="12" x2="16" y2="12"/>
       </svg>
-      Aucune vidéo disponible`;
+      ${t('anime.no_video_avail')}`;
   }
   // Bannière reste visible, légèrement assombrie pour indiquer l'absence de vidéo
   if (banner) banner.style.filter = 'brightness(0.7)';
@@ -336,7 +336,7 @@ function initFullscreen() {
   document.addEventListener('fullscreenchange', () => {
     const isFS = !!document.fullscreenElement;
     btn.querySelector('svg').innerHTML = isFS ? iconCompress : iconExpand;
-    btn.title = isFS ? 'Réduire' : 'Plein écran';
+    btn.title = isFS ? t('anime.reduce') : t('anime.fullscreen');
   });
 }
 
@@ -379,7 +379,7 @@ function renderDetail(anime) {
   const title   = anime.title_english || anime.title || '';
   const titleJp = anime.title_japanese || '';
   const img     = anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url || '';
-  const synopsis = (anime.synopsis || 'Aucun synopsis disponible.')
+  const synopsis = (anime.synopsis || t('anime.no_synopsis'))
                    .replace(/\[Written by MAL Rewrite\]/gi, '').trim();
 
   // Page title
@@ -494,7 +494,7 @@ function renderDetail(anime) {
 
   // Quick stats
   const stats = [
-    anime.episodes ? { val: anime.episodes, label: 'Épisodes' }       : null,
+    anime.episodes ? { val: anime.episodes, label: t('anime.episodes_label') }       : null,
     anime.year     ? { val: anime.year, label: 'Année' }              : null,
   ].filter(Boolean);
 
@@ -549,7 +549,7 @@ function renderDetail(anime) {
   toggleEl.addEventListener('click', () => {
     expanded = !expanded;
     synEl.classList.toggle('expanded', expanded);
-    toggleEl.textContent = expanded ? 'Réduire ▲' : 'Lire plus ▼';
+    toggleEl.textContent = expanded ? t('anime.read_less') : t('anime.read_more');
   });
 
   // ── Point 8 : Bouton "Voir en français" ──
@@ -559,17 +559,17 @@ function renderDetail(anime) {
     translateBtn.addEventListener('click', async () => {
       if (translated) {
         synEl.textContent        = synopsis;
-        translateBtn.textContent = '🇫🇷 Voir en français';
+        translateBtn.textContent = t('anime.translate_fr');
         translated               = false;
         return;
       }
       if (cachedFR) {
         synEl.textContent        = cachedFR;
-        translateBtn.textContent = '↩ Version originale';
+        translateBtn.textContent = t('anime.translate_orig');
         translated               = true;
         return;
       }
-      translateBtn.textContent = '⏳ Traduction…';
+      translateBtn.textContent = t('anime.translate_ing');
       translateBtn.disabled    = true;
       try {
         const res  = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(synopsis.slice(0,500))}&langpair=en|fr`);
@@ -580,7 +580,7 @@ function renderDetail(anime) {
         translated               = true;
       } catch (_) {
         translateBtn.textContent = '🇫🇷 Voir en français';
-        showToast('Traduction indisponible pour le moment.');
+        showToast(t('anime.translate_err'));
       } finally {
         translateBtn.disabled = false;
       }
@@ -596,23 +596,23 @@ function renderDetail(anime) {
   // Score widget
   if (anime.score) {
     el('scoreValue').textContent  = anime.score.toFixed(1);
-    el('scoreVoters').textContent = anime.scored_by ? `${fmtNum(anime.scored_by)} votes` : '';
-    el('scoreRank').textContent   = anime.rank ? `Rang #${anime.rank}` : '';
+    el('scoreVoters').textContent = anime.scored_by ? t('anime.votes', fmtNum(anime.scored_by)) : '';
+    el('scoreRank').textContent   = anime.rank ? t('anime.rank', anime.rank) : '';
   }
 
   // Info table
   const tMap2 = { TV:'Série', Movie:"Film d'anime", OVA:'Spécial', ONA:'Streaming', Special:'Spécial', Music:'Clip musical' };
   const rows = [
-    { k:'Titre JP',   v: titleJp||'—' },
-    { k:'Type',       v: tMap2[anime.type]||anime.type||'—' },
-    { k:'Épisodes',   v: anime.episodes ? `${anime.episodes}`:'—' },
-    { k:'Durée',      v: anime.duration||'—' },
-    { k:'Statut', v: isStrictlyAiring ? 'En cours' : isFinished ? 'Terminé' : isUpcoming ? 'À venir' : anime.status || '—' },
-    { k:'Diffusion',  v: anime.aired?.string||'—' },
-    { k:'Studio',     v: (anime.studios||[]).map(s=>s.name).join(', ')||'—' },
-    { k:'Source',     v: anime.source||'—' },
-    { k:'Saison',     v: anime.season ? `${cap(anime.season)} ${anime.year}`:'—' },
-    { k:'Popularité', v: anime.popularity ? `#${anime.popularity}`:'—' },
+    { k:t('anime.info_title_jp'),   v: titleJp||'—' },
+    { k:t('anime.info_type'),       v: tMap2[anime.type]||anime.type||'—' },
+    { k:t('anime.info_episodes'),   v: anime.episodes ? `${anime.episodes}`:'—' },
+    { k:t('anime.info_duration'),      v: anime.duration||'—' },
+    { k:t('anime.info_status'), v: isStrictlyAiring ? t('anime.status_airing') : isFinished ? t('anime.status_finished') : isUpcoming ? t('anime.status_upcoming') : anime.status || '—' },
+    { k:t('anime.info_aired'),  v: anime.aired?.string||'—' },
+    { k:t('anime.info_studio'),     v: (anime.studios||[]).map(s=>s.name).join(', ')||'—' },
+    { k:t('anime.info_source'),     v: anime.source||'—' },
+    { k:t('anime.info_season'),     v: anime.season ? `${cap(anime.season)} ${anime.year}`:'—' },
+    { k:t('anime.info_popularity'), v: anime.popularity ? `#${anime.popularity}`:'—' },
   ];
   el('infoTable').innerHTML = rows.map(r => `
     <div class="info-row">
@@ -651,12 +651,12 @@ async function loadFranchise(animeId) {
     <div class="content-section">
       <div class="section-header">
         <h2 class="section-title">
-          <span class="section-dot violet"></span>📺 Franchise
+          <span class="section-dot violet"></span>${t('anime.franchise')}
         </h2>
       </div>
       <div style="padding:16px;color:var(--muted);font-size:0.85rem;display:flex;align-items:center;gap:10px">
         <div class="sk-dots"><span></span><span></span><span></span></div>
-        Chargement de la franchise…
+        ${t('anime.franchise_loading')}
       </div>
     </div>`;
 
@@ -664,11 +664,11 @@ async function loadFranchise(animeId) {
     const franchise = await buildFranchise(animeId);
 
     const categories = [
-      { key: 'seasons', label: '📺 Saisons',   dot: 'violet' },
-      { key: 'movies',  label: '🎬 Films',      dot: 'blue'   },
+      { key: 'seasons', label: t('anime.franchise_seasons'),   dot: 'violet' },
+      { key: 'movies',  label: t('anime.franchise_movies'),      dot: 'blue'   },
       { key: 'ova',     label: '📼 OVA',        dot: 'gold'   },
       { key: 'special', label: '⭐ Spéciaux',   dot: 'orange' },
-      { key: 'spinOff', label: '🌀 Spin-offs',  dot: 'pink'   },
+      { key: 'spinOff', label: t('anime.franchise_spinoff'),  dot: 'pink'   },
     ];
 
     const hasContent = categories.some(c => franchise[c.key].length > 0);
@@ -726,7 +726,7 @@ async function loadFranchise(animeId) {
 ────────────────────────────────────── */
 async function loadRecommendations(id, currentAnime) {
   const carousel = el('carousel-reco');
-  carousel.innerHTML = '<p style="color:var(--muted);padding:16px;font-size:0.85rem;">Chargement…</p>';
+  carousel.innerHTML = '<p style="color:var(--muted);padding:16px;font-size:0.85rem;">${t('anime.reco_loading')}</p>';
 
   try {
     await sleep(600);
@@ -735,7 +735,7 @@ async function loadRecommendations(id, currentAnime) {
 
     carousel.innerHTML = '';
     if (items.length === 0) {
-      carousel.innerHTML = '<p style="color:var(--muted);padding:16px;font-size:0.85rem;">Aucune recommandation disponible.</p>';
+      carousel.innerHTML = '<p style="color:var(--muted);padding:16px;font-size:0.85rem;">${t('anime.no_reco')}</p>';
       return;
     }
 
@@ -768,7 +768,7 @@ async function loadRecommendations(id, currentAnime) {
       }));
     });
   } catch (e) {
-    carousel.innerHTML = '<p style="color:var(--muted);padding:16px;font-size:0.85rem;">Impossible de charger les recommandations.</p>';
+    carousel.innerHTML = '<p style="color:var(--muted);padding:16px;font-size:0.85rem;">${t('anime.reco_error')}</p>';
     console.error('Reco error:', e);
   }
 }
@@ -862,8 +862,8 @@ function initWatchStatus(animeId, animeData) {
       btns.forEach(b => b.classList.remove('active'));
       if (!isSame) btn.classList.add('active');
 
-      const labels = { watching: 'En cours ▶', completed: 'Terminé ✓', planToWatch: 'À regarder 🔖' };
-      showToast(isSame ? 'Suivi retiré' : labels[newStatus]);
+      const labels = { watching: t('watch.label_watching'), completed: t('watch.label_completed'), planToWatch: t('watch.label_plan') };
+      showToast(isSame ? t('watch.removed') : labels[newStatus]);
     });
   });
 }
@@ -900,7 +900,7 @@ function initRating(animeId) {
       current = (current === v) ? 0 : v; // toggle si même note
       saveRating(animeId, current || null);
       renderStars(0);
-      showToast(current ? `Note enregistrée : ${current}/10 ⭐` : 'Note supprimée');
+      showToast(current ? t('rating.saved', current) : t('rating.deleted'));
     });
   });
 
@@ -909,7 +909,7 @@ function initRating(animeId) {
       current = 0;
       saveRating(animeId, null);
       renderStars(0);
-      showToast('Note supprimée');
+      showToast(t('rating.deleted'));
     });
   }
 }
@@ -929,7 +929,7 @@ async function init() {
     el('pageLoader').innerHTML = `
       <div style="text-align:center;color:var(--muted)">
         <p style="font-size:2rem;margin-bottom:12px">（；￣д￣）</p>
-        <p>Aucun anime spécifié. <a href="index.html" style="color:var(--accent)">← Retour</a></p>
+        <p>${t('anime.not_found')} <a href="index.html" style="color:var(--accent)">← Retour</a></p>
       </div>`;
     return;
   }
@@ -960,7 +960,7 @@ async function init() {
     if (content) content.innerHTML = `
       <div style="text-align:center;color:var(--muted);padding:80px 20px;grid-column:1/-1">
         <p style="font-size:2rem;margin-bottom:12px">（；￣д￣）</p>
-        <p>Impossible de charger cet anime.</p>
+        <p>${t('anime.load_error')}</p>
         <a href="index.html" style="color:var(--accent);margin-top:16px;display:inline-block">← Retour à l'accueil</a>
       </div>`;
     console.error('Init error:', e);
@@ -1004,7 +1004,7 @@ async function loadVoixMusiques(animeId, animeData) {
   } catch (e) {
     console.warn('[VoixMusiques] Voix indisponibles:', e.message);
     const list = document.getElementById('voiceList');
-    if (list) list.innerHTML = '<div class="extra-empty">Aucune information disponible</div>';
+    if (list) list.innerHTML = `<div class="extra-empty">${t('anime.no_info')}</div>`;
   }
 }
 

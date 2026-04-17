@@ -4801,3 +4801,27 @@ a:active {
   transition: color 0.15s;
 }
 .pt-alert-title-link:hover { color: var(--pink); }
+
+/* ════════════════════════════════
+   Bouton langue EN/FR
+════════════════════════════════ */
+.va-lang-btn {
+  background: transparent;
+  border: 1px solid var(--b2);
+  color: var(--text2);
+  font-family: var(--font);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-right: 8px;
+  white-space: nowrap;
+}
+.va-lang-btn:hover {
+  border-color: var(--pink);
+  color: var(--pink);
+  background: var(--pink-dim);
+}
