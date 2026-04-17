@@ -24,7 +24,31 @@
     @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(255,79,216,.4),0 0 10px rgba(255,79,216,.2)}50%{text-shadow:0 0 8px rgba(255,79,216,.9),0 0 20px rgba(255,79,216,.5),0 0 36px rgba(124,77,255,.3)}}
     @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(255,79,216,.6),0 0 14px rgba(124,77,255,.3)}50%{text-shadow:0 0 10px #ff4fd8,0 0 24px rgba(255,79,216,.7),0 0 40px rgba(124,77,255,.45)}}
     @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
+
+    /* Watch status widget */
+    .watch-status-widget { margin: 14px 0; }
+    .watch-status-label { font-size:0.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+    .watch-status-btns { display:flex; gap:8px; flex-wrap:wrap; }
+    .watch-status-btn {
+      padding: 7px 14px; border-radius: 20px; border: 1px solid var(--b2);
+      background: transparent; color: var(--text2); font-size: 0.8rem;
+      cursor: pointer; transition: all .2s;
+    }
+    .watch-status-btn:hover { border-color: var(--pink); color: var(--pink); }
+    .watch-status-btn.active { background: var(--pink); border-color: var(--pink); color: #fff; font-weight:600; }
+
+    /* Watch filter buttons (profile) */
+    .watch-filter-btn {
+      padding: 6px 14px; border-radius: 20px; border: 1px solid var(--b2);
+      background: transparent; color: var(--text2); font-size: 0.78rem;
+      cursor: pointer; transition: all .2s;
+    }
+    .watch-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .watch-filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
   </style>
+  <!-- Pi Network SDK -->
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <script src="pi-auth.js" defer></script>
 </head>
 <body class="page-anime">
 
@@ -38,32 +62,24 @@
 <!-- ════════════════════════════════
      NAVBAR
 ════════════════════════════════ -->
-<nav class="navbar transparent" id="navbar">
-  <div class="nav-left">
-    <a href="index.html" class="nav-logo" aria-label="VoirAnime">
-      <span class="logo-glitch" data-text="VoirAnime">
-        <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
-      </span>
-    </a>
-    <a href="index.html" class="back-link">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.5">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-      Retour
-    </a>
+<nav class="navbar scrolled" id="navbar">
+  <div class="nav-top">
+    <div class="nav-left">
+      <a href="index.html" class="nav-logo" aria-label="VoirAnime">
+        <span class="logo-glitch" data-text="VoirAnime">
+          <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
+        </span>
+      </a>
+    </div>
+    <div class="nav-right"></div>
   </div>
-  <div class="nav-right">
-    <button class="nav-fav-btn" id="navFavBtn" data-id="">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2">
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06
-                 a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78
-                 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-      </svg>
-      <span id="favBtnLabel">+ Favori</span>
-    </button>
-  </div>
+  <ul class="nav-links">
+    <li><a href="index.html"     class="nav-link">Accueil</a></li>
+    <li><a href="catalogue.html" class="nav-link">Catalogue</a></li>
+    <li><a href="duel.html"      class="nav-link">⚔ Duels</a></li>
+    <li><a href="profile.html"   class="nav-link">Profil</a></li>
+    <li><a href="soutenir.html"  class="nav-link nav-link-support">💜 Soutenir</a></li>
+  </ul>
 </nav>
 
 <!-- ════════════════════════════════
@@ -102,6 +118,12 @@
         </svg>
         <span id="muteLabel">Son actif</span>
       </button>
+      <button class="trailer-btn unmute-btn hidden" id="fullscreenBtn" title="Plein écran">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+          <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+        </svg>
+      </button>
     </div>
     <div class="trailer-rating" id="trailerRating"></div>
   </div>
@@ -129,10 +151,12 @@
     <!-- Header anime -->
     <div class="anime-header">
       <div class="anime-badges" id="animeBadges"></div>
+      <!-- Badge épisode dynamique -->
+      <span class="episode-badge" id="episodeBadge" style="display:none"></span>
       <h1 class="anime-title"    id="animeTitle">—</h1>
       <p  class="anime-title-jp" id="animeTitleJp"></p>
 
-      <!-- Stats rapides (score, épisodes, année, membres) -->
+      <!-- Stats rapides -->
       <div class="anime-quick-stats" id="animeQuickStats"></div>
 
       <!-- Boutons action -->
@@ -148,15 +172,25 @@
           </svg>
           Netflix
         </a>
-        <button class="btn-secondary" id="animeFavBtn" data-id="">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+        <!-- Favori — 1 seul bouton toggle, sans texte -->
+        <button class="btn-fav" id="animeFavBtn" data-id="" aria-label="Ajouter aux favoris">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06
                      a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78
                      1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
-          <span id="favBtnLabel">+ Favori</span>
         </button>
+      </div>
+
+      <!-- Suivi de visionnage -->
+      <div class="watch-status-widget" id="watchStatusWidget">
+        <div class="watch-status-label">Mon suivi</div>
+        <div class="watch-status-btns">
+          <button class="watch-status-btn" data-status="watching">▶ En cours</button>
+          <button class="watch-status-btn" data-status="completed">✓ Terminé</button>
+          <button class="watch-status-btn" data-status="planToWatch">🔖 À regarder</button>
+        </div>
       </div>
 
       <!-- Notation personnelle -->
@@ -183,7 +217,10 @@
     <div class="anime-synopsis-block">
       <h2 class="block-title">Synopsis</h2>
       <p class="anime-synopsis" id="animeSynopsis"></p>
-      <button class="synopsis-toggle" id="synopsisToggle">Lire plus ▼</button>
+      <div class="synopsis-actions">
+        <button class="synopsis-toggle" id="synopsisToggle">Lire plus ▼</button>
+        <button class="synopsis-translate" id="synopsisTranslate">🇫🇷 Voir en français</button>
+      </div>
     </div>
 
     <!-- Genres & Thèmes -->
@@ -232,6 +269,49 @@
   </aside>
 </main>
 
+
+<!-- ════════════════════════════════
+     VOIX & MUSIQUES
+════════════════════════════════ -->
+<section class="anime-extra" id="animeExtra" style="display:none">
+
+  <!-- Accordion Voix -->
+  <div class="accordion" id="accordionVoix">
+    <button class="accordion-header" aria-expanded="false" aria-controls="contentVoix">
+      <span class="accordion-icon">🎙️</span>
+      <span class="accordion-label">Voix des personnages</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="contentVoix" role="region">
+      <div class="voice-list" id="voiceList">
+        <div class="extra-empty">Aucune information disponible</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Accordion Musiques -->
+  <div class="accordion" id="accordionMusiques">
+    <button class="accordion-header" aria-expanded="false" aria-controls="contentMusiques">
+      <span class="accordion-icon">🎵</span>
+      <span class="accordion-label">Musiques</span>
+      <span class="accordion-arrow">▼</span>
+    </button>
+    <div class="accordion-content" id="contentMusiques" role="region">
+      <div class="music-list" id="musicList">
+        <div class="extra-empty">Aucune information disponible</div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ════════════════════════════════
+     FRANCHISE
+════════════════════════════════ -->
+<section id="franchiseSection" style="display:none">
+  <div id="franchiseContainer"></div>
+</section>
+
 <!-- ════════════════════════════════
      RECOMMANDATIONS
 ════════════════════════════════ -->
@@ -256,11 +336,7 @@
 ════════════════════════════════ -->
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
-  <p class="footer-text">
-    Données fournies par
-    <a href="https://jikan.moe" target="_blank" rel="noopener">Jikan API</a>
-    · MyAnimeList
-  </p>
+  <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
 </footer>
 
 <div class="toast" id="toast"></div>
