@@ -922,25 +922,26 @@ async function loadForYou() {
     try { dismissed = JSON.parse(localStorage.getItem('VoirAnime_alertsDismissed') || '[]'); } catch {}
 
     const alerts = [];
-    const watching = watchArr.filter(a => a.status === 'watching');
-    const planTo   = watchArr.filter(a => a.status === 'planToWatch');
+    const watching = Object.entries(watchList).filter(([,a]) => a.status === 'watching');
+    const planTo   = Object.entries(watchList).filter(([,a]) => a.status === 'planToWatch');
 
-    watching.slice(0, 2).forEach(a => {
-      const id = 'ep_' + a.malId;
+    watching.slice(0, 2).forEach(([animeId, a]) => {
+      const id = 'ep_' + animeId;
       if (!dismissed.includes(id) && a.title) {
-        const titleLink = a.malId ? `<a href="anime.html?id=${a.malId}" class="pt-alert-title-link">${a.title}</a>` : `<strong>${a.title}</strong>`;
+        const titleLink = `<a href="anime.html?id=${animeId}" class="pt-alert-title-link">${a.title}</a>`;
         alerts.push({ id, type: 'episode', icon: '🎬',
           text: `Nouvel épisode disponible pour ${titleLink}`,
           link: null });
       }
     });
 
-    if (planTo.length > 0 && planTo[0].title) {
-      const id = 'plan_' + planTo[0].malId;
-      if (!dismissed.includes(id))
+    if (planTo.length > 0) {
+      const [animeId, a] = planTo[0];
+      const id = 'plan_' + animeId;
+      if (!dismissed.includes(id) && a.title)
         alerts.push({ id, type: 'plan', icon: '📋',
-          text: `<strong>${planTo[0].title}</strong> attend dans ta liste — prêt ?`,
-          link: planTo[0].malId ? `anime.html?id=${planTo[0].malId}` : null });
+          text: `<strong>${a.title}</strong> attend dans ta liste — prêt ?`,
+          link: `anime.html?id=${animeId}` });
     }
 
     if (alerts.length === 0) { alertsEl.style.display = 'none'; return; }
