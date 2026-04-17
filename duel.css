@@ -923,8 +923,21 @@
   color: var(--pink);
 }
 
-@media (max-width: 480px) {
-  .duel-podium { gap: 12px; }
-  .podium-img  { width: 85px; }
-  .podium-gold { transform: scale(1.05); }
+@media (max-width: 768px) {
+  .duel-podium {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 12px;
+    justify-content: center;
+  }
+  .podium-img       { width: 90px; }
+  .podium-gold      { transform: scale(1.05); }
+  .podium-title     { font-size: 0.72rem; max-width: 95px; }
+  .podium-pct       { font-size: 0.68rem; }
+  .duel-podium-section { padding: 20px 14px; }
+}
+
+@media (max-width: 400px) {
+  .podium-img   { width: 72px; }
+  .podium-medal { font-size: 1.5rem; }
 }
