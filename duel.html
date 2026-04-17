@@ -603,6 +603,23 @@ function nextDuel() {
   }
 }
 
+/* ── Seed semaine ISO ── */
+function getWeekSeed() {
+  const now  = new Date();
+  const day  = now.getDay() === 0 ? 6 : now.getDay() - 1;
+  const monday = new Date(now);
+  monday.setHours(0, 0, 0, 0);
+  monday.setDate(now.getDate() - day);
+  return Math.floor(monday.getTime() / 1000);
+}
+
+function seededRand(seed, n) {
+  let s = seed;
+  s = (s * 1664525 + 1013904223) & 0xffffffff;
+  s = (s * 1664525 + 1013904223) & 0xffffffff;
+  return Math.abs(s) % n;
+}
+
 const WEEKLY_DUEL_KEY = 'VoirAnime_weeklyDuel';
 
 function getStoredWeeklyDuel() {
