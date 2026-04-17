@@ -50,33 +50,23 @@
      NAVBAR
 ════════════════════════════════ -->
 <nav class="navbar scrolled" id="navbar">
-  <div class="nav-left">
-    <a href="index.html" class="nav-logo" aria-label="VoirAnime">
-      <span class="logo-glitch" data-text="VoirAnime">
-        <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
-      </span>
-    </a>
-    <a href="index.html" class="back-link">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.5">
-        <polyline points="15 18 9 12 15 6"/>
-      </svg>
-      Accueil
-    </a>
-  </div>
-  <div class="nav-right">
-    <button class="duel-sound-btn" id="soundToggle" title="Son">
-      <svg id="soundIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-      </svg>
-    </button>
-    <div class="duel-nav-stats">
-      <span class="duel-nav-label">Duels joués</span>
-      <span class="duel-nav-count" id="navDuelCount">0</span>
+  <div class="nav-top">
+    <div class="nav-left">
+      <a href="index.html" class="nav-logo" aria-label="VoirAnime">
+        <span class="logo-glitch" data-text="VoirAnime">
+          <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
+        </span>
+      </a>
     </div>
+    <div class="nav-right"></div>
   </div>
+  <ul class="nav-links">
+    <li><a href="index.html"     class="nav-link">Accueil</a></li>
+    <li><a href="catalogue.html" class="nav-link active">Catalogue</a></li>
+    <li><a href="duel.html"      class="nav-link">⚔ Duels</a></li>
+    <li><a href="profile.html"   class="nav-link">Profil</a></li>
+    <li><a href="soutenir.html"  class="nav-link nav-link-support">💜 Soutenir</a></li>
+  </ul>
 </nav>
 
 <!-- ════════════════════════════════
@@ -194,6 +184,28 @@
 </div>
 
 <!-- ════════════════════════════════
+     PODIUM POST-VOTE
+════════════════════════════════ -->
+<section class="duel-podium-section hidden" id="podiumSection">
+  <h2 class="duel-lb-title" style="text-align:center;margin-bottom:20px">🏆 Résultat du duel</h2>
+  <div class="duel-podium">
+    <div class="podium-slot podium-gold" id="podiumWinner">
+      <div class="podium-medal">🥇</div>
+      <img class="podium-img" id="podiumWinnerImg" src="" alt=""/>
+      <div class="podium-title" id="podiumWinnerTitle"></div>
+      <div class="podium-pct" id="podiumWinnerPct"></div>
+    </div>
+    <div class="podium-slot podium-silver" id="podiumLoser">
+      <div class="podium-medal">🥈</div>
+      <img class="podium-img" id="podiumLoserImg" src="" alt=""/>
+      <div class="podium-title" id="podiumLoserTitle"></div>
+      <div class="podium-pct" id="podiumLoserPct"></div>
+    </div>
+  </div>
+  <div class="podium-timer" id="podiumTimer"></div>
+</section>
+
+<!-- ════════════════════════════════
      LEADERBOARD
 ════════════════════════════════ -->
 <section class="duel-lb-section">
@@ -202,6 +214,12 @@
     <button class="duel-lb-toggle" id="leaderboardToggle">Afficher ▼</button>
   </div>
   <div class="duel-lb-body hidden" id="leaderboardBody">
+    <!-- Podium global -->
+    <div class="duel-global-podium" id="globalPodium" style="display:none">
+      <h3 style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.08em">🏅 Podium global</h3>
+      <div class="global-podium-grid" id="globalPodiumGrid"></div>
+      <hr style="border:none;border-top:1px solid var(--b2);margin:16px 0"/>
+    </div>
     <div class="duel-lb-grid" id="leaderboardGrid">
       <p class="duel-lb-empty">Joue quelques duels pour voir le classement !</p>
     </div>
@@ -213,10 +231,7 @@
 ════════════════════════════════ -->
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
-  <p class="footer-text">
-    Données : <a href="https://jikan.moe" target="_blank" rel="noopener">Jikan API</a>
-    · Votes : Firebase Firestore
-  </p>
+  <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -432,7 +447,7 @@ async function loadPool() {
       jikanFetch('/top/anime?filter=bypopularity&limit=25&page=2'),
     ]);
     const all = [...(p1.data || []), ...(p2.data || [])];
-    state.animePool = all.filter(a => a.images?.jpg?.large_image_url);
+    state.animePool = all.filter(a => a.images?.jpg?.large_image_url).sort((a, b) => a.mal_id - b.mal_id);
   } catch (e) {
     console.error('[Duel] loadPool error:', e);
     showToast('⚠ Impossible de charger les animés. Vérifie ta connexion.');
@@ -447,6 +462,7 @@ function renderDuel(animeA, animeB) {
 
   el('duelCardA').classList.remove('winner', 'loser', 'voted');
   el('duelCardB').classList.remove('winner', 'loser', 'voted');
+  el('podiumSection')?.classList.add('hidden');
   el('resultA').classList.add('hidden');
   el('resultB').classList.add('hidden');
   el('duelPostVote').classList.add('hidden');
@@ -509,7 +525,7 @@ async function handleVote(winnerSide) {
   localStorage.setItem('voiranime_duels',  state.duelsPlayed);
   localStorage.setItem('voiranime_streak', state.streak);
   updateSessionStats();
-  el('navDuelCount').textContent = state.duelsPlayed;
+  if (el('navDuelCount')) el('navDuelCount').textContent = state.duelsPlayed;
 
   let votesA = 1, votesB = 0;
   try {
@@ -569,26 +585,85 @@ function showResults(winnerSide, votesA, votesB) {
 
   el('duelPostVote').classList.remove('hidden');
   setTimeout(() => el('duelPostVote').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 300);
+
+  // Affiche le podium
+  showPodium(winnerSide, pctA, pctB);
 }
 
 function nextDuel() {
   soundNext();
-  if (state.animePool.length < 2) { loadPool().then(startDuel); return; }
-  renderDuel(...pickTwo(state.animePool));
+  // Rejoue le duel de la semaine (pas de nouveau tirage)
+  const stored = getStoredWeeklyDuel();
+  if (stored) {
+    renderDuel(stored.animeA, stored.animeB);
+  } else if (state.animePool.length < 2) {
+    loadPool().then(startDuel);
+  } else {
+    startDuel();
+  }
+}
+
+/* ── Seed semaine ISO ── */
+function getWeekSeed() {
+  const now  = new Date();
+  const day  = now.getDay() === 0 ? 6 : now.getDay() - 1;
+  const monday = new Date(now);
+  monday.setHours(0, 0, 0, 0);
+  monday.setDate(now.getDate() - day);
+  return Math.floor(monday.getTime() / 1000);
+}
+
+function seededRand(seed, n) {
+  let s = seed;
+  s = (s * 1664525 + 1013904223) & 0xffffffff;
+  s = (s * 1664525 + 1013904223) & 0xffffffff;
+  return Math.abs(s) % n;
+}
+
+const WEEKLY_DUEL_KEY = 'VoirAnime_weeklyDuel';
+
+function getStoredWeeklyDuel() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(WEEKLY_DUEL_KEY) || 'null');
+    if (!stored) return null;
+    // Vérifie que le seed correspond à la semaine actuelle
+    if (stored.seed !== getWeekSeed()) return null;
+    return stored;
+  } catch { return null; }
+}
+
+function storeWeeklyDuel(animeA, animeB) {
+  localStorage.setItem(WEEKLY_DUEL_KEY, JSON.stringify({
+    seed:   getWeekSeed(),
+    animeA,
+    animeB,
+  }));
 }
 
 function startDuel() {
+  // Vérifie d'abord le cache localStorage
+  const stored = getStoredWeeklyDuel();
+  if (stored) {
+    renderDuel(stored.animeA, stored.animeB);
+    return;
+  }
+
+  // Sinon, pioche via le seed et stocke
   const [a, b] = pickTwo(state.animePool);
   if (!a || !b) { showToast('⚠ Impossible de lancer le duel.'); return; }
+  storeWeeklyDuel(a, b);
   renderDuel(a, b);
 }
 
 function updateSessionStats() {
-  el('statDuelsPlayed').textContent = `${state.duelsPlayed} duel${state.duelsPlayed > 1 ? 's' : ''} joué${state.duelsPlayed > 1 ? 's' : ''}`;
-  el('statStreak').textContent      = `${state.streak} 🔥`;
-  el('navDuelCount').textContent    = state.duelsPlayed;
+  const statDuels = el('statDuelsPlayed');
+  const statStreak = el('statStreak');
+  const navCount = el('navDuelCount');
 
-  // Milestone streaks
+  if (statDuels) statDuels.textContent = `${state.duelsPlayed} duel${state.duelsPlayed > 1 ? 's' : ''} joué${state.duelsPlayed > 1 ? 's' : ''}`;
+  if (statStreak) statStreak.textContent = `${state.streak} 🔥`;
+  if (navCount) navCount.textContent = state.duelsPlayed;
+
   const milestones = { 5: '5 duels 🔥 En feu !', 10: '10 duels 💪 Incroyable !', 25: '25 duels 👑 Légende !' };
   if (milestones[state.streak]) showMilestone(milestones[state.streak]);
 }
@@ -624,6 +699,113 @@ async function loadLeaderboard() {
   } catch (e) { console.warn('[Duel] loadLeaderboard error:', e); }
 }
 
+/* ──────────────────────────────────────
+   HISTORIQUE DUELS — localStorage
+────────────────────────────────────── */
+const DUEL_HISTORY_KEY = 'VoirAnime_duelHistory';
+const DUEL_TTL_MS      = 7 * 24 * 60 * 60 * 1000; // 1 semaine
+
+function getDuelHistory() {
+  try { return JSON.parse(localStorage.getItem(DUEL_HISTORY_KEY) || '[]'); } catch { return []; }
+}
+
+function saveDuelHistory(h) {
+  localStorage.setItem(DUEL_HISTORY_KEY, JSON.stringify(h));
+}
+
+function addDuelToHistory(animeA, animeB, winnerSide, pctA, pctB) {
+  const history = getDuelHistory();
+  history.unshift({
+    id:        `${animeA.mal_id}_${animeB.mal_id}_${Date.now()}`,
+    animeA:    { id: animeA.mal_id, title: animeA.title_english || animeA.title, img: animeA.images?.jpg?.large_image_url || '' },
+    animeB:    { id: animeB.mal_id, title: animeB.title_english || animeB.title, img: animeB.images?.jpg?.large_image_url || '' },
+    winnerId:  winnerSide === 'A' ? animeA.mal_id : animeB.mal_id,
+    pctA, pctB,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + DUEL_TTL_MS,
+  });
+  // Garde les 50 derniers duels
+  saveDuelHistory(history.slice(0, 50));
+}
+
+function getTimeLeft(expiresAt) {
+  const diff = expiresAt - Date.now();
+  if (diff <= 0) return 'Terminé';
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  if (d > 0) return `Expire dans ${d}j ${h}h`;
+  if (h > 0) return `Expire dans ${h}h ${m}min`;
+  return `Expire dans ${m} min`;
+}
+
+/* ──────────────────────────────────────
+   PODIUM POST-VOTE
+────────────────────────────────────── */
+function showPodium(winnerSide, pctA, pctB) {
+  const animeA = state.currentA;
+  const animeB = state.currentB;
+  const winner = winnerSide === 'A' ? animeA : animeB;
+  const loser  = winnerSide === 'A' ? animeB : animeA;
+  const wPct   = winnerSide === 'A' ? pctA : pctB;
+  const lPct   = winnerSide === 'A' ? pctB : pctA;
+
+  const getImg = a => a.images?.jpg?.large_image_url || a.images?.jpg?.image_url || '';
+  const getTitle = a => a.title_english || a.title || '—';
+
+  el('podiumWinnerImg').src        = getImg(winner);
+  el('podiumWinnerTitle').textContent = getTitle(winner);
+  el('podiumWinnerPct').textContent   = `${wPct}% des votes`;
+
+  el('podiumLoserImg').src         = getImg(loser);
+  el('podiumLoserTitle').textContent  = getTitle(loser);
+  el('podiumLoserPct').textContent    = `${lPct}% des votes`;
+
+  // Timer
+  const expiresAt = Date.now() + DUEL_TTL_MS;
+  el('podiumTimer').textContent = getTimeLeft(expiresAt);
+
+  el('podiumSection').classList.remove('hidden');
+  setTimeout(() => el('podiumSection').scrollIntoView({ behavior: 'smooth', block: 'start' }), 400);
+
+  // Sauvegarde dans l'historique
+  addDuelToHistory(animeA, animeB, winnerSide, pctA, pctB);
+}
+
+/* ──────────────────────────────────────
+   PODIUM GLOBAL
+────────────────────────────────────── */
+function buildGlobalPodium() {
+  const history = getDuelHistory();
+  if (history.length === 0) return;
+
+  // Compte les victoires par anime
+  const wins = {};
+  history.forEach(d => {
+    const wid = String(d.winnerId);
+    if (!wins[wid]) {
+      const winner = d.animeA.id === d.winnerId ? d.animeA : d.animeB;
+      wins[wid] = { id: wid, title: winner.title, img: winner.img, count: 0 };
+    }
+    wins[wid].count++;
+  });
+
+  const sorted = Object.values(wins).sort((a, b) => b.count - a.count).slice(0, 3);
+  const medals = ['🥇', '🥈', '🥉'];
+
+  const grid = el('globalPodiumGrid');
+  grid.innerHTML = sorted.map((a, i) => `
+    <a href="anime.html?id=${a.id}" class="global-podium-item">
+      <div class="global-podium-medal">${medals[i]}</div>
+      <img src="${a.img}" alt="${a.title}" onerror="this.src='https://placehold.co/80x110/111118/555?text=?'"/>
+      <div class="global-podium-title">${a.title}</div>
+      <div class="global-podium-wins">${a.count} victoire${a.count > 1 ? 's' : ''}</div>
+    </a>
+  `).join('');
+
+  el('globalPodium').style.display = '';
+}
+
 function initEvents() {
   el('voteBtnA').addEventListener('click', () => handleVote('A'));
   el('voteBtnB').addEventListener('click', () => handleVote('B'));
@@ -640,7 +822,7 @@ function initEvents() {
     const body = el('leaderboardBody');
     body.classList.toggle('hidden');
     el('leaderboardToggle').textContent = body.classList.contains('hidden') ? 'Afficher ▼' : 'Masquer ▲';
-    if (!body.classList.contains('hidden')) loadLeaderboard();
+    if (!body.classList.contains('hidden')) { loadLeaderboard(); buildGlobalPodium(); }
   });
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT') return;
@@ -653,8 +835,21 @@ function initEvents() {
 async function init() {
   updateSessionStats();
   initSoundToggle();
-  await loadPool();
+
+  // Vérifie d'abord le cache localStorage AVANT de charger le pool
+  const stored = getStoredWeeklyDuel();
   const loader = el('duelPageLoader');
+
+  if (stored) {
+    // Cache valide → lance directement sans appeler Jikan
+    if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 400); }
+    renderDuel(stored.animeA, stored.animeB);
+    initEvents();
+    return;
+  }
+
+  // Pas de cache → charge le pool et stocke la paire
+  await loadPool();
   if (loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 400); }
   startDuel();
   initEvents();
@@ -667,9 +862,9 @@ document.addEventListener('DOMContentLoaded', init);
 /* Transition cinématique entre pages */
 (function(){
   var overlay = document.createElement("div");
-  overlay.className = "page-transition-overlay in";
-  document.body.appendChild(overlay);
-  setTimeout(function(){ overlay.remove(); }, 450);
+overlay.className = "page-transition-overlay in";
+document.body.appendChild(overlay);
+setTimeout(function(){ overlay.remove(); }, 450);
 
   document.addEventListener("click", function(e){
     var link = e.target.closest("a[href]");
