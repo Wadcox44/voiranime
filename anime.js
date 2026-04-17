@@ -51,10 +51,10 @@ function toggleFav(id, title, img) {
 }
 
 /* ── History ── */
-function addToHistory(id, title, img, progress = 0) {
+function addToHistory(id, title, img, progress = 0, genres = []) {
   try {
     const hist = JSON.parse(localStorage.getItem('VoirAnime_history') || '[]').filter(h => h.id !== id);
-    hist.unshift({ id, title, img, progress, ts: Date.now() });
+    hist.unshift({ id, title, img, progress, genres, ts: Date.now() });
     localStorage.setItem('VoirAnime_history', JSON.stringify(hist.slice(0, 20)));
   } catch {}
 }
@@ -608,7 +608,9 @@ function renderDetail(anime) {
     </div>
   `).join('');
 
-  addToHistory(id, title, img, 0);
+  // Stocke les genres pour les recommandations "Pour toi" (évite des appels API supplémentaires)
+  const genreIds = (anime.genres || []).map(g => g.mal_id);
+  addToHistory(id, title, img, 0, genreIds);
 }
 
 function fmtNum(n) {

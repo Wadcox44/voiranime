@@ -907,25 +907,15 @@ async function loadForYou() {
   const history = getHistory();
   if (history.length === 0) return;
 
-  // Collecte les genres des animes visités (stockés dans history)
-  // On fetch les détails des 5 derniers pour avoir leurs genres
-  const recentIds = history.slice(0, 5).map(h => h.id);
-
+  // Lit les genres directement depuis l'historique (stockés par anime.js)
+  // Zéro appel Jikan supplémentaire
   const genreCount = {};
-  let seenType = null;
 
-  // Fetch genres depuis Jikan pour chaque anime récent
-  for (const id of recentIds) {
-    try {
-      const d = await jikanFetch(`/anime/${id}`);
-      const anime = d.data;
-      if (!anime) continue;
-      (anime.genres || []).forEach(g => {
-        genreCount[g.mal_id] = (genreCount[g.mal_id] || 0) + 1;
-      });
-      if (!seenType && anime.type) seenType = anime.type;
-    } catch {}
-  }
+  history.slice(0, 10).forEach(h => {
+    (h.genres || []).forEach(gid => {
+      genreCount[gid] = (genreCount[gid] || 0) + 1;
+    });
+  });
 
   if (Object.keys(genreCount).length === 0) return;
 
