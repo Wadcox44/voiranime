@@ -1,60 +1,32 @@
 /**
  * api/franchise.js — Vercel Serverless Function
  * Cache Firebase des données franchise Jikan.
- *
  * GET /api/franchise?id=20
- *
- * Flux :
- *   1. Vérifie Firestore (cache TTL 7 jours)
- *   2. Si présent → retourne immédiatement
- *   3. Si absent  → appelle Jikan, stocke dans Firestore, retourne
- *
- * Variables d'environnement Vercel requises :
- *   FIREBASE_PROJECT_ID
- *   FIREBASE_CLIENT_EMAIL
- *   FIREBASE_PRIVATE_KEY
  */
 
-import { initializeApp, cert, getApps } from 'firebase-admin/app';
-import { getFirestore }                  from 'firebase-admin/firestore';
+const admin      = require('firebase-admin');
+const fetch      = (...args) => import('node-fetch').then(({default: f}) => f(...args));
 
-/* ── Init Firebase Admin (singleton) ─────────────────────────────────── */
-if (!getApps().length) {
-  initializeApp({
-    credential: cert({
+/* ── Init Firebase Admin (singleton) ── */
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
       projectId:   process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      // Vercel stocke \n littéralement dans les env vars → on les restaure
       privateKey:  process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     }),
   });
 }
 
-const db          = getFirestore();
-const CACHE_TTL   = 7 * 24 * 60 * 60 * 1000; // 7 jours en ms
-const JIKAN_BASE  = 'https://api.jikan.moe/v4';
-const DELAY_MS    = 420;
+const db        = admin.firestore();
+const CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
+const JIKAN     = 'https://api.jikan.moe/v4';
+const DELAY     = 420;
+const sleep     = ms => new Promise(r => setTimeout(r, ms));
 
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-/* ── Helpers Jikan (côté serveur, pas de rate limit partagé) ─────────── */
-async function jikanGet(path) {
-  await sleep(DELAY_MS);
-  const res = await fetch(`${JIKAN_BASE}${path}`);
-  if (res.status === 429) {
-    await sleep(2000);
-    const retry = await fetch(`${JIKAN_BASE}${path}`);
-    if (!retry.ok) throw new Error(`Jikan ${retry.status} on ${path}`);
-    return retry.json();
-  }
-  if (!res.ok) throw new Error(`Jikan ${res.status} on ${path}`);
-  return res.json();
-}
-
-/* ── Construction de la franchise (même logique qu'animeFranchise.js) ── */
-const TYPE_MAP          = { TV: 'seasons', Movie: 'movies', OVA: 'ova', Special: 'special', ONA: 'seasons' };
-const MAIN_RELATIONS    = new Set(['prequel', 'sequel', 'side_story', 'alternative_version', 'full_story', 'summary']);
-const SPINOFF_RELATIONS = new Set(['spin_off', 'character']);
+const TYPE_MAP          = { TV:'seasons', Movie:'movies', OVA:'ova', Special:'special', ONA:'seasons' };
+const MAIN_RELATIONS    = new Set(['prequel','sequel','side_story','alternative_version','full_story','summary']);
+const SPINOFF_RELATIONS = new Set(['spin_off','character']);
 const MAX_PER_CAT       = 8;
 const MAX_SPINOFFS      = 5;
 
@@ -69,60 +41,57 @@ function dedupe(arr) {
   return arr.filter(a => { if (seen.has(a.mal_id)) return false; seen.add(a.mal_id); return true; });
 }
 
-async function buildFranchiseServer(animeId) {
-  const result = { main: null, seasons: [], movies: [], ova: [], special: [], spinOff: [] };
+async function jikanGet(path) {
+  await sleep(DELAY);
+  const res = await fetch(`${JIKAN}${path}`);
+  if (res.status === 429) { await sleep(2000); return jikanGet(path); }
+  if (!res.ok) throw new Error(`Jikan ${res.status}`);
+  return res.json();
+}
 
-  // Phase 1 : cartographie via /relations
-  const visited    = new Set([animeId]);
-  const memberIds  = new Set();
-  const spinoffIds = new Set();
-  const queue      = [{ id: animeId, depth: 0 }];
+async function buildFranchise(animeId) {
+  const result   = { main: null, seasons: [], movies: [], ova: [], special: [], spinOff: [] };
+  const visited  = new Set([animeId]);
+  const members  = new Set();
+  const spinoffs = new Set();
+  const queue    = [{ id: animeId, depth: 0 }];
 
+  // Phase 1 : cartographie /relations
   while (queue.length > 0) {
     const { id, depth } = queue.shift();
     if (depth > 2) continue;
-
     let rels = [];
-    try {
-      const d = await jikanGet(`/anime/${id}/relations`);
-      rels = d.data || [];
-    } catch { continue; }
-
+    try { rels = (await jikanGet(`/anime/${id}/relations`)).data || []; } catch {}
     for (const rel of rels) {
-      for (const entry of rel.entry || []) {
-        if (entry.type !== 'anime') continue;
-        const eid = entry.mal_id;
-        if (visited.has(eid)) continue;
-        visited.add(eid);
-        if (SPINOFF_RELATIONS.has(rel.relation))   spinoffIds.add(eid);
-        else if (MAIN_RELATIONS.has(rel.relation)) { memberIds.add(eid); if (depth < 2) queue.push({ id: eid, depth: depth + 1 }); }
+      for (const e of rel.entry || []) {
+        if (e.type !== 'anime' || visited.has(e.mal_id)) continue;
+        visited.add(e.mal_id);
+        if (SPINOFF_RELATIONS.has(rel.relation)) spinoffs.add(e.mal_id);
+        else if (MAIN_RELATIONS.has(rel.relation)) { members.add(e.mal_id); if (depth < 2) queue.push({ id: e.mal_id, depth: depth + 1 }); }
       }
     }
   }
 
-  // Phase 2 : fetch /full pour root + membres
-  let rootFull = null;
-  try { const d = await jikanGet(`/anime/${animeId}/full`); rootFull = d.data || null; } catch {}
-  if (!rootFull) return result;
+  // Phase 2 : fetch /full
+  let root = null;
+  try { root = (await jikanGet(`/anime/${animeId}/full`)).data; } catch {}
+  if (!root) return result;
 
   const membersFull = [];
-  for (const id of [...memberIds].slice(0, MAX_PER_CAT * 3)) {
-    try { const d = await jikanGet(`/anime/${id}/full`); if (d.data) membersFull.push(d.data); } catch {}
+  for (const id of [...members].slice(0, MAX_PER_CAT * 3)) {
+    try { const d = (await jikanGet(`/anime/${id}/full`)).data; if (d) membersFull.push(d); } catch {}
   }
 
-  // Phase 3 : trouver le main
-  const all = [rootFull, ...membersFull].sort(byYear);
+  const all  = [root, ...membersFull].sort(byYear);
   result.main = all.find(a => a.type === 'TV') || all[0];
 
-  // Phase 4 : classer
   for (const anime of all) {
     if (anime.mal_id === result.main.mal_id) continue;
     result[TYPE_MAP[anime.type] || 'seasons'].push(anime);
   }
 
-  // Phase 5 : spin-offs
-  for (const id of [...spinoffIds].slice(0, MAX_SPINOFFS)) {
-    try { const d = await jikanGet(`/anime/${id}/full`); if (d.data) result.spinOff.push(d.data); } catch {}
+  for (const id of [...spinoffs].slice(0, MAX_SPINOFFS)) {
+    try { const d = (await jikanGet(`/anime/${id}/full`)).data; if (d) result.spinOff.push(d); } catch {}
   }
 
   result.seasons = dedupe(result.seasons).sort(byYear).slice(0, MAX_PER_CAT);
@@ -134,48 +103,32 @@ async function buildFranchiseServer(animeId) {
   return result;
 }
 
-/* ── Handler principal ───────────────────────────────────────────────── */
-export default async function handler(req, res) {
-  // CORS
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
 
   const id = parseInt(req.query.id);
   if (!id) return res.status(400).json({ error: 'id manquant' });
 
-  const cacheRef = db.collection('franchise_cache').doc(String(id));
-
-  // 1. Vérifie le cache Firestore
+  // Vérifie cache Firestore
   try {
-    const snap = await cacheRef.get();
+    const snap = await db.collection('franchise_cache').doc(String(id)).get();
     if (snap.exists) {
-      const cached = snap.data();
-      const age    = Date.now() - (cached.cachedAt?.toMillis?.() || 0);
-      if (age < CACHE_TTL) {
+      const { franchise, cachedAt } = snap.data();
+      if (Date.now() - cachedAt.toMillis() < CACHE_TTL) {
         res.setHeader('X-Cache', 'HIT');
-        return res.status(200).json(cached.franchise);
+        return res.status(200).json(franchise);
       }
     }
-  } catch (e) {
-    console.warn('Cache read error:', e.message);
-  }
+  } catch {}
 
-  // 2. Cache absent ou expiré → appelle Jikan
+  // Build + cache
   try {
-    const franchise = await buildFranchiseServer(id);
-
-    // 3. Stocke dans Firestore
-    await cacheRef.set({
-      franchise,
-      cachedAt: new Date(),
-      animeId:  id,
-    });
-
+    const franchise = await buildFranchise(id);
+    await db.collection('franchise_cache').doc(String(id)).set({ franchise, cachedAt: new Date(), animeId: id });
     res.setHeader('X-Cache', 'MISS');
     return res.status(200).json(franchise);
-
   } catch (e) {
-    console.error('Franchise build error:', e.message);
-    return res.status(500).json({ error: 'Impossible de charger la franchise' });
+    console.error('Franchise error:', e.message);
+    return res.status(500).json({ error: e.message });
   }
-}
+};
