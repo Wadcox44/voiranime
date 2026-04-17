@@ -904,11 +904,54 @@ async function loadForYou() {
   const section = el('section-for-you');
   if (!section) return;
 
-  const history = getHistory();
-  if (history.length === 0) return;
+  const history   = getHistory();
+  const favs      = getFavs();
+  try { var watchList = JSON.parse(localStorage.getItem('VoirAnime_watchStatus') || '{}'); }
+  catch { var watchList = {}; }
+  const watchArr  = Object.values(watchList);
 
-  // Lit les genres directement depuis l'historique (stockés par anime.js)
-  // Zéro appel Jikan supplémentaire
+  // Déclencher dès qu'il y a 1 favori, 1 statut watchlist, ou 1 historique
+  const hasData = history.length > 0 || favs.length > 0 || watchArr.length > 0;
+  if (!hasData) return;
+
+  // ── Alertes ──
+  (function renderAlerts() {
+    const alertsEl = el('pourToiAlerts');
+    if (!alertsEl) return;
+    let dismissed = [];
+    try { dismissed = JSON.parse(localStorage.getItem('VoirAnime_alertsDismissed') || '[]'); } catch {}
+
+    const alerts = [];
+    const watching = watchArr.filter(a => a.status === 'watching');
+    const planTo   = watchArr.filter(a => a.status === 'planToWatch');
+
+    watching.slice(0, 2).forEach(a => {
+      const id = 'ep_' + a.malId;
+      if (!dismissed.includes(id) && a.title)
+        alerts.push({ id, type: 'episode', icon: '🎬',
+          text: `Nouvel épisode disponible pour <strong>${a.title}</strong>`,
+          link: a.malId ? `anime.html?id=${a.malId}` : null });
+    });
+
+    if (planTo.length > 0 && planTo[0].title) {
+      const id = 'plan_' + planTo[0].malId;
+      if (!dismissed.includes(id))
+        alerts.push({ id, type: 'plan', icon: '📋',
+          text: `<strong>${planTo[0].title}</strong> attend dans ta liste — prêt ?`,
+          link: planTo[0].malId ? `anime.html?id=${planTo[0].malId}` : null });
+    }
+
+    if (alerts.length === 0) { alertsEl.style.display = 'none'; return; }
+    alertsEl.innerHTML = alerts.map(a => `
+      <div class="pt-alert pt-alert-${a.type}" data-id="${a.id}">
+        <span class="pt-alert-icon">${a.icon}</span>
+        <span class="pt-alert-text">${a.text}${a.link ? ` <a href="${a.link}" class="pt-alert-link">Voir →</a>` : ''}</span>
+        <button class="pt-alert-dismiss" onclick="window.VADismissAlert('${a.id}')">✕</button>
+      </div>`).join('');
+    alertsEl.style.display = 'flex';
+  })();
+
+  // ── Recommandations genres ──
   const genreCount = {};
 
   history.slice(0, 10).forEach(h => {
@@ -916,6 +959,15 @@ async function loadForYou() {
       genreCount[gid] = (genreCount[gid] || 0) + 1;
     });
   });
+
+  // Compléter avec les genres des favs si historique insuffisant
+  if (Object.keys(genreCount).length === 0) {
+    favs.slice(0, 10).forEach(f => {
+      (f.genres || []).forEach(gid => {
+        genreCount[gid] = (genreCount[gid] || 0) + 1;
+      });
+    });
+  }
 
   if (Object.keys(genreCount).length === 0) return;
 
@@ -991,3 +1043,15 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+/* ── Dismiss alerte "Pour toi" ── */
+window.VADismissAlert = function(id) {
+  let dismissed = [];
+  try { dismissed = JSON.parse(localStorage.getItem('VoirAnime_alertsDismissed') || '[]'); } catch {}
+  if (!dismissed.includes(id)) { dismissed.push(id); localStorage.setItem('VoirAnime_alertsDismissed', JSON.stringify(dismissed)); }
+  const el2 = document.querySelector('.pt-alert[data-id="' + id + '"]');
+  if (!el2) return;
+  el2.style.opacity = '0';
+  setTimeout(() => { el2.style.maxHeight = '0'; el2.style.padding = '0'; el2.style.margin = '0'; el2.style.overflow = 'hidden'; }, 180);
+  setTimeout(() => el2.remove(), 400);
+};
