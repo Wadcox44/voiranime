@@ -4691,3 +4691,102 @@ a:active {
     );
   }
 }
+
+/* ════════════════════════════════
+   Section "Pour toi"
+════════════════════════════════ */
+#pourToiSection {
+  max-width: 1400px;
+  margin: 0 auto 48px;
+  padding: 0 48px;
+}
+.pt-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.pt-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+.pt-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--violet);
+  display: inline-block;
+  box-shadow: 0 0 8px var(--violet);
+}
+.pt-subtitle { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.04em; }
+.pt-alerts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.pt-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--ink3);
+  border: 1px solid var(--b1);
+  border-left: 3px solid var(--violet);
+  border-radius: var(--r);
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  color: var(--text2);
+  overflow: hidden;
+  transition: opacity 0.2s, height 0.2s ease, margin 0.2s, padding 0.2s;
+}
+.pt-alert-episode { border-left-color: #60a5fa; }
+.pt-alert-reco    { border-left-color: #a78bfa; }
+.pt-alert-plan    { border-left-color: #f59e0b; }
+.pt-alert-icon  { font-size: 1rem; flex-shrink: 0; }
+.pt-alert-text  { flex: 1; line-height: 1.5; }
+.pt-alert-text strong { color: var(--text); }
+.pt-alert-link  { color: var(--violet); font-weight: 600; margin-left: 6px; text-decoration: none; }
+.pt-alert-link:hover { text-decoration: underline; }
+.pt-alert-dismiss {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+.pt-alert-dismiss:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+.pt-cards-wrap { overflow: hidden; }
+.pt-cards {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+.pt-card {
+  text-decoration: none;
+  border-radius: var(--r);
+  overflow: hidden;
+  background: var(--ink3);
+  border: 1px solid var(--b1);
+  transition: transform 0.2s, border-color 0.2s;
+  display: block;
+}
+.pt-card:hover { transform: translateY(-4px); border-color: rgba(124,77,255,0.4); }
+.pt-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
+.pt-card-info { padding: 8px; display: flex; flex-direction: column; gap: 3px; }
+.pt-card-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pt-card-score { font-size: 0.65rem; color: var(--muted); }
+@media (max-width: 1024px) { .pt-cards { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 768px)  { #pourToiSection { padding: 0 16px; } .pt-cards { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 480px)  { .pt-cards { grid-template-columns: repeat(2, 1fr); } }
