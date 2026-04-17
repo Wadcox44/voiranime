@@ -22,18 +22,18 @@
     /* ── Page Soutenir ── */
     .support-page {
       min-height: 100vh;
-      padding: calc(var(--nav-h) + 24px) 24px 80px;
+      padding: calc(var(--nav-h) + 16px) 24px 40px;
       max-width: 800px;
       margin: 0 auto;
     }
 
     .support-hero {
       text-align: center;
-      margin-bottom: 32px;
+      margin-bottom: 20px;
     }
     .support-icon {
-      font-size: 3.5rem;
-      margin-bottom: 20px;
+      font-size: 2rem;
+      margin-bottom: 8px;
       display: block;
       animation: heartbeat 1.8s ease-in-out infinite;
     }
@@ -45,46 +45,46 @@
       56%     { transform: scale(1); }
     }
     .support-title {
-      font-size: clamp(2rem, 5vw, 3rem);
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
       font-weight: 900;
       line-height: 1.1;
-      margin-bottom: 16px;
+      margin-bottom: 8px;
       background: linear-gradient(135deg, #fff 30%, var(--pink) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
     .support-subtitle {
-      font-size: 1rem;
+      font-size: 0.88rem;
       color: var(--text2);
-      line-height: 1.7;
-      max-width: 540px;
-      margin: 0 auto 24px;
+      line-height: 1.5;
+      max-width: 480px;
+      margin: 0 auto;
       font-weight: 300;
     }
 
     /* Montants */
     .support-amounts-title {
-      font-size: 1rem;
+      font-size: 0.72rem;
       font-weight: 700;
       color: var(--text2);
       text-align: center;
       text-transform: uppercase;
       letter-spacing: 0.12em;
-      font-size: 0.72rem;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
+      margin-top: 16px;
     }
     .support-amounts {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 16px;
+      gap: 10px;
+      margin-bottom: 10px;
     }
     .amount-btn {
       background: var(--ink3);
       border: 1.5px solid var(--b2);
       border-radius: var(--r-lg);
-      padding: 18px 12px;
+      padding: 12px 8px;
       cursor: pointer;
       text-align: center;
       transition: all 0.2s var(--ease-spring);
@@ -102,11 +102,11 @@
       box-shadow: 0 0 0 1px var(--pink), 0 8px 24px rgba(255,79,216,0.25);
     }
     .amount-value {
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       font-weight: 900;
       color: var(--text);
       display: block;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
     .amount-btn.selected .amount-value { color: var(--pink); }
     .amount-label {
@@ -137,8 +137,8 @@
       background: var(--ink3);
       border: 1.5px solid var(--b2);
       border-radius: var(--r-lg);
-      padding: 16px 20px;
-      margin-bottom: 32px;
+      padding: 10px 16px;
+      margin-bottom: 16px;
       transition: border-color 0.2s;
     }
     .support-custom:focus-within {
@@ -174,8 +174,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 48px;
+      gap: 10px;
+      margin-bottom: 20px;
     }
     .support-btn-main {
       display: inline-flex;
@@ -186,7 +186,7 @@
       font-family: var(--font);
       font-weight: 800;
       font-size: 1.05rem;
-      padding: 16px 40px;
+      padding: 13px 36px;
       border-radius: var(--r-lg);
       border: none;
       cursor: pointer;
@@ -224,7 +224,7 @@
 
     /* Remerciements */
     .support-thanks {
-      margin-bottom: 48px;
+      margin-bottom: 16px;
     }
     .support-thanks-title {
       font-size: 0.72rem;
@@ -258,12 +258,12 @@
 
     /* ── Responsive ── */
     @media (max-width: 768px) {
-      .support-page { padding: calc(var(--nav-h) + 16px) 16px 60px; }
+      .support-page { padding: calc(var(--nav-h) + 12px) 16px 32px; }
       .support-amounts { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 480px) {
       .support-amounts { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .amount-value { font-size: 1.3rem; }
+      .amount-value { font-size: 1.1rem; }
     }
 
     /* ── Message merci ── */
@@ -351,10 +351,7 @@
   <div class="support-hero">
     <span class="support-icon">Pi</span>
     <h1 class="support-title">Soutenir VoirAnime</h1>
-    <p class="support-subtitle">
-      VoirAnime est un projet indépendant, sans publicité, construit avec passion.<br>
-      Chaque soutien permet de continuer à faire évoluer le site, développer de nouvelles fonctionnalités et améliorer l'expérience pour tous.
-    </p>
+    <p class="support-subtitle">Projet 100% indépendant : les dons servent à couvrir les coûts du serveur et à financer le développement.</p>
   </div>
 
   <!-- Montants -->
@@ -407,12 +404,6 @@
     <div class="support-merci" id="supportMerci" style="display:none">
       <p class="support-merci-text">Merci pour ton soutien 🙏</p>
       <button class="support-merci-close" onclick="document.getElementById('supportMerci').style.display='none'">Fermer</button>
-    </div>
-
-    <!-- État de paiement -->
-    <div class="pay-status hidden" id="payStatus">
-      <div class="pay-status-icon" id="payStatusIcon">⏳</div>
-      <p class="pay-status-msg" id="payStatusMsg">Paiement en cours…</p>
     </div>
   </div>
 
