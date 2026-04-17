@@ -24,6 +24,27 @@
     @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(255,79,216,.4),0 0 10px rgba(255,79,216,.2)}50%{text-shadow:0 0 8px rgba(255,79,216,.9),0 0 20px rgba(255,79,216,.5),0 0 36px rgba(124,77,255,.3)}}
     @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(255,79,216,.6),0 0 14px rgba(124,77,255,.3)}50%{text-shadow:0 0 10px #ff4fd8,0 0 24px rgba(255,79,216,.7),0 0 40px rgba(124,77,255,.45)}}
     @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
+
+    /* Watch status widget */
+    .watch-status-widget { margin: 14px 0; }
+    .watch-status-label { font-size:0.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+    .watch-status-btns { display:flex; gap:8px; flex-wrap:wrap; }
+    .watch-status-btn {
+      padding: 7px 14px; border-radius: 20px; border: 1px solid var(--b2);
+      background: transparent; color: var(--text2); font-size: 0.8rem;
+      cursor: pointer; transition: all .2s;
+    }
+    .watch-status-btn:hover { border-color: var(--pink); color: var(--pink); }
+    .watch-status-btn.active { background: var(--pink); border-color: var(--pink); color: #fff; font-weight:600; }
+
+    /* Watch filter buttons (profile) */
+    .watch-filter-btn {
+      padding: 6px 14px; border-radius: 20px; border: 1px solid var(--b2);
+      background: transparent; color: var(--text2); font-size: 0.78rem;
+      cursor: pointer; transition: all .2s;
+    }
+    .watch-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .watch-filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
   </style>
   <!-- Pi Network SDK -->
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
@@ -160,6 +181,16 @@
                      1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
         </button>
+      </div>
+
+      <!-- Suivi de visionnage -->
+      <div class="watch-status-widget" id="watchStatusWidget">
+        <div class="watch-status-label">Mon suivi</div>
+        <div class="watch-status-btns">
+          <button class="watch-status-btn" data-status="watching">▶ En cours</button>
+          <button class="watch-status-btn" data-status="completed">✓ Terminé</button>
+          <button class="watch-status-btn" data-status="planToWatch">🔖 À regarder</button>
+        </div>
       </div>
 
       <!-- Notation personnelle -->

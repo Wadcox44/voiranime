@@ -777,6 +777,65 @@ function saveRating(animeId, value) {
   localStorage.setItem('VoirAnime_ratings', JSON.stringify(r));
 }
 
+/* ──────────────────────────────────────
+   WATCH STATUS — suivi de visionnage
+────────────────────────────────────── */
+const WATCH_KEY = 'VoirAnime_watchStatus';
+
+function getWatchList() {
+  try { return JSON.parse(localStorage.getItem(WATCH_KEY) || '{}'); } catch { return {}; }
+}
+
+function setWatchStatus(animeId, status, animeData) {
+  const list = getWatchList();
+  if (status === null) {
+    delete list[String(animeId)];
+  } else {
+    list[String(animeId)] = {
+      status,
+      title:    animeData.title,
+      img:      animeData.img,
+      episodes: animeData.episodes || 0,
+      duration: animeData.duration || 0,
+      addedAt:  Date.now(),
+    };
+  }
+  localStorage.setItem(WATCH_KEY, JSON.stringify(list));
+}
+
+function getWatchStatus(animeId) {
+  return getWatchList()[String(animeId)]?.status || null;
+}
+
+function initWatchStatus(animeId, animeData) {
+  const widget = document.getElementById('watchStatusWidget');
+  if (!widget) return;
+
+  const btns = widget.querySelectorAll('.watch-status-btn');
+  const current = getWatchStatus(animeId);
+
+  // Highlight active button
+  btns.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.status === current);
+  });
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const newStatus = btn.dataset.status;
+      const isSame = newStatus === getWatchStatus(animeId);
+
+      // Toggle off if clicking same button
+      setWatchStatus(animeId, isSame ? null : newStatus, animeData);
+
+      btns.forEach(b => b.classList.remove('active'));
+      if (!isSame) btn.classList.add('active');
+
+      const labels = { watching: 'En cours ▶', completed: 'Terminé ✓', planToWatch: 'À regarder 🔖' };
+      showToast(isSame ? 'Suivi retiré' : labels[newStatus]);
+    });
+  });
+}
+
 function initRating(animeId) {
   const widget    = el('ratingWidget');
   const stars     = el('ratingStars');
@@ -849,6 +908,16 @@ async function init() {
     const data = await jikanFetch(`/anime/${animeId}/full`);
     renderDetail(data.data);
     initRating(animeId);
+    initWatchStatus(animeId, {
+      title:    data.data.title_english || data.data.title,
+      img:      data.data.images?.jpg?.large_image_url || '',
+      episodes: data.data.episodes || 0,
+      duration: (() => {
+        const d = data.data.duration || '';
+        const m = d.match(/(\d+)\s*min/);
+        return m ? parseInt(m[1]) : 24;
+      })(),
+    });
     hidePageLoader();
     loadFranchise(animeId);
     loadRecommendations(animeId);

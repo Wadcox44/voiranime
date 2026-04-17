@@ -225,6 +225,13 @@
       .profile-avatar { width: 72px; height: 72px; font-size: 2rem; }
       .profile-name { font-size: 1.4rem; }
     }
+    .watch-filter-btn {
+      padding: 6px 14px; border-radius: 20px; border: 1px solid var(--b2);
+      background: transparent; color: var(--text2); font-size: 0.78rem;
+      cursor: pointer; transition: all .2s;
+    }
+    .watch-filter-btn:hover { border-color: var(--pink); color: var(--pink); }
+    .watch-filter-btn.active { background: var(--pink); border-color: var(--pink); color: #fff; }
   </style>
 </head>
 <body>
@@ -281,7 +288,43 @@
     <div class="stat-card-num" id="statStreakCount" style="color:#4cc9f0">0</div>
     <div class="stat-card-label">Streak 🔥</div>
   </div>
+  <div class="stat-card">
+    <div class="stat-card-num" id="statCompletedCount" style="color:#4ade80">0</div>
+    <div class="stat-card-label">Terminés ✓</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-num" id="statWatchingCount" style="color:#60a5fa">0</div>
+    <div class="stat-card-label">En cours ▶</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-num" id="statPlanCount" style="color:#f59e0b">0</div>
+    <div class="stat-card-label">À regarder 🔖</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-num" id="statHoursCount" style="color:#a78bfa">0h</div>
+    <div class="stat-card-label">Heures vues</div>
+  </div>
 </div>
+
+<!-- SUIVI DE VISIONNAGE -->
+<section class="profile-section" id="watchSection">
+  <div class="profile-section-title">
+    <span class="section-dot green"></span>
+    📋 Mon Suivi
+    <span style="font-size:0.72rem;font-weight:400;color:var(--muted)" id="watchSubtitle"></span>
+  </div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+    <button class="watch-filter-btn active" data-filter="all">Tous</button>
+    <button class="watch-filter-btn" data-filter="completed">✓ Terminés</button>
+    <button class="watch-filter-btn" data-filter="watching">▶ En cours</button>
+    <button class="watch-filter-btn" data-filter="planToWatch">🔖 À regarder</button>
+  </div>
+  <div class="profile-grid" id="watchGrid"></div>
+  <div class="profile-empty hidden" id="watchEmpty">
+    <div class="profile-empty-icon">📋</div>
+    <p>Aucun anime dans ton suivi.<br>Utilise les boutons "En cours", "Terminé" ou "À regarder" sur les fiches animés !</p>
+  </div>
+</section>
 
 <!-- FAVORIS -->
 <section class="profile-section">
@@ -365,6 +408,10 @@
   }
   function saveHistory(h) { localStorage.setItem('VoirAnime_history', JSON.stringify(h)); }
 
+  function getWatchList() {
+    try { return JSON.parse(localStorage.getItem('VoirAnime_watchStatus') || '{}'); } catch { return {}; }
+  }
+
   function timeAgo(ts) {
     const diff = Date.now() - ts;
     const m = Math.floor(diff / 60000);
@@ -393,6 +440,19 @@
     const ratings = getRatings();
     const duels   = parseInt(localStorage.getItem('voiranime_duels')  || '0');
     const streak  = parseInt(localStorage.getItem('voiranime_streak') || '0');
+
+    const watchList  = getWatchList();
+    const watchArr   = Object.values(watchList);
+    const completed  = watchArr.filter(a => a.status === 'completed');
+    const watching   = watchArr.filter(a => a.status === 'watching');
+    const planTo     = watchArr.filter(a => a.status === 'planToWatch');
+    const totalMins  = completed.reduce((acc, a) => acc + (a.episodes || 0) * (a.duration || 24), 0);
+    const totalHours = Math.round(totalMins / 60);
+
+    el('statCompletedCount').textContent = completed.length;
+    el('statWatchingCount').textContent  = watching.length;
+    el('statPlanCount').textContent      = planTo.length;
+    el('statHoursCount').textContent     = totalHours + 'h';
 
     el('statFavCount').textContent    = favs.length;
     el('statHistCount').textContent   = hist.length;
@@ -463,6 +523,61 @@
       grid.appendChild(card);
     });
   }
+
+  function renderWatchSection(filter = 'all') {
+    const watchList = getWatchList();
+    const all = Object.entries(watchList).map(([id, data]) => ({ id, ...data }));
+    const filtered = filter === 'all' ? all : all.filter(a => a.status === filter);
+
+    const grid  = document.getElementById('watchGrid');
+    const empty = document.getElementById('watchEmpty');
+    const sub   = document.getElementById('watchSubtitle');
+
+    if (sub) sub.textContent = all.length ? `(${all.length})` : '';
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+
+    const statusLabel = { watching: 'En cours', completed: 'Terminé', planToWatch: 'À regarder' };
+    const statusColor = { watching: '#60a5fa', completed: '#4ade80', planToWatch: '#f59e0b' };
+
+    grid.innerHTML = filtered.map(a => `
+      <div class="profile-card" style="position:relative">
+        <a href="anime.html?id=${a.id}" style="text-decoration:none;color:inherit;display:block">
+          <img src="${a.img || ''}" alt="${a.title || ''}" loading="lazy"
+               style="width:100%;border-radius:6px;aspect-ratio:2/3;object-fit:cover"
+               onerror="this.src='https://placehold.co/160x230/111118/555?text=No+Image'"/>
+          <div style="padding:6px 2px">
+            <div style="font-size:0.78rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.title || '—'}</div>
+            <div style="font-size:0.7rem;color:${statusColor[a.status]};margin-top:2px">${statusLabel[a.status] || ''}</div>
+          </div>
+        </a>
+        <button onclick="removeWatch('${a.id}')" title="Retirer"
+          style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.7);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+      </div>
+    `).join('');
+  }
+
+  window.removeWatch = function(id) {
+    const list = getWatchList();
+    delete list[id];
+    localStorage.setItem('VoirAnime_watchStatus', JSON.stringify(list));
+    renderWatchSection(currentWatchFilter);
+    renderStats();
+  };
+
+  let currentWatchFilter = 'all';
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.watch-filter-btn');
+    if (!btn) return;
+    currentWatchFilter = btn.dataset.filter;
+    document.querySelectorAll('.watch-filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderWatchSection(currentWatchFilter);
+  });
 
   function renderFavs() {
     const favs   = getFavs();
@@ -556,6 +671,7 @@
 
   // Init
   renderStats();
+  renderWatchSection();
   renderFavs();
   renderRatings();
   renderHistory();
