@@ -63,23 +63,6 @@
       font-weight: 300;
     }
 
-    /* Pourquoi soutenir */
-    .support-why {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 48px;
-    }
-    .support-why-item {
-      background: var(--ink3);
-      border: 1px solid var(--b1);
-      border-radius: var(--r-lg);
-      padding: 20px 16px;
-      text-align: center;
-    }
-    .support-why-icon { font-size: 1.8rem; margin-bottom: 10px; display: block; }
-    .support-why-label { font-size: 0.82rem; color: var(--text2); line-height: 1.5; }
-
     /* Montants */
     .support-amounts-title {
       font-size: 1rem;
@@ -198,7 +181,7 @@
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      background: var(--pink);
+      background: linear-gradient(135deg, #f59e0b, #f97316);
       color: #fff;
       font-family: var(--font);
       font-weight: 800;
@@ -207,13 +190,20 @@
       border-radius: var(--r-lg);
       border: none;
       cursor: pointer;
-      transition: all 0.2s var(--ease-spring);
-      box-shadow: 0 4px 28px rgba(255,79,216,0.45);
+      transition: transform 0.2s var(--ease-spring), box-shadow 0.2s;
+      box-shadow: 0 4px 24px rgba(249,115,22,0.45);
       text-decoration: none;
+      animation: support-glow 2.6s ease-in-out infinite;
     }
     .support-btn-main:hover {
       transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 8px 40px rgba(255,79,216,0.6);
+      box-shadow: 0 10px 40px rgba(249,115,22,0.65);
+      animation: none;
+    }
+    .support-btn-main:disabled { opacity: 0.6; animation: none; }
+    @keyframes support-glow {
+      0%,100% { box-shadow: 0 4px 24px rgba(249,115,22,0.4); }
+      50%      { box-shadow: 0 4px 32px rgba(249,115,22,0.75), 0 0 0 6px rgba(249,115,22,0.12); }
     }
     .support-btn-secondary {
       display: inline-flex;
@@ -231,44 +221,6 @@
       text-decoration: none;
     }
     .support-btn-secondary:hover { color: var(--text); border-color: var(--b3); background: rgba(255,255,255,0.04); }
-    .support-note { font-size: 0.72rem; color: var(--muted); text-align: center; }
-
-    /* Badge Supporter */
-    .support-badge-section {
-      background: linear-gradient(135deg, rgba(124,77,255,0.08) 0%, rgba(255,79,216,0.05) 100%);
-      border: 1px solid rgba(124,77,255,0.2);
-      border-radius: var(--r-xl);
-      padding: 32px 28px;
-      margin-bottom: 32px;
-      display: flex;
-      align-items: center;
-      gap: 24px;
-    }
-    .badge-preview {
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-    .badge-supporter {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: linear-gradient(135deg, var(--violet-dim), var(--pink-dim));
-      border: 1px solid rgba(255,79,216,0.4);
-      border-radius: 20px;
-      padding: 6px 14px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #ffaaee;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      box-shadow: 0 0 16px rgba(255,79,216,0.25);
-    }
-    .badge-supporter-icon { font-size: 1rem; }
-    .badge-section-text h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
-    .badge-section-text p  { font-size: 0.84rem; color: var(--text2); line-height: 1.6; }
 
     /* Remerciements */
     .support-thanks {
@@ -307,15 +259,35 @@
     /* ── Responsive ── */
     @media (max-width: 768px) {
       .support-page { padding: calc(var(--nav-h) + 100px) 16px 60px; }
-      .support-why  { grid-template-columns: 1fr; gap: 10px; }
       .support-amounts { grid-template-columns: repeat(2, 1fr); }
-      .support-badge-section { flex-direction: column; text-align: center; }
-      .pi-pay-block { padding: 20px 16px; }
     }
     @media (max-width: 480px) {
       .support-amounts { grid-template-columns: repeat(2, 1fr); gap: 8px; }
       .amount-value { font-size: 1.3rem; }
     }
+
+    /* ── Message merci ── */
+    .support-merci {
+      background: rgba(6,214,160,0.08);
+      border: 1px solid rgba(6,214,160,0.3);
+      border-radius: var(--r-lg);
+      padding: 20px 24px;
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
+    .support-merci-text { font-size: 1.05rem; font-weight: 700; color: #06d6a0; margin-bottom: 12px; }
+    .support-merci-close {
+      background: transparent;
+      border: 1px solid rgba(6,214,160,0.35);
+      color: #06d6a0;
+      border-radius: 20px;
+      padding: 6px 18px;
+      font-size: 0.82rem;
+      font-family: var(--font);
+      cursor: pointer;
+    }
+    .support-merci-close:hover { background: rgba(6,214,160,0.1); }
 
     /* ── Statut paiement ── */
     .pay-status {
@@ -340,94 +312,6 @@
       line-height: 1.5;
     }
 
-    /* ── Pi Network styles ── */
-    .pi-badge-info {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(124,77,255,0.12);
-      border: 1px solid rgba(124,77,255,0.3);
-      border-radius: 20px;
-      padding: 8px 18px;
-      font-size: 0.84rem;
-      color: #c0adff;
-      margin-top: 12px;
-    }
-    .pi-logo {
-      font-size: 1.1rem;
-      font-weight: 900;
-      color: var(--violet);
-    }
-
-    /* Bloc instructions Pi */
-    .pi-pay-block {
-      width: 100%;
-      background: var(--ink3);
-      border: 1px solid rgba(124,77,255,0.2);
-      border-radius: var(--r-xl);
-      padding: 28px 24px;
-      margin-bottom: 16px;
-    }
-    .pi-pay-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--muted);
-      margin-bottom: 14px;
-      text-align: center;
-    }
-    .pi-address-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: var(--ink4);
-      border: 1px solid var(--b2);
-      border-radius: var(--r);
-      padding: 12px 16px;
-      margin-bottom: 20px;
-    }
-    .pi-address {
-      flex: 1;
-      font-family: monospace;
-      font-size: 0.9rem;
-      color: var(--violet);
-      word-break: break-all;
-      background: none;
-      border: none;
-      outline: none;
-    }
-    .pi-copy-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.76rem;
-      font-family: var(--font);
-      font-weight: 600;
-      color: var(--text2);
-      background: var(--ink3);
-      border: 1px solid var(--b2);
-      border-radius: var(--r-sm);
-      padding: 6px 12px;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .pi-copy-btn:hover {
-      color: var(--violet);
-      border-color: var(--b-violet);
-      background: var(--violet-dim);
-    }
-    .pi-pay-steps {
-      font-size: 0.84rem;
-      color: var(--text2);
-      line-height: 2;
-      padding-left: 20px;
-      margin: 0;
-    }
-    .pi-pay-steps li { margin-bottom: 2px; }
-    .pi-pay-steps strong { color: var(--text); }
   </style>
   <!-- Pi Network SDK -->
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
@@ -468,32 +352,12 @@
     <span class="support-icon">Pi</span>
     <h1 class="support-title">Soutenir VoirAnime</h1>
     <p class="support-subtitle">
-      VoirAnime est un projet indépendant, sans publicité, déployé sur Pi Network.
-      Ton soutien en Pi finance les serveurs, le développement et les nouvelles fonctionnalités.
+      VoirAnime est un projet indépendant, sans publicité, construit avec passion.<br>
+      Chaque soutien permet de continuer à faire évoluer le site, développer de nouvelles fonctionnalités et améliorer l'expérience pour tous.
     </p>
-    <div class="pi-badge-info">
-      <span class="pi-logo">Pi</span>
-      Paiements en <strong>Pi</strong> · Disponible via Pi Browser ou l'app Pi Network
-    </div>
   </div>
 
-  <!-- Pourquoi soutenir -->
-  <div class="support-why">
-    <div class="support-why-item">
-      <span class="support-why-icon">🖥️</span>
-      <div class="support-why-label">Serveurs et hébergement pour garder le site rapide et disponible</div>
-    </div>
-    <div class="support-why-item">
-      <span class="support-why-icon">⚡</span>
-      <div class="support-why-label">Développement de nouvelles fonctionnalités et améliorations continues</div>
-    </div>
-    <div class="support-why-item">
-      <span class="support-why-icon">🚫</span>
-      <div class="support-why-label">Maintenir le site sans publicité et sans tracking</div>
-    </div>
-  </div>
-
-  <!-- Montants + paiement Pi direct -->
+  <!-- Montants -->
   <p class="support-amounts-title">Choisir un montant (Pi)</p>
   <div class="support-amounts" id="amountsGrid">
     <button class="amount-btn" data-amount="1">
@@ -539,37 +403,23 @@
       <p class="pay-status-msg" id="payStatusMsg">Paiement en cours…</p>
     </div>
 
-    <p class="support-note">
-      Le wallet Pi s'ouvre directement — aucune saisie de pseudo requise.<br>
-      Pi Network · Décentralisé · Aucune donnée bancaire collectée.
-    </p>
-  </div>
-
-  <!-- Badge Supporter -->
-  <div class="support-badge-section">
-    <div class="badge-preview">
-      <span class="badge-supporter">
-        <span class="badge-supporter-icon">⭐</span>
-        Supporter
-      </span>
+    <!-- Message de remerciement — affiché uniquement après paiement validé -->
+    <div class="support-merci" id="supportMerci" style="display:none">
+      <p class="support-merci-text">Merci pour ton soutien 🙏</p>
+      <button class="support-merci-close" onclick="document.getElementById('supportMerci').style.display='none'">Fermer</button>
     </div>
-    <div class="badge-section-text">
-      <h3>Badge Supporter sur ton profil</h3>
-      <p>
-        Après ton don, le badge <strong>Supporter ⭐</strong> sera attribué
-        automatiquement à ton profil Pi lors de ta prochaine connexion.
-        Tu seras également ajouté à la page de remerciements.
-      </p>
+
+    <!-- État de paiement -->
+    <div class="pay-status hidden" id="payStatus">
+      <div class="pay-status-icon" id="payStatusIcon">⏳</div>
+      <p class="pay-status-msg" id="payStatusMsg">Paiement en cours…</p>
     </div>
   </div>
 
-  <!-- Remerciements -->
-  <div class="support-thanks">
+  <!-- Donateurs — masqué si aucun don -->
+  <div class="support-thanks" id="thanksSection" style="display:none">
     <p class="support-thanks-title">Nos Pioneers — Merci à vous 💜</p>
-    <div class="thanks-grid" id="thanksGrid">
-      <span class="thanks-name"><span class="thanks-name-star">⭐</span> Premier Pioneer</span>
-      <span class="thanks-name"><span class="thanks-name-star">⭐</span> Ton nom ici</span>
-    </div>
+    <div class="thanks-grid" id="thanksGrid"></div>
   </div>
 
 </main>
@@ -622,7 +472,6 @@ window.addEventListener('load', function () {
 
   /* Init Pi SDK */
   if (typeof window.Pi === 'undefined') {
-    log('⚠️ Pi SDK non détecté. Ouvre ce site dans Pi Browser.', 'warn');
     return;
   }
 
@@ -719,10 +568,12 @@ function initiatePiPayment() {
           })
           .then(function() {
             log('💜 Don de ' + amount + ' Pi reçu. Merci !', 'success');
+            afficherMerci();
             paying = false;
           })
           .catch(function(e) {
             log('✅ Don confirmé sur la blockchain. Merci !', 'success');
+            afficherMerci();
             paying = false;
           });
         },
@@ -749,6 +600,28 @@ function reset() {
   paying = false;
   var btn = document.getElementById('payBtn');
   if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+}
+
+function afficherMerci() {
+  var merci = document.getElementById('supportMerci');
+  if (!merci) return;
+  merci.style.display = 'block';
+  setTimeout(function() { merci.style.display = 'none'; }, 6000);
+}
+
+function chargerDonateurs(pseudos) {
+  var section = document.getElementById('thanksSection');
+  var grid = document.getElementById('thanksGrid');
+  if (!section || !grid) return;
+  if (!pseudos || pseudos.length === 0) { section.style.display = 'none'; return; }
+  grid.innerHTML = '';
+  pseudos.forEach(function(p) {
+    var span = document.createElement('span');
+    span.className = 'thanks-name';
+    span.innerHTML = '<span class="thanks-name-star">⭐</span> ' + (p.startsWith('@') ? p : '@' + p);
+    grid.appendChild(span);
+  });
+  section.style.display = 'block';
 }
 
 /* ── Logger visible à l'écran ── */
