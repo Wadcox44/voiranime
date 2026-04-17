@@ -338,7 +338,7 @@
   </div>
   <ul class="nav-links">
     <li><a href="index.html"     class="nav-link">Accueil</a></li>
-    <li><a href="catalogue.html" class="nav-link active">Catalogue</a></li>
+    <li><a href="catalogue.html" class="nav-link">Catalogue</a></li>
     <li><a href="duel.html"      class="nav-link">⚔ Duels</a></li>
     <li><a href="profile.html"   class="nav-link">Profil</a></li>
     <li><a href="soutenir.html"  class="nav-link nav-link-support">💜 Soutenir</a></li>
@@ -658,5 +658,14 @@ function log(msg, type) {
 })();
 </script>
 
+<script>
+(function(){
+  var path = location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.nav-link').forEach(function(l){
+    var href = l.getAttribute('href');
+    l.classList.toggle('active', href === path);
+  });
+})();
+</script>
 </body>
 </html>
