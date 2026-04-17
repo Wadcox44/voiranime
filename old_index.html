@@ -97,6 +97,7 @@
       Profil
       <span class="fav-count-badge" id="navFavCount" style="display:none">0</span>
     </a></li>
+    <li><a href="soutenir.html" class="nav-link nav-link-support">💜 Soutenir</a></li>
   </ul>
 </nav>
 
@@ -123,112 +124,35 @@
 <!-- ════════════════════════════════
      HERO — PORTAIL ANIME
 ════════════════════════════════ -->
-<section class="hero" id="hero">
-
-  <!-- Canvas particules (fond vivant) -->
-  <canvas class="hero-particles" id="heroParticles"></canvas>
-
-  <!-- Fond image avec parallax -->
-  <div class="hero-bg" id="heroBg">
-    <img id="heroImg" src="" alt=""/>
-    <div class="hero-gradient"></div>
-  </div>
-
-  <!-- Aura lumineuse autour du poster (couleur selon genre) -->
-  <div class="hero-aura" id="heroAura"></div>
-
-  <!-- Poster flottant central -->
-  <div class="hero-poster-wrap" id="heroPosterWrap">
-    <div class="hero-poster-ring"></div>
-    <img class="hero-poster-img" id="heroPosterImg" src="" alt=""/>
-    <div class="hero-poster-shine"></div>
-  </div>
-
-  <!-- Contenu texte -->
-  <div class="hero-content" id="heroContent">
-
-    <!-- Skeleton -->
-    <div class="hero-skeleton" id="heroSkeleton">
-      <div class="sk-block sk-title"></div>
-      <div class="sk-block sk-text"></div>
-      <div class="sk-block sk-text short"></div>
-      <div class="sk-buttons">
-        <div class="sk-block sk-btn"></div>
-        <div class="sk-block sk-btn"></div>
-      </div>
-    </div>
-
-    <!-- Info réelle -->
-    <div class="hero-info hidden" id="heroInfo">
-      <div class="hero-eyebrow" id="heroEyebrow">
-        <span class="hero-live-dot"></span>
-        <span id="heroEyebrowText">En cours</span>
-      </div>
-      <div class="hero-badges" id="heroBadges"></div>
-      <h1 class="hero-title" id="heroTitle"></h1>
-      <p  class="hero-synopsis" id="heroSynopsis"></p>
-
-      <!-- 2 CTA principaux + favori -->
-      <div class="hero-actions">
-        <a href="#" class="hero-cta-explore" id="heroPlayBtn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-          Explorer
-        </a>
-        <button class="hero-cta-surprise" id="heroSurpriseBtn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
-            <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
-          </svg>
-          Découverte aléatoire
-        </button>
-        <button class="btn-fav hero-cta-fav" id="heroFavBtn" data-id="" aria-label="Ajouter aux favoris">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-          </svg>
-        </button>
-      </div>
-      <!-- btn-more caché mais requis par main.js -->
-      <button class="btn-more" id="heroMoreBtn" style="display:none">Plus d'infos</button>
-      <div class="hero-meta" id="heroMeta"></div>
-    </div>
-  </div>
-
-  <!-- Dots navigation -->
-  <div class="hero-dots" id="heroDots"></div>
-
-  <!-- Scroll indicator -->
-  <div class="hero-scroll-hint">
-    <div class="hero-scroll-line"></div>
-    <span>Scroll</span>
-  </div>
-
-</section>
+<!-- Hero supprimé -->
 
 <!-- ════════════════════════════════
      ANIME DU JOUR
 ════════════════════════════════ -->
 <section class="anime-du-jour" id="animeDuJour" style="display:none">
+  <div class="adj-video-bg" id="adjVideoBg">
+    <iframe id="adjIframe" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <img class="adj-img-fallback" id="adjImgFallback" src="" alt=""/>
+    <div class="adj-overlay"></div>
+  </div>
   <div class="adj-inner">
     <div class="adj-label">
       <span class="adj-dot"></span>
       Anime du jour
     </div>
-    <div class="adj-content">
-      <img class="adj-img" id="adjImg" src="" alt=""/>
-      <div class="adj-info">
-        <div class="adj-badges" id="adjBadges"></div>
-        <h2 class="adj-title" id="adjTitle"></h2>
-        <p  class="adj-synopsis" id="adjSynopsis"></p>
-        <div class="adj-actions">
-          <a href="#" class="adj-btn-primary" id="adjLink">Voir l'anime →</a>
-          <button class="adj-btn-shuffle" id="adjShuffle" title="Autre suggestion">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
-              <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
-            </svg>
-            Autre suggestion
-          </button>
-        </div>
+    <div class="adj-info">
+      <div class="adj-badges" id="adjBadges"></div>
+      <h2 class="adj-title" id="adjTitle"></h2>
+      <p class="adj-synopsis" id="adjSynopsis"></p>
+      <div class="adj-actions">
+        <a href="#" class="adj-btn-primary" id="adjLink">Voir l'anime →</a>
+        <button class="adj-btn-shuffle" id="adjShuffle" title="Autre suggestion">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+            <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+          </svg>
+          Autre suggestion
+        </button>
       </div>
     </div>
   </div>
@@ -321,7 +245,7 @@
         <select id="advType" class="adv-select">
           <option value="">Tous</option>
           <option value="tv">Série</option>
-          <option value="movie">Film d'anime d'anime</option>
+         <option value="movie">Film</option>
           <option value="ova">OVA</option>
           <option value="ona">ONA</option>
           <option value="special">Spécial</option>
@@ -403,6 +327,19 @@
     <button class="carousel-btn prev" data-carousel="continue">‹</button>
     <div class="carousel" id="carousel-continue"></div>
     <button class="carousel-btn next" data-carousel="continue">›</button>
+  </div>
+</section>
+
+<!-- POUR TOI -->
+<section class="content-section" id="section-for-you" style="display:none">
+  <div class="section-header">
+    <h2 class="section-title"><span class="section-dot pink"></span>✨ Pour toi</h2>
+    <span class="section-badge" id="forYouBadge"></span>
+  </div>
+  <div class="carousel-wrapper">
+    <button class="carousel-btn prev" data-carousel="for-you">‹</button>
+    <div class="carousel" id="carousel-for-you"></div>
+    <button class="carousel-btn next" data-carousel="for-you">›</button>
   </div>
 </section>
 
@@ -592,6 +529,7 @@
     lastCard = card;
   });
   document.addEventListener('mouseleave', function(e){
+    if (!e.target || typeof e.target.closest !== 'function') return;
     var card = e.target.closest('.anime-card');
     if(card) card.style.transform='';
   }, true);
@@ -779,6 +717,7 @@
     lastCard = card;
   });
   document.addEventListener('mouseleave', function(e){
+    if (!e.target || typeof e.target.closest !== 'function') return;
     var card = e.target.closest('.anime-card');
     if(card) card.style.transform = '';
   }, true);
@@ -875,6 +814,8 @@
   const posterWrap = document.getElementById('heroPosterWrap');
   const heroAura   = document.getElementById('heroAura');
 
+  const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  
   // Parallax uniquement desktop — désactivé sur touch ET sur écrans < 1025px
   const isDesktop = !isTouch && window.innerWidth > 1024;
 
@@ -912,6 +853,58 @@
     requestAnimationFrame(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 420); });
   });
 
+})();
+  /* ── Carousel : flèches + swipe ── */
+(function () {
+  const SCROLL_AMOUNT = 900; // px scrollés par clic
+
+  // --- Flèches ---
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.carousel-btn');
+    if (!btn) return;
+    const id = btn.dataset.carousel;
+    const track = document.getElementById('carousel-' + id);
+    if (!track) return;
+    const dir = btn.classList.contains('prev') ? -1 : 1;
+    track.scrollBy({ left: dir * SCROLL_AMOUNT, behavior: 'smooth' });
+  });
+
+  // --- Swipe tactile ---
+  document.querySelectorAll('.carousel').forEach(function (track) {
+    let startX = 0, startScroll = 0, dragging = false;
+
+    track.addEventListener('touchstart', function (e) {
+      startX = e.touches[0].clientX;
+      startScroll = track.scrollLeft;
+      dragging = true;
+    }, { passive: true });
+
+    track.addEventListener('touchmove', function (e) {
+      if (!dragging) return;
+      const dx = startX - e.touches[0].clientX;
+      track.scrollLeft = startScroll + dx;
+    }, { passive: true });
+
+    track.addEventListener('touchend', function () { dragging = false; });
+
+    // --- Drag souris (desktop) ---
+    track.addEventListener('mousedown', function (e) {
+      startX = e.pageX;
+      startScroll = track.scrollLeft;
+      dragging = true;
+      track.style.cursor = 'grabbing';
+      track.style.userSelect = 'none';
+    });
+    window.addEventListener('mousemove', function (e) {
+      if (!dragging) return;
+      track.scrollLeft = startScroll - (e.pageX - startX);
+    });
+    window.addEventListener('mouseup', function () {
+      dragging = false;
+      track.style.cursor = '';
+      track.style.userSelect = '';
+    });
+  });
 })();
 </script>
 </body>
