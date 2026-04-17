@@ -481,10 +481,8 @@ function renderDetail(anime) {
 
   // Quick stats
   const stats = [
-    anime.score    ? { val: anime.score.toFixed(1), label: 'Score' }  : null,
     anime.episodes ? { val: anime.episodes, label: 'Épisodes' }       : null,
     anime.year     ? { val: anime.year, label: 'Année' }              : null,
-    anime.members  ? { val: fmtNum(anime.members), label: 'Membres' } : null,
   ].filter(Boolean);
 
   el('animeQuickStats').innerHTML = stats.map(s => `
