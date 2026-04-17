@@ -184,6 +184,28 @@
 </div>
 
 <!-- ════════════════════════════════
+     PODIUM POST-VOTE
+════════════════════════════════ -->
+<section class="duel-podium-section hidden" id="podiumSection">
+  <h2 class="duel-lb-title" style="text-align:center;margin-bottom:20px">🏆 Résultat du duel</h2>
+  <div class="duel-podium">
+    <div class="podium-slot podium-gold" id="podiumWinner">
+      <div class="podium-medal">🥇</div>
+      <img class="podium-img" id="podiumWinnerImg" src="" alt=""/>
+      <div class="podium-title" id="podiumWinnerTitle"></div>
+      <div class="podium-pct" id="podiumWinnerPct"></div>
+    </div>
+    <div class="podium-slot podium-silver" id="podiumLoser">
+      <div class="podium-medal">🥈</div>
+      <img class="podium-img" id="podiumLoserImg" src="" alt=""/>
+      <div class="podium-title" id="podiumLoserTitle"></div>
+      <div class="podium-pct" id="podiumLoserPct"></div>
+    </div>
+  </div>
+  <div class="podium-timer" id="podiumTimer"></div>
+</section>
+
+<!-- ════════════════════════════════
      LEADERBOARD
 ════════════════════════════════ -->
 <section class="duel-lb-section">
@@ -192,6 +214,12 @@
     <button class="duel-lb-toggle" id="leaderboardToggle">Afficher ▼</button>
   </div>
   <div class="duel-lb-body hidden" id="leaderboardBody">
+    <!-- Podium global -->
+    <div class="duel-global-podium" id="globalPodium" style="display:none">
+      <h3 style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.08em">🏅 Podium global</h3>
+      <div class="global-podium-grid" id="globalPodiumGrid"></div>
+      <hr style="border:none;border-top:1px solid var(--b2);margin:16px 0"/>
+    </div>
     <div class="duel-lb-grid" id="leaderboardGrid">
       <p class="duel-lb-empty">Joue quelques duels pour voir le classement !</p>
     </div>
@@ -203,10 +231,7 @@
 ════════════════════════════════ -->
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
-  <p class="footer-text">
-    Données : <a href="https://jikan.moe" target="_blank" rel="noopener">Jikan API</a>
-    · Votes : Firebase Firestore
-  </p>
+  <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -437,6 +462,7 @@ function renderDuel(animeA, animeB) {
 
   el('duelCardA').classList.remove('winner', 'loser', 'voted');
   el('duelCardB').classList.remove('winner', 'loser', 'voted');
+  el('podiumSection')?.classList.add('hidden');
   el('resultA').classList.add('hidden');
   el('resultB').classList.add('hidden');
   el('duelPostVote').classList.add('hidden');
@@ -559,6 +585,9 @@ function showResults(winnerSide, votesA, votesB) {
 
   el('duelPostVote').classList.remove('hidden');
   setTimeout(() => el('duelPostVote').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 300);
+
+  // Affiche le podium
+  showPodium(winnerSide, pctA, pctB);
 }
 
 function nextDuel() {
@@ -617,6 +646,113 @@ async function loadLeaderboard() {
   } catch (e) { console.warn('[Duel] loadLeaderboard error:', e); }
 }
 
+/* ──────────────────────────────────────
+   HISTORIQUE DUELS — localStorage
+────────────────────────────────────── */
+const DUEL_HISTORY_KEY = 'VoirAnime_duelHistory';
+const DUEL_TTL_MS      = 7 * 24 * 60 * 60 * 1000; // 1 semaine
+
+function getDuelHistory() {
+  try { return JSON.parse(localStorage.getItem(DUEL_HISTORY_KEY) || '[]'); } catch { return []; }
+}
+
+function saveDuelHistory(h) {
+  localStorage.setItem(DUEL_HISTORY_KEY, JSON.stringify(h));
+}
+
+function addDuelToHistory(animeA, animeB, winnerSide, pctA, pctB) {
+  const history = getDuelHistory();
+  history.unshift({
+    id:        `${animeA.mal_id}_${animeB.mal_id}_${Date.now()}`,
+    animeA:    { id: animeA.mal_id, title: animeA.title_english || animeA.title, img: animeA.images?.jpg?.large_image_url || '' },
+    animeB:    { id: animeB.mal_id, title: animeB.title_english || animeB.title, img: animeB.images?.jpg?.large_image_url || '' },
+    winnerId:  winnerSide === 'A' ? animeA.mal_id : animeB.mal_id,
+    pctA, pctB,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + DUEL_TTL_MS,
+  });
+  // Garde les 50 derniers duels
+  saveDuelHistory(history.slice(0, 50));
+}
+
+function getTimeLeft(expiresAt) {
+  const diff = expiresAt - Date.now();
+  if (diff <= 0) return 'Terminé';
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  if (d > 0) return `Expire dans ${d}j ${h}h`;
+  if (h > 0) return `Expire dans ${h}h ${m}min`;
+  return `Expire dans ${m} min`;
+}
+
+/* ──────────────────────────────────────
+   PODIUM POST-VOTE
+────────────────────────────────────── */
+function showPodium(winnerSide, pctA, pctB) {
+  const animeA = state.currentA;
+  const animeB = state.currentB;
+  const winner = winnerSide === 'A' ? animeA : animeB;
+  const loser  = winnerSide === 'A' ? animeB : animeA;
+  const wPct   = winnerSide === 'A' ? pctA : pctB;
+  const lPct   = winnerSide === 'A' ? pctB : pctA;
+
+  const getImg = a => a.images?.jpg?.large_image_url || a.images?.jpg?.image_url || '';
+  const getTitle = a => a.title_english || a.title || '—';
+
+  el('podiumWinnerImg').src        = getImg(winner);
+  el('podiumWinnerTitle').textContent = getTitle(winner);
+  el('podiumWinnerPct').textContent   = `${wPct}% des votes`;
+
+  el('podiumLoserImg').src         = getImg(loser);
+  el('podiumLoserTitle').textContent  = getTitle(loser);
+  el('podiumLoserPct').textContent    = `${lPct}% des votes`;
+
+  // Timer
+  const expiresAt = Date.now() + DUEL_TTL_MS;
+  el('podiumTimer').textContent = getTimeLeft(expiresAt);
+
+  el('podiumSection').classList.remove('hidden');
+  setTimeout(() => el('podiumSection').scrollIntoView({ behavior: 'smooth', block: 'start' }), 400);
+
+  // Sauvegarde dans l'historique
+  addDuelToHistory(animeA, animeB, winnerSide, pctA, pctB);
+}
+
+/* ──────────────────────────────────────
+   PODIUM GLOBAL
+────────────────────────────────────── */
+function buildGlobalPodium() {
+  const history = getDuelHistory();
+  if (history.length === 0) return;
+
+  // Compte les victoires par anime
+  const wins = {};
+  history.forEach(d => {
+    const wid = String(d.winnerId);
+    if (!wins[wid]) {
+      const winner = d.animeA.id === d.winnerId ? d.animeA : d.animeB;
+      wins[wid] = { id: wid, title: winner.title, img: winner.img, count: 0 };
+    }
+    wins[wid].count++;
+  });
+
+  const sorted = Object.values(wins).sort((a, b) => b.count - a.count).slice(0, 3);
+  const medals = ['🥇', '🥈', '🥉'];
+
+  const grid = el('globalPodiumGrid');
+  grid.innerHTML = sorted.map((a, i) => `
+    <a href="anime.html?id=${a.id}" class="global-podium-item">
+      <div class="global-podium-medal">${medals[i]}</div>
+      <img src="${a.img}" alt="${a.title}" onerror="this.src='https://placehold.co/80x110/111118/555?text=?'"/>
+      <div class="global-podium-title">${a.title}</div>
+      <div class="global-podium-wins">${a.count} victoire${a.count > 1 ? 's' : ''}</div>
+    </a>
+  `).join('');
+
+  el('globalPodium').style.display = '';
+}
+
 function initEvents() {
   el('voteBtnA').addEventListener('click', () => handleVote('A'));
   el('voteBtnB').addEventListener('click', () => handleVote('B'));
@@ -633,7 +769,7 @@ function initEvents() {
     const body = el('leaderboardBody');
     body.classList.toggle('hidden');
     el('leaderboardToggle').textContent = body.classList.contains('hidden') ? 'Afficher ▼' : 'Masquer ▲';
-    if (!body.classList.contains('hidden')) loadLeaderboard();
+    if (!body.classList.contains('hidden')) { loadLeaderboard(); buildGlobalPodium(); }
   });
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT') return;
