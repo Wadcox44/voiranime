@@ -4790,3 +4790,12 @@ a:active {
 @media (max-width: 1024px) { .pt-cards { grid-template-columns: repeat(4, 1fr); } }
 @media (max-width: 768px)  { #pourToiSection { padding: 0 16px; } .pt-cards { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 480px)  { .pt-cards { grid-template-columns: repeat(2, 1fr); } }
+.pt-alert-title-link {
+  color: var(--text);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: rgba(255,255,255,0.3);
+  text-underline-offset: 2px;
+  transition: color 0.15s;
+}
+.pt-alert-title-link:hover { color: var(--pink); }

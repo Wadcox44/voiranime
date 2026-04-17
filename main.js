@@ -927,10 +927,12 @@ async function loadForYou() {
 
     watching.slice(0, 2).forEach(a => {
       const id = 'ep_' + a.malId;
-      if (!dismissed.includes(id) && a.title)
+      if (!dismissed.includes(id) && a.title) {
+        const titleLink = a.malId ? `<a href="anime.html?id=${a.malId}" class="pt-alert-title-link">${a.title}</a>` : `<strong>${a.title}</strong>`;
         alerts.push({ id, type: 'episode', icon: '🎬',
-          text: `Nouvel épisode disponible pour <strong>${a.title}</strong>`,
-          link: a.malId ? `anime.html?id=${a.malId}` : null });
+          text: `Nouvel épisode disponible pour ${titleLink}`,
+          link: null });
+      }
     });
 
     if (planTo.length > 0 && planTo[0].title) {
@@ -969,21 +971,29 @@ async function loadForYou() {
     });
   }
 
-  if (Object.keys(genreCount).length === 0) return;
-
-  // Top 2 genres les plus vus
-  const topGenres = Object.entries(genreCount)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 2)
-    .map(([id]) => id);
-
-  // Fetch animes par ces genres
-  const genreParam = topGenres.join(',');
+  // Si aucun genre trouvé → fallback top animes
   let candidates = [];
-  try {
-    const d = await jikanFetch(`/anime?genres=${genreParam}&order_by=score&sort=desc&limit=25&sfw=true`);
-    candidates = d.data || [];
-  } catch { return; }
+  let usedFallback = false;
+
+  if (Object.keys(genreCount).length === 0) {
+    usedFallback = true;
+    try {
+      const d = await jikanFetch(`/top/anime?order_by=score&sort=desc&limit=25&sfw=true`);
+      candidates = d.data || [];
+    } catch { return; }
+  } else {
+    // Top 2 genres les plus vus
+    const topGenres = Object.entries(genreCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2)
+      .map(([id]) => id);
+
+    const genreParam = topGenres.join(',');
+    try {
+      const d = await jikanFetch(`/anime?genres=${genreParam}&order_by=score&sort=desc&limit=25&sfw=true`);
+      candidates = d.data || [];
+    } catch { return; }
+  }
 
   // Filtre les animes déjà vus
   const seenIds = new Set(history.map(h => String(h.id)));
@@ -1012,7 +1022,9 @@ async function loadForYou() {
 
   section.style.display = '';
   const badge = el('forYouBadge');
-  if (badge) badge.textContent = `Basé sur tes ${Math.min(history.length, 5)} derniers animes`;
+  if (badge) badge.textContent = usedFallback
+    ? 'Sélection du moment'
+    : `Basé sur tes ${Math.min(history.length + favs.length, 5)} animes`;
 
   const carousel = el('carousel-for-you');
   carousel.innerHTML = '';
@@ -1027,7 +1039,7 @@ async function init() {
   initAdvancedSearch();
   updateFavUI();
   renderFavoritesSection();
-  renderContinueWatching();
+  // renderContinueWatching() — supprimé, géré dans le profil
 
   // Hero supprimé — remplacé par Anime du jour
   loadAnimeDuJour();
