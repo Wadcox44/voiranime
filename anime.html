@@ -371,5 +371,16 @@
   });
 })();
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var raw  = location.pathname.split('/').pop() || 'index';
+  var path = raw.endsWith('.html') ? raw : raw + '.html';
+  if (path === '.html') path = 'index.html';
+  document.querySelectorAll('.nav-link').forEach(function(l){
+    var href = l.getAttribute('href');
+    l.classList.toggle('active', href === path);
+  });
+});
+</script>
 </body>
 </html>

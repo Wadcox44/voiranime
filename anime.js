@@ -261,13 +261,26 @@ function startTrailer(youtubeId) {
 }
 
 function toggleMute() {
-  const frame     = el('trailerFrame');
-  const youtubeId = trailerState.youtubeId;
-  if (!frame || !youtubeId) return;
+  const frame = el('trailerFrame');
+  if (!frame) return;
 
   trailerState.muted = !trailerState.muted;
-  const muteParam    = trailerState.muted ? 1 : 0;
-  frame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=${muteParam}&controls=0&modestbranding=1&rel=0&playsinline=1`;
+
+  // Utilise postMessage YouTube API — évite de recharger l'iframe
+  const command = trailerState.muted ? 'mute' : 'unMute';
+  try {
+    frame.contentWindow.postMessage(
+      JSON.stringify({ event: 'command', func: command, args: [] }),
+      'https://www.youtube.com'
+    );
+  } catch (e) {
+    // Fallback si postMessage échoue (rare) — reload minimal
+    const youtubeId = trailerState.youtubeId;
+    if (youtubeId) {
+      const muteParam = trailerState.muted ? 1 : 0;
+      frame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=${muteParam}&controls=0&modestbranding=1&rel=0&enablejsapi=1&playsinline=1`;
+    }
+  }
 
   const muteLabel = el('muteLabel');
   const muteIcon  = el('muteIcon');

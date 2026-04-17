@@ -1042,6 +1042,8 @@ ul, ol { list-style: none; }
   max-height: 720px;
   overflow: hidden;
   background: var(--ink2);
+  margin-top: calc(-1 * var(--nav-h));
+  padding-top: var(--nav-h);
 }
 
 /* Iframe trailer */
