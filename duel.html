@@ -525,7 +525,7 @@ async function handleVote(winnerSide) {
   localStorage.setItem('voiranime_duels',  state.duelsPlayed);
   localStorage.setItem('voiranime_streak', state.streak);
   updateSessionStats();
-  el('navDuelCount').textContent = state.duelsPlayed;
+  if (el('navDuelCount')) el('navDuelCount').textContent = state.duelsPlayed;
 
   let votesA = 1, votesB = 0;
   try {
