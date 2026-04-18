@@ -262,8 +262,88 @@ const VA_DICT = {
 
 };
 
-/* Export pour usage dans main.js / anime.js etc. */
-window.t        = t;
-window.VA_LANG  = VA_LANG;
-window.VA_setLang   = VA_setLang;
+/* ══════════════════════════════════════════
+   Détection et gestion de la langue
+══════════════════════════════════════════ */
+
+function VA_detectLang() {
+  const saved = localStorage.getItem('VoirAnime_lang');
+  if (saved === 'en' || saved === 'fr') return saved;
+  const browser = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  return browser.startsWith('fr') ? 'fr' : 'en';
+}
+
+let VA_LANG = VA_detectLang();
+
+function t(key) {
+  const args = Array.prototype.slice.call(arguments, 1);
+  const entry = VA_DICT[key];
+  if (!entry) { return key; }
+  const val = entry[VA_LANG] !== undefined ? entry[VA_LANG] : entry['en'];
+  return typeof val === 'function' ? val.apply(null, args) : val;
+}
+
+function VA_setLang(lang) {
+  VA_LANG = lang;
+  localStorage.setItem('VoirAnime_lang', lang);
+  location.reload();
+}
+
+function VA_toggleLang() {
+  VA_setLang(VA_LANG === 'fr' ? 'en' : 'fr');
+}
+
+/* ══════════════════════════════════════════
+   Injection du bouton langue dans la navbar
+══════════════════════════════════════════ */
+
+function VA_injectLangBtn() {
+  const navRight = document.querySelector('.nav-right');
+  if (!navRight || document.getElementById('va-lang-btn')) return;
+
+  const btn = document.createElement('button');
+  btn.id = 'va-lang-btn';
+  btn.className = 'va-lang-btn';
+  btn.textContent = VA_LANG === 'fr' ? 'EN' : 'FR';
+  btn.setAttribute('aria-label', VA_LANG === 'fr' ? 'Switch to English' : 'Passer en français');
+  btn.addEventListener('click', VA_toggleLang);
+  navRight.prepend(btn);
+}
+
+/* ══════════════════════════════════════════
+   Application des traductions au DOM HTML
+══════════════════════════════════════════ */
+
+function VA_applyDOM() {
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    const key = el.getAttribute('data-i18n');
+    const val = t(key);
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      el.placeholder = val;
+    } else {
+      el.textContent = val;
+    }
+  });
+}
+
+/* ══════════════════════════════════════════
+   Init automatique au chargement
+══════════════════════════════════════════ */
+
+(function VA_i18nInit() {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      VA_injectLangBtn();
+      VA_applyDOM();
+    });
+  } else {
+    VA_injectLangBtn();
+    VA_applyDOM();
+  }
+})();
+
+/* Export global */
+window.t             = t;
+window.VA_LANG       = VA_LANG;
+window.VA_setLang    = VA_setLang;
 window.VA_toggleLang = VA_toggleLang;
