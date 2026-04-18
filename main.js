@@ -302,19 +302,18 @@ function initCarouselButtons() {
       const carousel = el(`carousel-${id}`);
       if (!carousel) return;
 
-      // Désactiver snap pendant le scroll programmé (sinon il résiste)
-      carousel.style.scrollSnapType = 'none';
-
       const firstCard = carousel.querySelector('.anime-card');
-      const gap       = 14;
-      const cardWidth = firstCard ? (firstCard.offsetWidth + gap) : 172;
+      const gap       = parseInt(getComputedStyle(carousel).gap) || 14;
+      const cardWidth = firstCard ? firstCard.offsetWidth + gap : 172;
       const step      = cardWidth * 3;
 
+      // Désactiver snap + behavior smooth pour un scroll précis
+      carousel.style.scrollSnapType = 'none';
       carousel.scrollBy({ left: btn.classList.contains('prev') ? -step : step, behavior: 'smooth' });
 
-      // Réactiver snap après la fin de l'animation (300ms)
-      clearTimeout(btn._snapTimer);
-      btn._snapTimer = setTimeout(() => { carousel.style.scrollSnapType = ''; }, 400);
+      // Réactiver snap après scroll
+      clearTimeout(btn._t);
+      btn._t = setTimeout(() => { carousel.style.scrollSnapType = ''; }, 500);
     });
   });
 }
