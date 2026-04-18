@@ -806,8 +806,12 @@ ul, ol { list-style: none; }
   padding: 12px 2px 24px;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  /* Scroll snap sur tous les écrans pour un défilement précis */
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
 }
 .carousel::-webkit-scrollbar { display: none; }
+.anime-card { scroll-snap-align: start; }
 
 /* ── Carousel buttons ── */
 .carousel-wrapper { position: relative; }
@@ -3865,13 +3869,12 @@ a:active {
   /* Boutons carousel masqués */
   .carousel-btn { display: flex !important; opacity: 1 !important; pointer-events: all !important; width: 28px; height: 56px; font-size: 1rem; }
 
-  /* Carousel : snap scroll natif */
+  /* Carousel : snap scroll natif strict sur mobile */
   .carousel {
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 16px;
   }
-  .anime-card { scroll-snap-align: start; }
 }
 
 @media (max-width: 480px) {

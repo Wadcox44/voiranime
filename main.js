@@ -298,10 +298,16 @@ function renderCarousel(carouselId, animes, opts = {}) {
 function initCarouselButtons() {
   document.querySelectorAll('.carousel-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const id      = btn.dataset.carousel;
+      const id       = btn.dataset.carousel;
       const carousel = el(`carousel-${id}`);
       if (!carousel) return;
-      const step = carousel.clientWidth * 0.75;
+
+      // Calcul basé sur la largeur d'une carte réelle × 3
+      const firstCard = carousel.querySelector('.anime-card');
+      const gap       = 14;
+      const cardWidth = firstCard ? firstCard.offsetWidth + gap : Math.round(carousel.clientWidth / 3);
+      const step      = cardWidth * 3;
+
       carousel.scrollBy({
         left: btn.classList.contains('prev') ? -step : step,
         behavior: 'smooth',
