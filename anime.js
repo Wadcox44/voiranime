@@ -267,39 +267,59 @@ function startTrailer(youtubeId) {
   if (muteIcon)  muteIcon.innerHTML    = mutedSVG();
 }
 
+/* Détection mobile/Pi Browser — utilisé pour adapter le comportement */
+const isMobileOrPi = /Android|iPhone|iPad|iPod|Pi Browser|PiBrowser/i.test(navigator.userAgent)
+  || ('ontouchstart' in window)
+  || (navigator.maxTouchPoints > 0);
+
 function toggleMute() {
   const frame = el('trailerFrame');
-  if (!frame) return;
+  if (!frame || !trailerState.youtubeId) return;
 
   trailerState.muted = !trailerState.muted;
 
-  // Méthode 1 : postMessage YouTube IFrame API (desktop/Chrome)
-  try {
-    const command = trailerState.muted ? 'mute' : 'unMute';
-    frame.contentWindow.postMessage(
-      JSON.stringify({ event: 'command', func: command, args: [] }),
-      '*'   // '*' au lieu de 'https://www.youtube.com' — compatible Pi Browser
-    );
-  } catch(e) {}
-
-  // Méthode 2 : rechargement src avec nouveau paramètre mute (fallback universel)
-  // Déclenché après 400ms si postMessage n'a pas eu d'effet (détecté par absence de réponse)
-  const youtubeId = trailerState.youtubeId;
-  if (youtubeId) {
-    clearTimeout(trailerState._muteTimer);
-    trailerState._muteTimer = setTimeout(function() {
-      // Vérifier si la vidéo joue encore — si oui, postMessage a fonctionné
-      // Si non, recharger (cas Pi Browser strict)
-      if (!trailerState.playing) return;
-      const muteParam = trailerState.muted ? 1 : 0;
-      frame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=${muteParam}&controls=0&modestbranding=1&rel=0&enablejsapi=1&playsinline=1&origin=${encodeURIComponent(location.origin)}`;
-    }, 600);
+  if (isMobileOrPi) {
+    // Sur mobile/Pi Browser : postMessage et reload src cassent tous les deux la vidéo
+    // Solution : passer en mode contrôles YouTube natifs (l'utilisateur contrôle le son lui-même)
+    activateNativeControls();
+  } else {
+    // Desktop : postMessage fonctionne sans interruption
+    try {
+      const command = trailerState.muted ? 'mute' : 'unMute';
+      frame.contentWindow.postMessage(
+        JSON.stringify({ event: 'command', func: command, args: [] }),
+        '*'
+      );
+    } catch(e) {
+      activateNativeControls();
+    }
   }
 
   const muteLabel = el('muteLabel');
   const muteIcon  = el('muteIcon');
   if (muteLabel) muteLabel.textContent = trailerState.muted ? t('anime.sound_on') : t('anime.sound_off');
   if (muteIcon)  muteIcon.innerHTML    = trailerState.muted ? mutedSVG() : unmutedSVG();
+}
+
+/* Active les contrôles YouTube natifs dans l'iframe — sans recharger la vidéo */
+function activateNativeControls() {
+  const frame     = el('trailerFrame');
+  const youtubeId = trailerState.youtubeId;
+  if (!frame || !youtubeId || trailerState._nativeControls) return;
+  trailerState._nativeControls = true;
+
+  // Remplacer controls=0 par controls=1 en gardant la position de lecture
+  // YouTube reprend automatiquement là où il en était si enablejsapi=1
+  frame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&enablejsapi=1&playsinline=1`;
+
+  // Masquer nos boutons custom — l'utilisateur utilise les contrôles YouTube
+  const unmuteBtn = el('unmuteBtn');
+  const fsBtn     = el('fullscreenBtn');
+  if (unmuteBtn) unmuteBtn.classList.add('hidden');
+  if (fsBtn)     fsBtn.classList.add('hidden');
+
+  // Rendre l'iframe cliquable pour les contrôles natifs
+  if (frame) frame.style.pointerEvents = 'auto';
 }
 
 function mutedSVG() {
@@ -463,30 +483,46 @@ function renderDetail(anime) {
   } else {
     // Pas d'ID Jikan → on cherche sur YouTube (consomme ~100 unités/recherche)
     const playBtn = el('playTrailerBtn');
-    if (playBtn) {
-      // État "recherche en cours" pendant la requête YT
-      playBtn.innerHTML = `
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             style="animation:spin 1s linear infinite">
-          <circle cx="12" cy="12" r="10" stroke-dasharray="30" stroke-dashoffset="10"/>
-        </svg>
-        Recherche vidéo…`;
-      playBtn.style.opacity = '0.7';
-      playBtn.disabled      = true;
-    }
 
-    // Recherche async — n'empêche pas le reste de la page de s'afficher
-    findYouTubeId(title).then(ytId => {
-      if (ytId) {
-        embedTrailer(ytId, true);
-        initFullscreen();
-        // Badge discret indiquant que la vidéo vient de YouTube
-        const ratingEl = el('trailerRating');
-        if (ratingEl) ratingEl.textContent = 'YouTube';
-      } else {
-        showNoVideo();
+    if (isMobileOrPi) {
+      // Sur mobile/Pi : ne pas appeler l'API YouTube (quota + restrictions réseau)
+      // Proposer un lien direct vers YouTube à la place
+      if (playBtn) {
+        playBtn.innerHTML = `
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.1 2.8 12 2.8 12 2.8s-4.1 0-6.8.2c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.2.7 11.3v2c0 2.1.3 4.3.3 4.3s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.5 21.8 12 22 12 22s4.1 0 6.8-.4c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.2.3-4.3v-2C23.3 9.2 23 7 23 7zM9.7 15.5V8.4l8.1 3.6-8.1 3.5z"/>
+          </svg>
+          Voir sur YouTube`;
+        playBtn.style.opacity = '1';
+        playBtn.disabled = false;
+        playBtn.onclick = () => {
+          window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(title + ' trailer anime')}`, '_blank');
+        };
       }
-    });
+    } else {
+      // Desktop : appel API YouTube normal
+      if (playBtn) {
+        playBtn.innerHTML = `
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               style="animation:spin 1s linear infinite">
+            <circle cx="12" cy="12" r="10" stroke-dasharray="30" stroke-dashoffset="10"/>
+          </svg>
+          Recherche vidéo…`;
+        playBtn.style.opacity = '0.7';
+        playBtn.disabled      = true;
+      }
+
+      findYouTubeId(title).then(ytId => {
+        if (ytId) {
+          embedTrailer(ytId, true);
+          initFullscreen();
+          const ratingEl = el('trailerRating');
+          if (ratingEl) ratingEl.textContent = 'YouTube';
+        } else {
+          showNoVideo();
+        }
+      });
+    }
   }
 
   // ── Badge épisode — uniquement si statut STRICTEMENT "Currently Airing" ──
