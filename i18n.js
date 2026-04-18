@@ -51,8 +51,13 @@ async function VA_loadTranslations(lang) {
 function t(key, vars) {
   let val = VA_DICT[key];
   if (val === undefined) {
-    if (VA_READY) console.warn('[i18n] Missing key: "' + key + '"');
-    return key;
+    // Essayer le fallback inline
+    var fb = VA_FALLBACK[key];
+    if (fb !== undefined) val = fb;
+    else {
+      if (VA_READY) console.warn('[i18n] Missing key: "' + key + '"');
+      return key;
+    }
   }
   if (vars && typeof vars === 'object') {
     val = val.replace(/\{(\w+)\}/g, function(_, k) {
@@ -92,6 +97,16 @@ function VA_onReady(cb) {
   if (VA_READY) { cb(); return; }
   VA_CBS.push(cb);
 }
+
+
+/* Fallback inline — types critiques utilisés avant chargement JSON */
+const VA_FALLBACK = {
+  'type.tv': 'Series', 'type.movie': 'Movie', 'type.ova': 'OVA',
+  'type.ona': 'ONA', 'type.special': 'Special', 'type.streaming': 'Streaming',
+  'fav.added': '{0} added to favorites', 'fav.removed': '{0} removed from favorites',
+  'rating.saved': 'Rating saved: {0}/10 ⭐', 'rating.deleted': 'Rating removed',
+  'common.error_load': 'Unable to load.', 'section.error': 'Unable to load this section.',
+};
 
 async function VA_init() {
   VA_DICT  = await VA_loadTranslations(VA_LANG);
