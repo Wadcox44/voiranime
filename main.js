@@ -296,27 +296,52 @@ function renderCarousel(carouselId, animes, opts = {}) {
    CAROUSEL NAVIGATION
 ────────────────────────────────────── */
 function initCarouselButtons() {
-  document.querySelectorAll('.carousel-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id       = btn.dataset.carousel;
-      const carousel = el(`carousel-${id}`);
-      if (!carousel) return;
+  // Event delegation — 1 seul listener global, jamais dupliqué même si appelé plusieurs fois
+  if (window._carouselBtnInit) return;
+  window._carouselBtnInit = true;
 
-      const firstCard = carousel.querySelector('.anime-card');
-      const gap       = parseInt(getComputedStyle(carousel).gap) || 14;
-      const cardWidth = firstCard ? firstCard.offsetWidth + gap : 172;
-      const step      = cardWidth * 3;
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.carousel-btn');
+    if (!btn) return;
 
-      // Désactiver snap + behavior smooth pour un scroll précis
-      carousel.style.scrollSnapType = 'none';
-      carousel.scrollBy({ left: btn.classList.contains('prev') ? -step : step, behavior: 'smooth' });
+    const id       = btn.dataset.carousel;
+    const carousel = document.getElementById('carousel-' + id);
+    if (!carousel) return;
 
-      // Réactiver snap après scroll
-      clearTimeout(btn._t);
-      btn._t = setTimeout(() => { carousel.style.scrollSnapType = ''; }, 500);
-    });
+    const firstCard = carousel.querySelector('.anime-card');
+    const gap       = parseInt(getComputedStyle(carousel).gap) || 14;
+    const cardWidth = firstCard ? firstCard.offsetWidth + gap : 172;
+    const step      = cardWidth * 3;
+    const dir       = btn.classList.contains('prev') ? -1 : 1;
+    const target    = Math.max(0, carousel.scrollLeft + step * dir);
+
+    // Animation RAF — fiable sur Pi Browser et mobile
+    carousel.style.scrollSnapType = 'none';
+    carousel.style.scrollBehavior = 'auto';
+
+    const start_pos = carousel.scrollLeft;
+    const distance  = target - start_pos;
+    const duration  = 280;
+    let startTime   = null;
+
+    function ease(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+
+    function animate(ts) {
+      if (!startTime) startTime = ts;
+      const progress = Math.min((ts - startTime) / duration, 1);
+      carousel.scrollLeft = start_pos + distance * ease(progress);
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        carousel.style.scrollSnapType = '';
+        carousel.style.scrollBehavior = '';
+      }
+    }
+
+    requestAnimationFrame(animate);
   });
 }
+
 
 /* ──────────────────────────────────────
    HERO
