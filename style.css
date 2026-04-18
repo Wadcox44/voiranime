@@ -803,16 +803,14 @@ ul, ol { list-style: none; }
   gap: 14px;
   overflow-x: auto;
   overflow-y: visible;
-  scroll-behavior: smooth;
   padding: 12px 2px 24px;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  /* Pas de snap sur desktop — libre */
   -webkit-overflow-scrolling: touch;
-  will-change: scroll-position;
+  /* Pas de scroll-snap — le JS gère le défilement précis par boutons */
+  /* Le scroll tactile reste libre et fluide */
 }
 .carousel::-webkit-scrollbar { display: none; }
-/* Snap seulement activé via JS sur mobile */
 
 /* ── Carousel buttons ── */
 .carousel-wrapper { position: relative; }
@@ -3862,26 +3860,24 @@ a:active {
   .section-title { font-size: 0.92rem; }
   .section-badge { font-size: 0.58rem; padding: 2px 7px; }
 
-  /* Cards : taille réduite */
-  .anime-card { width: 128px; }
+  /* Cards : exactement 3 visibles — calc basé sur padding section (14px×2) et gaps (14px×2) */
+  .anime-card { width: calc((100vw - 56px) / 3); }
   .card-title { font-size: 0.74rem; }
   .card-sub   { font-size: 0.64rem; }
 
   /* Boutons carousel masqués */
   .carousel-btn { display: flex !important; opacity: 1 !important; pointer-events: all !important; width: 28px; height: 56px; font-size: 1rem; }
 
-  /* Carousel mobile : snap souple + scroll horizontal pur */
+  /* Carousel mobile : scroll libre et fluide */
   .carousel {
-    scroll-snap-type: x proximity;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-x;
     padding-bottom: 16px;
   }
-  .anime-card { scroll-snap-align: start; }
 }
 
 @media (max-width: 480px) {
-  .anime-card { width: 112px; }
+  .anime-card { width: calc((100vw - 56px) / 3); }
   .card-thumb img { border-radius: 8px; }
   .card-info      { padding: 7px 2px 2px; }
 }

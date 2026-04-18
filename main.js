@@ -309,8 +309,9 @@ function initCarouselButtons() {
     if (!carousel) return;
 
     const firstCard = carousel.querySelector('.anime-card');
-    const gap       = parseInt(getComputedStyle(carousel).gap) || 14;
-    const cardWidth = firstCard ? firstCard.offsetWidth + gap : 172;
+    const gap       = parseFloat(getComputedStyle(carousel).gap) || 14;
+    // Largeur réelle de la carte CSS (calc() inclus) + gap
+    const cardWidth = firstCard ? firstCard.getBoundingClientRect().width + gap : 172;
     const step      = cardWidth * 3;
     const dir       = btn.classList.contains('prev') ? -1 : 1;
     const target    = Math.max(0, carousel.scrollLeft + step * dir);
