@@ -194,12 +194,18 @@ function ytCacheSet(key, value) {
 }
 
 async function findYouTubeId(title) {
+  if (!title) return null;
   const cacheKey = `search_${encodeURIComponent(title)}`;
   const cached   = ytCacheGet(cacheKey);
   if (cached !== null) return cached;
 
   try {
-    const res  = await fetch(`/api/youtube?title=${encodeURIComponent(title)}`);
+    const controller = new AbortController();
+    const timeout    = setTimeout(() => controller.abort(), 8000); // timeout 8s
+    const res  = await fetch(`/api/youtube?title=${encodeURIComponent(title)}`, {
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
     if (res.status === 404) { ytCacheSet(cacheKey, null); return null; }
     if (!res.ok) { console.warn('[YT] API error:', res.status); return null; }
 
@@ -208,6 +214,7 @@ async function findYouTubeId(title) {
     ytCacheSet(cacheKey, id);
     return id;
   } catch (e) {
+    // Timeout ou réseau — ne pas afficher "aucune vidéo" pour autant
     console.warn('[YT] Fetch error:', e.message);
     return null;
   }
@@ -266,20 +273,27 @@ function toggleMute() {
 
   trailerState.muted = !trailerState.muted;
 
-  // Utilise postMessage YouTube API — évite de recharger l'iframe
-  const command = trailerState.muted ? 'mute' : 'unMute';
+  // Méthode 1 : postMessage YouTube IFrame API (desktop/Chrome)
   try {
+    const command = trailerState.muted ? 'mute' : 'unMute';
     frame.contentWindow.postMessage(
       JSON.stringify({ event: 'command', func: command, args: [] }),
-      'https://www.youtube.com'
+      '*'   // '*' au lieu de 'https://www.youtube.com' — compatible Pi Browser
     );
-  } catch (e) {
-    // Fallback si postMessage échoue (rare) — reload minimal
-    const youtubeId = trailerState.youtubeId;
-    if (youtubeId) {
+  } catch(e) {}
+
+  // Méthode 2 : rechargement src avec nouveau paramètre mute (fallback universel)
+  // Déclenché après 400ms si postMessage n'a pas eu d'effet (détecté par absence de réponse)
+  const youtubeId = trailerState.youtubeId;
+  if (youtubeId) {
+    clearTimeout(trailerState._muteTimer);
+    trailerState._muteTimer = setTimeout(function() {
+      // Vérifier si la vidéo joue encore — si oui, postMessage a fonctionné
+      // Si non, recharger (cas Pi Browser strict)
+      if (!trailerState.playing) return;
       const muteParam = trailerState.muted ? 1 : 0;
-      frame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=${muteParam}&controls=0&modestbranding=1&rel=0&enablejsapi=1&playsinline=1`;
-    }
+      frame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=${muteParam}&controls=0&modestbranding=1&rel=0&enablejsapi=1&playsinline=1&origin=${encodeURIComponent(location.origin)}`;
+    }, 600);
   }
 
   const muteLabel = el('muteLabel');
@@ -325,18 +339,64 @@ function initFullscreen() {
   const iconExpand   = `<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>`;
   const iconCompress = `<polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/>`;
 
-  btn.addEventListener('click', () => {
-    if (!document.fullscreenElement) {
-      container.requestFullscreen?.();
+  // Détection support Fullscreen API (absent sur Pi Browser)
+  const fsSupported = !!(
+    container.requestFullscreen ||
+    container.webkitRequestFullscreen ||
+    container.mozRequestFullScreen ||
+    container.msRequestFullscreen
+  );
+
+  function enterFS() {
+    if (fsSupported) {
+      (container.requestFullscreen ||
+       container.webkitRequestFullscreen ||
+       container.mozRequestFullScreen ||
+       container.msRequestFullscreen).call(container);
     } else {
-      document.exitFullscreen?.();
+      // Fallback CSS fullscreen pour Pi Browser
+      container.classList.add('fs-fallback');
+      document.body.style.overflow = 'hidden';
+      trailerState._fsFallback = true;
     }
+  }
+
+  function exitFS() {
+    if (fsSupported && document.fullscreenElement) {
+      (document.exitFullscreen ||
+       document.webkitExitFullscreen ||
+       document.mozCancelFullScreen ||
+       document.msExitFullscreen).call(document);
+    } else {
+      container.classList.remove('fs-fallback');
+      document.body.style.overflow = '';
+      trailerState._fsFallback = false;
+    }
+  }
+
+  function updateIcon(isFS) {
+    const svg = btn.querySelector('svg');
+    if (svg) svg.innerHTML = isFS ? iconCompress : iconExpand;
+    btn.title = isFS ? t('anime.reduce') : t('anime.fullscreen');
+  }
+
+  btn.addEventListener('click', () => {
+    const isFS = !!(document.fullscreenElement || trailerState._fsFallback);
+    isFS ? exitFS() : enterFS();
+    // Mise à jour immédiate pour Pi Browser (pas d'event fullscreenchange)
+    if (!fsSupported) updateIcon(!trailerState._fsFallback === false);
+  });
+
+  // Fermer le fallback avec Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && trailerState._fsFallback) exitFS();
   });
 
   document.addEventListener('fullscreenchange', () => {
-    const isFS = !!document.fullscreenElement;
-    btn.querySelector('svg').innerHTML = isFS ? iconCompress : iconExpand;
-    btn.title = isFS ? t('anime.reduce') : t('anime.fullscreen');
+    updateIcon(!!document.fullscreenElement);
+  });
+  document.addEventListener('webkitfullscreenchange', () => {
+    updateIcon(!!document.webkitFullscreenElement);
   });
 }
 

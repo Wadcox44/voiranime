@@ -1044,12 +1044,17 @@ ul, ol { list-style: none; }
   background: var(--ink2);
   margin-top: calc(-1 * var(--nav-h));
   padding-top: var(--nav-h);
+  box-sizing: border-box;
 }
 
 /* Iframe trailer */
 .trailer-container {
   position: absolute;
-  inset: 0;
+  /* Commence sous la navbar, pas depuis le haut absolu */
+  top: var(--nav-h);
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 1;
   display: none;
 }
@@ -1058,6 +1063,8 @@ ul, ol { list-style: none; }
   width: 100%;
   height: 100%;
   pointer-events: none;
+  /* Agrandit l'iframe pour éviter les bandes noires sur mobile */
+  min-height: 100%;
 }
 
 /* Banner image fallback */
@@ -3867,7 +3874,7 @@ a:active {
 ───────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   /* Hero bannière */
-  .anime-hero { height: 52vw; min-height: 240px; max-height: 380px; }
+  .anime-hero { height: calc(56.25vw + var(--nav-h)); min-height: 320px; max-height: 480px; }
 
   /* Contrôles trailer */
   .trailer-controls {
@@ -3928,7 +3935,7 @@ a:active {
 }
 
 @media (max-width: 480px) {
-  .anime-hero { height: 56vw; min-height: 200px; }
+  .anime-hero { height: calc(56.25vw + var(--nav-h)); min-height: 280px; }
   .anime-title { font-size: clamp(1.3rem, 6vw, 1.8rem); }
   .anime-quick-stats { gap: 10px; }
   .stat-item { min-width: 52px; }
@@ -4824,4 +4831,22 @@ a:active {
   border-color: var(--pink);
   color: var(--pink);
   background: var(--pink-dim);
+}
+
+/* ── Fullscreen fallback CSS pour Pi Browser (pas d'API fullscreen) ── */
+.trailer-container.fs-fallback {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  background: #000;
+  display: block !important;
+}
+.trailer-container.fs-fallback iframe {
+  width: 100% !important;
+  height: 100% !important;
 }
