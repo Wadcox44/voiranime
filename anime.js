@@ -249,7 +249,6 @@ function startTrailer(youtubeId) {
   const frame     = el('trailerFrame');
   const playBtn   = el('playTrailerBtn');
   const unmuteBtn = el('unmuteBtn');
-  const fsBtn     = el('fullscreenBtn');
 
   frame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&enablejsapi=1&playsinline=1`;
 
@@ -257,7 +256,6 @@ function startTrailer(youtubeId) {
   if (banner)    { banner.style.opacity = '0'; banner.style.transition = 'opacity 0.8s ease'; }
   if (playBtn)   playBtn.classList.add('hidden');
   if (unmuteBtn) unmuteBtn.classList.remove('hidden');
-  if (fsBtn)     fsBtn.classList.remove('hidden');
 
   trailerState.playing = true;
   trailerState.muted   = true;
@@ -314,9 +312,7 @@ function activateNativeControls() {
 
   // Masquer nos boutons custom — l'utilisateur utilise les contrôles YouTube
   const unmuteBtn = el('unmuteBtn');
-  const fsBtn     = el('fullscreenBtn');
   if (unmuteBtn) unmuteBtn.classList.add('hidden');
-  if (fsBtn)     fsBtn.classList.add('hidden');
 
   // Rendre l'iframe cliquable pour les contrôles natifs
   if (frame) frame.style.pointerEvents = 'auto';
@@ -349,75 +345,6 @@ function showNoVideo() {
   }
   // Bannière reste visible, légèrement assombrie pour indiquer l'absence de vidéo
   if (banner) banner.style.filter = 'brightness(0.7)';
-}
-
-function initFullscreen() {
-  const btn       = el('fullscreenBtn');
-  const container = el('trailerContainer');
-  if (!btn || !container) return;
-
-  const iconExpand   = `<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>`;
-  const iconCompress = `<polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/>`;
-
-  // Détection support Fullscreen API (absent sur Pi Browser)
-  const fsSupported = !!(
-    container.requestFullscreen ||
-    container.webkitRequestFullscreen ||
-    container.mozRequestFullScreen ||
-    container.msRequestFullscreen
-  );
-
-  function enterFS() {
-    if (fsSupported) {
-      (container.requestFullscreen ||
-       container.webkitRequestFullscreen ||
-       container.mozRequestFullScreen ||
-       container.msRequestFullscreen).call(container);
-    } else {
-      // Fallback CSS fullscreen pour Pi Browser
-      container.classList.add('fs-fallback');
-      document.body.style.overflow = 'hidden';
-      trailerState._fsFallback = true;
-    }
-  }
-
-  function exitFS() {
-    if (fsSupported && document.fullscreenElement) {
-      (document.exitFullscreen ||
-       document.webkitExitFullscreen ||
-       document.mozCancelFullScreen ||
-       document.msExitFullscreen).call(document);
-    } else {
-      container.classList.remove('fs-fallback');
-      document.body.style.overflow = '';
-      trailerState._fsFallback = false;
-    }
-  }
-
-  function updateIcon(isFS) {
-    const svg = btn.querySelector('svg');
-    if (svg) svg.innerHTML = isFS ? iconCompress : iconExpand;
-    btn.title = isFS ? t('anime.reduce') : t('anime.fullscreen');
-  }
-
-  btn.addEventListener('click', () => {
-    const isFS = !!(document.fullscreenElement || trailerState._fsFallback);
-    isFS ? exitFS() : enterFS();
-    // Mise à jour immédiate pour Pi Browser (pas d'event fullscreenchange)
-    if (!fsSupported) updateIcon(!trailerState._fsFallback === false);
-  });
-
-  // Fermer le fallback avec Escape
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && trailerState._fsFallback) exitFS();
-  });
-
-  document.addEventListener('fullscreenchange', () => {
-    updateIcon(!!document.fullscreenElement);
-  });
-  document.addEventListener('webkitfullscreenchange', () => {
-    updateIcon(!!document.webkitFullscreenElement);
-  });
 }
 
 /* ──────────────────────────────────────
@@ -479,7 +406,6 @@ function renderDetail(anime) {
     embedTrailer(jikanTrailerId, true);
     const ratingEl = el('trailerRating');
     if (ratingEl) ratingEl.textContent = anime.rating ? anime.rating.split(' ')[0] : '';
-    initFullscreen();
   } else {
     // Pas d'ID Jikan → on cherche sur YouTube (consomme ~100 unités/recherche)
     const playBtn = el('playTrailerBtn');
@@ -503,8 +429,7 @@ function renderDetail(anime) {
       findYouTubeId(title).then(ytId => {
         if (ytId) {
           embedTrailer(ytId, true);
-          initFullscreen();
-          const ratingEl = el('trailerRating');
+                const ratingEl = el('trailerRating');
           if (ratingEl) ratingEl.textContent = 'YouTube';
         } else {
           showNoVideo();
