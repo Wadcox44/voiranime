@@ -211,96 +211,6 @@ const VA_DICT = {
   /* ── Commun ── */
   'common.error_load': { fr: 'Impossible de charger cette ambiance.', en: 'Unable to load this mood.' },
   'common.no_video':   { fr: 'Aucune vidéo disponible',               en: 'No video available' },
-};
-
-/* ══════════════════════════════════════════
-   Détection et gestion de la langue
-══════════════════════════════════════════ */
-
-function VA_detectLang() {
-  const saved = localStorage.getItem('VoirAnime_lang');
-  if (saved === 'en' || saved === 'fr') return saved;
-  const browser = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
-  return browser.startsWith('fr') ? 'fr' : 'en';
-}
-
-let VA_LANG = VA_detectLang();
-
-function t(key, ...args) {
-  const entry = VA_DICT[key];
-  if (!entry) { console.warn(`[i18n] clé manquante: ${key}`); return key; }
-  const val = entry[VA_LANG] ?? entry['en'];
-  return typeof val === 'function' ? val(...args) : val;
-}
-
-function VA_setLang(lang) {
-  VA_LANG = lang;
-  localStorage.setItem('VoirAnime_lang', lang);
-  location.reload();
-}
-
-function VA_toggleLang() {
-  VA_setLang(VA_LANG === 'fr' ? 'en' : 'fr');
-}
-
-/* ══════════════════════════════════════════
-   Injection du bouton langue dans la navbar
-══════════════════════════════════════════ */
-
-function VA_injectLangBtn() {
-  const navRight = document.querySelector('.nav-right');
-  if (!navRight || document.getElementById('va-lang-btn')) return;
-
-  const btn = document.createElement('button');
-  btn.id        = 'va-lang-btn';
-  btn.className = 'va-lang-btn';
-  btn.textContent = VA_LANG === 'fr' ? 'EN' : 'FR';
-  btn.setAttribute('aria-label', VA_LANG === 'fr' ? 'Switch to English' : 'Passer en français');
-  btn.addEventListener('click', VA_toggleLang);
-  navRight.prepend(btn);
-}
-
-/* ══════════════════════════════════════════
-   Application des traductions au DOM HTML
-   (pour les éléments data-i18n="clé")
-══════════════════════════════════════════ */
-
-function VA_applyDOM() {
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    const val = t(key);
-    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-      el.placeholder = val;
-    } else {
-      el.textContent = val;
-    }
-  });
-
-  document.querySelectorAll('[data-i18n-html]').forEach(el => {
-    el.innerHTML = t(el.getAttribute('data-i18n-html'));
-  });
-
-  // Mettre à jour title de page si défini
-  const titleKey = document.body.getAttribute('data-page-title');
-  if (titleKey) document.title = t(titleKey);
-}
-
-/* ══════════════════════════════════════════
-   Init automatique au chargement
-══════════════════════════════════════════ */
-
-(function VA_i18nInit() {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      VA_injectLangBtn();
-      VA_applyDOM();
-    });
-  } else {
-    VA_injectLangBtn();
-    VA_applyDOM();
-  }
-})();
-
 
   /* ── anime.js strings ── */
   'anime.fav_added':     { fr: (t) => `❤ ${t} ajouté aux favoris`,    en: (t) => `❤ ${t} added to favorites` },
@@ -348,7 +258,9 @@ function VA_applyDOM() {
   'watch.label_plan':      { fr: 'À regarder 🔖', en: 'Plan to watch 🔖' },
   'rating.saved':  { fr: (n) => `Note enregistrée : ${n}/10 ⭐`, en: (n) => `Rating saved: ${n}/10 ⭐` },
   'rating.deleted':{ fr: 'Note supprimée', en: 'Rating removed' },
-  'anime.episodes_label': { fr: 'Épisodes', en: 'Episodes' },
+  'anime.episodes_label': { fr: 'Épisodes', en: 'Episodes' }
+
+};
 
 /* Export pour usage dans main.js / anime.js etc. */
 window.t        = t;
