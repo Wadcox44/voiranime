@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VoirAnime — Mon Profil</title>
+  <title>VoirAnime — Profile</title>
   <link rel="stylesheet" href="style.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
@@ -314,14 +314,14 @@
 <section class="profile-section" id="watchSection">
   <div class="profile-section-title">
     <span class="section-dot green"></span>
-    📋 Mon Suivi
+    <span data-i18n="anime.my_tracking">📋 My Tracking</span>
     <span style="font-size:0.72rem;font-weight:400;color:var(--muted)" id="watchSubtitle"></span>
   </div>
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
     <button class="watch-filter-btn active" data-filter="all" data-i18n="adv.all">Tous</button>
     <button class="watch-filter-btn" data-filter="completed" data-i18n="watch.filter_completed">✓ Terminés</button>
     <button class="watch-filter-btn" data-filter="watching" data-i18n="watch.filter_watching">▶ En cours</button>
-    <button class="watch-filter-btn" data-filter="planToWatch">🔖 À regarder</button>
+    <button class="watch-filter-btn" data-filter="planToWatch" data-i18n="watch.label_plan">🔖 Plan to watch</button>
   </div>
   <div class="profile-grid" id="watchGrid"></div>
   <div class="profile-empty hidden" id="watchEmpty">
@@ -334,13 +334,13 @@
 <section class="profile-section">
   <div class="profile-section-title">
     <span class="section-dot red"></span>
-    ❤ Mes Favoris
+    <span data-i18n="section.favorites">❤ My Favorites</span>
     <span style="font-size:0.72rem;font-weight:400;color:var(--muted)" id="favSubtitle"></span>
   </div>
   <div class="profile-grid" id="favGrid"></div>
   <div class="profile-empty hidden" id="favEmpty">
     <div class="profile-empty-icon">（；￣д￣）</div>
-    <p>Aucun favori pour l'instant.<br>Clique sur ❤ sur n'importe quelle fiche anime !</p>
+    <p data-i18n="profile.no_favs">No favorites yet.</p>
   </div>
 </section>
 
@@ -348,7 +348,7 @@
 <section class="profile-section">
   <div class="profile-section-title">
     <span class="section-dot gold"></span>
-    ⭐ Mes Notes
+    <span data-i18n="profile.rated">⭐ My Ratings</span>
     <span style="font-size:0.72rem;font-weight:400;color:var(--muted)" id="ratingSubtitle"></span>
   </div>
   <div class="profile-grid" id="ratingGrid"></div>
@@ -363,11 +363,11 @@
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
     <div class="profile-section-title" style="margin-bottom:0">
       <span class="section-dot violet"></span>
-      🕐 Historique de navigation
+      <span data-i18n="profile.no_history_title">🕐 History</span>
     </div>
     <button class="profile-reset-btn" id="clearHistoryBtn">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-      Effacer
+      <span data-i18n="adv.clear">Clear</span>
     </button>
   </div>
   <div class="activity-list" id="historyList"></div>

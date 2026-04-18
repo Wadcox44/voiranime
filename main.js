@@ -152,10 +152,10 @@ function toggleFav(id, title, img) {
 
   if (idx > -1) {
     favs.splice(idx, 1);
-    showToast(`💔 ${title} retiré des favoris`);
+    showToast(t('fav.removed', title));
   } else {
     favs.unshift({ id: numId, title, img });
-    showToast(`❤ ${title} ajouté aux favoris`);
+    showToast(t('fav.added', title));
   }
 
   saveFavs(favs);
@@ -236,7 +236,7 @@ function buildCard(anime, opts = {}) {
         </div>
         ${score ? `<div class="card-score-badge">★ ${score.toFixed(1)}</div>` : ''}
       </div>
-      ${type ? `<span class="card-type-badge">${esc(({TV:'Série',Movie:'Film',OVA:'Spécial',ONA:'Streaming',Special:'Spécial'})[type]||type)}</span>` : ''}
+      ${type ? `<span class="card-type-badge">${esc(({TV:t('type.tv'),Movie:t('type.movie'),OVA:t('type.ova'),ONA:t('type.ona'),Special:t('type.special')})[type]||type)}</span>` : ''}
       ${rank ? `<span class="card-rank-badge">#${rank}</span>` : ''}
       <button class="card-fav-btn ${fav ? 'active' : ''}" data-fav-id="${id}" aria-label="Favori">
         <svg width="12" height="12" viewBox="0 0 24 24"
@@ -396,7 +396,7 @@ function renderHero(anime) {
   const badges = [];
   if (anime.score) badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
   if (anime.type) {
-    const tMap = { TV:'Série', Movie:"Film d'anime", OVA:'Spécial', ONA:'Streaming', Special:'Spécial' };
+    const tMap = { TV:t('type.tv'), Movie:"Film d'anime", OVA:t('type.ova'), ONA:t('type.ona'), Special:t('type.special') };
     badges.push(`<span class="badge badge-muted">${esc(tMap[anime.type]||anime.type)}</span>`);
   }
   if (anime.status === 'Currently Airing') badges.push(`<span class="badge badge-green">${t('anime.airing_badge')}</span>`);
@@ -674,14 +674,14 @@ async function loadHero() {
    MOOD PILLS — endpoints Jikan par ambiance
 ────────────────────────────────────── */
 const MOOD_CONFIG = {
-  all:           { label: 'Tout',          endpoint: null },
-  action:        { label: '⚡ Adrénaline', endpoint: '/anime?genres=1&order_by=score&sort=desc&limit=20&sfw=true' },
-  romance:       { label: '🌸 Romance',    endpoint: '/anime?genres=22&order_by=score&sort=desc&limit=20&sfw=true' },
-  dark:          { label: '🌑 Univers Sombre', endpoint: '/anime?genres=8&rating=r&order_by=score&sort=desc&limit=20&sfw=true' },
-  comedy:        { label: '😄 Bonne Humeur',   endpoint: '/anime?genres=4&order_by=score&sort=desc&limit=20&sfw=true' },
-  scifi:         { label: '🚀 Sci-fi & Mecha', endpoint: '/anime?genres=24&order_by=score&sort=desc&limit=20&sfw=true' },
-  psychological: { label: '🤯 Mind-bending',   endpoint: '/anime?genres=40&order_by=score&sort=desc&limit=20&sfw=true' },
-  slice:         { label: '🍃 Zen & Calme',    endpoint: '/anime?genres=36&order_by=score&sort=desc&limit=20&sfw=true' },
+  all:           { label: t('mood.all'),          endpoint: null },
+  action:        { label: t('mood.action'), endpoint: '/anime?genres=1&order_by=score&sort=desc&limit=20&sfw=true' },
+  romance:       { label: t('mood.romance'),    endpoint: '/anime?genres=22&order_by=score&sort=desc&limit=20&sfw=true' },
+  dark:          { label: t('mood.dark'), endpoint: '/anime?genres=8&rating=r&order_by=score&sort=desc&limit=20&sfw=true' },
+  comedy:        { label: t('mood.comedy'),   endpoint: '/anime?genres=4&order_by=score&sort=desc&limit=20&sfw=true' },
+  scifi:         { label: t('mood.scifi'), endpoint: '/anime?genres=24&order_by=score&sort=desc&limit=20&sfw=true' },
+  psychological: { label: t('mood.psychological'),   endpoint: '/anime?genres=40&order_by=score&sort=desc&limit=20&sfw=true' },
+  slice:         { label: t('mood.slice'),    endpoint: '/anime?genres=36&order_by=score&sort=desc&limit=20&sfw=true' },
 };
 
 function initMoodPills() {
@@ -923,7 +923,7 @@ function renderAnimeDuJour(anime, shuffle = false) {
   const badges = [];
   if (anime.score) badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
   if (anime.type) {
-    const tMap = { TV:'Série', Movie:"Film d'anime", OVA:'Spécial', ONA:'Streaming', Special:'Spécial' };
+    const tMap = { TV:t('type.tv'), Movie:"Film d'anime", OVA:t('type.ova'), ONA:t('type.ona'), Special:t('type.special') };
     badges.push(`<span class="badge badge-muted">${tMap[anime.type] || anime.type}</span>`);
   }
   badgesEl.innerHTML = badges.join('');

@@ -142,15 +142,15 @@
   <div class="adj-inner">
     <div class="adj-label">
       <span class="adj-dot"></span>
-      Anime du jour
+      <span data-i18n="adj.label">Anime du jour</span>
     </div>
     <div class="adj-info">
       <div class="adj-badges" id="adjBadges"></div>
       <h2 class="adj-title" id="adjTitle"></h2>
       <p class="adj-synopsis" id="adjSynopsis"></p>
       <div class="adj-actions">
-        <a href="#" class="adj-btn-primary" id="adjLink">Voir l'anime →</a>
-        <button class="adj-btn-shuffle" id="adjShuffle" title="Autre suggestion">
+        <a href="#" class="adj-btn-primary" id="adjLink" data-i18n="adj.watch">Voir l'anime →</a>
+        <button class="adj-btn-shuffle" id="adjShuffle" title="Autre suggestion" data-i18n-title="adj.shuffle">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
             <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
@@ -217,85 +217,6 @@
   </div>
 </section>
 
-<!-- RECHERCHE AVANCÉE -->
-<section class="adv-search-section" id="advSearchSection">
-  <div class="adv-search-toggle" id="advSearchToggle">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
-    Recherche avancée
-    <span class="adv-arrow" id="advArrow">▼</span>
-  </div>
-  <div class="adv-search-body" id="advSearchBody" style="display:none">
-    <div class="adv-filters">
-      <div class="adv-filter-group">
-        <label class="adv-label">Genre</label>
-        <select id="advGenre" class="adv-select">
-          <option value="">Tous</option>
-          <option value="1">Action</option>
-          <option value="22">Romance</option>
-          <option value="4">Comedy</option>
-          <option value="7">Mystery</option>
-          <option value="8">Drama</option>
-          <option value="10">Fantasy</option>
-          <option value="14">Horror</option>
-          <option value="24">Sci-Fi</option>
-          <option value="36">Slice of Life</option>
-          <option value="37">Supernatural</option>
-          <option value="40">Psychological</option>
-          <option value="50">Sports</option>
-        </select>
-      </div>
-      <div class="adv-filter-group">
-        <label class="adv-label">Type</label>
-        <select id="advType" class="adv-select">
-          <option value="">Tous</option>
-          <option value="tv">Série</option>
-         <option value="movie">Film</option>
-          <option value="ova">OVA</option>
-          <option value="ona">ONA</option>
-          <option value="special">Spécial</option>
-        </select>
-      </div>
-      <div class="adv-filter-group">
-        <label class="adv-label" data-i18n="adv.score">Score minimum</label>
-        <select id="advScore" class="adv-select">
-          <option value="">Tous</option>
-          <option value="9">9+</option>
-          <option value="8">8+</option>
-          <option value="7">7+</option>
-          <option value="6">6+</option>
-        </select>
-      </div>
-      <div class="adv-filter-group">
-        <label class="adv-label">Statut</label>
-        <select id="advStatus" class="adv-select">
-          <option value="">Tous</option>
-          <option value="airing">En cours</option>
-          <option value="complete">Terminé</option>
-          <option value="upcoming">À venir</option>
-        </select>
-      </div>
-      <div class="adv-filter-group">
-        <label class="adv-label">Année</label>
-        <select id="advYear" class="adv-select">
-          <option value="">Toutes</option>
-          <option value="2025">2025</option>
-          <option value="2024">2024</option>
-          <option value="2023">2023</option>
-          <option value="2022">2022</option>
-          <option value="2021">2021</option>
-          <option value="2020">2020</option>
-          <option value="2010">2010–2019</option>
-          <option value="2000">2000–2009</option>
-        </select>
-      </div>
-      <button class="adv-btn-search" id="advBtnSearch">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        Rechercher
-      </button>
-    </div>
-  </div>
-</section>
-
 <!-- RÉSULTATS RECHERCHE AVANCÉE -->
 <section class="content-section" id="section-adv-results" style="display:none">
   <div class="section-header">
@@ -328,7 +249,7 @@
 <!-- POUR TOI -->
 <section class="content-section" id="section-for-you" style="display:none">
   <div class="section-header">
-    <h2 class="section-title"><span class="section-dot pink"></span>✨ Pour toi</h2>
+    <h2 class="section-title"><span class="section-dot pink"></span><span data-i18n="section.for_you">✨ Pour toi</span></h2>
     <span class="section-badge" id="forYouBadge"></span>
   </div>
   <div class="carousel-wrapper">
@@ -341,8 +262,8 @@
 <!-- POPULAIRES -->
 <section class="content-section" id="section-popular">
   <div class="section-header">
-    <h2 class="section-title"><span class="section-dot orange"></span>🔥 Les plus populaires</h2>
-    <span class="section-badge">Top 25</span>
+    <h2 class="section-title"><span class="section-dot orange"></span><span data-i18n="section.popular">🔥 Les plus populaires</span></h2>
+    <span class="section-badge" data-i18n="section.top25">Top 25</span>
   </div>
   <div class="carousel-wrapper">
     <button class="carousel-btn prev" data-carousel="popular">‹</button>
@@ -369,7 +290,7 @@
 <!-- MIEUX NOTÉS -->
 <section class="content-section" id="section-top">
   <div class="section-header">
-    <h2 class="section-title"><span class="section-dot gold"></span>⭐ Mieux notés</h2>
+    <h2 class="section-title"><span class="section-dot gold"></span><span data-i18n="section.top">⭐ Mieux notés</span></h2>
     <span class="section-badge">All time</span>
   </div>
   <div class="carousel-wrapper">
@@ -384,8 +305,8 @@
 <!-- EN DIFFUSION -->
 <section class="content-section" id="section-airing">
   <div class="section-header">
-    <h2 class="section-title"><span class="section-dot green"></span>📡 En cours</h2>
-    <span class="section-badge">Saison en cours</span>
+    <h2 class="section-title"><span class="section-dot green"></span><span data-i18n="section.airing">📡 En cours</span></h2>
+    <span class="section-badge" data-i18n="zone.season_current">Saison en cours</span>
   </div>
   <div class="carousel-wrapper">
     <button class="carousel-btn prev" data-carousel="airing">‹</button>
@@ -412,7 +333,7 @@
 <!-- FILMS -->
 <section class="content-section" id="section-movies">
   <div class="section-header">
-    <h2 class="section-title"><span class="section-dot blue"></span>🎬 Films anime</h2>
+    <h2 class="section-title"><span class="section-dot blue"></span><span data-i18n="section.movies">🎬 Films anime</span></h2>
   </div>
   <div class="carousel-wrapper">
     <button class="carousel-btn prev" data-carousel="movies">‹</button>
@@ -426,8 +347,8 @@
 <!-- TRENDING -->
 <section class="content-section" id="section-trending" style="display:none">
   <div class="section-header">
-    <h2 class="section-title"><span class="section-dot pink"></span>📈 Trending sur VoirAnime</h2>
-    <span class="section-badge">Temps réel</span>
+    <h2 class="section-title"><span class="section-dot pink"></span><span data-i18n="section.trending">📈 Trending sur VoirAnime</span></h2>
+    <span class="section-badge" data-i18n="zone.realtime">Temps réel</span>
   </div>
   <div class="carousel-wrapper">
     <button class="carousel-btn prev" data-carousel="trending">‹</button>
@@ -457,7 +378,7 @@
       <div class="personal-block-header">
         <h2 class="personal-block-title">
           <span class="personal-dot pink-dot"></span>
-          Mes Favoris
+          <span data-i18n="section.favorites">Mes Favoris</span>
         </h2>
         <a href="profile.html" class="personal-block-link" data-i18n="personal.profile_link">Voir le profil →</a>
       </div>

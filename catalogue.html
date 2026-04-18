@@ -282,7 +282,7 @@
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
       <input type="text" id="catSearchInput" class="cat-search-input"
-             placeholder="Titre…" autocomplete="off" spellcheck="false"/>
+             placeholder="Title…" data-i18n-placeholder="cat.search" autocomplete="off" spellcheck="false"/>
     </div>
   </div>
 
@@ -322,8 +322,8 @@
     <label class="cat-label">Statut</label>
     <select id="catStatus" class="cat-select">
       <option value="">Tous</option>
-      <option value="airing">En cours</option>
-      <option value="complete">Terminé</option>
+      <option value="airing" data-i18n="status.airing">Airing</option>
+      <option value="complete" data-i18n="status.complete">Completed</option>
       <option value="upcoming">À venir</option>
     </select>
   </div>
@@ -357,7 +357,7 @@
 
   <button class="cat-btn-search" id="catBtnSearch">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    Rechercher
+    <span data-i18n="adv.search_btn">Search</span>
   </button>
   <button class="cat-btn-reset" id="catBtnReset">✕ Reset</button>
 </div>
@@ -366,12 +366,12 @@
 <div class="cat-toolbar">
   <p class="cat-count" id="catCount"></p>
   <div class="cat-sort">
-    <span class="cat-sort-label">Trier par</span>
+    <span class="cat-sort-label"><span data-i18n="sort.label">Sort by</span></span>
     <select id="catSort" class="cat-select" style="min-width:150px">
       <option value="bypopularity">Popularité</option>
-      <option value="score">Score MAL</option>
-      <option value="title">Titre A–Z</option>
-      <option value="start_date">Date de sortie</option>
+      <option value="score" data-i18n="sort.score">Score</option>
+      <option value="title" data-i18n="sort.title">Title A–Z</option>
+      <option value="start_date" data-i18n="sort.date">Release date</option>
       <option value="rank">Rang</option>
     </select>
   </div>
