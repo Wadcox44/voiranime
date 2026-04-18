@@ -193,8 +193,18 @@ ul, ol { list-style: none; }
 }
 .nav-link:hover { color: var(--text); background: var(--b1); }
 .nav-link.active {
-  color: var(--pink);
-  background: var(--pink-dim);
+  color: var(--text);
+  background: transparent;
+}
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 14px;
+  right: 14px;
+  height: 2px;
+  background: var(--pink);
+  border-radius: 2px;
 }
 
 /* Badge favoris */
@@ -1199,6 +1209,7 @@ ul, ol { list-style: none; }
   display: flex;
   gap: 24px;
   flex-wrap: wrap;
+  align-items: center;
   margin-bottom: 24px;
   padding: 16px 20px;
   background: var(--ink3);
@@ -1224,6 +1235,26 @@ ul, ol { list-style: none; }
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
+
+/* Bouton YouTube dans les stats — mobile/Pi Browser uniquement */
+.stat-yt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+  background: rgba(255,0,0,0.12);
+  border: 1px solid rgba(255,0,0,0.3);
+  color: #ff6b6b;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-family: var(--font);
+  padding: 7px 14px;
+  border-radius: 20px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.stat-yt-btn:hover { background: rgba(255,0,0,0.22); }
 
 /* Boutons action détail */
 .anime-action-row {
