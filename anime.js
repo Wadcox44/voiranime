@@ -726,7 +726,7 @@ async function loadFranchise(animeId) {
 ────────────────────────────────────── */
 async function loadRecommendations(id, currentAnime) {
   const carousel = el('carousel-reco');
-  carousel.innerHTML = '<p style="color:var(--muted);padding:16px;font-size:0.85rem;">${t('anime.reco_loading')}</p>';
+  carousel.innerHTML = `<p style="color:var(--muted);padding:16px;font-size:0.85rem;">${t('anime.reco_loading')}</p>`;
 
   try {
     await sleep(600);
@@ -735,7 +735,7 @@ async function loadRecommendations(id, currentAnime) {
 
     carousel.innerHTML = '';
     if (items.length === 0) {
-      carousel.innerHTML = '<p style="color:var(--muted);padding:16px;font-size:0.85rem;">${t('anime.no_reco')}</p>';
+      carousel.innerHTML = `<p style="color:var(--muted);padding:16px;font-size:0.85rem;">${t('anime.no_reco')}</p>`;
       return;
     }
 
@@ -768,7 +768,7 @@ async function loadRecommendations(id, currentAnime) {
       }));
     });
   } catch (e) {
-    carousel.innerHTML = '<p style="color:var(--muted);padding:16px;font-size:0.85rem;">${t('anime.reco_error')}</p>';
+    carousel.innerHTML = `<p style="color:var(--muted);padding:16px;font-size:0.85rem;">${t('anime.reco_error')}</p>`;
     console.error('Reco error:', e);
   }
 }
