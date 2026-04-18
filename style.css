@@ -70,6 +70,7 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden; /* ici pour ne pas créer de contexte scroll sur body */
 }
 
 body {
@@ -78,7 +79,7 @@ body {
   font-family: var(--font);
   font-size: 15px;
   line-height: 1.65;
-  overflow-x: hidden;
+  /* overflow-x géré sur html — ne pas le mettre ici, ça bloque le scroll tactile des carousels */
   /* Grain subtil — texture anime */
   background-image:
     radial-gradient(ellipse 80% 60% at 20% -10%, rgba(124,77,255,0.08) 0%, transparent 60%),
