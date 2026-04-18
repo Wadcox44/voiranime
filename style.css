@@ -1188,6 +1188,21 @@ ul, ol { list-style: none; }
   margin-bottom: 14px;
 }
 
+.anime-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.anime-title-row .anime-title {
+  margin-bottom: 0;
+  flex: 1;
+}
+.anime-title-row .btn-fav {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
 .anime-title {
   font-size: clamp(1.8rem, 3.5vw, 2.8rem);
   font-weight: 900;
@@ -1241,7 +1256,8 @@ ul, ol { list-style: none; }
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  margin-left: auto;
+  flex: 1;
+  justify-content: center;
   background: rgba(255,0,0,0.12);
   border: 1px solid rgba(255,0,0,0.3);
   color: #ff6b6b;
@@ -1262,7 +1278,7 @@ ul, ol { list-style: none; }
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
-  margin-bottom: 32px;
+  margin-bottom: 0;
 }
 
 /* Synopsis détail */
