@@ -302,16 +302,19 @@ function initCarouselButtons() {
       const carousel = el(`carousel-${id}`);
       if (!carousel) return;
 
-      // Calcul basé sur la largeur d'une carte réelle × 3
+      // Désactiver snap pendant le scroll programmé (sinon il résiste)
+      carousel.style.scrollSnapType = 'none';
+
       const firstCard = carousel.querySelector('.anime-card');
       const gap       = 14;
-      const cardWidth = firstCard ? firstCard.offsetWidth + gap : Math.round(carousel.clientWidth / 3);
+      const cardWidth = firstCard ? (firstCard.offsetWidth + gap) : 172;
       const step      = cardWidth * 3;
 
-      carousel.scrollBy({
-        left: btn.classList.contains('prev') ? -step : step,
-        behavior: 'smooth',
-      });
+      carousel.scrollBy({ left: btn.classList.contains('prev') ? -step : step, behavior: 'smooth' });
+
+      // Réactiver snap après la fin de l'animation (300ms)
+      clearTimeout(btn._snapTimer);
+      btn._snapTimer = setTimeout(() => { carousel.style.scrollSnapType = ''; }, 400);
     });
   });
 }

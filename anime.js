@@ -356,8 +356,15 @@ function initCarouselButtons() {
       const id       = btn.dataset.carousel;
       const carousel = el(`carousel-${id}`);
       if (!carousel) return;
-      const step = carousel.clientWidth * 0.75;
+
+      carousel.style.scrollSnapType = 'none';
+      const firstCard = carousel.querySelector('.anime-card');
+      const cardWidth = firstCard ? (firstCard.offsetWidth + 14) : 172;
+      const step      = cardWidth * 3;
       carousel.scrollBy({ left: btn.classList.contains('prev') ? -step : step, behavior: 'smooth' });
+
+      clearTimeout(btn._snapTimer);
+      btn._snapTimer = setTimeout(() => { carousel.style.scrollSnapType = ''; }, 400);
     });
   });
 }
