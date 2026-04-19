@@ -295,12 +295,56 @@ function showFavLimitModal(count, limit) {
 }
 
 function updateFavUI() {
-  const favs  = getFavs();
-  const badge = el('navFavCount');
-  if (badge) badge.textContent = favs.length;
+  const favs      = getFavs();
+  const count     = favs.length;
+  const badge     = el('navFavCount');
+  const isPremium = window.VA_isPremium?.() || false;
+  const FREE_LIMIT = 20;
+
+  // Badge navbar : count + indicateur limite si Free proche du max
+  if (badge) {
+    badge.textContent = count;
+    // Alerte visuelle si Free et ≥ 16/20
+    if (!isPremium && count >= FREE_LIMIT * 0.8) {
+      badge.classList.add('fav-badge-warning');
+    } else {
+      badge.classList.remove('fav-badge-warning');
+    }
+  }
+
+  // Indicateur de progression sous le badge navbar (Free uniquement)
+  if (!isPremium) {
+    let progressEl = el('navFavProgress');
+    if (!progressEl) {
+      const favBtn = badge?.closest('a, button');
+      if (favBtn) {
+        progressEl = document.createElement('div');
+        progressEl.id        = 'navFavProgress';
+        progressEl.className = 'nav-fav-progress';
+        favBtn.appendChild(progressEl);
+      }
+    }
+    if (progressEl) {
+      const pct = Math.min((count / FREE_LIMIT) * 100, 100);
+      progressEl.innerHTML = `<div class="nav-fav-progress-fill" style="width:${pct}%"></div>`;
+      progressEl.title     = `${count} / ${FREE_LIMIT} favorites`;
+      progressEl.style.display = count > 0 ? 'block' : 'none';
+    }
+
+    // Tooltip sur les boutons ❤ si limite atteinte
+    document.querySelectorAll('[data-fav-id]').forEach(btn => {
+      if (count >= FREE_LIMIT && !isFav(Number(btn.dataset.favId))) {
+        btn.title = `Favorites limit reached (${FREE_LIMIT}). Go Premium for unlimited.`;
+        btn.classList.add('fav-btn-at-limit');
+      } else {
+        btn.title = '';
+        btn.classList.remove('fav-btn-at-limit');
+      }
+    });
+  }
 
   document.querySelectorAll('[data-fav-id]').forEach(btn => {
-    const id     = Number(btn.dataset.favId); // FIX : Number, pas parseInt
+    const id     = Number(btn.dataset.favId);
     const active = isFav(id);
     btn.classList.toggle('active', active);
     const svg = btn.querySelector('svg');
