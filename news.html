@@ -81,14 +81,12 @@
         <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
       </div>
     </div>
+    <a href="profile.html" class="nav-avatar-btn nav-avatar-left" id="navAvatarBtn" title="Mon profil">
+      <img class="nav-avatar-img" id="navAvatarImg" src="" alt="Profil"
+           onerror="this.style.display='none';document.getElementById('navAvatarFallback_news').style.display='flex'"/>
+      <div class="nav-avatar-fallback" id="navAvatarFallback_news">👤</div>
+    </a>
     <div class="nav-right">
-      <!-- Avatar profil — remplace le lien Profil dans la navbar -->
-      <a href="profile.html" class="nav-avatar-btn" id="navAvatarBtn" title="Mon profil">
-        <img class="nav-avatar-img" id="navAvatarImg"
-             src="" alt="Profil"
-             onerror="this.style.display='none';document.getElementById('navAvatarFallback_index').style.display='flex'"/>
-        <div class="nav-avatar-fallback" id="navAvatarFallback_index">👤</div>
-      </a>
       <button class="notif-toggle" id="notifToggle" aria-label="Notifications">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -146,7 +144,13 @@
       <span>✉ Nous contacter</span>
       <button class="footer-contact-close" id="footerContactClose">✕</button>
     </div>
-    <iframe src="https://formspree.io/f/myklpggz" class="footer-contact-iframe" title="Contact" frameborder="0"></iframe>
+    <form class="footer-contact-form" id="footerContactForm"
+          action="https://formspree.io/f/myklpggz" method="POST">
+      <div class="fcf-field"><label class="fcf-label">Nom</label><input class="fcf-input" type="text" name="name" placeholder="Votre nom" required/></div>
+      <div class="fcf-field"><label class="fcf-label">Email</label><input class="fcf-input" type="email" name="email" placeholder="votre@email.com" required/></div>
+      <div class="fcf-field"><label class="fcf-label">Message</label><textarea class="fcf-input fcf-textarea" name="message" rows="4" required></textarea></div>
+      <button class="fcf-submit" type="submit">Envoyer ✉</button>
+    </form>
   </div>
 </div>
 

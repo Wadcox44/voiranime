@@ -3791,6 +3791,7 @@ a:active {
   }
   .nav-left  { justify-content: center; }
   .nav-right { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
+  .nav-avatar-left { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); }
   .logo-glitch { font-size: 1.25rem; }
   .search-toggle-label { display: none; }
 
@@ -6418,6 +6419,11 @@ a.stat-compact.stat-compact-link:hover::after {
   box-shadow: 0 0 12px rgba(255,79,216,0.5);
 }
 
+/* Avatar dans nav-left — positionné à gauche du logo sur mobile */
+.nav-avatar-left {
+  order: -1; /* avant le logo-wrap dans le flex container */
+}
+
 .nav-avatar-img {
   width: 34px;
   height: 34px;
@@ -6513,4 +6519,64 @@ a.stat-compact.stat-compact-link:hover::after {
 
 @media (max-width: 480px) {
   .footer-contact-iframe { height: 360px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FOOTER — Formulaire contact
+   ═══════════════════════════════════════════════════════════════ */
+
+.footer-contact-form { padding: 20px; }
+
+.fcf-field { margin-bottom: 14px; }
+.fcf-label {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text2);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.fcf-input {
+  width: 100%;
+  background: var(--ink3);
+  border: 1px solid var(--b1);
+  border-radius: var(--r-sm);
+  padding: 10px 14px;
+  color: var(--text);
+  font-size: 0.84rem;
+  font-family: var(--font);
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.fcf-input:focus {
+  outline: none;
+  border-color: var(--pink);
+}
+.fcf-textarea { resize: vertical; min-height: 90px; }
+
+.fcf-submit {
+  width: 100%;
+  background: var(--pink);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 12px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-top: 4px;
+}
+.fcf-submit:hover    { opacity: 0.88; }
+.fcf-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.fcf-success {
+  text-align: center;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #4ade80;
+  margin-top: 10px;
+  padding: 8px;
 }

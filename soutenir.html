@@ -338,14 +338,14 @@
         <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
       </div>
     </div>
+    <!-- Avatar profil en haut à gauche -->
+    <a href="profile.html" class="nav-avatar-btn nav-avatar-left" id="navAvatarBtn" title="Mon profil">
+      <img class="nav-avatar-img" id="navAvatarImg"
+           src="" alt="Profil"
+           onerror="this.style.display='none';document.getElementById('navAvatarFallback_soutenir').style.display='flex'"/>
+      <div class="nav-avatar-fallback" id="navAvatarFallback_soutenir">👤</div>
+    </a>
     <div class="nav-right">
-      <!-- Avatar profil — remplace le lien Profil dans la navbar -->
-      <a href="profile.html" class="nav-avatar-btn" id="navAvatarBtn" title="Mon profil">
-        <img class="nav-avatar-img" id="navAvatarImg"
-             src="" alt="Profil"
-             onerror="this.style.display='none';document.getElementById('navAvatarFallback_soutenir').style.display='flex'"/>
-        <div class="nav-avatar-fallback" id="navAvatarFallback_soutenir">👤</div>
-      </a>
       <button class="notif-toggle" id="notifToggle" aria-label="Notifications">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -730,6 +730,55 @@ document.addEventListener('DOMContentLoaded', function(){
       fallbacks.forEach(function(f) { f.style.display = 'none'; });
     }
   } catch(e) {}
+})();
+</script>
+<footer class="site-footer">
+  <div class="footer-logo">Voir<span>Anime</span></div>
+  <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
+  <div class="footer-contact">
+    <button class="footer-contact-btn" id="footerContactBtn">✉ Contact</button>
+  </div>
+</footer>
+
+<div class="footer-contact-modal" id="footerContactModal" style="display:none">
+  <div class="footer-contact-box">
+    <div class="footer-contact-header">
+      <span>✉ Nous contacter</span>
+      <button class="footer-contact-close" id="footerContactClose">✕</button>
+    </div>
+    <form class="footer-contact-form" id="footerContactForm"
+          action="https://formspree.io/f/myklpggz"
+          method="POST">
+      <div class="fcf-field">
+        <label class="fcf-label" for="fcf_name">Nom</label>
+        <input class="fcf-input" type="text" id="fcf_name" name="name" placeholder="Votre nom" required/>
+      </div>
+      <div class="fcf-field">
+        <label class="fcf-label" for="fcf_email">Email</label>
+        <input class="fcf-input" type="email" id="fcf_email" name="email" placeholder="votre@email.com" required/>
+      </div>
+      <div class="fcf-field">
+        <label class="fcf-label" for="fcf_msg">Message</label>
+        <textarea class="fcf-input fcf-textarea" id="fcf_msg" name="message" placeholder="Votre message..." rows="4" required></textarea>
+      </div>
+      <button class="fcf-submit" type="submit">Envoyer ✉</button>
+      <div class="fcf-success" id="fcfSuccess" style="display:none">✅ Message envoyé !</div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function() {
+  var btn=document.getElementById('footerContactBtn'),modal=document.getElementById('footerContactModal'),close=document.getElementById('footerContactClose'),form=document.getElementById('footerContactForm'),ok=document.getElementById('fcfSuccess');
+  if(btn) btn.addEventListener('click',function(){modal.style.display='flex';});
+  if(close) close.addEventListener('click',function(){modal.style.display='none';});
+  if(modal) modal.addEventListener('click',function(e){if(e.target===modal)modal.style.display='none';});
+  if(form) form.addEventListener('submit',function(e){
+    e.preventDefault();var s=form.querySelector('.fcf-submit');s.disabled=true;s.textContent='Envoi…';
+    fetch(form.action,{method:'POST',body:new FormData(form),headers:{'Accept':'application/json'}})
+    .then(function(r){if(r.ok){form.reset();if(ok)ok.style.display='block';s.textContent='✅ Envoyé';setTimeout(function(){modal.style.display='none';if(ok)ok.style.display='none';s.disabled=false;s.textContent='Envoyer ✉';},2500);}else{s.textContent='❌ Erreur';s.disabled=false;}})
+    .catch(function(){s.textContent='❌ Erreur réseau';s.disabled=false;});
+  });
 })();
 </script>
 </body>
