@@ -51,6 +51,8 @@
   <script src="pi-auth.js" defer></script>
   <script src="i18n.js"></script>
   <script src="notificationsManager.js"></script>
+  <script src="featuresManager.js"></script>
+  <script src="premiumManager.js"></script>
 </head>
 <body class="page-anime">
 
@@ -381,6 +383,8 @@ document.addEventListener('DOMContentLoaded', function(){
     var user = window.piAuth && window.piAuth.getUser();
     if (user && user.uid && window.VA_initNotifications) {
       window.VA_initNotifications(user.uid);
+        if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
+        if (window.VA_initPremium) window.VA_initPremium(user.uid);
       return;
     }
     // Fallback localStorage si Pi Browser pas dispo

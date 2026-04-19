@@ -28,6 +28,8 @@
   </style>
   <script src="i18n.js"></script>
   <script src="notificationsManager.js"></script>
+  <script src="featuresManager.js"></script>
+  <script src="premiumManager.js"></script>
 </head>
 <body class="page-duel">
 
@@ -914,6 +916,8 @@ document.addEventListener('DOMContentLoaded', function(){
       var user = JSON.parse(raw);
       if (user && user.uid && window.VA_initNotifications) {
         window.VA_initNotifications(user.uid);
+        if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
+        if (window.VA_initPremium) window.VA_initPremium(user.uid);
       }
     } catch (_) {}
   }
