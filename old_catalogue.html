@@ -26,7 +26,7 @@
 
     /* ── Catalogue styles ── */
     .cat-header {
-      padding: calc(var(--nav-h) + 36px) 48px 28px;
+      padding: calc(var(--nav-h) + 60px) 48px 28px;
       max-width: 1600px;
       margin: 0 auto;
     }
@@ -238,32 +238,38 @@
       .cat-search-wrap { max-width: 100%; }
     }
   </style>
+  <script src="i18n.js"></script>
 </head>
 <body>
 
 <!-- NAVBAR -->
 <nav class="navbar scrolled" id="navbar">
-  <div class="nav-left">
-    <a href="index.html" class="nav-logo" aria-label="VoirAnime">
-      <span class="logo-glitch" data-text="VoirAnime">
-        <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
-      </span>
-    </a>
-    <a href="index.html" class="back-link">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-      Accueil
-    </a>
+  <div class="nav-top">
+    <div class="nav-left">
+      <div class="nav-logo-wrap">
+        <a href="index.html" class="nav-logo" aria-label="VoirAnime">
+          <span class="logo-glitch" data-text="VoirAnime">
+            <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
+          </span>
+        </a>
+        <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
+      </div>
+    </div>
+    <div class="nav-right"></div>
   </div>
-  <div class="nav-right">
-    <a href="profile.html" class="back-link">👤 Profil</a>
-    <a href="duel.html"    class="back-link">⚔ Duels</a>
-  </div>
+  <ul class="nav-links">
+    <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="catalogue.html" class="nav-link">Catalogue</a></li>
+    <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
+    <li><a href="profile.html"   class="nav-link" data-i18n="nav.profile">Profil</a></li>
+    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Soutenir</a></li>
+  </ul>
 </nav>
 
 <!-- HEADER -->
 <div class="cat-header">
   <h1 class="cat-title">Catalogue <span>Anime</span></h1>
-  <p class="cat-subtitle" id="catSubtitle">Explore tous les animes — filtre, trie, découvre.</p>
+  <p class="cat-subtitle" id="catSubtitle" data-i18n="cat.subtitle">Explore tous les animes — filtre, trie, découvre.</p>
 </div>
 
 <!-- FILTRES -->
@@ -276,7 +282,7 @@
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
       <input type="text" id="catSearchInput" class="cat-search-input"
-             placeholder="Titre…" autocomplete="off" spellcheck="false"/>
+             placeholder="Title…" data-i18n-placeholder="cat.search" autocomplete="off" spellcheck="false"/>
     </div>
   </div>
 
@@ -305,7 +311,7 @@
     <select id="catType" class="cat-select">
       <option value="">Tous</option>
       <option value="tv">Série</option>
-      <option value="movie">Film d'anime d'anime</option>
+      <option value="movie">Film</option>
       <option value="ova">OVA</option>
       <option value="ona">ONA</option>
       <option value="special">Spécial</option>
@@ -316,8 +322,8 @@
     <label class="cat-label">Statut</label>
     <select id="catStatus" class="cat-select">
       <option value="">Tous</option>
-      <option value="airing">En cours</option>
-      <option value="complete">Terminé</option>
+      <option value="airing" data-i18n="status.airing">Airing</option>
+      <option value="complete" data-i18n="status.complete">Completed</option>
       <option value="upcoming">À venir</option>
     </select>
   </div>
@@ -351,7 +357,7 @@
 
   <button class="cat-btn-search" id="catBtnSearch">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    Rechercher
+    <span data-i18n="adv.search_btn">Search</span>
   </button>
   <button class="cat-btn-reset" id="catBtnReset">✕ Reset</button>
 </div>
@@ -360,12 +366,12 @@
 <div class="cat-toolbar">
   <p class="cat-count" id="catCount"></p>
   <div class="cat-sort">
-    <span class="cat-sort-label">Trier par</span>
+    <span class="cat-sort-label"><span data-i18n="sort.label">Sort by</span></span>
     <select id="catSort" class="cat-select" style="min-width:150px">
       <option value="bypopularity">Popularité</option>
-      <option value="score">Score MAL</option>
-      <option value="title">Titre A–Z</option>
-      <option value="start_date">Date de sortie</option>
+      <option value="score" data-i18n="sort.score">Score</option>
+      <option value="title" data-i18n="sort.title">Title A–Z</option>
+      <option value="start_date" data-i18n="sort.date">Release date</option>
       <option value="rank">Rang</option>
     </select>
   </div>
@@ -379,7 +385,7 @@
     </div>
     <div class="cat-empty" id="catEmpty">
       <div class="cat-empty-icon">（；￣д￣）</div>
-      <p>Aucun anime trouvé pour ces critères.<br>Essaie d'autres filtres !</p>
+      <p data-i18n="cat.empty">Aucun anime trouvé pour ces critères.<br data-i18n="cat.empty_hint">Essaie d'autres filtres !</p>
     </div>
   </div>
 </div>
@@ -390,7 +396,7 @@
 <!-- FOOTER -->
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
-  <p class="footer-text">Données fournies par <a href="https://jikan.moe" target="_blank" rel="noopener">Jikan API</a> · MyAnimeList</p>
+  <p class="footer-text" data-i18n="footer.data">Données fournies par <a href="https://jikan.moe" target="_blank" rel="noopener">Jikan API</a> · MyAnimeList</p>
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -544,17 +550,30 @@ function buildEndpoint(page = 1) {
   const sort   = el('catSort').value;
 
   if (q) {
-    // Mode recherche textuelle
+    // Mode recherche textuelle — q présent
     let params = `q=${encodeURIComponent(q)}&limit=${PER_PAGE}&page=${page}&sfw=true`;
     if (type)   params += `&type=${type}`;
     if (genre)  params += `&genres=${genre}`;
     if (score)  params += `&min_score=${score}`;
     if (status) params += `&status=${status}`;
+    if (year) {
+      const endYear = year === '2015' ? '2019' : year === '2010' ? '2014' : year === '2000' ? '2009' : year;
+      params += `&start_date=${year}-01-01&end_date=${endYear}-12-31`;
+    }
     return `/anime?${params}`;
   }
 
-  // Mode top/filtres
-  let params = `limit=${PER_PAGE}&page=${page}&sfw=true`;
+  // Mode filtres sans texte
+  const hasFilter = genre || type || score || status || year;
+
+  if (!hasFilter) {
+    // Aucun filtre → top anime
+    return `/top/anime?filter=bypopularity&limit=${PER_PAGE}&page=${page}`;
+  }
+
+  // Filtres présents → /anime avec order_by en premier
+  const validSort = ['score','title','start_date','rank','members'].includes(sort) ? sort : 'score';
+let params = `limit=${PER_PAGE}&page=${page}&sfw=true&order_by=${validSort}&sort=desc`;
   if (genre)  params += `&genres=${genre}`;
   if (type)   params += `&type=${type}`;
   if (score)  params += `&min_score=${score}`;
@@ -563,13 +582,6 @@ function buildEndpoint(page = 1) {
     const endYear = year === '2015' ? '2019' : year === '2010' ? '2014' : year === '2000' ? '2009' : year;
     params += `&start_date=${year}-01-01&end_date=${endYear}-12-31`;
   }
-
-  // Sort : si pas de filtres → top anime
-  const hasFilter = genre || type || score || status || year;
-  if (!hasFilter) {
-    return `/top/anime?filter=${sort === 'score' ? 'bypopularity' : sort === 'bypopularity' ? 'bypopularity' : 'bypopularity'}&limit=${PER_PAGE}&page=${page}`;
-  }
-  params += `&order_by=${sort}&sort=desc`;
   return `/anime?${params}`;
 }
 
@@ -674,9 +686,9 @@ async function loadPage(page = 1) {
 
     const from = (page - 1) * PER_PAGE + 1;
     const to   = Math.min(page * PER_PAGE, total);
-    count.innerHTML = total
-      ? `<strong>${from}–${to}</strong> sur <strong>${total.toLocaleString()}</strong> animes`
-      : '';
+    count.innerHTML = animes.length
+  ? `<strong>${animes.length}</strong> animes affichés`
+  : '';
 
     el('catSubtitle').textContent = `Page ${page} · ${animes.length} résultats affichés`;
 
@@ -736,5 +748,15 @@ loadPage(1);
 })();
 </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var raw  = location.pathname.split('/').pop() || 'index';
+  var path = raw.endsWith('.html') ? raw : (raw === '' ? 'index.html' : raw + '.html');
+  document.querySelectorAll('.nav-link').forEach(function(l){
+    var href = l.getAttribute('href');
+    l.classList.toggle('active', href === path);
+  });
+});
+</script>
 </body>
 </html>
