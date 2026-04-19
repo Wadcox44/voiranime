@@ -12,6 +12,43 @@
 import { trackView } from './firebase.js';
 
 /* ──────────────────────────────────────
+   SESSION TIME TRACKER
+   Suit le temps passé sur le site en secondes
+   Stocké dans VoirAnime_sessionTime (cumulatif)
+   Utilisé par les stats Premium dans profile.html
+────────────────────────────────────── */
+(function initSessionTracker() {
+  const KEY      = 'VoirAnime_sessionTime';
+  const TICK_MS  = 10000; // incrément toutes les 10s
+  let   active   = !document.hidden;
+  let   timer    = null;
+
+  function tick() {
+    if (!active) return;
+    try {
+      const current = parseInt(localStorage.getItem(KEY) || '0');
+      localStorage.setItem(KEY, String(current + 10));
+    } catch {}
+  }
+
+  function startTimer() {
+    if (timer) return;
+    timer = setInterval(tick, TICK_MS);
+  }
+  function stopTimer() {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    active = !document.hidden;
+    active ? startTimer() : stopTimer();
+  });
+
+  if (active) startTimer();
+})();
+
+/* ──────────────────────────────────────
    CONFIG & STATE
 ────────────────────────────────────── */
 const API           = 'https://api.jikan.moe/v4';

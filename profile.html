@@ -387,6 +387,73 @@
   </div>
 </section>
 
+<!-- STATS PREMIUM -->
+<section class="profile-section premium-stats-section" id="premiumStatsSection" style="display:none">
+  <div class="profile-section-title">
+    <span class="section-dot gold"></span>
+    ⭐ Premium Stats
+    <span class="premium-stats-badge">Premium</span>
+  </div>
+
+  <!-- Grille de métriques -->
+  <div class="pstats-grid">
+    <div class="pstat-card">
+      <div class="pstat-icon">⏱</div>
+      <div class="pstat-value" id="pstatTime">—</div>
+      <div class="pstat-label">Time on site</div>
+    </div>
+    <div class="pstat-card">
+      <div class="pstat-icon">📺</div>
+      <div class="pstat-value" id="pstatAnimes">—</div>
+      <div class="pstat-label">Anime visited</div>
+    </div>
+    <div class="pstat-card">
+      <div class="pstat-icon">✅</div>
+      <div class="pstat-value" id="pstatCompleted">—</div>
+      <div class="pstat-label">Completed</div>
+    </div>
+    <div class="pstat-card">
+      <div class="pstat-icon">🕐</div>
+      <div class="pstat-value" id="pstatHours">—</div>
+      <div class="pstat-label">Hours watched</div>
+    </div>
+  </div>
+
+  <!-- Top genres -->
+  <div class="pstats-block">
+    <div class="pstats-block-title">🎭 Top genres</div>
+    <div class="pstats-genres" id="pstatGenres">
+      <div class="pstats-empty-hint">Visit more anime to unlock your top genres!</div>
+    </div>
+  </div>
+
+  <!-- Top animes regardés -->
+  <div class="pstats-block">
+    <div class="pstats-block-title">🏆 Most watched</div>
+    <div class="pstats-top-list" id="pstatTopAnimes"></div>
+  </div>
+
+  <!-- Timeline d'activité (7 derniers jours) -->
+  <div class="pstats-block">
+    <div class="pstats-block-title">📅 Activity — last 7 days</div>
+    <div class="pstats-timeline" id="pstatTimeline"></div>
+  </div>
+</section>
+
+<!-- Bandeau upgrade pour les Free -->
+<div class="premium-upgrade-strip" id="premiumUpgradeStrip" style="display:none">
+  <div class="pup-content">
+    <div class="pup-left">
+      <span class="pup-icon">⭐</span>
+      <div>
+        <div class="pup-title">Unlock Premium Stats</div>
+        <div class="pup-sub">Time on site · Top genres · Watch history · Activity timeline</div>
+      </div>
+    </div>
+    <a href="soutenir.html" class="pup-btn">Go Premium — 1.99 Pi/month</a>
+  </div>
+</div>
+
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
   <p class="footer-text" data-i18n="footer.copy">© 2025 VoirAnime — Projet open source</p>
@@ -689,6 +756,155 @@
   renderFavs();
   renderRatings();
   renderHistory();
+  renderPremiumStats(); // Stats Premium — vérifie isPremium via API
+
+  /* ─────────────────────────────────────────────────────────────
+     STATS PREMIUM
+     Affichées uniquement si isPremium confirmé par le serveur
+     Calculées depuis localStorage (history, watchStatus, sessionTime)
+  ───────────────────────────────────────────────────────────── */
+  async function renderPremiumStats() {
+    const piUser = window.piAuth?.getUser?.() || (() => {
+      try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
+    })();
+
+    const section     = el('premiumStatsSection');
+    const upgradeStrip = el('premiumUpgradeStrip');
+
+    // Vérification isPremium côté serveur
+    let isPremium = false;
+    if (piUser?.uid) {
+      try {
+        const res  = await fetch(`/api/notifications?piUserId=${encodeURIComponent(piUser.uid)}`);
+        const data = await res.json();
+        isPremium  = data.isPremium === true;
+      } catch {}
+    }
+
+    if (!isPremium) {
+      if (upgradeStrip) upgradeStrip.style.display = 'block';
+      return;
+    }
+
+    if (section) section.style.display = 'block';
+
+    // ── 1. Temps sur le site ────────────────────────────────────
+    const totalSecs = parseInt(localStorage.getItem('VoirAnime_sessionTime') || '0');
+    const h = Math.floor(totalSecs / 3600);
+    const m = Math.floor((totalSecs % 3600) / 60);
+    const timeStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
+    const pstatTime = el('pstatTime');
+    if (pstatTime) pstatTime.textContent = timeStr || '< 1m';
+
+    // ── 2. Animes visités ───────────────────────────────────────
+    const hist      = getHistory();
+    const pstatAnimes = el('pstatAnimes');
+    if (pstatAnimes) pstatAnimes.textContent = hist.length;
+
+    // ── 3. Complétés + heures ───────────────────────────────────
+    const watchList  = getWatchList();
+    const watchArr   = Object.values(watchList);
+    const completed  = watchArr.filter(a => a.status === 'completed');
+    const totalMins  = completed.reduce((acc, a) => acc + (a.episodes || 0) * (a.duration || 24), 0);
+    const pstatCompleted = el('pstatCompleted');
+    const pstatHours     = el('pstatHours');
+    if (pstatCompleted) pstatCompleted.textContent = completed.length;
+    if (pstatHours)     pstatHours.textContent = Math.round(totalMins / 60) + 'h';
+
+    // ── 4. Top genres ───────────────────────────────────────────
+    const genreCount = {};
+    const genreNames = {
+      1:'Action', 2:'Adventure', 4:'Comedy', 5:'Avant Garde',
+      7:'Mystery', 8:'Drama', 9:'Ecchi', 10:'Fantasy',
+      13:'Historical', 14:'Horror', 17:'Martial Arts', 18:'Mecha',
+      19:'Music', 20:'Parody', 22:'Romance', 23:'School',
+      24:'Sci-Fi', 25:'Shoujo', 27:'Shounen', 30:'Sports',
+      36:'Slice of Life', 37:'Supernatural', 38:'Military',
+      40:'Psychological', 41:'Seinen', 42:'Josei',
+    };
+    hist.forEach(h => {
+      (h.genres || []).forEach(gid => {
+        genreCount[gid] = (genreCount[gid] || 0) + 1;
+      });
+    });
+
+    const topGenres = Object.entries(genreCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6);
+
+    const genresEl = el('pstatGenres');
+    if (genresEl) {
+      if (topGenres.length === 0) {
+        genresEl.innerHTML = '<div class="pstats-empty-hint">Visit more anime to unlock your top genres!</div>';
+      } else {
+        const maxCount = topGenres[0][1] || 1;
+        genresEl.innerHTML = topGenres.map(([gid, count]) => {
+          const pct  = Math.round((count / maxCount) * 100);
+          const name = genreNames[gid] || `Genre ${gid}`;
+          return `
+            <div class="pstats-genre-row">
+              <span class="pstats-genre-name">${name}</span>
+              <div class="pstats-genre-bar-wrap">
+                <div class="pstats-genre-bar" style="width:${pct}%"></div>
+              </div>
+              <span class="pstats-genre-count">${count}</span>
+            </div>`;
+        }).join('');
+      }
+    }
+
+    // ── 5. Top animes ───────────────────────────────────────────
+    const topAnimes = [...hist].slice(0, 5);
+    const topEl = el('pstatTopAnimes');
+    if (topEl) {
+      if (topAnimes.length === 0) {
+        topEl.innerHTML = '<div class="pstats-empty-hint">No anime visited yet.</div>';
+      } else {
+        topEl.innerHTML = topAnimes.map((anime, i) => `
+          <a href="anime.html?id=${anime.id}" class="pstats-top-item">
+            <span class="pstats-top-rank">#${i + 1}</span>
+            <img src="${anime.img}" alt="${anime.title}"
+                 onerror="this.src='https://placehold.co/36x50/0f0e1a/555?text=?'"
+                 class="pstats-top-img"/>
+            <span class="pstats-top-title">${anime.title}</span>
+            <span class="pstats-top-time">${timeAgo(anime.ts || 0)}</span>
+          </a>`).join('');
+      }
+    }
+
+    // ── 6. Timeline d'activité (7 derniers jours) ───────────────
+    const timelineEl = el('pstatTimeline');
+    if (timelineEl) {
+      const days   = [];
+      const labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      const now    = new Date();
+
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+        const dayEnd   = dayStart + 86400000;
+        const count    = hist.filter(h => h.ts >= dayStart && h.ts < dayEnd).length;
+        const dow      = d.getDay(); // 0=Sun
+        const label    = labels[(dow + 6) % 7]; // Mon=0
+        days.push({ label, count });
+      }
+
+      const maxDay = Math.max(...days.map(d => d.count), 1);
+      timelineEl.innerHTML = days.map(d => {
+        const pct = Math.round((d.count / maxDay) * 100);
+        return `
+          <div class="pstats-day">
+            <div class="pstats-day-bar-wrap">
+              <div class="pstats-day-bar" style="height:${Math.max(pct, 4)}%"
+                   title="${d.count} anime${d.count !== 1 ? 's' : ''}"></div>
+            </div>
+            <div class="pstats-day-label">${d.label}</div>
+            <div class="pstats-day-count">${d.count || ''}</div>
+          </div>`;
+      }).join('');
+    }
+  }
 
 })();
 </script>
