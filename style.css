@@ -5418,3 +5418,81 @@ a:active {
 @media (max-width: 480px) {
   .pstats-genre-name { width: 70px; font-size: 0.72rem; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   FAVORIS — DRAG & DROP PREMIUM
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Bouton toggle réorganisation */
+.fav-reorder-toggle {
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--b2);
+  color: var(--text2);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.fav-reorder-toggle:hover { border-color: var(--pink); color: var(--pink); }
+.fav-reorder-toggle.fav-reorder-active {
+  background: var(--pink);
+  border-color: var(--pink);
+  color: #fff;
+}
+
+/* Mode drag actif */
+.fav-grid-draggable.fav-drag-active .profile-anime-card {
+  cursor: grab;
+}
+.fav-grid-draggable.fav-drag-active .profile-anime-card:hover {
+  border-color: var(--b-pink);
+}
+
+/* Poignée de drag */
+.fav-drag-handle {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 2;
+  font-size: 1rem;
+  color: rgba(255,255,255,0.7);
+  background: rgba(0,0,0,0.5);
+  border-radius: 4px;
+  padding: 2px 5px;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.2s;
+  line-height: 1;
+  display: none;
+}
+.fav-drag-active .fav-drag-handle { display: block; }
+.profile-anime-card:hover .fav-drag-handle { opacity: 1; }
+
+/* Carte en cours de drag */
+.fav-dragging {
+  opacity: 0.4 !important;
+  transform: scale(0.95) !important;
+  border-color: var(--pink) !important;
+}
+
+/* Carte cible pendant le drag */
+.fav-drag-over {
+  border-color: var(--pink) !important;
+  background: rgba(255,79,216,0.08) !important;
+  transform: scale(1.04) !important;
+}
+
+/* Ghost touch */
+.fav-touch-ghost {
+  border-radius: var(--r);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Annuler la navigation en mode réorg */
+.fav-drag-active .profile-anime-card {
+  user-select: none;
+}

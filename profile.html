@@ -660,8 +660,49 @@
     renderWatchSection(currentWatchFilter);
   });
 
-  function renderFavs() {
-    const favs   = getFavs();
+  // Clé localStorage pour l'ordre personnalisé
+  const FAV_ORDER_KEY = 'VoirAnime_favsOrder';
+
+  function getFavsOrdered() {
+    const favs  = getFavs();
+    try {
+      const order = JSON.parse(localStorage.getItem(FAV_ORDER_KEY) || '[]');
+      if (!order.length) return favs;
+      // Trier selon l'ordre sauvegardé, les nouveaux en fin
+      const orderMap = {};
+      order.forEach((id, i) => { orderMap[String(id)] = i; });
+      return [...favs].sort((a, b) => {
+        const ia = orderMap[String(a.id)] ?? 9999;
+        const ib = orderMap[String(b.id)] ?? 9999;
+        return ia - ib;
+      });
+    } catch { return favs; }
+  }
+
+  function saveFavsOrder(favs) {
+    try {
+      localStorage.setItem(FAV_ORDER_KEY, JSON.stringify(favs.map(f => f.id)));
+    } catch {}
+
+    // Sync Firestore si connecté (non bloquant)
+    const piUser = window.piAuth?.getUser?.() || (() => {
+      try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
+    })();
+    if (piUser?.uid) {
+      fetch('/api/favorites', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          action:  'reorder',
+          piUserId: piUser.uid,
+          order:   favs.map(f => f.id),
+        }),
+      }).catch(() => {});
+    }
+  }
+
+  function renderFavs(isPremium = false) {
+    const favs   = getFavsOrdered();
     const grid   = el('favGrid');
     const empty  = el('favEmpty');
     const sub    = el('favSubtitle');
@@ -676,21 +717,186 @@
     empty.classList.add('hidden');
     grid.innerHTML = '';
 
+    // ── Toggle drag & drop si Premium ──
+    if (isPremium) {
+      grid.classList.add('fav-grid-draggable');
+      // Bouton toggle réorganisation
+      let reorderBtn = el('favReorderBtn');
+      if (!reorderBtn) {
+        reorderBtn = document.createElement('button');
+        reorderBtn.id        = 'favReorderBtn';
+        reorderBtn.className = 'fav-reorder-toggle';
+        reorderBtn.innerHTML = '↕ Reorder';
+        // Insérer à côté du titre de la section
+        const sectionTitle = grid.closest('section')?.querySelector('.profile-section-title');
+        if (sectionTitle) sectionTitle.appendChild(reorderBtn);
+      }
+      reorderBtn.onclick = () => {
+        const active = grid.classList.toggle('fav-drag-active');
+        reorderBtn.innerHTML = active ? '✓ Done' : '↕ Reorder';
+        reorderBtn.classList.toggle('fav-reorder-active', active);
+      };
+    }
+
     favs.forEach(f => {
       const card = document.createElement('div');
-      card.className = 'profile-anime-card';
+      card.className   = 'profile-anime-card';
+      card.dataset.id  = f.id;
+      card.draggable   = isPremium;
+
+      const dragHandle = isPremium ? `<div class="fav-drag-handle" title="Drag to reorder">⠿</div>` : '';
+
       card.innerHTML = `
+        ${dragHandle}
         <img class="profile-card-img" src="${f.img || ''}"
              alt="${f.title}"
              onerror="this.src='https://placehold.co/130x195/0f0e1a/555?text=?'"/>
         <div class="profile-card-body">
           <div class="profile-card-title">${f.title}</div>
         </div>`;
-      card.addEventListener('click', () => {
+
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.fav-drag-handle')) return;
+        if (grid.classList.contains('fav-drag-active')) return; // pas de navigation en mode réorg
         window.location.href = `anime.html?id=${f.id}`;
       });
+
       grid.appendChild(card);
     });
+
+    // ── Drag & drop logic (Premium uniquement) ──
+    if (isPremium) initFavDragDrop(grid);
+  }
+
+  function initFavDragDrop(grid) {
+    let dragSrc = null;
+
+    grid.addEventListener('dragstart', (e) => {
+      const card = e.target.closest('.profile-anime-card');
+      if (!card || !grid.classList.contains('fav-drag-active')) { e.preventDefault(); return; }
+      dragSrc = card;
+      card.classList.add('fav-dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+
+    grid.addEventListener('dragend', (e) => {
+      const card = e.target.closest('.profile-anime-card');
+      if (card) card.classList.remove('fav-dragging');
+      grid.querySelectorAll('.fav-drag-over').forEach(el => el.classList.remove('fav-drag-over'));
+      dragSrc = null;
+      saveNewOrder(grid);
+    });
+
+    grid.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      const target = e.target.closest('.profile-anime-card');
+      if (!target || target === dragSrc) return;
+      e.dataTransfer.dropEffect = 'move';
+      grid.querySelectorAll('.fav-drag-over').forEach(el => el.classList.remove('fav-drag-over'));
+      target.classList.add('fav-drag-over');
+    });
+
+    grid.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const target = e.target.closest('.profile-anime-card');
+      if (!target || target === dragSrc || !dragSrc) return;
+
+      // Insérer dragSrc avant ou après target selon la position
+      const cards    = [...grid.querySelectorAll('.profile-anime-card')];
+      const srcIdx   = cards.indexOf(dragSrc);
+      const tgtIdx   = cards.indexOf(target);
+      if (srcIdx < tgtIdx) {
+        grid.insertBefore(dragSrc, target.nextSibling);
+      } else {
+        grid.insertBefore(dragSrc, target);
+      }
+    });
+
+    // Touch support (mobile)
+    initFavTouchDrop(grid);
+  }
+
+  function initFavTouchDrop(grid) {
+    let touchSrc = null, ghost = null, startX = 0, startY = 0;
+
+    grid.addEventListener('touchstart', (e) => {
+      if (!grid.classList.contains('fav-drag-active')) return;
+      const card = e.target.closest('.profile-anime-card');
+      if (!card) return;
+      touchSrc = card;
+      startX   = e.touches[0].clientX;
+      startY   = e.touches[0].clientY;
+
+      // Créer un ghost visuel
+      ghost           = card.cloneNode(true);
+      ghost.className = 'fav-touch-ghost';
+      ghost.style.cssText = `
+        position:fixed; pointer-events:none; z-index:9999; opacity:0.85;
+        width:${card.offsetWidth}px; height:${card.offsetHeight}px;
+        left:${card.getBoundingClientRect().left}px; top:${card.getBoundingClientRect().top}px;
+        transition:none; transform:scale(1.05); box-shadow:0 8px 30px rgba(0,0,0,0.5);
+      `;
+      document.body.appendChild(ghost);
+      card.style.opacity = '0.3';
+    }, { passive: true });
+
+    grid.addEventListener('touchmove', (e) => {
+      if (!touchSrc || !ghost) return;
+      e.preventDefault();
+      const tx = e.touches[0].clientX;
+      const ty = e.touches[0].clientY;
+      ghost.style.left = `${tx - ghost.offsetWidth / 2}px`;
+      ghost.style.top  = `${ty - ghost.offsetHeight / 2}px`;
+
+      // Trouver la carte sous le doigt
+      ghost.style.display = 'none';
+      const el = document.elementFromPoint(tx, ty);
+      ghost.style.display = '';
+      const target = el?.closest('.profile-anime-card');
+      if (target && target !== touchSrc) {
+        grid.querySelectorAll('.fav-drag-over').forEach(c => c.classList.remove('fav-drag-over'));
+        target.classList.add('fav-drag-over');
+      }
+    }, { passive: false });
+
+    grid.addEventListener('touchend', (e) => {
+      if (!touchSrc || !ghost) return;
+      ghost.remove();
+      ghost = null;
+      touchSrc.style.opacity = '';
+
+      const tx     = e.changedTouches[0].clientX;
+      const ty     = e.changedTouches[0].clientY;
+      const target = document.elementFromPoint(tx, ty)?.closest('.profile-anime-card');
+
+      grid.querySelectorAll('.fav-drag-over').forEach(c => c.classList.remove('fav-drag-over'));
+
+      if (target && target !== touchSrc) {
+        const cards  = [...grid.querySelectorAll('.profile-anime-card')];
+        const srcIdx = cards.indexOf(touchSrc);
+        const tgtIdx = cards.indexOf(target);
+        if (srcIdx < tgtIdx) grid.insertBefore(touchSrc, target.nextSibling);
+        else                  grid.insertBefore(touchSrc, target);
+      }
+
+      saveNewOrder(grid);
+      touchSrc = null;
+    }, { passive: true });
+  }
+
+  function saveNewOrder(grid) {
+    const newOrder = [...grid.querySelectorAll('.profile-anime-card')]
+      .map(card => Number(card.dataset.id))
+      .filter(Boolean);
+
+    // Reconstruire le tableau trié selon le nouvel ordre
+    const favs    = getFavs();
+    const favsMap = {};
+    favs.forEach(f => { favsMap[String(f.id)] = f; });
+    const sorted  = newOrder.map(id => favsMap[String(id)]).filter(Boolean);
+
+    // Sauvegarder l'ordre localement + sync Firestore
+    saveFavsOrder(sorted);
   }
 
   function renderHistory() {
@@ -785,6 +991,9 @@
       if (upgradeStrip) upgradeStrip.style.display = 'block';
       return;
     }
+
+    // Réafficher les favoris avec drag & drop activé
+    renderFavs(true);
 
     if (section) section.style.display = 'block';
 
