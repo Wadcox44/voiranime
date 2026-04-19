@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VoirAnime — Ratings</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+  <style>
+    /* Logo néon */
+    .nav-logo{text-decoration:none;display:inline-flex;align-items:center}
+    .logo-glitch{display:inline-block;font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:-.5px;transform:skewX(-6deg);position:relative;user-select:none}
+    .logo-glitch::before,.logo-glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:0;pointer-events:none}
+    .logo-glitch::before{color:#ff2d78;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%)}
+    .logo-glitch::after{color:#2de4ff;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%)}
+    .logo-glitch::before{animation:va-gr-auto 5s steps(2) infinite;opacity:1}
+    .logo-glitch::after{animation:va-gb-auto 5s steps(2) .06s infinite;opacity:1}
+    @keyframes va-gr-auto{0%{transform:translate(-2px,1px);opacity:1}4%{transform:translate(2px,-1px);opacity:1}8%{transform:translate(-1px,2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
+    @keyframes va-gb-auto{0%{transform:translate(2px,-1px);opacity:1}4%{transform:translate(-2px,1px);opacity:1}8%{transform:translate(1px,-2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
+    .logo-voir{color:#fff;animation:va-gw 2.6s ease-in-out infinite}
+    .logo-anime{color:#ff4fd8;animation:va-gp 2.6s ease-in-out infinite .4s}
+    @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(255,79,216,.4),0 0 10px rgba(255,79,216,.2)}50%{text-shadow:0 0 8px rgba(255,79,216,.9),0 0 20px rgba(255,79,216,.5),0 0 36px rgba(124,77,255,.3)}}
+    @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(255,79,216,.6),0 0 14px rgba(124,77,255,.3)}50%{text-shadow:0 0 10px #ff4fd8,0 0 24px rgba(255,79,216,.7),0 0 40px rgba(124,77,255,.45)}}
+    @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
+
+    /* ── Profile page styles ── */
+
+    /* Hero v2 : 2 colonnes côte à côte */
+    .profile-hero-v2 {
+      padding: calc(var(--nav-h) + 40px) 48px 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 1160px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    /* Colonne gauche */
+    .profile-left { display: flex; flex-direction: column; gap: 16px; }
+    .profile-identity {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .profile-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7c4dff, #ff4fd8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+      box-shadow: 0 0 24px rgba(124,77,255,0.35);
+    }
+    .profile-identity-info { flex: 1; }
+    .profile-name {
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-bottom: 3px;
+    }
+    .profile-since {
+      font-size: 0.74rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .profile-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .profile-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--ink3);
+      border: 1px solid var(--b2);
+      color: var(--text2);
+    }
+    .profile-badge.gold { background: rgba(255,209,102,.12); border-color: rgba(255,209,102,.3); color: var(--gold); }
+    .profile-badge.pink { background: var(--pink-dim); border-color: var(--b-pink); color: #ffaaee; }
+
+    /* Colonne droite : grille stats 3×3 compacte */
+    .profile-stats-compact {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .stat-compact {
+      background: var(--ink3);
+      border: 1px solid var(--b1);
+      border-radius: var(--r);
+      padding: 12px 8px;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .stat-compact:hover { border-color: var(--b2); transform: translateY(-2px); }
+    .stat-compact-num {
+      font-size: 1.4rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-compact-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* Sections profil */
+    .profile-section {
+      max-width: 1160px;
+      margin: 0 auto 40px;
+      padding: 0 48px;
+    }
+    .profile-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    /* Grille favoris / historique */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 14px;
+    }
+    .profile-anime-card {
+      cursor: pointer;
+      border-radius: var(--r);
+      overflow: hidden;
+      background: var(--ink3);
+      border: 1px solid var(--b1);
+      transition: transform 0.25s var(--ease-spring), border-color 0.2s;
+    }
+    .profile-anime-card:hover {
+      transform: translateY(-6px) scale(1.03);
+      border-color: var(--b-pink);
+    }
+    .profile-card-img {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+    }
+    .profile-card-body { padding: 8px; }
+    .profile-card-title {
+      font-size: 0.76rem;
+      font-weight: 600;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .profile-card-title:hover { color: var(--pink); }
+
+    /* Activité timeline */
+    .activity-list { display: flex; flex-direction: column; gap: 8px; }
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--ink3);
+      border: 1px solid var(--b1);
+      border-radius: var(--r);
+      transition: border-color 0.2s;
+    }
+    .activity-item:hover { border-color: var(--b2); }
+    .activity-thumb {
+      width: 40px; height: 56px;
+      border-radius: 6px;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--ink4);
+    }
+    .activity-info { flex: 1; min-width: 0; }
+    .activity-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 3px;
+    }
+    .activity-time { font-size: 0.72rem; color: var(--muted); }
+    .activity-remove {
+      color: var(--muted);
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .activity-remove:hover { color: var(--pink); background: var(--pink-dim); }
+
+    /* Bouton reset */
+    .profile-reset-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border-radius: var(--r-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(230,57,70,0.1);
+      border: 1px solid rgba(230,57,70,0.25);
+      color: #ff8080;
+      transition: all 0.2s;
+      font-family: var(--font);
+      cursor: pointer;
+    }
+    .profile-reset-btn:hover { background: rgba(230,57,70,0.2); border-color: rgba(230,57,70,0.5); }
+
+    /* Empty state */
+    .profile-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .profile-empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+
+    @media (max-width: 768px) {
+      .profile-hero-v2 {
+        grid-template-columns: 1fr;
+        padding: calc(var(--nav-h) + 20px) 16px 24px;
+        gap: 16px;
+      }
+      .profile-section { padding: 0 16px; }
+    }
+    @media (max-width: 480px) {
+      .profile-stats-compact { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .stat-compact { padding: 10px 4px; }
+      .stat-compact-num { font-size: 1.2rem; }
+    }
+    .watch-filter-btn {
+      padding: 6px 14px; border-radius: 20px; border: 1px solid var(--b2);
+      background: transparent; color: var(--text2); font-size: 0.78rem;
+      cursor: pointer; transition: all .2s;
+    }
+    .watch-filter-btn:hover { border-color: var(--pink); color: var(--pink); }
+    .watch-filter-btn.active { background: var(--pink); border-color: var(--pink); color: #fff; }
+  </style>
+  <script src="i18n.js"></script>
+  <script src="notificationsManager.js"></script>
+  <script src="featuresManager.js"></script>
+  <script src="premiumManager.js"></script>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar scrolled" id="navbar">
+  <div class="nav-top">
+    <div class="nav-left">
+      <div class="nav-logo-wrap">
+        <a href="index.html" class="nav-logo" aria-label="VoirAnime">
+          <span class="logo-glitch" data-text="VoirAnime">
+            <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
+          </span>
+        </a>
+        <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
+      </div>
+    </div>
+    <div class="nav-right">
+      <button class="notif-toggle" id="notifToggle" aria-label="Notifications">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span class="notif-badge" id="notifBadge"></span>
+      </button>
+    </div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="catalogue.html" class="nav-link" data-i18n="nav.catalogue">Catalogue</a></li>
+    <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
+    <li><a href="profile.html"   class="nav-link">Profil</a></li>
+    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Soutenir</a></li>
+  </ul>
+</nav>
+  <div class="notif-panel" id="notifPanel"></div>
+<!-- RATINGS PAGE -->
+<div class="subpage-header">
+  <a href="profile.html" class="subpage-back">← Profile</a>
+  <h1 class="subpage-title">⭐ Ratings</h1>
+  <div class="subpage-meta" id="ratMeta"></div>
+</div>
+
+<div class="subpage-grid" id="ratGrid"></div>
+<div class="subpage-empty hidden" id="ratEmpty">
+  <div class="subpage-empty-icon">⭐</div>
+  <p>No ratings yet.</p>
+  <a href="index.html" class="subpage-cta">Explore anime →</a>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-logo">Voir<span>Anime</span></div>
+  <p class="footer-text" data-i18n="footer.copy">© 2025 VoirAnime</p>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  function el(id) { return document.getElementById(id); }
+  function getRatings() { try { return JSON.parse(localStorage.getItem('VoirAnime_ratings')||'{}'); } catch { return {}; } }
+  function getHist()    { try { return JSON.parse(localStorage.getItem('VoirAnime_history')||'[]'); } catch { return []; } }
+
+  function render() {
+    const ratings = getRatings();
+    const entries = Object.entries(ratings).sort((a,b) => b[1]-a[1]);
+    const grid    = el('ratGrid');
+    const empty   = el('ratEmpty');
+    const meta    = el('ratMeta');
+
+    if (meta) meta.textContent = entries.length + ' anime' + (entries.length !== 1 ? 's' : '');
+
+    if (entries.length === 0) {
+      grid.innerHTML = '';
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    grid.innerHTML = '';
+
+    const hist    = getHist();
+    const histMap = {};
+    hist.forEach(h => { histMap[String(h.id)] = h; });
+
+    entries.forEach(([id, note]) => {
+      const info  = histMap[id] || {};
+      const card  = document.createElement('a');
+      card.href      = `anime.html?id=${id}`;
+      card.className = 'subpage-card';
+      card.innerHTML = `
+        <div style="position:relative">
+          <img src="${info.img||''}" alt="${info.title||'Anime #'+id}"
+               onerror="this.src='https://placehold.co/130x195/0f0e1a/555?text=?'"
+               class="subpage-card-img"/>
+          <div class="subpage-rating-badge">${note}/10</div>
+        </div>
+        <div class="subpage-card-body">
+          <div class="subpage-card-title">${info.title||'Anime #'+id}</div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  render();
+})();
+</script>
+<script>
+/* Transition cinématique entre pages */
+(function(){
+  var overlay = document.createElement("div");
+  overlay.className = "page-transition-overlay in";
+  document.body.appendChild(overlay);
+  setTimeout(function(){ overlay.remove(); }, 450);
+
+  document.addEventListener("click", function(e){
+    var link = e.target.closest("a[href]");
+    if (!link) return;
+    var href = link.getAttribute("href");
+    if (!href || href.startsWith("#") || href.startsWith("http") ||
+        href.startsWith("mailto") || link.target === "_blank") return;
+    e.preventDefault();
+    var ov = document.createElement("div");
+    ov.className = "page-transition-overlay out";
+    document.body.appendChild(ov);
+    setTimeout(function(){ window.location.href = href; }, 340);
+  });
+})();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var raw  = location.pathname.split('/').pop() || 'index';
+  var path = raw.endsWith('.html') ? raw : (raw === '' ? 'index.html' : raw + '.html');
+  document.querySelectorAll('.nav-link').forEach(function(l){
+    var href = l.getAttribute('href');
+    l.classList.toggle('active', href === path);
+  });
+});
+</script>
+<script>
+(function() {
+  // Init notifications — lit piUserId depuis localStorage (pi-auth absent sur cette page)
+  function tryInitNotifs() {
+    var raw = localStorage.getItem('pi_user');
+    if (!raw) return;
+    try {
+      var user = JSON.parse(raw);
+      if (user && user.uid && window.VA_initNotifications) {
+        window.VA_initNotifications(user.uid);
+        if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
+        if (window.VA_initPremium) window.VA_initPremium(user.uid);
+      }
+    } catch (_) {}
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tryInitNotifs);
+  } else {
+    tryInitNotifs();
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -345,72 +345,37 @@
 
 </div>
 
-<!-- SUIVI DE VISIONNAGE -->
-<section class="profile-section" id="watchSection">
-  <div class="profile-section-title">
-    <span class="section-dot green"></span>
-    <span data-i18n="anime.my_tracking">📋 My Tracking</span>
-    <span style="font-size:0.72rem;font-weight:400;color:var(--muted)" id="watchSubtitle"></span>
-  </div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
-    <button class="watch-filter-btn active" data-filter="all" data-i18n="adv.all">Tous</button>
-    <button class="watch-filter-btn" data-filter="completed" data-i18n="watch.filter_completed">✓ Terminés</button>
-    <button class="watch-filter-btn" data-filter="watching" data-i18n="watch.filter_watching">▶ En cours</button>
-    <button class="watch-filter-btn" data-filter="planToWatch" data-i18n="watch.label_plan">🔖 Plan to watch</button>
-  </div>
-  <div class="profile-grid" id="watchGrid"></div>
-  <div class="profile-empty hidden" id="watchEmpty">
-    <div class="profile-empty-icon">📋</div>
-    <p data-i18n="profile.no_tracking">Aucun anime dans ton suivi.<br>Utilise les boutons "En cours", "Terminé" ou "À regarder" sur les fiches animés !</p>
-  </div>
-</section>
+<!-- NAVIGATION RAPIDE -->
+<div class="profile-nav-grid">
 
-<!-- FAVORIS -->
-<section class="profile-section">
-  <div class="profile-section-title">
-    <span class="section-dot red"></span>
-    <span data-i18n="section.favorites">❤ My Favorites</span>
-    <span style="font-size:0.72rem;font-weight:400;color:var(--muted)" id="favSubtitle"></span>
-  </div>
-  <div class="profile-grid" id="favGrid"></div>
-  <div class="profile-empty hidden" id="favEmpty">
-    <div class="profile-empty-icon">（；￣д￣）</div>
-    <p data-i18n="profile.no_favs">No favorites yet.</p>
-  </div>
-</section>
-
-<!-- MES NOTES -->
-<section class="profile-section">
-  <div class="profile-section-title">
-    <span class="section-dot gold"></span>
-    <span data-i18n="profile.rated">⭐ My Ratings</span>
-    <span style="font-size:0.72rem;font-weight:400;color:var(--muted)" id="ratingSubtitle"></span>
-  </div>
-  <div class="profile-grid" id="ratingGrid"></div>
-  <div class="profile-empty hidden" id="ratingEmpty">
-    <div class="profile-empty-icon">⭐</div>
-    <p data-i18n="profile.no_ratings">Tu n'as encore noté aucun anime.<br data-i18n="profile.no_ratings_hint">Visite une fiche anime et clique sur les étoiles !</p>
-  </div>
-</section>
-
-<!-- HISTORIQUE -->
-<section class="profile-section">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-    <div class="profile-section-title" style="margin-bottom:0">
-      <span class="section-dot violet"></span>
-      <span data-i18n="profile.no_history_title">🕐 History</span>
+  <a href="favorites.html" class="profile-nav-card">
+    <div class="profile-nav-icon">❤</div>
+    <div class="profile-nav-info">
+      <div class="profile-nav-title">Favorites</div>
+      <div class="profile-nav-count" id="navFavCount">—</div>
     </div>
-    <button class="profile-reset-btn" id="clearHistoryBtn">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-      <span data-i18n="adv.clear">Clear</span>
-    </button>
-  </div>
-  <div class="activity-list" id="historyList"></div>
-  <div class="profile-empty hidden" id="histEmpty">
-    <div class="profile-empty-icon">🎌</div>
-    <p data-i18n="profile.no_history">Ton historique est vide.<br data-i18n="profile.no_history_hint">Commence à explorer des animes !</p>
-  </div>
-</section>
+    <svg class="profile-nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </a>
+
+  <a href="history.html" class="profile-nav-card">
+    <div class="profile-nav-icon">🕐</div>
+    <div class="profile-nav-info">
+      <div class="profile-nav-title">History</div>
+      <div class="profile-nav-count" id="navHistCount">—</div>
+    </div>
+    <svg class="profile-nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </a>
+
+  <a href="ratings.html" class="profile-nav-card">
+    <div class="profile-nav-icon">⭐</div>
+    <div class="profile-nav-info">
+      <div class="profile-nav-title">Ratings</div>
+      <div class="profile-nav-count" id="navRatingCount">—</div>
+    </div>
+    <svg class="profile-nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </a>
+
+</div>
 
 <!-- STATS PREMIUM -->
 <section class="profile-section premium-stats-section" id="premiumStatsSection" style="display:none">
@@ -419,8 +384,6 @@
     ⭐ Premium Stats
     <span class="premium-stats-badge">Premium</span>
   </div>
-
-  <!-- Grille de métriques -->
   <div class="pstats-grid">
     <div class="pstat-card">
       <div class="pstat-icon">⏱</div>
@@ -443,28 +406,21 @@
       <div class="pstat-label">Hours watched</div>
     </div>
   </div>
-
-  <!-- Top genres -->
   <div class="pstats-block">
     <div class="pstats-block-title">🎭 Top genres</div>
     <div class="pstats-genres" id="pstatGenres">
       <div class="pstats-empty-hint">Visit more anime to unlock your top genres!</div>
     </div>
   </div>
-
-  <!-- Top animes regardés -->
   <div class="pstats-block">
     <div class="pstats-block-title">🏆 Most watched</div>
     <div class="pstats-top-list" id="pstatTopAnimes"></div>
   </div>
-
-  <!-- Timeline d'activité (7 derniers jours) -->
   <div class="pstats-block">
     <div class="pstats-block-title">📅 Activity — last 7 days</div>
     <div class="pstats-timeline" id="pstatTimeline"></div>
   </div>
 </section>
-
 
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
@@ -487,46 +443,36 @@
     setTimeout(() => t.classList.remove('show'), 2800);
   }
 
+  /* ── Données localStorage ── */
   function getFavs() {
     try { return JSON.parse(localStorage.getItem('VoirAnime_favs') || '[]'); } catch { return []; }
   }
-  function saveFavs(f) { localStorage.setItem('VoirAnime_favs', JSON.stringify(f)); }
-
-  function getRatings() {
-    try { return JSON.parse(localStorage.getItem('VoirAnime_ratings') || '{}'); } catch { return {}; }
-  }
-
   function getHistory() {
     try { return JSON.parse(localStorage.getItem('VoirAnime_history') || '[]'); } catch { return []; }
   }
-  function saveHistory(h) { localStorage.setItem('VoirAnime_history', JSON.stringify(h)); }
-
+  function getRatings() {
+    try { return JSON.parse(localStorage.getItem('VoirAnime_ratings') || '{}'); } catch { return {}; }
+  }
   function getWatchList() {
     try { return JSON.parse(localStorage.getItem('VoirAnime_watchStatus') || '{}'); } catch { return {}; }
   }
 
-  function timeAgo(ts) {
-    const diff = Date.now() - ts;
-    const m = Math.floor(diff / 60000);
-    const h = Math.floor(diff / 3600000);
-    const d = Math.floor(diff / 86400000);
-    if (m < 2)  return t('profile.timeago_now');
-    if (m < 60) return t('profile.timeago_min', m);
-    if (h < 24) return t('profile.timeago_h', h);
-    if (d < 30) return t('profile.timeago_d', d);
-    return t('profile.timeago_mo', Math.floor(d/30));
+  /* ── Compteurs boutons navigation ── */
+  function renderNavCounts() {
+    const fav     = getFavs();
+    const hist    = getHistory();
+    const ratings = getRatings();
+
+    const navFav    = el('navFavCount');
+    const navHist   = el('navHistCount');
+    const navRating = el('navRatingCount');
+
+    if (navFav)    navFav.textContent    = fav.length    ? fav.length    + ' anime'  : 'Empty';
+    if (navHist)   navHist.textContent   = hist.length   ? hist.length   + ' visited' : 'Empty';
+    if (navRating) navRating.textContent = Object.keys(ratings).length ? Object.keys(ratings).length + ' rated' : 'Empty';
   }
 
-  function getBadges(favs, history, duels) {
-    const badges = [];
-    if (favs.length >= 1)   badges.push({ label: t('profile.badge_first_fav'), cls: 'gold' });
-    if (favs.length >= 10)  badges.push({ label: t('profile.badge_fan'), cls: 'pink' });
-    if (history.length >= 10) badges.push({ label: t('profile.badge_explorer'), cls: '' });
-    if (duels >= 5)           badges.push({ label: t('profile.badge_duelist'), cls: '' });
-    if (duels >= 20)          badges.push({ label: t('profile.badge_champion'), cls: 'gold' });
-    return badges;
-  }
-
+  /* ── Stats grille ── */
   function renderStats() {
     const favs    = getFavs();
     const hist    = getHistory();
@@ -540,449 +486,42 @@
     const watching   = watchArr.filter(a => a.status === 'watching');
     const planTo     = watchArr.filter(a => a.status === 'planToWatch');
     const totalMins  = completed.reduce((acc, a) => acc + (a.episodes || 0) * (a.duration || 24), 0);
-    const totalHours = Math.round(totalMins / 60);
 
-    el('statCompletedCount').textContent = completed.length;
-    el('statWatchingCount').textContent  = watching.length;
-    el('statPlanCount').textContent      = planTo.length;
-    el('statHoursCount').textContent     = totalHours + 'h';
+    el('statFavCount')?.       && (el('statFavCount').textContent       = favs.length);
+    el('statHistCount')?.       && (el('statHistCount').textContent      = hist.length);
+    el('statRatingCount')?.     && (el('statRatingCount').textContent    = Object.keys(ratings).length);
+    el('statDuelCount')?.       && (el('statDuelCount').textContent      = duels);
+    el('statStreakCount')?.     && (el('statStreakCount').textContent     = streak);
+    el('statCompletedCount')?.  && (el('statCompletedCount').textContent = completed.length);
+    el('statWatchingCount')?.   && (el('statWatchingCount').textContent  = watching.length);
+    el('statPlanCount')?.       && (el('statPlanCount').textContent      = planTo.length);
+    el('statHoursCount')?.      && (el('statHoursCount').textContent     = Math.round(totalMins / 60) + 'h');
 
-    el('statFavCount').textContent    = favs.length;
-    el('statHistCount').textContent   = hist.length;
-    el('statRatingCount').textContent = Object.keys(ratings).length;
-    el('statDuelCount').textContent   = duels;
-    el('statStreakCount').textContent  = streak;
-
-    const firstVisit = parseInt(localStorage.getItem('VoirAnime_firstVisit') || '0');
-    if (!firstVisit) {
-      localStorage.setItem('VoirAnime_firstVisit', Date.now().toString());
-      el('profileSince').textContent = t('profile.since');
-    } else {
-      el('profileSince').textContent = 'Membre depuis ' + timeAgo(firstVisit).toLowerCase().replace('il y a ', '');
-    }
-
-    const badges = getBadges(favs, hist, duels);
-    const badgesEl = el('profileBadges');
-    badgesEl.innerHTML = badges.length
-      ? badges.map(b => `<span class="profile-badge ${b.cls}">${b.label}</span>`).join('')
-      : '<span class="profile-badge">🌱 Nouvelle recrue</span>';
-
+    // Avatar + depuis
     const total  = favs.length + hist.length + duels;
     const avatar = total < 5 ? '🌱' : total < 20 ? '⭐' : total < 50 ? '🔥' : '👑';
-    el('profileAvatar').textContent = avatar;
-  }
+    if (el('profileAvatar')) el('profileAvatar').textContent = avatar;
 
-  function renderRatings() {
-    const ratings = getRatings();
-    const grid    = el('ratingGrid');
-    const empty   = el('ratingEmpty');
-    const sub     = el('ratingSubtitle');
-    const entries = Object.entries(ratings).sort((a, b) => b[1] - a[1]);
+    const firstVisit = parseInt(localStorage.getItem('VoirAnime_firstVisit') || '0');
+    if (!firstVisit) localStorage.setItem('VoirAnime_firstVisit', Date.now().toString());
 
-    sub.textContent = entries.length ? `(${entries.length})` : '';
+    // Badges
+    const badges = [];
+    if (favs.length >= 1)      badges.push({ label: '⭐ First favorite',   cls: 'gold' });
+    if (favs.length >= 10)     badges.push({ label: '❤ Confirmed fan',    cls: 'pink' });
+    if (hist.length >= 10)     badges.push({ label: '🎌 Explorer',         cls: '' });
+    if (duels >= 5)            badges.push({ label: '⚔ Duelist',          cls: '' });
+    if (duels >= 20)           badges.push({ label: '🏆 Champion',         cls: 'gold' });
 
-    if (entries.length === 0) {
-      grid.innerHTML = '';
-      empty.classList.remove('hidden');
-      return;
-    }
-    empty.classList.add('hidden');
-    grid.innerHTML = '';
-
-    // Récupère les infos depuis l'historique pour avoir image + titre
-    const hist = getHistory();
-    const histMap = {};
-    hist.forEach(h => { histMap[String(h.id)] = h; });
-
-    entries.forEach(([id, note]) => {
-      const info  = histMap[id];
-      const title = info?.title || `Anime #${id}`;
-      const img   = info?.img   || '';
-
-      const card = document.createElement('div');
-      card.className = 'profile-anime-card';
-      card.style.position = 'relative';
-      card.innerHTML = `
-        <img class="profile-card-img" src="${img}"
-             alt="${title}"
-             onerror="this.src='https://placehold.co/130x195/0f0e1a/555?text=?'"/>
-        <div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.75);
-                    border-radius:6px;padding:3px 7px;font-size:.7rem;font-weight:700;
-                    color:#ffd166;">${note}/10</div>
-        <div class="profile-card-body">
-          <div class="profile-card-title">${title}</div>
-        </div>`;
-      card.addEventListener('click', () => { window.location.href = `anime.html?id=${id}`; });
-      grid.appendChild(card);
-    });
-  }
-
-  function renderWatchSection(filter = 'all') {
-    const watchList = getWatchList();
-    const all = Object.entries(watchList).map(([id, data]) => ({ id, ...data }));
-    const filtered = filter === 'all' ? all : all.filter(a => a.status === filter);
-
-    const grid  = document.getElementById('watchGrid');
-    const empty = document.getElementById('watchEmpty');
-    const sub   = document.getElementById('watchSubtitle');
-
-    if (sub) sub.textContent = all.length ? `(${all.length})` : '';
-
-    if (filtered.length === 0) {
-      grid.innerHTML = '';
-      empty.classList.remove('hidden');
-      return;
-    }
-    empty.classList.add('hidden');
-
-    const statusLabel = { watching: t('watch.watching'), completed: t('watch.completed'), planToWatch: t('watch.plan') };
-    const statusColor = { watching: '#60a5fa', completed: '#4ade80', planToWatch: '#f59e0b' };
-
-    grid.innerHTML = filtered.map(a => `
-      <div class="profile-card" style="position:relative">
-        <a href="anime.html?id=${a.id}" style="text-decoration:none;color:inherit;display:block">
-          <img src="${a.img || ''}" alt="${a.title || ''}" loading="lazy"
-               style="width:100%;border-radius:6px;aspect-ratio:2/3;object-fit:cover"
-               onerror="this.src='https://placehold.co/160x230/111118/555?text=No+Image'"/>
-          <div style="padding:6px 2px">
-            <div style="font-size:0.78rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.title || '—'}</div>
-            <div style="font-size:0.7rem;color:${statusColor[a.status]};margin-top:2px">${statusLabel[a.status] || ''}</div>
-          </div>
-        </a>
-        <button onclick="removeWatch('${a.id}')" title="Retirer"
-          style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.7);border:none;color:#fff;border-radius:50%;width:20px;height:20px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
-      </div>
-    `).join('');
-  }
-
-  window.removeWatch = function(id) {
-    const list = getWatchList();
-    delete list[id];
-    localStorage.setItem('VoirAnime_watchStatus', JSON.stringify(list));
-    renderWatchSection(currentWatchFilter);
-    renderStats();
-  };
-
-  let currentWatchFilter = 'all';
-  document.addEventListener('click', e => {
-    const btn = e.target.closest('.watch-filter-btn');
-    if (!btn) return;
-    currentWatchFilter = btn.dataset.filter;
-    document.querySelectorAll('.watch-filter-btn').forEach(b => b.classList.toggle('active', b === btn));
-    renderWatchSection(currentWatchFilter);
-  });
-
-  // Clé localStorage pour l'ordre personnalisé
-  const FAV_ORDER_KEY = 'VoirAnime_favsOrder';
-
-  function getFavsOrdered() {
-    const favs  = getFavs();
-    try {
-      const order = JSON.parse(localStorage.getItem(FAV_ORDER_KEY) || '[]');
-      if (!order.length) return favs;
-      // Trier selon l'ordre sauvegardé, les nouveaux en fin
-      const orderMap = {};
-      order.forEach((id, i) => { orderMap[String(id)] = i; });
-      return [...favs].sort((a, b) => {
-        const ia = orderMap[String(a.id)] ?? 9999;
-        const ib = orderMap[String(b.id)] ?? 9999;
-        return ia - ib;
-      });
-    } catch { return favs; }
-  }
-
-  function saveFavsOrder(favs) {
-    try {
-      localStorage.setItem(FAV_ORDER_KEY, JSON.stringify(favs.map(f => f.id)));
-    } catch {}
-
-    // Sync Firestore si connecté (non bloquant)
-    const piUser = window.piAuth?.getUser?.() || (() => {
-      try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
-    })();
-    if (piUser?.uid) {
-      fetch('/api/favorites', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          action:  'reorder',
-          piUserId: piUser.uid,
-          order:   favs.map(f => f.id),
-        }),
-      }).catch(() => {});
+    const badgesEl = el('profileBadges');
+    if (badgesEl) {
+      badgesEl.innerHTML = badges.length
+        ? badges.map(b => `<span class="profile-badge ${b.cls}">${b.label}</span>`).join('')
+        : '<span class="profile-badge">🌱 New recruit</span>';
     }
   }
 
-  function renderFavs(isPremium = false) {
-    const favs   = getFavsOrdered();
-    const grid   = el('favGrid');
-    const empty  = el('favEmpty');
-    const sub    = el('favSubtitle');
-
-    sub.textContent = favs.length ? `(${favs.length})` : '';
-
-    if (favs.length === 0) {
-      grid.innerHTML = '';
-      empty.classList.remove('hidden');
-      return;
-    }
-    empty.classList.add('hidden');
-    grid.innerHTML = '';
-
-    // ── Toggle drag & drop si Premium ──
-    if (isPremium) {
-      grid.classList.add('fav-grid-draggable');
-      // Bouton toggle réorganisation
-      let reorderBtn = el('favReorderBtn');
-      if (!reorderBtn) {
-        reorderBtn = document.createElement('button');
-        reorderBtn.id        = 'favReorderBtn';
-        reorderBtn.className = 'fav-reorder-toggle';
-        reorderBtn.innerHTML = '↕ Reorder';
-        // Insérer à côté du titre de la section
-        const sectionTitle = grid.closest('section')?.querySelector('.profile-section-title');
-        if (sectionTitle) sectionTitle.appendChild(reorderBtn);
-      }
-      reorderBtn.onclick = () => {
-        const active = grid.classList.toggle('fav-drag-active');
-        reorderBtn.innerHTML = active ? '✓ Done' : '↕ Reorder';
-        reorderBtn.classList.toggle('fav-reorder-active', active);
-      };
-    }
-
-    favs.forEach(f => {
-      const card = document.createElement('div');
-      card.className   = 'profile-anime-card';
-      card.dataset.id  = f.id;
-      card.draggable   = isPremium;
-
-      const dragHandle = isPremium ? `<div class="fav-drag-handle" title="Drag to reorder">⠿</div>` : '';
-
-      card.innerHTML = `
-        ${dragHandle}
-        <img class="profile-card-img" src="${f.img || ''}"
-             alt="${f.title}"
-             onerror="this.src='https://placehold.co/130x195/0f0e1a/555?text=?'"/>
-        <div class="profile-card-body">
-          <div class="profile-card-title">${f.title}</div>
-        </div>`;
-
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('.fav-drag-handle')) return;
-        if (grid.classList.contains('fav-drag-active')) return; // pas de navigation en mode réorg
-        window.location.href = `anime.html?id=${f.id}`;
-      });
-
-      grid.appendChild(card);
-    });
-
-    // ── Drag & drop logic (Premium uniquement) ──
-    if (isPremium) initFavDragDrop(grid);
-  }
-
-  function initFavDragDrop(grid) {
-    let dragSrc = null;
-
-    grid.addEventListener('dragstart', (e) => {
-      const card = e.target.closest('.profile-anime-card');
-      if (!card || !grid.classList.contains('fav-drag-active')) { e.preventDefault(); return; }
-      dragSrc = card;
-      card.classList.add('fav-dragging');
-      e.dataTransfer.effectAllowed = 'move';
-    });
-
-    grid.addEventListener('dragend', (e) => {
-      const card = e.target.closest('.profile-anime-card');
-      if (card) card.classList.remove('fav-dragging');
-      grid.querySelectorAll('.fav-drag-over').forEach(el => el.classList.remove('fav-drag-over'));
-      dragSrc = null;
-      saveNewOrder(grid);
-    });
-
-    grid.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      const target = e.target.closest('.profile-anime-card');
-      if (!target || target === dragSrc) return;
-      e.dataTransfer.dropEffect = 'move';
-      grid.querySelectorAll('.fav-drag-over').forEach(el => el.classList.remove('fav-drag-over'));
-      target.classList.add('fav-drag-over');
-    });
-
-    grid.addEventListener('drop', (e) => {
-      e.preventDefault();
-      const target = e.target.closest('.profile-anime-card');
-      if (!target || target === dragSrc || !dragSrc) return;
-
-      // Insérer dragSrc avant ou après target selon la position
-      const cards    = [...grid.querySelectorAll('.profile-anime-card')];
-      const srcIdx   = cards.indexOf(dragSrc);
-      const tgtIdx   = cards.indexOf(target);
-      if (srcIdx < tgtIdx) {
-        grid.insertBefore(dragSrc, target.nextSibling);
-      } else {
-        grid.insertBefore(dragSrc, target);
-      }
-    });
-
-    // Touch support (mobile)
-    initFavTouchDrop(grid);
-  }
-
-  function initFavTouchDrop(grid) {
-    let touchSrc = null, ghost = null, startX = 0, startY = 0;
-
-    grid.addEventListener('touchstart', (e) => {
-      if (!grid.classList.contains('fav-drag-active')) return;
-      const card = e.target.closest('.profile-anime-card');
-      if (!card) return;
-      touchSrc = card;
-      startX   = e.touches[0].clientX;
-      startY   = e.touches[0].clientY;
-
-      // Créer un ghost visuel
-      ghost           = card.cloneNode(true);
-      ghost.className = 'fav-touch-ghost';
-      ghost.style.cssText = `
-        position:fixed; pointer-events:none; z-index:9999; opacity:0.85;
-        width:${card.offsetWidth}px; height:${card.offsetHeight}px;
-        left:${card.getBoundingClientRect().left}px; top:${card.getBoundingClientRect().top}px;
-        transition:none; transform:scale(1.05); box-shadow:0 8px 30px rgba(0,0,0,0.5);
-      `;
-      document.body.appendChild(ghost);
-      card.style.opacity = '0.3';
-    }, { passive: true });
-
-    grid.addEventListener('touchmove', (e) => {
-      if (!touchSrc || !ghost) return;
-      e.preventDefault();
-      const tx = e.touches[0].clientX;
-      const ty = e.touches[0].clientY;
-      ghost.style.left = `${tx - ghost.offsetWidth / 2}px`;
-      ghost.style.top  = `${ty - ghost.offsetHeight / 2}px`;
-
-      // Trouver la carte sous le doigt
-      ghost.style.display = 'none';
-      const el = document.elementFromPoint(tx, ty);
-      ghost.style.display = '';
-      const target = el?.closest('.profile-anime-card');
-      if (target && target !== touchSrc) {
-        grid.querySelectorAll('.fav-drag-over').forEach(c => c.classList.remove('fav-drag-over'));
-        target.classList.add('fav-drag-over');
-      }
-    }, { passive: false });
-
-    grid.addEventListener('touchend', (e) => {
-      if (!touchSrc || !ghost) return;
-      ghost.remove();
-      ghost = null;
-      touchSrc.style.opacity = '';
-
-      const tx     = e.changedTouches[0].clientX;
-      const ty     = e.changedTouches[0].clientY;
-      const target = document.elementFromPoint(tx, ty)?.closest('.profile-anime-card');
-
-      grid.querySelectorAll('.fav-drag-over').forEach(c => c.classList.remove('fav-drag-over'));
-
-      if (target && target !== touchSrc) {
-        const cards  = [...grid.querySelectorAll('.profile-anime-card')];
-        const srcIdx = cards.indexOf(touchSrc);
-        const tgtIdx = cards.indexOf(target);
-        if (srcIdx < tgtIdx) grid.insertBefore(touchSrc, target.nextSibling);
-        else                  grid.insertBefore(touchSrc, target);
-      }
-
-      saveNewOrder(grid);
-      touchSrc = null;
-    }, { passive: true });
-  }
-
-  function saveNewOrder(grid) {
-    const newOrder = [...grid.querySelectorAll('.profile-anime-card')]
-      .map(card => Number(card.dataset.id))
-      .filter(Boolean);
-
-    // Reconstruire le tableau trié selon le nouvel ordre
-    const favs    = getFavs();
-    const favsMap = {};
-    favs.forEach(f => { favsMap[String(f.id)] = f; });
-    const sorted  = newOrder.map(id => favsMap[String(id)]).filter(Boolean);
-
-    // Sauvegarder l'ordre localement + sync Firestore
-    saveFavsOrder(sorted);
-  }
-
-  function renderHistory() {
-    const hist  = getHistory();
-    const list  = el('historyList');
-    const empty = el('histEmpty');
-
-    if (hist.length === 0) {
-      list.innerHTML = '';
-      empty.classList.remove('hidden');
-      return;
-    }
-    empty.classList.add('hidden');
-    list.innerHTML = '';
-
-    hist.slice(0, 20).forEach(h => {
-      const item = document.createElement('div');
-      item.className = 'activity-item';
-      item.innerHTML = `
-        <img class="activity-thumb" src="${h.img || ''}" alt="${h.title}"
-             onerror="this.src='https://placehold.co/40x56/0f0e1a/555?text=?'"/>
-        <div class="activity-info">
-          <div class="activity-title">${h.title}</div>
-          <div class="activity-time">${timeAgo(h.ts)}</div>
-        </div>
-        <button class="activity-remove" data-id="${h.id}" title="Supprimer">✕</button>`;
-
-      // Click → fiche anime
-      item.querySelector('.activity-info').addEventListener('click', () => {
-        window.location.href = `anime.html?id=${h.id}`;
-      });
-      item.querySelector('.activity-thumb').addEventListener('click', () => {
-        window.location.href = `anime.html?id=${h.id}`;
-      });
-
-      // Supprimer de l'historique
-      item.querySelector('.activity-remove').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const id  = Number(e.currentTarget.dataset.id);
-        const newH = getHistory().filter(x => Number(x.id) !== id);
-        saveHistory(newH);
-        renderHistory();
-        renderStats();
-        showToast('Entrée supprimée de l\'historique');
-      });
-
-      list.appendChild(item);
-    });
-  }
-
-  // Clear history
-  el('clearHistoryBtn').addEventListener('click', () => {
-    if (!confirm('Effacer tout l\'historique ?')) return;
-    saveHistory([]);
-    renderHistory();
-    renderStats();
-    showToast('Historique effacé');
-  });
-
-  // Init
-  renderStats();
-  renderWatchSection();
-  renderFavs();
-  renderRatings();
-  renderHistory();
-  renderPremiumStats();
-
-  // Carte statut abonnement + stats Premium
-  renderSubscriptionStatus();
-
-  /* ─────────────────────────────────────────────────────────────
-     STATUT ABONNEMENT
-     Affiche une carte claire : Free → CTA upgrade / Premium → détails + gestion
-  ───────────────────────────────────────────────────────────── */
+  /* ── renderSubscriptionStatus ── */
   function renderSubscriptionStatus() {
     const card = el('profileSubscriptionCard');
     if (!card) return;
@@ -991,11 +530,10 @@
       if (!status) return;
 
       if (status.isPremium) {
-        // ── Carte Premium actif ──
-        const planLabel = status.plan === 'annual' ? 'Annual' : 'Monthly';
+        const planLabel  = status.plan === 'annual' ? 'Annual' : 'Monthly';
         const renewPrice = status.plan === 'annual' ? '19.99 Pi/year' : '1.99 Pi/month';
-        const days      = status.daysLeft || 0;
-        const expDate   = status.expiresAt
+        const days       = status.daysLeft || 0;
+        const expDate    = status.expiresAt
           ? new Date(status.expiresAt).toLocaleDateString(
               document.documentElement.lang === 'fr' ? 'fr-FR' : 'en-US',
               { day: 'numeric', month: 'long', year: 'numeric' }
@@ -1026,7 +564,6 @@
         el('subCancelBtn')?.addEventListener('click', () => _confirmCancel());
 
       } else {
-        // ── Carte offres (Free ou expiré) ──
         const isExpired = status.subscriptionStatus === 'expired';
         card.innerHTML = `
           <div class="sub-card sub-offers-card">
@@ -1035,17 +572,13 @@
                 ? '<span class="sub-card-badge sub-card-badge-free">Free · Subscription expired</span>'
                 : '<span class="sub-offers-title">⭐ Go Premium</span>'}
             </div>
-
             <div class="sub-offers-grid">
-              <!-- Mensuel -->
               <div class="sub-offer-item" id="offerMonthly">
                 <div class="sub-offer-name">Monthly</div>
                 <div class="sub-offer-price">1.99 <span class="sub-offer-currency">Pi</span></div>
                 <div class="sub-offer-period">per month</div>
                 <button class="sub-offer-btn" data-plan="monthly">Subscribe</button>
               </div>
-
-              <!-- Annuel -->
               <div class="sub-offer-item sub-offer-featured" id="offerAnnual">
                 <div class="sub-offer-badge-top">Best value</div>
                 <div class="sub-offer-name">Annual</div>
@@ -1054,25 +587,17 @@
                 <button class="sub-offer-btn sub-offer-btn-featured" data-plan="annual">Subscribe</button>
               </div>
             </div>
-
             <div class="sub-offers-features">
               ❤ Unlimited favorites &nbsp;·&nbsp;
               📊 Detailed stats &nbsp;·&nbsp;
               ⚡ Early access &nbsp;·&nbsp;
               ↕ Reorder favorites
             </div>
-
-            <div class="sub-offers-status" id="subOffersStatus" style="display:none"></div>
           </div>`;
 
-        // Brancher les boutons Pi directement (sans rediriger vers soutenir.html)
         card.querySelectorAll('.sub-offer-btn').forEach(function(btn) {
           btn.addEventListener('click', function() {
-            var plan = btn.dataset.plan;
-            if (window.VA_showSubscriptionModal) {
-              // Pré-sélectionner le plan dans le modal
-              VA_showSubscriptionModal({ defaultPlan: plan });
-            }
+            VA_showSubscriptionModal && VA_showSubscriptionModal({ defaultPlan: btn.dataset.plan });
           });
         });
       }
@@ -1084,37 +609,25 @@
       try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
     })();
     if (!piUser?.uid) return;
-
     if (!confirm('Cancel your Premium subscription? You will keep access until expiration.')) return;
-
     fetch('/api/premium', {
-      method:  'POST',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ action: 'cancel', piUserId: piUser.uid }),
-    })
-    .then(r => r.json())
-    .then(data => {
+      body: JSON.stringify({ action: 'cancel', piUserId: piUser.uid }),
+    }).then(r => r.json()).then(data => {
       if (data.ok) {
         window.VA_clearPremiumCache && window.VA_clearPremiumCache();
-        renderSubscriptionStatus(); // rafraîchir la carte
+        renderSubscriptionStatus();
       }
-    })
-    .catch(() => {});
+    }).catch(() => {});
   }
 
-  /* ─────────────────────────────────────────────────────────────
-     STATS PREMIUM
-     Affichées uniquement si isPremium confirmé par le serveur
-     Calculées depuis localStorage (history, watchStatus, sessionTime)
-  ───────────────────────────────────────────────────────────── */
+  /* ── Stats Premium ── */
   async function renderPremiumStats() {
     const piUser = window.piAuth?.getUser?.() || (() => {
       try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
     })();
-
-    const section     = el('premiumStatsSection');
-
-    // Vérification isPremium côté serveur
+    const section = el('premiumStatsSection');
     let isPremium = false;
     if (piUser?.uid) {
       try {
@@ -1123,133 +636,54 @@
         isPremium  = data.isPremium === true;
       } catch {}
     }
-
-    if (!isPremium) {
-      return; // Carte d'offres déjà affichée dans profileSubscriptionCard
-    }
-
-    // Réafficher les favoris avec drag & drop activé
-    renderFavs(true);
-
+    if (!isPremium) return;
     if (section) section.style.display = 'block';
 
-    // ── 1. Temps sur le site ────────────────────────────────────
     const totalSecs = parseInt(localStorage.getItem('VoirAnime_sessionTime') || '0');
-    const h = Math.floor(totalSecs / 3600);
-    const m = Math.floor((totalSecs % 3600) / 60);
-    const timeStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
-    const pstatTime = el('pstatTime');
-    if (pstatTime) pstatTime.textContent = timeStr || '< 1m';
+    const h = Math.floor(totalSecs / 3600), m = Math.floor((totalSecs % 3600) / 60);
+    if (el('pstatTime'))      el('pstatTime').textContent      = h > 0 ? `${h}h ${m}m` : `${m}m`;
+    if (el('pstatAnimes'))    el('pstatAnimes').textContent    = getHistory().length;
+    const watchList = getWatchList(), watchArr = Object.values(watchList);
+    const completed = watchArr.filter(a => a.status === 'completed');
+    const totalMins = completed.reduce((acc, a) => acc + (a.episodes||0)*(a.duration||24), 0);
+    if (el('pstatCompleted')) el('pstatCompleted').textContent = completed.length;
+    if (el('pstatHours'))     el('pstatHours').textContent     = Math.round(totalMins/60)+'h';
 
-    // ── 2. Animes visités ───────────────────────────────────────
-    const hist      = getHistory();
-    const pstatAnimes = el('pstatAnimes');
-    if (pstatAnimes) pstatAnimes.textContent = hist.length;
-
-    // ── 3. Complétés + heures ───────────────────────────────────
-    const watchList  = getWatchList();
-    const watchArr   = Object.values(watchList);
-    const completed  = watchArr.filter(a => a.status === 'completed');
-    const totalMins  = completed.reduce((acc, a) => acc + (a.episodes || 0) * (a.duration || 24), 0);
-    const pstatCompleted = el('pstatCompleted');
-    const pstatHours     = el('pstatHours');
-    if (pstatCompleted) pstatCompleted.textContent = completed.length;
-    if (pstatHours)     pstatHours.textContent = Math.round(totalMins / 60) + 'h';
-
-    // ── 4. Top genres ───────────────────────────────────────────
+    const genreNames = {1:'Action',4:'Comedy',8:'Drama',10:'Fantasy',22:'Romance',24:'Sci-Fi',36:'Slice of Life',40:'Psychological'};
     const genreCount = {};
-    const genreNames = {
-      1:'Action', 2:'Adventure', 4:'Comedy', 5:'Avant Garde',
-      7:'Mystery', 8:'Drama', 9:'Ecchi', 10:'Fantasy',
-      13:'Historical', 14:'Horror', 17:'Martial Arts', 18:'Mecha',
-      19:'Music', 20:'Parody', 22:'Romance', 23:'School',
-      24:'Sci-Fi', 25:'Shoujo', 27:'Shounen', 30:'Sports',
-      36:'Slice of Life', 37:'Supernatural', 38:'Military',
-      40:'Psychological', 41:'Seinen', 42:'Josei',
-    };
-    hist.forEach(h => {
-      (h.genres || []).forEach(gid => {
-        genreCount[gid] = (genreCount[gid] || 0) + 1;
-      });
-    });
-
-    const topGenres = Object.entries(genreCount)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 6);
-
+    getHistory().forEach(h => (h.genres||[]).forEach(g => { genreCount[g]=(genreCount[g]||0)+1; }));
+    const topGenres = Object.entries(genreCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
     const genresEl = el('pstatGenres');
     if (genresEl) {
-      if (topGenres.length === 0) {
-        genresEl.innerHTML = '<div class="pstats-empty-hint">Visit more anime to unlock your top genres!</div>';
-      } else {
-        const maxCount = topGenres[0][1] || 1;
-        genresEl.innerHTML = topGenres.map(([gid, count]) => {
-          const pct  = Math.round((count / maxCount) * 100);
-          const name = genreNames[gid] || `Genre ${gid}`;
-          return `
-            <div class="pstats-genre-row">
-              <span class="pstats-genre-name">${name}</span>
-              <div class="pstats-genre-bar-wrap">
-                <div class="pstats-genre-bar" style="width:${pct}%"></div>
-              </div>
-              <span class="pstats-genre-count">${count}</span>
-            </div>`;
-        }).join('');
-      }
+      genresEl.innerHTML = topGenres.length === 0
+        ? '<div class="pstats-empty-hint">Visit more anime to unlock your top genres!</div>'
+        : topGenres.map(([gid,count]) => {
+            const pct = Math.round((count/topGenres[0][1])*100);
+            return `<div class="pstats-genre-row">
+              <span class="pstats-genre-name">${genreNames[gid]||'Genre '+gid}</span>
+              <div class="pstats-genre-bar-wrap"><div class="pstats-genre-bar" style="width:${pct}%"></div></div>
+              <span class="pstats-genre-count">${count}</span></div>`;
+          }).join('');
     }
 
-    // ── 5. Top animes ───────────────────────────────────────────
-    const topAnimes = [...hist].slice(0, 5);
     const topEl = el('pstatTopAnimes');
     if (topEl) {
-      if (topAnimes.length === 0) {
-        topEl.innerHTML = '<div class="pstats-empty-hint">No anime visited yet.</div>';
-      } else {
-        topEl.innerHTML = topAnimes.map((anime, i) => `
-          <a href="anime.html?id=${anime.id}" class="pstats-top-item">
-            <span class="pstats-top-rank">#${i + 1}</span>
-            <img src="${anime.img}" alt="${anime.title}"
-                 onerror="this.src='https://placehold.co/36x50/0f0e1a/555?text=?'"
-                 class="pstats-top-img"/>
-            <span class="pstats-top-title">${anime.title}</span>
-            <span class="pstats-top-time">${timeAgo(anime.ts || 0)}</span>
+      const top = getHistory().slice(0,5);
+      topEl.innerHTML = top.length === 0
+        ? '<div class="pstats-empty-hint">No anime visited yet.</div>'
+        : top.map((a,i) => `<a href="anime.html?id=${a.id}" class="pstats-top-item">
+            <span class="pstats-top-rank">#${i+1}</span>
+            <img src="${a.img}" class="pstats-top-img" onerror="this.src='https://placehold.co/36x50/0f0e1a/555?text=?'"/>
+            <span class="pstats-top-title">${a.title}</span>
           </a>`).join('');
-      }
-    }
-
-    // ── 6. Timeline d'activité (7 derniers jours) ───────────────
-    const timelineEl = el('pstatTimeline');
-    if (timelineEl) {
-      const days   = [];
-      const labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-      const now    = new Date();
-
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(now);
-        d.setDate(d.getDate() - i);
-        const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-        const dayEnd   = dayStart + 86400000;
-        const count    = hist.filter(h => h.ts >= dayStart && h.ts < dayEnd).length;
-        const dow      = d.getDay(); // 0=Sun
-        const label    = labels[(dow + 6) % 7]; // Mon=0
-        days.push({ label, count });
-      }
-
-      const maxDay = Math.max(...days.map(d => d.count), 1);
-      timelineEl.innerHTML = days.map(d => {
-        const pct = Math.round((d.count / maxDay) * 100);
-        return `
-          <div class="pstats-day">
-            <div class="pstats-day-bar-wrap">
-              <div class="pstats-day-bar" style="height:${Math.max(pct, 4)}%"
-                   title="${d.count} anime${d.count !== 1 ? 's' : ''}"></div>
-            </div>
-            <div class="pstats-day-label">${d.label}</div>
-            <div class="pstats-day-count">${d.count || ''}</div>
-          </div>`;
-      }).join('');
     }
   }
+
+  /* ── Init ── */
+  renderStats();
+  renderNavCounts();
+  renderSubscriptionStatus();
+  renderPremiumStats();
 
 })();
 </script>
