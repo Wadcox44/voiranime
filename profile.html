@@ -305,6 +305,7 @@
     <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
     <li><a href="catalogue.html" class="nav-link" data-i18n="nav.catalogue">Catalogue</a></li>
     <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
+    <li><a href="news.html" class="nav-link">📰 News</a></li>
 
     <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Soutenir</a></li>
   </ul>
@@ -361,10 +362,7 @@
       <div class="stat-compact-num" id="statCompletedCount" style="color:#4ade80">0</div>
       <div class="stat-compact-label">Terminés</div>
     </div>
-    <a href="ratings.html" class="stat-compact stat-compact-link">
-      <div class="stat-compact-num" id="statRatingCount" style="color:var(--gold)">0</div>
-      <div class="stat-compact-label">Notés</div>
-    </a>
+
 
   </div>
 
@@ -429,8 +427,37 @@
 
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
-  <p class="footer-text" data-i18n="footer.copy">© 2025 VoirAnime — Projet open source</p>
+  <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
+  <div class="footer-contact">
+    <button class="footer-contact-btn" id="footerContactBtn">✉ Contact</button>
+  </div>
 </footer>
+
+<div class="footer-contact-modal" id="footerContactModal" style="display:none">
+  <div class="footer-contact-box">
+    <div class="footer-contact-header">
+      <span>✉ Nous contacter</span>
+      <button class="footer-contact-close" id="footerContactClose">✕</button>
+    </div>
+    <iframe
+      src="https://formspree.io/f/myklpggz"
+      class="footer-contact-iframe"
+      title="Contact form"
+      frameborder="0">
+    </iframe>
+  </div>
+</div>
+
+<script>
+(function() {
+  var btn   = document.getElementById('footerContactBtn');
+  var modal = document.getElementById('footerContactModal');
+  var close = document.getElementById('footerContactClose');
+  if (btn)   btn.addEventListener('click',   function() { modal.style.display = 'flex'; });
+  if (close) close.addEventListener('click', function() { modal.style.display = 'none'; });
+  if (modal) modal.addEventListener('click', function(e) { if (e.target === modal) modal.style.display = 'none'; });
+})();
+</script>
 
 <div class="toast" id="toast"></div>
 
@@ -496,7 +523,6 @@
     // Ligne 2 : En cours / Terminés / Notés
     const wEl = el('statWatchingCount');  if (wEl) wEl.textContent  = watching.length;
     const cEl = el('statCompletedCount'); if (cEl) cEl.textContent  = completed.length;
-    const rEl = el('statRatingCount');    if (rEl) rEl.textContent  = Object.keys(ratings).length;
 
     // Date membre
     const firstVisit = parseInt(localStorage.getItem('VoirAnime_firstVisit') || '0');

@@ -121,298 +121,17 @@
 </nav>
   <div class="notif-panel" id="notifPanel"></div>
 
-<!-- ════════════════════════════════
-     SEARCH OVERLAY
-════════════════════════════════ -->
-<div class="search-overlay" id="searchOverlay">
-  <div class="search-overlay-inner">
-    <div class="search-overlay-header">
-      <p class="search-overlay-label" id="searchLabel" data-i18n="search.results">Résultats de recherche</p>
-      <button class="search-overlay-close" id="searchOverlayClose" data-i18n="search.close">✕ Fermer</button>
-    </div>
-    <div class="search-results-grid" id="searchResultsGrid"></div>
-    <div class="search-loader" id="searchLoader">
-      <div class="sk-dots"><span></span><span></span><span></span></div>
-    </div>
-    <div class="search-empty" id="searchEmpty">
-      <p class="empty-kaomoji">（；￣д￣）</p>
-      <p data-i18n="search.empty">Aucun résultat. Essaie un autre titre.</p>
-    </div>
+<!-- NEWS PAGE -->
+<div style="padding: calc(var(--nav-h) + 48px) 48px 40px; max-width:900px; margin:0 auto;">
+  <h1 style="font-size:1.6rem;font-weight:900;margin-bottom:8px;">📰 News anime</h1>
+  <p style="color:var(--muted);font-size:0.85rem;margin-bottom:32px;">Actualités, sorties et annonces du monde de l'anime.</p>
+  <div style="background:var(--ink3);border:1px solid var(--b1);border-radius:var(--r);padding:40px;text-align:center;color:var(--muted);">
+    <div style="font-size:2rem;margin-bottom:12px;">🚧</div>
+    <p style="font-weight:700;color:var(--text2);">Section en cours de développement</p>
+    <p style="font-size:0.82rem;margin-top:8px;">Les news anime arrivent bientôt.</p>
   </div>
 </div>
 
-<!-- ════════════════════════════════
-     HERO — PORTAIL ANIME
-════════════════════════════════ -->
-<!-- Hero supprimé -->
-
-<!-- ════════════════════════════════
-     ANIME DU JOUR
-════════════════════════════════ -->
-<section class="anime-du-jour" id="animeDuJour" style="display:none">
-  <div class="adj-video-bg" id="adjVideoBg">
-    <iframe id="adjIframe" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    <img class="adj-img-fallback" id="adjImgFallback" src="" alt=""/>
-    <div class="adj-overlay"></div>
-  </div>
-  <div class="adj-inner">
-    <div class="adj-label">
-      <span class="adj-dot"></span>
-      <span data-i18n="adj.label">Anime du jour</span>
-    </div>
-    <div class="adj-info">
-      <div class="adj-badges" id="adjBadges"></div>
-      <h2 class="adj-title" id="adjTitle"></h2>
-      <p class="adj-synopsis" id="adjSynopsis"></p>
-      <div class="adj-actions">
-        <a href="#" class="adj-btn-primary" id="adjLink" data-i18n="adj.watch">Voir l'anime →</a>
-        <button class="adj-btn-shuffle" id="adjShuffle" title="Autre suggestion" data-i18n-title="adj.shuffle">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
-            <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
-          </svg>
-          Autre suggestion
-        </button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ════════════════════════════════
-     AMBIANCES — Portails émotionnels
-════════════════════════════════ -->
-<section class="mood-section" aria-label="Filtrer par ambiance">
-  <div class="mood-section-header">
-    <p class="mood-section-eyebrow" data-i18n="mood.eyebrow">Dans quel état d'esprit tu es ce soir ?</p>
-  </div>
-  <div class="mood-row" id="moodRow">
-    <button class="mood-pill active" data-mood="all" data-color="default">
-      <span class="mood-pill-icon">✦</span>
-      <span class="mood-pill-label" data-i18n="mood.all">Tout explorer</span>
-    </button>
-    <button class="mood-pill" data-mood="action" data-color="red">
-      <span class="mood-pill-icon">⚡</span>
-      <span class="mood-pill-label" data-i18n="mood.action">Adrénaline</span>
-    </button>
-    <button class="mood-pill" data-mood="romance" data-color="pink">
-      <span class="mood-pill-icon">🌸</span>
-      <span class="mood-pill-label" data-i18n="mood.romance">Romance</span>
-    </button>
-    <button class="mood-pill" data-mood="dark" data-color="dark">
-      <span class="mood-pill-icon">🌑</span>
-      <span class="mood-pill-label" data-i18n="mood.dark">Univers Sombre</span>
-    </button>
-    <button class="mood-pill" data-mood="comedy" data-color="gold">
-      <span class="mood-pill-icon">😄</span>
-      <span class="mood-pill-label" data-i18n="mood.comedy">Bonne Humeur</span>
-    </button>
-    <button class="mood-pill" data-mood="scifi" data-color="cyan">
-      <span class="mood-pill-icon">🚀</span>
-      <span class="mood-pill-label">Sci-fi &amp; Mecha</span>
-    </button>
-    <button class="mood-pill" data-mood="psychological" data-color="violet">
-      <span class="mood-pill-icon">🤯</span>
-      <span class="mood-pill-label" data-i18n="mood.psychological">Mind-bending</span>
-    </button>
-    <button class="mood-pill" data-mood="slice" data-color="green">
-      <span class="mood-pill-icon">🍃</span>
-      <span class="mood-pill-label" data-i18n="mood.slice">Zen &amp; Calme</span>
-    </button>
-  </div>
-</section>
-
-<!-- SECTION MOOD (peuplée par JS) -->
-<section class="content-section" id="section-mood" style="display:none">
-  <div class="section-header">
-    <h2 class="section-title" id="moodSectionTitle"><span class="section-dot violet"></span>Ambiance</h2>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="mood">‹</button>
-    <div class="carousel" id="carousel-mood"></div>
-    <button class="carousel-btn next" data-carousel="mood">›</button>
-  </div>
-</section>
-
-<!-- RÉSULTATS RECHERCHE AVANCÉE -->
-<section class="content-section" id="section-adv-results" style="display:none">
-  <div class="section-header">
-    <h2 class="section-title" id="advResultsTitle"><span class="section-dot blue"></span>Résultats</h2>
-    <button class="adv-clear-btn" id="advClearBtn">✕ Effacer</button>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="adv-results">‹</button>
-    <div class="carousel" id="carousel-adv-results"></div>
-    <button class="carousel-btn next" data-carousel="adv-results">›</button>
-  </div>
-</section>
-
-<!-- ════════════════════════════════
-     ZONE NARRATIVE 1 — La Rivière
-════════════════════════════════ -->
-<div class="zone-separator">
-  <div class="zone-separator-line"></div>
-  <div class="zone-separator-label">
-    <span class="zone-separator-num">01</span>
-    <span class="zone-separator-title" data-i18n="zone1.title">Ce qui vit en ce moment</span>
-  </div>
-  <div class="zone-separator-line"></div>
-</div>
-
-
-<!-- POUR TOI -->
-<section class="content-section" id="section-for-you" style="display:none">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot pink"></span><span data-i18n="section.for_you">✨ Pour toi</span></h2>
-    <span class="section-badge" id="forYouBadge"></span>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="for-you">‹</button>
-    <div class="carousel" id="carousel-for-you"></div>
-    <button class="carousel-btn next" data-carousel="for-you">›</button>
-  </div>
-</section>
-
-<!-- POPULAIRES -->
-<section class="content-section" id="section-popular">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot orange"></span><span data-i18n="section.popular">🔥 Les plus populaires</span></h2>
-    <span class="section-badge" data-i18n="section.top25">Top 25</span>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="popular">‹</button>
-    <div class="carousel" id="carousel-popular">
-      <div class="carousel-skeleton" id="skel-popular"></div>
-    </div>
-    <button class="carousel-btn next" data-carousel="popular">›</button>
-  </div>
-</section>
-
-<!-- ════════════════════════════════
-     ZONE NARRATIVE 2 — Les Légendes
-════════════════════════════════ -->
-<div class="zone-separator">
-  <div class="zone-separator-line"></div>
-  <div class="zone-separator-label">
-    <span class="zone-separator-num">02</span>
-    <span class="zone-separator-title" data-i18n="zone2.title">Ce qui a traversé le temps</span>
-  </div>
-  <div class="zone-separator-line"></div>
-</div>
-
-<!-- MIEUX NOTÉS -->
-<section class="content-section" id="section-top">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot gold"></span><span data-i18n="section.top">⭐ Mieux notés</span></h2>
-    <span class="section-badge">All time</span>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="top">‹</button>
-    <div class="carousel" id="carousel-top">
-      <div class="carousel-skeleton" id="skel-top"></div>
-    </div>
-    <button class="carousel-btn next" data-carousel="top">›</button>
-  </div>
-</section>
-
-<!-- EN DIFFUSION -->
-<section class="content-section" id="section-airing">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot green"></span><span data-i18n="section.airing">📡 En cours</span></h2>
-    <span class="section-badge" data-i18n="zone.season_current">Saison en cours</span>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="airing">‹</button>
-    <div class="carousel" id="carousel-airing">
-      <div class="carousel-skeleton" id="skel-airing"></div>
-    </div>
-    <button class="carousel-btn next" data-carousel="airing">›</button>
-  </div>
-</section>
-
-<!-- ════════════════════════════════
-     ZONE NARRATIVE 3 — Le Cinéma
-════════════════════════════════ -->
-<div class="zone-separator">
-  <div class="zone-separator-line"></div>
-  <div class="zone-separator-label">
-    <span class="zone-separator-num">03</span>
-    <span class="zone-separator-title">L'expérience cinématique</span>
-  </div>
-  <div class="zone-separator-line"></div>
-</div>
-
-<!-- FILMS -->
-<section class="content-section" id="section-movies">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot blue"></span><span data-i18n="section.movies">🎬 Films anime</span></h2>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="movies">‹</button>
-    <div class="carousel" id="carousel-movies">
-      <div class="carousel-skeleton" id="skel-movies"></div>
-    </div>
-    <button class="carousel-btn next" data-carousel="movies">›</button>
-  </div>
-</section>
-
-<!-- SÉRIES -->
-<section class="content-section" id="section-series">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot violet"></span>📺 Séries anime</h2>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="series">‹</button>
-    <div class="carousel" id="carousel-series">
-      <div class="carousel-skeleton" id="skel-series"></div>
-    </div>
-    <button class="carousel-btn next" data-carousel="series">›</button>
-  </div>
-</section>
-
-<!-- OVA -->
-<section class="content-section" id="section-ova">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot gold"></span>🎞 OVA</h2>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="ova">‹</button>
-    <div class="carousel" id="carousel-ova">
-      <div class="carousel-skeleton" id="skel-ova"></div>
-    </div>
-    <button class="carousel-btn next" data-carousel="ova">›</button>
-  </div>
-</section>
-
-<!-- ONA -->
-<section class="content-section" id="section-ona">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot green"></span>🌐 ONA</h2>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="ona">‹</button>
-    <div class="carousel" id="carousel-ona">
-      <div class="carousel-skeleton" id="skel-ona"></div>
-    </div>
-    <button class="carousel-btn next" data-carousel="ona">›</button>
-  </div>
-</section>
-
-<!-- TRENDING -->
-<section class="content-section" id="section-trending" style="display:none">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot pink"></span><span data-i18n="section.trending">📈 Trending sur VoirAnime</span></h2>
-    <span class="section-badge" data-i18n="zone.realtime">Temps réel</span>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="trending">‹</button>
-    <div class="carousel" id="carousel-trending"></div>
-    <button class="carousel-btn next" data-carousel="trending">›</button>
-  </div>
-</section>
-
-<!-- ════════════════════════════════
-     FOOTER
-════════════════════════════════ -->
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
   <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
@@ -427,62 +146,21 @@
       <span>✉ Nous contacter</span>
       <button class="footer-contact-close" id="footerContactClose">✕</button>
     </div>
-    <iframe
-      src="https://formspree.io/f/myklpggz"
-      class="footer-contact-iframe"
-      title="Contact form"
-      frameborder="0">
-    </iframe>
+    <iframe src="https://formspree.io/f/myklpggz" class="footer-contact-iframe" title="Contact" frameborder="0"></iframe>
   </div>
 </div>
 
-<script>
-(function() {
-  var btn   = document.getElementById('footerContactBtn');
-  var modal = document.getElementById('footerContactModal');
-  var close = document.getElementById('footerContactClose');
-  if (btn)   btn.addEventListener('click',   function() { modal.style.display = 'flex'; });
-  if (close) close.addEventListener('click', function() { modal.style.display = 'none'; });
-  if (modal) modal.addEventListener('click', function(e) { if (e.target === modal) modal.style.display = 'none'; });
-})();
-</script>
-
 <div class="toast" id="toast"></div>
 
-<!-- ════════════════════════════════
-     SCRIPTS
-════════════════════════════════ -->
-<script type="module" src="main.js"></script>
-
 <script>
-/* Tilt 3D cards */
-(function(){
-  var lastCard = null;
-  document.addEventListener('mousemove', function(e){
-    var card = e.target.closest('.anime-card');
-    if(!card){ if(lastCard){ lastCard.style.transform=''; lastCard=null; } return; }
-    var r = card.getBoundingClientRect();
-    var dx = (e.clientX - r.left - r.width/2)  / (r.width/2);
-    var dy = (e.clientY - r.top  - r.height/2) / (r.height/2);
-    card.style.transform = 'translateY(-8px) scale(1.05) rotateY('+( dx*6)+'deg) rotateX('+(-dy*4)+'deg)';
-    lastCard = card;
-  });
-  document.addEventListener('mouseleave', function(e){
-    if (!e.target || typeof e.target.closest !== 'function') return;
-    var card = e.target.closest('.anime-card');
-    if(card) card.style.transform='';
-  }, true);
-
-  /* Mood pills — UI only */
-  var row = document.getElementById('moodRow');
-  if(row) row.addEventListener('click', function(e){
-    var pill = e.target.closest('.mood-pill');
-    if(!pill) return;
-    row.querySelectorAll('.mood-pill').forEach(function(p){ p.classList.remove('active'); });
-    pill.classList.add('active');
-  });
+(function() {
+  var btn=document.getElementById('footerContactBtn'),modal=document.getElementById('footerContactModal'),close=document.getElementById('footerContactClose');
+  if(btn) btn.addEventListener('click',function(){modal.style.display='flex';});
+  if(close) close.addEventListener('click',function(){modal.style.display='none';});
+  if(modal) modal.addEventListener('click',function(e){if(e.target===modal)modal.style.display='none';});
 })();
 </script>
+
 <script>
 /* Transition cinématique entre pages */
 (function(){
@@ -882,5 +560,6 @@
   } catch(e) {}
 })();
 </script>
+
 </body>
 </html>

@@ -1122,46 +1122,6 @@ async function loadForYou() {
   const hasData = history.length > 0 || favs.length > 0 || watchArr.length > 0;
   if (!hasData) return;
 
-  // ── Alertes ──
-  (function renderAlerts() {
-    const alertsEl = el('pourToiAlerts');
-    if (!alertsEl) return;
-    let dismissed = [];
-    try { dismissed = JSON.parse(localStorage.getItem('VoirAnime_alertsDismissed') || '[]'); } catch {}
-
-    const alerts = [];
-    const watching = Object.entries(watchList).filter(([,a]) => a.status === 'watching');
-    const planTo   = Object.entries(watchList).filter(([,a]) => a.status === 'planToWatch');
-
-    watching.slice(0, 2).forEach(([animeId, a]) => {
-      const id = 'ep_' + animeId;
-      if (!dismissed.includes(id) && a.title) {
-        const titleLink = `<a href="anime.html?id=${animeId}" class="pt-alert-title-link">${a.title}</a>`;
-        alerts.push({ id, type: 'episode', icon: '🎬',
-          text: t('alert.episode', titleLink),
-          link: null });
-      }
-    });
-
-    if (planTo.length > 0) {
-      const [animeId, a] = planTo[0];
-      const id = 'plan_' + animeId;
-      if (!dismissed.includes(id) && a.title)
-        alerts.push({ id, type: 'plan', icon: '📋',
-          text: t('alert.plan', `<strong>${a.title}</strong>`),
-          link: `anime.html?id=${animeId}` });
-    }
-
-    if (alerts.length === 0) { alertsEl.style.display = 'none'; return; }
-    alertsEl.innerHTML = alerts.map(a => `
-      <div class="pt-alert pt-alert-${a.type}" data-id="${a.id}">
-        <span class="pt-alert-icon">${a.icon}</span>
-        <span class="pt-alert-text">${a.text}${a.link ? ` <a href="${a.link}" class="pt-alert-link">Voir →</a>` : ''}</span>
-        <button class="pt-alert-dismiss" onclick="window.VADismissAlert('${a.id}')">✕</button>
-      </div>`).join('');
-    alertsEl.style.display = 'flex';
-  })();
-
   // ── Recommandations genres ──
   const genreCount = {};
 
@@ -1259,6 +1219,9 @@ async function init() {
   await loadSection('/top/anime?limit=20',                     'top',     'skel-top',     10);
   await loadSection('/top/anime?filter=airing&limit=20',       'airing',  'skel-airing',  10);
   await loadSection('/top/anime?type=movie&limit=20',          'movies',  'skel-movies',  10);
+  await loadSection('/top/anime?type=tv&limit=20',             'series',  'skel-series',  10);
+  await loadSection('/top/anime?type=ova&limit=20',            'ova',     'skel-ova',     10);
+  await loadSection('/top/anime?type=ona&limit=20',            'ona',     'skel-ona',     10);
 
   // Trending Firebase — chargé en dernier, non bloquant
   loadTrending();
@@ -1266,14 +1229,3 @@ async function init() {
 
 document.addEventListener('DOMContentLoaded', init);
 
-/* ── Dismiss alerte "Pour toi" ── */
-window.VADismissAlert = function(id) {
-  let dismissed = [];
-  try { dismissed = JSON.parse(localStorage.getItem('VoirAnime_alertsDismissed') || '[]'); } catch {}
-  if (!dismissed.includes(id)) { dismissed.push(id); localStorage.setItem('VoirAnime_alertsDismissed', JSON.stringify(dismissed)); }
-  const el2 = document.querySelector('.pt-alert[data-id="' + id + '"]');
-  if (!el2) return;
-  el2.style.opacity = '0';
-  setTimeout(() => { el2.style.maxHeight = '0'; el2.style.padding = '0'; el2.style.margin = '0'; el2.style.overflow = 'hidden'; }, 180);
-  setTimeout(() => el2.remove(), 400);
-};

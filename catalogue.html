@@ -279,6 +279,7 @@
     <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
     <li><a href="catalogue.html" class="nav-link">Catalogue</a></li>
     <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
+    <li><a href="news.html" class="nav-link">📰 News</a></li>
     <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Soutenir</a></li>
   </ul>
 </nav>
@@ -414,8 +415,37 @@
 <!-- FOOTER -->
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
-  <p class="footer-text" data-i18n="footer.data">Données fournies par <a href="https://jikan.moe" target="_blank" rel="noopener">Jikan API</a> · MyAnimeList</p>
+  <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
+  <div class="footer-contact">
+    <button class="footer-contact-btn" id="footerContactBtn">✉ Contact</button>
+  </div>
 </footer>
+
+<div class="footer-contact-modal" id="footerContactModal" style="display:none">
+  <div class="footer-contact-box">
+    <div class="footer-contact-header">
+      <span>✉ Nous contacter</span>
+      <button class="footer-contact-close" id="footerContactClose">✕</button>
+    </div>
+    <iframe
+      src="https://formspree.io/f/myklpggz"
+      class="footer-contact-iframe"
+      title="Contact form"
+      frameborder="0">
+    </iframe>
+  </div>
+</div>
+
+<script>
+(function() {
+  var btn   = document.getElementById('footerContactBtn');
+  var modal = document.getElementById('footerContactModal');
+  var close = document.getElementById('footerContactClose');
+  if (btn)   btn.addEventListener('click',   function() { modal.style.display = 'flex'; });
+  if (close) close.addEventListener('click', function() { modal.style.display = 'none'; });
+  if (modal) modal.addEventListener('click', function(e) { if (e.target === modal) modal.style.display = 'none'; });
+})();
+</script>
 
 <div class="toast" id="toast"></div>
 
