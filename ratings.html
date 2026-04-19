@@ -248,7 +248,6 @@
     .watch-filter-btn.active { background: var(--pink); border-color: var(--pink); color: #fff; }
   </style>
   <script src="i18n.js"></script>
-  <script src="notificationsManager.js"></script>
   <script src="featuresManager.js"></script>
   <script src="premiumManager.js"></script>
 </head>
@@ -273,24 +272,16 @@
       <div class="nav-avatar-fallback" id="navAvatarFallback_ratings">👤</div>
     </a>
     <div class="nav-right">
-      <button class="notif-toggle" id="notifToggle" aria-label="Notifications">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-        </svg>
-        <span class="notif-badge" id="notifBadge"></span>
-      </button>
-    </div>
+      </div>
   </div>
   <ul class="nav-links">
     <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
     <li><a href="catalogue.html" class="nav-link" data-i18n="nav.catalogue">Catalogue</a></li>
     <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
     <li><a href="profile.html"   class="nav-link">Profil</a></li>
-    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Soutenir</a></li>
+    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Faire un don</a></li>
   </ul>
 </nav>
-  <div class="notif-panel" id="notifPanel"></div>
 <!-- RATINGS PAGE -->
 <div class="subpage-header">
   <a href="profile.html" class="subpage-back">← Profile</a>
@@ -470,8 +461,7 @@ document.addEventListener('DOMContentLoaded', function(){
     try {
       var user = JSON.parse(raw);
       if (user && user.uid && window.VA_initNotifications) {
-        window.VA_initNotifications(user.uid);
-        if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
+if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
         if (window.VA_initPremium) window.VA_initPremium(user.uid);
       }
     } catch (_) {}

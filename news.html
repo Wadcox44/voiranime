@@ -60,7 +60,6 @@
     }
   </style>
   <script src="i18n.js"></script>
-  <script src="notificationsManager.js"></script>
   <script src="featuresManager.js"></script>
   <script src="premiumManager.js"></script>
 </head>
@@ -87,13 +86,6 @@
       <div class="nav-avatar-fallback" id="navAvatarFallback_news">👤</div>
     </a>
     <div class="nav-right">
-      <button class="notif-toggle" id="notifToggle" aria-label="Notifications">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-        </svg>
-        <span class="notif-badge" id="notifBadge"></span>
-      </button>
       <div class="search-container" id="searchContainer">
         <button class="search-toggle" id="searchToggle" aria-label="Rechercher">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -114,21 +106,173 @@
     <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
     <li><a href="news.html" class="nav-link">📰 News</a></li>
 
-    <li><a href="soutenir.html" class="nav-link nav-link-support" data-i18n="nav.support">💜 Soutenir</a></li>
+    <li><a href="soutenir.html" class="nav-link nav-link-support" data-i18n="nav.support">💜 Faire un don</a></li>
   </ul>
 </nav>
-  <div class="notif-panel" id="notifPanel"></div>
 
 <!-- NEWS PAGE -->
-<div style="padding: calc(var(--nav-h) + 48px) 48px 40px; max-width:900px; margin:0 auto;">
-  <h1 style="font-size:1.6rem;font-weight:900;margin-bottom:8px;">📰 News anime</h1>
-  <p style="color:var(--muted);font-size:0.85rem;margin-bottom:32px;">Actualités, sorties et annonces du monde de l'anime.</p>
-  <div style="background:var(--ink3);border:1px solid var(--b1);border-radius:var(--r);padding:40px;text-align:center;color:var(--muted);">
-    <div style="font-size:2rem;margin-bottom:12px;">🚧</div>
-    <p style="font-weight:700;color:var(--text2);">Section en cours de développement</p>
-    <p style="font-size:0.82rem;margin-top:8px;">Les news anime arrivent bientôt.</p>
+<div class="news-page">
+
+  <div class="news-header">
+    <h1 class="news-title">📰 News anime</h1>
+    <p class="news-subtitle">Actualités du monde de l'anime — sources sélectionnées</p>
   </div>
+
+  <!-- Onglets Free / Premium -->
+  <div class="news-tabs">
+    <button class="news-tab active" data-tab="global">🌍 Actu globale</button>
+    <button class="news-tab news-tab-premium" data-tab="perso">
+      ⭐ Mes alertes
+      <span class="news-premium-lock" id="newsPremiumLock">🔒</span>
+    </button>
+  </div>
+
+  <!-- Onglet 1 : Actu globale (Free) -->
+  <div class="news-panel" id="newsTabGlobal">
+    <div class="news-sources-bar">
+      <span class="news-source-tag active" data-source="all">Tous</span>
+      <span class="news-source-tag" data-source="crunchyroll">Crunchyroll</span>
+      <span class="news-source-tag" data-source="animenewsnetwork">ANN</span>
+      <span class="news-source-tag" data-source="otakunews">Otaku News</span>
+    </div>
+    <div class="news-feed" id="newsFeedGlobal">
+      <div class="news-loading">Chargement des articles…</div>
+    </div>
+  </div>
+
+  <!-- Onglet 2 : Alertes perso (Premium) -->
+  <div class="news-panel hidden" id="newsTabPerso">
+    <div class="news-premium-gate" id="newsPersoGate">
+      <div class="npg-icon">⭐</div>
+      <div class="npg-title">News personnalisées — Premium</div>
+      <div class="npg-desc">
+        Reçois des alertes quand tes animés favoris sortent de nouveaux épisodes,
+        des annonces de saisons, et un calendrier des sorties à venir.
+      </div>
+      <a href="soutenir.html" class="npg-cta">Passer Premium — 1.99 Pi/mois</a>
+    </div>
+    <div class="news-perso-content hidden" id="newsPersoContent">
+      <div class="news-perso-section">
+        <div class="news-perso-title">🔔 Alertes favoris</div>
+        <div id="newsFavAlerts" class="news-perso-list"></div>
+      </div>
+      <div class="news-perso-section">
+        <div class="news-perso-title">📅 Calendrier des sorties</div>
+        <div id="newsCalendar" class="news-calendar-grid"></div>
+      </div>
+    </div>
+  </div>
+
 </div>
+
+<script>
+(function() {
+  // ── Onglets ──
+  var tabs   = document.querySelectorAll('.news-tab');
+  var panels = document.querySelectorAll('.news-panel');
+
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      var target = tab.dataset.tab;
+
+      // Bloquer l'onglet perso si Free
+      if (target === 'perso') {
+        var isPremium = window.VA_isPremium && window.VA_isPremium();
+        if (isPremium) {
+          document.getElementById('newsPersoGate').classList.add('hidden');
+          document.getElementById('newsPersoContent').classList.remove('hidden');
+          loadPersoNews();
+        }
+      }
+
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      panels.forEach(function(p) { p.classList.add('hidden'); });
+      tab.classList.add('active');
+      document.getElementById('newsTab' + target.charAt(0).toUpperCase() + target.slice(1)).classList.remove('hidden');
+    });
+  });
+
+  // ── Chargement actu globale via Jikan News ──
+  var currentSource = 'all';
+  var JIKAN_NEWS = 'https://api.jikan.moe/v4/news/anime?limit=20';
+
+  function loadGlobalNews(source) {
+    var feed = document.getElementById('newsFeedGlobal');
+    feed.innerHTML = '<div class="news-loading">Chargement…</div>';
+
+    fetch(JIKAN_NEWS)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var articles = data.data || [];
+        if (!articles.length) { feed.innerHTML = '<div class="news-empty">Aucun article disponible.</div>'; return; }
+
+        // Filtrer par source si sélectionné
+        if (source && source !== 'all') {
+          articles = articles.filter(function(a) {
+            return (a.forum_url || '').toLowerCase().includes(source) ||
+                   (a.title || '').toLowerCase().includes(source);
+          });
+        }
+
+        feed.innerHTML = articles.map(function(a) {
+          var date = a.date ? new Date(a.date).toLocaleDateString('fr-FR', {day:'numeric',month:'long'}) : '';
+          return '<a href="' + (a.url||'#') + '" target="_blank" rel="noopener" class="news-article-card">' +
+            (a.images?.jpg?.image_url ? '<img class="news-article-img" src="' + a.images.jpg.image_url + '" alt=""/>' : '<div class="news-article-img news-article-img-placeholder"></div>') +
+            '<div class="news-article-body">' +
+              '<div class="news-article-source">' + (a.forum_url ? new URL(a.forum_url).hostname.replace('www.','') : 'MyAnimeList') + '</div>' +
+              '<div class="news-article-title">' + (a.title||'') + '</div>' +
+              '<div class="news-article-date">' + date + '</div>' +
+            '</div>' +
+          '</a>';
+        }).join('');
+      })
+      .catch(function() { feed.innerHTML = '<div class="news-empty">Erreur de chargement. Réessaie.</div>'; });
+  }
+
+  // Filtres source
+  document.querySelectorAll('.news-source-tag').forEach(function(tag) {
+    tag.addEventListener('click', function() {
+      document.querySelectorAll('.news-source-tag').forEach(function(t) { t.classList.remove('active'); });
+      tag.classList.add('active');
+      currentSource = tag.dataset.source;
+      loadGlobalNews(currentSource);
+    });
+  });
+
+  // ── News perso Premium ──
+  function loadPersoNews() {
+    var favs = [];
+    try { favs = JSON.parse(localStorage.getItem('VoirAnime_favs') || '[]'); } catch {}
+
+    var alertsEl = document.getElementById('newsFavAlerts');
+    if (!favs.length) {
+      alertsEl.innerHTML = '<div class="news-empty">Ajoute des favoris pour recevoir des alertes.</div>';
+    } else {
+      alertsEl.innerHTML = favs.slice(0,5).map(function(f) {
+        return '<div class="news-fav-alert">' +
+          '<img src="' + (f.img||'') + '" class="news-fav-img" onerror="this.style.display='none'"/>' +
+          '<div class="news-fav-info"><div class="news-fav-title">' + f.title + '</div>' +
+          '<div class="news-fav-sub">Alertes activées</div></div>' +
+          '<span class="news-fav-badge">🔔</span>' +
+          '</div>';
+      }).join('');
+    }
+  }
+
+  // ── Init ──
+  loadGlobalNews('all');
+
+  // Déverrouiller onglet Premium si applicable
+  function checkPremiumTab() {
+    if (window.VA_isPremium && window.VA_isPremium()) {
+      var lock = document.getElementById('newsPremiumLock');
+      if (lock) lock.style.display = 'none';
+    }
+  }
+  checkPremiumTab();
+  setTimeout(checkPremiumTab, 2000);
+})();
+</script>
 
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
@@ -537,8 +681,7 @@
     try {
       var user = JSON.parse(raw);
       if (user && user.uid && window.VA_initNotifications) {
-        window.VA_initNotifications(user.uid);
-        if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
+if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
         if (window.VA_initPremium) window.VA_initPremium(user.uid);
       }
     } catch (_) {}

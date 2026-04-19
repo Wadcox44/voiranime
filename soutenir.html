@@ -317,7 +317,6 @@
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <script src="pi-auth.js" defer></script>
   <script src="i18n.js"></script>
-  <script src="notificationsManager.js"></script>
   <script src="featuresManager.js"></script>
   <script src="premiumManager.js"></script>
 </head>
@@ -346,24 +345,16 @@
       <div class="nav-avatar-fallback" id="navAvatarFallback_soutenir">👤</div>
     </a>
     <div class="nav-right">
-      <button class="notif-toggle" id="notifToggle" aria-label="Notifications">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-        </svg>
-        <span class="notif-badge" id="notifBadge"></span>
-      </button>
-    </div>
+      </div>
   </div>
   <ul class="nav-links">
     <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
     <li><a href="catalogue.html" class="nav-link" data-i18n="nav.catalogue">Catalogue</a></li>
     <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
     <li><a href="news.html" class="nav-link">📰 News</a></li>
-    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Soutenir</a></li>
+    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Faire un don</a></li>
   </ul>
 </nav>
-  <div class="notif-panel" id="notifPanel"></div>
 
 <!-- ════════════════════════════════
      CONTENU
@@ -690,33 +681,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 <script>
 (function() {
-  // Init notifications — attend que piAuth ait l'uid (pi-auth.js chargé)
-  function tryInitNotifs() {
-    var user = window.piAuth && window.piAuth.getUser();
-    if (user && user.uid && window.VA_initNotifications) {
-      window.VA_initNotifications(user.uid);
-        if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
-        if (window.VA_initPremium) window.VA_initPremium(user.uid);
-      return;
-    }
-    // Fallback localStorage si Pi Browser pas dispo
-    var raw = localStorage.getItem('pi_user');
-    if (raw) {
-      try {
-        var u = JSON.parse(raw);
-        if (u && u.uid && window.VA_initNotifications) window.VA_initNotifications(u.uid);
-      } catch (_) {}
-    }
-  }
-  // piAuth.authenticate() est async — attendre 1.5s pour qu'il finisse
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      setTimeout(tryInitNotifs, 1500);
-    });
-  } else {
-    setTimeout(tryInitNotifs, 1500);
-  }
-})();
+  
 </script>
 <script>
 /* Chargement avatar navbar */

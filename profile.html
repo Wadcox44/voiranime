@@ -265,7 +265,6 @@
     .watch-filter-btn.active { background: var(--pink); border-color: var(--pink); color: #fff; }
   </style>
   <script src="i18n.js"></script>
-  <script src="notificationsManager.js"></script>
   <script src="featuresManager.js"></script>
   <script src="premiumManager.js"></script>
 </head>
@@ -292,14 +291,7 @@
       <div class="nav-avatar-fallback" id="navAvatarFallback_profile">👤</div>
     </a>
     <div class="nav-right">
-      <button class="notif-toggle" id="notifToggle" aria-label="Notifications">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-        </svg>
-        <span class="notif-badge" id="notifBadge"></span>
-      </button>
-    </div>
+      </div>
   </div>
   <ul class="nav-links">
     <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
@@ -307,10 +299,9 @@
     <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
     <li><a href="news.html" class="nav-link">📰 News</a></li>
 
-    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Soutenir</a></li>
+    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Faire un don</a></li>
   </ul>
 </nav>
-  <div class="notif-panel" id="notifPanel"></div>
 <!-- HERO PROFIL -->
 <div class="profile-hero-v2">
 
@@ -702,105 +693,194 @@
     if (e.target === el('avatarModal')) el('avatarModal').style.display = 'none';
   });
 
-  /* ── renderSubscriptionStatus ──
-     Affiche immédiatement l'état Free (offres visibles sans attendre le serveur)
-     puis met à jour si Premium confirmé par VA_onPremiumReady
-  ── */
+  /* ── Section Abonnement Premium ─────────────────────────────────────────
+     Construite directement sans dépendance externe.
+     Affichage immédiat. Mise à jour si Pi auth disponible.
+  ──────────────────────────────────────────────────────────────────────── */
   function renderSubscriptionStatus() {
     const card = el('profileSubscriptionCard');
     if (!card) return;
 
-    // ── Affichage immédiat des offres Free (sans attendre premiumManager) ──
-    // Si premiumManager charge plus tard, il mettra à jour via VA_onPremiumReady
-    _renderFreeCard(card, false);
+    // Affichage immédiat Free par défaut
+    _buildSubCard(card, null);
 
-    // Mise à jour si Premium confirmé
-    const tryUpdate = function() {
+    // Mise à jour si premiumManager disponible (maintenant ou plus tard)
+    function _tryPremium() {
       if (window.VA_onPremiumReady) {
         window.VA_onPremiumReady(function(status) {
-          if (!status) return;
-          if (status.isPremium) {
-        const planLabel  = status.plan === 'annual' ? 'Annual' : 'Monthly';
-        const renewPrice = status.plan === 'annual' ? '19.99 Pi/year' : '1.99 Pi/month';
-        const days       = status.daysLeft || 0;
-        const expDate    = status.expiresAt
-          ? new Date(status.expiresAt).toLocaleDateString(
-              document.documentElement.lang === 'fr' ? 'fr-FR' : 'en-US',
-              { day: 'numeric', month: 'long', year: 'numeric' }
-            )
-          : '—';
-        const urgency = days <= 3 ? 'sub-card-urgent' : days <= 7 ? 'sub-card-warning' : '';
-
-        card.innerHTML = `
-          <div class="sub-card sub-card-premium ${urgency}">
-            <div class="sub-card-header">
-              <span class="sub-card-badge">⭐ Premium</span>
-              <span class="sub-card-plan">${planLabel} · ${renewPrice}</span>
-            </div>
-            <div class="sub-card-expiry">
-              ${days > 0
-                ? `Expires in <strong>${days} day${days !== 1 ? 's' : ''}</strong> · ${expDate}`
-                : `<span style="color:var(--pink)">Expires today</span>`}
-            </div>
-            <div class="sub-card-actions">
-              <button class="sub-card-btn sub-card-btn-renew" id="subRenewBtn">🔄 Renew</button>
-              <button class="sub-card-btn sub-card-btn-cancel" id="subCancelBtn">Cancel</button>
-            </div>
-          </div>`;
-
-        el('subRenewBtn')?.addEventListener('click', () => {
-          VA_showSubscriptionModal && VA_showSubscriptionModal();
+          _buildSubCard(card, status);
         });
-        el('subCancelBtn')?.addEventListener('click', () => _confirmCancel());
-
       } else {
-          _renderFreeCard(card, status.subscriptionStatus === 'expired');
-          }
-        });
+        setTimeout(_tryPremium, 1500);
       }
-    };
-
-    // Essayer maintenant, puis après 2s si premiumManager pas encore chargé
-    tryUpdate();
-    setTimeout(tryUpdate, 2000);
+    }
+    _tryPremium();
   }
 
-  function _renderFreeCard(card, isExpired) {
-    card.innerHTML = `
-      <div class="sub-card sub-offers-card">
-        <div class="sub-offers-header">
-          ${isExpired
-            ? '<span class="sub-card-badge sub-card-badge-free">Free · Subscription expired</span>'
-            : '<span class="sub-offers-title">⭐ Go Premium</span>'}
-        </div>
-        <div class="sub-offers-grid">
-          <div class="sub-offer-item">
-            <div class="sub-offer-name">Monthly</div>
-            <div class="sub-offer-price">1.99 <span class="sub-offer-currency">Pi</span></div>
-            <div class="sub-offer-period">per month</div>
-            <button class="sub-offer-btn" data-plan="monthly">Subscribe</button>
-          </div>
-          <div class="sub-offer-item sub-offer-featured">
-            <div class="sub-offer-badge-top">Best value</div>
-            <div class="sub-offer-name">Annual</div>
-            <div class="sub-offer-price">19.99 <span class="sub-offer-currency">Pi</span></div>
-            <div class="sub-offer-period">per year <span class="sub-offer-saving">Save 2 months</span></div>
-            <button class="sub-offer-btn sub-offer-btn-featured" data-plan="annual">Subscribe</button>
-          </div>
-        </div>
-        <div class="sub-offers-features">
-          ❤ Unlimited favorites &nbsp;·&nbsp;
-          📊 Stats &nbsp;·&nbsp;
-          ⚡ Early access &nbsp;·&nbsp;
-          ↕ Reorder
-        </div>
-      </div>`;
+  function _buildSubCard(card, status) {
+    const isPremium = status && status.isPremium;
+    const isExpired = status && status.subscriptionStatus === 'expired';
 
-    card.querySelectorAll('.sub-offer-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        VA_showSubscriptionModal && VA_showSubscriptionModal({ defaultPlan: btn.dataset.plan });
+    if (isPremium) {
+      // ── Vue Premium actif ──
+      const planLabel  = status.plan === 'annual' ? 'Annuel' : 'Mensuel';
+      const renewPrice = status.plan === 'annual' ? '19.99 Pi/an' : '1.99 Pi/mois';
+      const days       = status.daysLeft || 0;
+      const urgency    = days <= 3 ? 'sub-card-urgent' : days <= 7 ? 'sub-card-warning' : '';
+      const expDate    = status.expiresAt
+        ? new Date(status.expiresAt).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' })
+        : '—';
+
+      card.innerHTML = `
+        <div class="sub-card sub-card-premium ${urgency}">
+          <div class="sub-card-header">
+            <span class="sub-card-badge">⭐ Premium actif</span>
+            <span class="sub-card-plan">${planLabel} · ${renewPrice}</span>
+          </div>
+          <div class="sub-card-expiry">
+            Expire dans <strong>${days} jour${days !== 1 ? 's' : ''}</strong> · ${expDate}
+          </div>
+          <div class="sub-card-perks">
+            <span class="sub-perk active">❤ Favoris illimités</span>
+            <span class="sub-perk active">📊 Stats détaillées</span>
+            <span class="sub-perk active">⚡ Accès anticipé</span>
+            <span class="sub-perk active">↕ Réorganiser les favoris</span>
+            <span class="sub-perk active">🔔 News personnalisées</span>
+          </div>
+          <div class="sub-card-actions">
+            <button class="sub-card-btn sub-card-btn-renew" id="subRenewBtn">🔄 Renouveler</button>
+            <button class="sub-card-btn sub-card-btn-cancel" id="subCancelBtn">Annuler</button>
+          </div>
+        </div>`;
+
+      el('subRenewBtn')?.addEventListener('click', () => _launchSubscription(status.plan || 'monthly'));
+      el('subCancelBtn')?.addEventListener('click', () => _confirmCancel());
+
+    } else {
+      // ── Vue Free / offres ──
+      card.innerHTML = `
+        <div class="sub-card sub-offers-card">
+
+          <!-- Titre -->
+          <div class="sub-offers-title-row">
+            ${isExpired
+              ? '<span class="sub-expired-tag">Abonnement expiré</span>'
+              : '<span class="sub-upgrade-title">⭐ Passer Premium</span>'}
+          </div>
+
+          <!-- Comparatif Free vs Premium -->
+          <div class="sub-compare">
+            <div class="sub-compare-col">
+              <div class="sub-compare-header sub-compare-free">Gratuit</div>
+              <ul class="sub-compare-list">
+                <li class="sub-perk">❤ 20 favoris max</li>
+                <li class="sub-perk">📺 Animes visités</li>
+                <li class="sub-perk">⏱ Suivi de visionnage</li>
+                <li class="sub-perk sub-perk-no">📊 Pas de stats</li>
+                <li class="sub-perk sub-perk-no">↕ Pas de réorganisation</li>
+                <li class="sub-perk sub-perk-no">⚡ Accès différé (15j)</li>
+                <li class="sub-perk sub-perk-no">🔔 News générales</li>
+              </ul>
+            </div>
+            <div class="sub-compare-col sub-compare-col-premium">
+              <div class="sub-compare-header sub-compare-premium">⭐ Premium</div>
+              <ul class="sub-compare-list">
+                <li class="sub-perk active">❤ Favoris illimités</li>
+                <li class="sub-perk active">📺 Animes visités</li>
+                <li class="sub-perk active">⏱ Suivi de visionnage</li>
+                <li class="sub-perk active">📊 Stats détaillées</li>
+                <li class="sub-perk active">↕ Réorganiser les favoris</li>
+                <li class="sub-perk active">⚡ Accès anticipé aux features</li>
+                <li class="sub-perk active">🔔 News perso + alertes sorties</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Plans -->
+          <div class="sub-offers-grid">
+            <div class="sub-offer-item">
+              <div class="sub-offer-name">Mensuel</div>
+              <div class="sub-offer-price">1.99 <span class="sub-offer-currency">Pi</span></div>
+              <div class="sub-offer-period">par mois</div>
+              <button class="sub-offer-btn" data-plan="monthly">S'abonner</button>
+            </div>
+            <div class="sub-offer-item sub-offer-featured">
+              <div class="sub-offer-badge-top">Meilleure offre</div>
+              <div class="sub-offer-name">Annuel</div>
+              <div class="sub-offer-price">19.99 <span class="sub-offer-currency">Pi</span></div>
+              <div class="sub-offer-period">par an <span class="sub-offer-saving">2 mois offerts</span></div>
+              <button class="sub-offer-btn sub-offer-btn-featured" data-plan="annual">S'abonner</button>
+            </div>
+          </div>
+
+        </div>`;
+
+      card.querySelectorAll('.sub-offer-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() { _launchSubscription(btn.dataset.plan); });
       });
-    });
+    }
+  }
+
+  // Lance le paiement Pi directement — même logique que les dons dans soutenir.html
+  function _launchSubscription(plan) {
+    const PLANS = { monthly: { amount: 1.99, label: 'Premium Mensuel' }, annual: { amount: 19.99, label: 'Premium Annuel' } };
+    const planDef = PLANS[plan];
+    if (!planDef) return;
+
+    if (typeof Pi === 'undefined') {
+      alert('Ouvre VoirAnime dans le Pi Browser pour t'abonner.');
+      return;
+    }
+
+    const piUser = window.piAuth?.getUser?.() || (() => {
+      try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
+    })();
+
+    Pi.authenticate(['payments', 'username'], function onIncomplete(payment) {
+      if (!payment?.identifier) return;
+      fetch('https://voir-anime.vercel.app/api/pi-complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paymentId: payment.identifier,
+          txid: payment.transaction?.txid,
+          piUserId: piUser?.uid,
+          plan,
+          piUsername: payment.user?.username,
+        }),
+      }).catch(() => {});
+    }).then(function(auth) {
+      Pi.createPayment(
+        { amount: planDef.amount, memo: `VoirAnime ${planDef.label}`, metadata: { app: 'voiranime', type: 'subscription', plan } },
+        {
+          onReadyForServerApproval: function(paymentId) {
+            fetch('https://voir-anime.vercel.app/api/pi-approve', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paymentId, plan }),
+            }).catch(() => {});
+          },
+          onReadyForServerCompletion: function(paymentId, txid) {
+            fetch('https://voir-anime.vercel.app/api/pi-complete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paymentId, txid, piUserId: piUser?.uid, plan, piUsername: auth.user?.username }),
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              if (data.premium?.isPremium) {
+                window.VA_clearPremiumCache && window.VA_clearPremiumCache();
+                renderSubscriptionStatus();
+                alert('✅ Abonnement Premium activé ! Bienvenue 🎉');
+              }
+            })
+            .catch(function() { alert('Paiement reçu — activation en cours…'); });
+          },
+          onCancel: function() {},
+          onError: function(e) { console.error('[sub]', e); },
+        }
+      );
+    }).catch(function(e) { console.error('[pi auth]', e); });
   }
 
   function _confirmCancel() {
@@ -808,7 +888,7 @@
       try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
     })();
     if (!piUser?.uid) return;
-    if (!confirm('Cancel your Premium subscription? You will keep access until expiration.')) return;
+    if (!confirm('Annuler l'abonnement ? Tu gardes l'accès jusqu'à expiration.')) return;
     fetch('/api/premium', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -821,7 +901,7 @@
     }).catch(() => {});
   }
 
-  /* ── Stats Premium ── */
+    /* ── Stats Premium ── */
   async function renderPremiumStats() {
     const piUser = window.piAuth?.getUser?.() || (() => {
       try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
@@ -954,8 +1034,7 @@ document.addEventListener('DOMContentLoaded', function(){
     try {
       var user = JSON.parse(raw);
       if (user && user.uid && window.VA_initNotifications) {
-        window.VA_initNotifications(user.uid);
-        if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
+if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
         if (window.VA_initPremium) window.VA_initPremium(user.uid);
       }
     } catch (_) {}
