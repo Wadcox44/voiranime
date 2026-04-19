@@ -303,20 +303,25 @@
     <div id="profileSubscriptionCard"></div>
   </div>
 
-  <!-- Colonne droite : stats compactes en grille 3×3 -->
+  <!-- Colonne droite : stats compactes en grille 3×3
+       Stats cliquables → page dédiée | Stats non cliquables → div -->
   <div class="profile-stats-compact" id="profileStats">
-    <div class="stat-compact">
+
+    <!-- ── Cliquables ── -->
+    <a href="favorites.html" class="stat-compact stat-compact-link">
       <div class="stat-compact-num" id="statFavCount" style="color:var(--pink)">0</div>
       <div class="stat-compact-label" data-i18n="profile.favs">Favoris</div>
-    </div>
-    <div class="stat-compact">
+    </a>
+    <a href="history.html" class="stat-compact stat-compact-link">
       <div class="stat-compact-num" id="statHistCount" style="color:var(--violet)">0</div>
       <div class="stat-compact-label" data-i18n="profile.visited">Visités</div>
-    </div>
-    <div class="stat-compact">
+    </a>
+    <a href="ratings.html" class="stat-compact stat-compact-link">
       <div class="stat-compact-num" id="statRatingCount" style="color:var(--gold)">0</div>
       <div class="stat-compact-label" data-i18n="profile.rated">Notés</div>
-    </div>
+    </a>
+
+    <!-- ── Non cliquables ── -->
     <div class="stat-compact">
       <div class="stat-compact-num" id="statDuelCount" style="color:#ff8c42">0</div>
       <div class="stat-compact-label" data-i18n="profile.duels">Duels</div>
@@ -341,39 +346,8 @@
       <div class="stat-compact-num" id="statHoursCount" style="color:#a78bfa">0h</div>
       <div class="stat-compact-label" data-i18n="profile.hours">Heures</div>
     </div>
+
   </div>
-
-</div>
-
-<!-- NAVIGATION RAPIDE -->
-<div class="profile-nav-grid">
-
-  <a href="favorites.html" class="profile-nav-card">
-    <div class="profile-nav-icon">❤</div>
-    <div class="profile-nav-info">
-      <div class="profile-nav-title">Favorites</div>
-      <div class="profile-nav-count" id="navFavCount">—</div>
-    </div>
-    <svg class="profile-nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-  </a>
-
-  <a href="history.html" class="profile-nav-card">
-    <div class="profile-nav-icon">🕐</div>
-    <div class="profile-nav-info">
-      <div class="profile-nav-title">History</div>
-      <div class="profile-nav-count" id="navHistCount">—</div>
-    </div>
-    <svg class="profile-nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-  </a>
-
-  <a href="ratings.html" class="profile-nav-card">
-    <div class="profile-nav-icon">⭐</div>
-    <div class="profile-nav-info">
-      <div class="profile-nav-title">Ratings</div>
-      <div class="profile-nav-count" id="navRatingCount">—</div>
-    </div>
-    <svg class="profile-nav-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-  </a>
 
 </div>
 
@@ -681,7 +655,6 @@
 
   /* ── Init ── */
   renderStats();
-  renderNavCounts();
   renderSubscriptionStatus();
   renderPremiumStats();
 

@@ -6265,3 +6265,31 @@ a:active {
 @media (max-width: 480px) {
   .subpage-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
 }
+
+/* ── Stats cliquables (Favoris / Visités / Notés) ── */
+a.stat-compact {
+  text-decoration: none;
+  color: inherit;
+  position: relative;
+}
+a.stat-compact.stat-compact-link {
+  cursor: pointer;
+}
+a.stat-compact.stat-compact-link::after {
+  content: '›';
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 0.7rem;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+}
+a.stat-compact.stat-compact-link:hover {
+  border-color: var(--b-pink) !important;
+  transform: translateY(-3px) scale(1.03);
+}
+a.stat-compact.stat-compact-link:hover::after {
+  opacity: 1;
+  transform: translateX(2px);
+}
