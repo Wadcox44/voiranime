@@ -145,23 +145,116 @@ function isFav(id) {
   return getFavs().some(f => Number(f.id) === numId);
 }
 
-function toggleFav(id, title, img) {
-  const numId = Number(id);
-  const favs  = getFavs();
-  const idx   = favs.findIndex(f => Number(f.id) === numId);
+async function toggleFav(id, title, img) {
+  const numId   = Number(id);
+  const favs    = getFavs();
+  const idx     = favs.findIndex(f => Number(f.id) === numId);
+  const adding  = idx === -1;
+  const piUser  = window.piAuth?.getUser?.() || (() => {
+    try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
+  })();
 
-  if (idx > -1) {
+  // ── Suppression ──────────────────────────────────────────────────────────
+  if (!adding) {
     favs.splice(idx, 1);
+    saveFavs(favs);
     showToast(t('fav.removed', title));
-  } else {
-    favs.unshift({ id: numId, title, img });
-    showToast(t('fav.added', title));
+    updateFavUI();
+    renderFavoritesSection();
+
+    // Sync serveur si connecté (non bloquant)
+    if (piUser?.uid) {
+      fetch('/api/favorites', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ action: 'remove', piUserId: piUser.uid, animeId: numId }),
+      }).catch(() => {});
+    }
+    return false;
   }
 
+  // ── Ajout : vérification serveur si connecté ─────────────────────────────
+  if (piUser?.uid) {
+    try {
+      const res  = await fetch('/api/favorites', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ action: 'add', piUserId: piUser.uid, animeId: numId, title, img }),
+      });
+      const data = await res.json();
+
+      if (res.status === 403 && data.error === 'LIMIT_REACHED') {
+        showFavLimitModal(data.count, data.limit);
+        return false;
+      }
+
+      if (!res.ok) {
+        showToast('⚠️ ' + (data.error || 'Server error'));
+        return false;
+      }
+
+    } catch (e) {
+      // Réseau indisponible → fallback localStorage avec vérification locale
+      console.warn('[fav] Server check failed, fallback to local limit');
+      if (favs.length >= 20) {
+        showFavLimitModal(favs.length, 20);
+        return false;
+      }
+    }
+  } else {
+    // Pas connecté à Pi → limite locale 20
+    if (favs.length >= 20) {
+      showFavLimitModal(favs.length, 20);
+      return false;
+    }
+  }
+
+  // ── Ajout local ──────────────────────────────────────────────────────────
+  favs.unshift({ id: numId, title, img });
   saveFavs(favs);
+  showToast(t('fav.added', title));
   updateFavUI();
   renderFavoritesSection();
-  return idx === -1;
+  return true;
+}
+
+/* ── Modal limite favoris Free ──────────────────────────────────────────── */
+function showFavLimitModal(count, limit) {
+  // Supprimer un éventuel modal existant
+  document.getElementById('favLimitModal')?.remove();
+
+  const modal = document.createElement('div');
+  modal.id        = 'favLimitModal';
+  modal.className = 'fav-limit-modal';
+  modal.innerHTML = `
+    <div class="fav-limit-box">
+      <div class="fav-limit-icon">❤️</div>
+      <h3 class="fav-limit-title">Favorites limit reached</h3>
+      <p class="fav-limit-msg">
+        You have reached the limit of <strong>${limit} favorites</strong> on the free plan.
+      </p>
+      <div class="fav-limit-bar">
+        <div class="fav-limit-fill" style="width:100%"></div>
+      </div>
+      <p class="fav-limit-count">${count} / ${limit}</p>
+      <a href="soutenir.html" class="fav-limit-cta">
+        ⭐ Go Premium — Unlimited favorites
+        <span class="fav-limit-price">from 1.99 Pi/month</span>
+      </a>
+      <button class="fav-limit-close" id="favLimitClose">Maybe later</button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  requestAnimationFrame(() => modal.classList.add('fav-limit-open'));
+
+  const close = () => {
+    modal.classList.remove('fav-limit-open');
+    setTimeout(() => modal.remove(), 300);
+  };
+
+  document.getElementById('favLimitClose').addEventListener('click', close);
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
 }
 
 function updateFavUI() {
@@ -265,9 +358,9 @@ function buildCard(anime, opts = {}) {
     if (e.key === 'Enter') window.location.href = `anime.html?id=${id}`;
   });
 
-  card.querySelector('.card-fav-btn').addEventListener('click', (e) => {
+  card.querySelector('.card-fav-btn').addEventListener('click', async (e) => {
     e.stopPropagation();
-    const added = toggleFav(id, title, img);
+    const added = await toggleFav(id, title, img);
     const btn   = e.currentTarget;
     btn.classList.toggle('active', added);
     const svg = btn.querySelector('svg');
@@ -423,8 +516,8 @@ function renderHero(anime) {
   favBtn.parentNode.replaceChild(newFavBtn, favBtn);
   newFavBtn.dataset.id = id;
   newFavBtn.classList.toggle('active', isFav(id));
-  newFavBtn.addEventListener('click', () => {
-    const added = toggleFav(id, title, img);
+  newFavBtn.addEventListener('click', async () => {
+    const added = await toggleFav(id, title, img);
     newFavBtn.classList.toggle('active', added);
   });
 

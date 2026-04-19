@@ -41,13 +41,90 @@ function getFavs() {
 function saveFavs(f) { localStorage.setItem('VoirAnime_favs', JSON.stringify(f)); }
 function isFav(id) { return getFavs().some(f => f.id === id); }
 
-function toggleFav(id, title, img) {
-  const favs = getFavs();
-  const idx  = favs.findIndex(f => f.id === id);
-  if (idx > -1) { favs.splice(idx, 1); showToast(t('anime.fav_removed', title)); }
-  else           { favs.unshift({ id, title, img }); showToast(t('anime.fav_added', title)); }
+async function toggleFav(id, title, img) {
+  const favs   = getFavs();
+  const idx    = favs.findIndex(f => f.id === id);
+  const adding = idx === -1;
+  const piUser = window.piAuth?.getUser?.() || (() => {
+    try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
+  })();
+
+  // ── Suppression ──────────────────────────────────────────────────────────
+  if (!adding) {
+    favs.splice(idx, 1);
+    saveFavs(favs);
+    showToast(t('anime.fav_removed', title));
+    if (piUser?.uid) {
+      fetch('/api/favorites', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ action: 'remove', piUserId: piUser.uid, animeId: id }),
+      }).catch(() => {});
+    }
+    return false;
+  }
+
+  // ── Ajout : vérification serveur si connecté ─────────────────────────────
+  if (piUser?.uid) {
+    try {
+      const res  = await fetch('/api/favorites', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ action: 'add', piUserId: piUser.uid, animeId: id, title, img }),
+      });
+      const data = await res.json();
+
+      if (res.status === 403 && data.error === 'LIMIT_REACHED') {
+        showFavLimitModal(data.count, data.limit);
+        return false;
+      }
+      if (!res.ok) { showToast('⚠️ Server error'); return false; }
+
+    } catch {
+      if (favs.length >= 20) { showFavLimitModal(favs.length, 20); return false; }
+    }
+  } else {
+    if (favs.length >= 20) { showFavLimitModal(favs.length, 20); return false; }
+  }
+
+  favs.unshift({ id, title, img });
   saveFavs(favs);
-  return idx === -1;
+  showToast(t('anime.fav_added', title));
+  return true;
+}
+
+/* ── Modal limite favoris Free ──────────────────────────────────────────── */
+function showFavLimitModal(count, limit) {
+  document.getElementById('favLimitModal')?.remove();
+  const modal = document.createElement('div');
+  modal.id        = 'favLimitModal';
+  modal.className = 'fav-limit-modal';
+  modal.innerHTML = `
+    <div class="fav-limit-box">
+      <div class="fav-limit-icon">❤️</div>
+      <h3 class="fav-limit-title">Favorites limit reached</h3>
+      <p class="fav-limit-msg">
+        You have reached the limit of <strong>${limit} favorites</strong> on the free plan.
+      </p>
+      <div class="fav-limit-bar">
+        <div class="fav-limit-fill" style="width:100%"></div>
+      </div>
+      <p class="fav-limit-count">${count} / ${limit}</p>
+      <a href="soutenir.html" class="fav-limit-cta">
+        ⭐ Go Premium — Unlimited favorites
+        <span class="fav-limit-price">from 1.99 Pi/month</span>
+      </a>
+      <button class="fav-limit-close" id="favLimitClose">Maybe later</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  requestAnimationFrame(() => modal.classList.add('fav-limit-open'));
+  const close = () => {
+    modal.classList.remove('fav-limit-open');
+    setTimeout(() => modal.remove(), 300);
+  };
+  document.getElementById('favLimitClose').addEventListener('click', close);
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
 }
 
 /* ── History ── */
@@ -116,9 +193,9 @@ function buildFranchiseCard(anime, isCurrent = false, seasonNum = null) {
     window.location.href = `anime.html?id=${id}`;
   });
 
-  card.querySelector('.card-fav-btn').addEventListener('click', (e) => {
+  card.querySelector('.card-fav-btn').addEventListener('click', async (e) => {
     e.stopPropagation();
-    const added = toggleFav(id, title, img);
+    const added = await toggleFav(id, title, img);
     const btn = e.currentTarget;
     btn.classList.toggle('active', added);
     btn.querySelector('svg').setAttribute('fill', added ? 'currentColor' : 'none');
@@ -167,9 +244,9 @@ function buildRecoCard(anime, isCurrent = false) {
     window.location.href = `anime.html?id=${id}`;
   });
 
-  card.querySelector('.card-fav-btn').addEventListener('click', (e) => {
+  card.querySelector('.card-fav-btn').addEventListener('click', async (e) => {
     e.stopPropagation();
-    const added = toggleFav(id, title, img);
+    const added = await toggleFav(id, title, img);
     const btn = e.currentTarget;
     btn.classList.toggle('active', added);
     btn.querySelector('svg').setAttribute('fill', added ? 'currentColor' : 'none');
@@ -555,8 +632,8 @@ function renderDetail(anime) {
     if (svg) { svg.setAttribute('fill', fav ? 'currentColor':'none'); svg.setAttribute('stroke', fav ? 'var(--pink)':'currentColor'); }
     const lbl = btn.querySelector('#favBtnLabel, .fav-btn-text');
     if (lbl) lbl.style.display = 'none';
-    btn.addEventListener('click', () => {
-      const added = toggleFav(id, title, img);
+    btn.addEventListener('click', async () => {
+      const added = await toggleFav(id, title, img);
       favBtns.forEach(b => {
         b.classList.toggle('active', added);
         const s = b.querySelector('svg');
