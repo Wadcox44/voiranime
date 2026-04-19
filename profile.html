@@ -278,11 +278,8 @@
   <div class="profile-info">
     <h1 class="profile-name" data-i18n="profile.title">Mon Profil</h1>
     <p class="profile-since" id="profileSince">Membre depuis aujourd'hui</p>
-    <!-- Badge Premium + bouton gestion abonnement (injectés par premiumManager) -->
-    <div id="profilePremiumBadge" data-premium-badge></div>
-    <button class="profile-manage-sub hidden" id="profileManageSub">
-      ⭐ Manage subscription
-    </button>
+    <!-- Carte statut abonnement — rendue par renderSubscriptionStatus() -->
+    <div id="profileSubscriptionCard"></div>
     <div class="profile-badges" id="profileBadges"></div>
   </div>
 </div>
@@ -971,17 +968,108 @@
   renderHistory();
   renderPremiumStats();
 
-  // Bouton "Manage subscription" — affiché si Premium
-  VA_onPremiumReady && VA_onPremiumReady(function(status) {
-    const btn = el('profileManageSub');
-    if (!btn) return;
-    if (status && status.isPremium) {
-      btn.classList.remove('hidden');
-      const days = status.daysLeft || 0;
-      btn.textContent = `⭐ Premium · ${days} day${days !== 1 ? 's' : ''} left`;
-      btn.onclick = function() { VA_showSubscriptionModal && VA_showSubscriptionModal(); };
-    }
-  }); // Stats Premium — vérifie isPremium via API
+  // Carte statut abonnement + stats Premium
+  renderSubscriptionStatus();
+
+  /* ─────────────────────────────────────────────────────────────
+     STATUT ABONNEMENT
+     Affiche une carte claire : Free → CTA upgrade / Premium → détails + gestion
+  ───────────────────────────────────────────────────────────── */
+  function renderSubscriptionStatus() {
+    const card = el('profileSubscriptionCard');
+    if (!card) return;
+
+    VA_onPremiumReady && VA_onPremiumReady(function(status) {
+      if (!status) return;
+
+      if (status.isPremium) {
+        // ── Carte Premium ──
+        const planLabel  = status.plan === 'annual' ? 'Annual' : 'Monthly';
+        const days       = status.daysLeft || 0;
+        const expDate    = status.expiresAt
+          ? new Date(status.expiresAt).toLocaleDateString(
+              document.documentElement.lang === 'fr' ? 'fr-FR' : 'en-US',
+              { day: 'numeric', month: 'long', year: 'numeric' }
+            )
+          : '—';
+
+        // Couleur urgence selon jours restants
+        const urgency = days <= 3 ? 'sub-card-urgent'
+                      : days <= 7 ? 'sub-card-warning'
+                      : '';
+
+        card.innerHTML = `
+          <div class="sub-card sub-card-premium ${urgency}">
+            <div class="sub-card-header">
+              <span class="sub-card-badge">⭐ Premium</span>
+              <span class="sub-card-plan">${planLabel}</span>
+            </div>
+            <div class="sub-card-expiry">
+              ${days > 0
+                ? `Expires in <strong>${days} day${days !== 1 ? 's' : ''}</strong> · ${expDate}`
+                : `<span style="color:var(--pink)">Expires today</span>`}
+            </div>
+            <div class="sub-card-actions">
+              <button class="sub-card-btn sub-card-btn-renew" id="subRenewBtn">
+                🔄 Renew
+              </button>
+              <button class="sub-card-btn sub-card-btn-cancel" id="subCancelBtn">
+                Cancel
+              </button>
+            </div>
+          </div>`;
+
+        el('subRenewBtn')?.addEventListener('click', () => {
+          VA_showSubscriptionModal && VA_showSubscriptionModal();
+        });
+
+        el('subCancelBtn')?.addEventListener('click', () => _confirmCancel());
+
+      } else {
+        // ── Carte Free ──
+        const isExpired = status.subscriptionStatus === 'expired';
+        card.innerHTML = `
+          <div class="sub-card sub-card-free">
+            <div class="sub-card-header">
+              <span class="sub-card-badge sub-card-badge-free">Free</span>
+              ${isExpired ? '<span class="sub-card-expired">Subscription expired</span>' : ''}
+            </div>
+            <div class="sub-card-limits">
+              <span>❤ Favorites: max 20</span>
+              <span>📊 No detailed stats</span>
+              <span>⚡ Features delayed 15 days</span>
+            </div>
+            <a href="soutenir.html" class="sub-card-upgrade">
+              ⭐ Go Premium
+              <span class="sub-card-upgrade-price">from 1.99 Pi/month</span>
+            </a>
+          </div>`;
+      }
+    });
+  }
+
+  function _confirmCancel() {
+    const piUser = window.piAuth?.getUser?.() || (() => {
+      try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
+    })();
+    if (!piUser?.uid) return;
+
+    if (!confirm('Cancel your Premium subscription? You will keep access until expiration.')) return;
+
+    fetch('/api/premium', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ action: 'cancel', piUserId: piUser.uid }),
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        window.VA_clearPremiumCache && window.VA_clearPremiumCache();
+        renderSubscriptionStatus(); // rafraîchir la carte
+      }
+    })
+    .catch(() => {});
+  }
 
   /* ─────────────────────────────────────────────────────────────
      STATS PREMIUM

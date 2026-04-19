@@ -5745,3 +5745,146 @@ a:active {
   transition: background 0.2s;
 }
 .profile-manage-sub:hover { background: rgba(255,79,216,0.08); }
+
+/* ═══════════════════════════════════════════════════════════════
+   CARTE STATUT ABONNEMENT — profile.html
+   ═══════════════════════════════════════════════════════════════ */
+
+.sub-card {
+  border-radius: var(--r);
+  padding: 14px 16px;
+  margin: 8px 0 12px;
+  border: 1px solid var(--b1);
+}
+
+/* ── Carte Premium ── */
+.sub-card-premium {
+  background: linear-gradient(135deg, rgba(124,77,255,0.08), rgba(255,79,216,0.05));
+  border-color: rgba(124,77,255,0.3);
+}
+.sub-card-warning {
+  border-color: rgba(251,191,36,0.5);
+  background: linear-gradient(135deg, rgba(251,191,36,0.07), rgba(255,79,216,0.04));
+}
+.sub-card-urgent {
+  border-color: rgba(239,68,68,0.5);
+  background: linear-gradient(135deg, rgba(239,68,68,0.08), rgba(255,79,216,0.04));
+  animation: subPulse 2s ease-in-out infinite;
+}
+@keyframes subPulse {
+  0%, 100% { border-color: rgba(239,68,68,0.5); }
+  50%       { border-color: rgba(239,68,68,0.9); }
+}
+
+/* ── Carte Free ── */
+.sub-card-free {
+  background: var(--ink3);
+  border-color: var(--b1);
+}
+
+/* ── Header ── */
+.sub-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.sub-card-badge {
+  background: linear-gradient(135deg, var(--violet), var(--pink));
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+.sub-card-badge-free {
+  background: var(--ink2);
+  border: 1px solid var(--b2);
+  color: var(--muted);
+}
+.sub-card-plan {
+  font-size: 0.72rem;
+  color: var(--text2);
+  font-weight: 600;
+  border: 1px solid var(--b2);
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+.sub-card-expired {
+  font-size: 0.68rem;
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* ── Expiration ── */
+.sub-card-expiry {
+  font-size: 0.78rem;
+  color: var(--text2);
+  margin-bottom: 12px;
+}
+.sub-card-expiry strong { color: var(--text); }
+
+/* ── Limites Free ── */
+.sub-card-limits {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.74rem;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+/* ── Actions Premium ── */
+.sub-card-actions {
+  display: flex;
+  gap: 8px;
+}
+.sub-card-btn {
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: opacity 0.2s;
+  border: none;
+}
+.sub-card-btn:hover { opacity: 0.85; }
+.sub-card-btn-renew {
+  background: var(--pink);
+  color: #fff;
+}
+.sub-card-btn-cancel {
+  background: none;
+  border: 1px solid var(--b2);
+  color: var(--muted);
+}
+.sub-card-btn-cancel:hover { color: #ef4444; border-color: #ef4444; }
+
+/* ── CTA upgrade Free ── */
+.sub-card-upgrade {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, var(--violet), var(--pink));
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: var(--r-sm);
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.sub-card-upgrade:hover { opacity: 0.9; transform: translateY(-1px); }
+.sub-card-upgrade-price {
+  font-size: 0.68rem;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .sub-card { padding: 12px; }
+  .sub-card-actions { flex-direction: column; }
+  .sub-card-btn { text-align: center; }
+}
