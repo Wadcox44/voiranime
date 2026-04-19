@@ -190,6 +190,11 @@ function VA_showSubscriptionModal(opts = {}) {
       _startSubscription(planId, opts.onSuccess);
     });
   });
+
+  // Pré-lancer le paiement si defaultPlan fourni (depuis profile.html)
+  if (opts.defaultPlan && PLANS[opts.defaultPlan]) {
+    setTimeout(() => _startSubscription(opts.defaultPlan, opts.onSuccess), 200);
+  }
 }
 
 /* ── Lancement paiement Pi ── */

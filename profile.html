@@ -465,19 +465,6 @@
   </div>
 </section>
 
-<!-- Bandeau upgrade pour les Free -->
-<div class="premium-upgrade-strip" id="premiumUpgradeStrip" style="display:none">
-  <div class="pup-content">
-    <div class="pup-left">
-      <span class="pup-icon">⭐</span>
-      <div>
-        <div class="pup-title">Unlock Premium Stats</div>
-        <div class="pup-sub">Time on site · Top genres · Watch history · Activity timeline</div>
-      </div>
-    </div>
-    <a href="soutenir.html" class="pup-btn">Go Premium — 1.99 Pi/month</a>
-  </div>
-</div>
 
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
@@ -1004,26 +991,23 @@
       if (!status) return;
 
       if (status.isPremium) {
-        // ── Carte Premium ──
-        const planLabel  = status.plan === 'annual' ? 'Annual' : 'Monthly';
-        const days       = status.daysLeft || 0;
-        const expDate    = status.expiresAt
+        // ── Carte Premium actif ──
+        const planLabel = status.plan === 'annual' ? 'Annual' : 'Monthly';
+        const renewPrice = status.plan === 'annual' ? '19.99 Pi/year' : '1.99 Pi/month';
+        const days      = status.daysLeft || 0;
+        const expDate   = status.expiresAt
           ? new Date(status.expiresAt).toLocaleDateString(
               document.documentElement.lang === 'fr' ? 'fr-FR' : 'en-US',
               { day: 'numeric', month: 'long', year: 'numeric' }
             )
           : '—';
-
-        // Couleur urgence selon jours restants
-        const urgency = days <= 3 ? 'sub-card-urgent'
-                      : days <= 7 ? 'sub-card-warning'
-                      : '';
+        const urgency = days <= 3 ? 'sub-card-urgent' : days <= 7 ? 'sub-card-warning' : '';
 
         card.innerHTML = `
           <div class="sub-card sub-card-premium ${urgency}">
             <div class="sub-card-header">
               <span class="sub-card-badge">⭐ Premium</span>
-              <span class="sub-card-plan">${planLabel}</span>
+              <span class="sub-card-plan">${planLabel} · ${renewPrice}</span>
             </div>
             <div class="sub-card-expiry">
               ${days > 0
@@ -1031,40 +1015,66 @@
                 : `<span style="color:var(--pink)">Expires today</span>`}
             </div>
             <div class="sub-card-actions">
-              <button class="sub-card-btn sub-card-btn-renew" id="subRenewBtn">
-                🔄 Renew
-              </button>
-              <button class="sub-card-btn sub-card-btn-cancel" id="subCancelBtn">
-                Cancel
-              </button>
+              <button class="sub-card-btn sub-card-btn-renew" id="subRenewBtn">🔄 Renew</button>
+              <button class="sub-card-btn sub-card-btn-cancel" id="subCancelBtn">Cancel</button>
             </div>
           </div>`;
 
         el('subRenewBtn')?.addEventListener('click', () => {
           VA_showSubscriptionModal && VA_showSubscriptionModal();
         });
-
         el('subCancelBtn')?.addEventListener('click', () => _confirmCancel());
 
       } else {
-        // ── Carte Free ──
+        // ── Carte offres (Free ou expiré) ──
         const isExpired = status.subscriptionStatus === 'expired';
         card.innerHTML = `
-          <div class="sub-card sub-card-free">
-            <div class="sub-card-header">
-              <span class="sub-card-badge sub-card-badge-free">Free</span>
-              ${isExpired ? '<span class="sub-card-expired">Subscription expired</span>' : ''}
+          <div class="sub-card sub-offers-card">
+            <div class="sub-offers-header">
+              ${isExpired
+                ? '<span class="sub-card-badge sub-card-badge-free">Free · Subscription expired</span>'
+                : '<span class="sub-offers-title">⭐ Go Premium</span>'}
             </div>
-            <div class="sub-card-limits">
-              <span>❤ Favorites: max 20</span>
-              <span>📊 No detailed stats</span>
-              <span>⚡ Features delayed 15 days</span>
+
+            <div class="sub-offers-grid">
+              <!-- Mensuel -->
+              <div class="sub-offer-item" id="offerMonthly">
+                <div class="sub-offer-name">Monthly</div>
+                <div class="sub-offer-price">1.99 <span class="sub-offer-currency">Pi</span></div>
+                <div class="sub-offer-period">per month</div>
+                <button class="sub-offer-btn" data-plan="monthly">Subscribe</button>
+              </div>
+
+              <!-- Annuel -->
+              <div class="sub-offer-item sub-offer-featured" id="offerAnnual">
+                <div class="sub-offer-badge-top">Best value</div>
+                <div class="sub-offer-name">Annual</div>
+                <div class="sub-offer-price">19.99 <span class="sub-offer-currency">Pi</span></div>
+                <div class="sub-offer-period">per year <span class="sub-offer-saving">Save 2 months</span></div>
+                <button class="sub-offer-btn sub-offer-btn-featured" data-plan="annual">Subscribe</button>
+              </div>
             </div>
-            <a href="soutenir.html" class="sub-card-upgrade">
-              ⭐ Go Premium
-              <span class="sub-card-upgrade-price">from 1.99 Pi/month</span>
-            </a>
+
+            <div class="sub-offers-features">
+              ❤ Unlimited favorites &nbsp;·&nbsp;
+              📊 Detailed stats &nbsp;·&nbsp;
+              ⚡ Early access &nbsp;·&nbsp;
+              ↕ Reorder favorites
+            </div>
+
+            <div class="sub-offers-status" id="subOffersStatus" style="display:none"></div>
           </div>`;
+
+        // Brancher les boutons Pi directement (sans rediriger vers soutenir.html)
+        card.querySelectorAll('.sub-offer-btn').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            var plan = btn.dataset.plan;
+            if (window.VA_showSubscriptionModal) {
+              // Pré-sélectionner le plan dans le modal
+              VA_showSubscriptionModal({ defaultPlan: plan });
+            }
+          });
+        });
       }
     });
   }
@@ -1103,7 +1113,6 @@
     })();
 
     const section     = el('premiumStatsSection');
-    const upgradeStrip = el('premiumUpgradeStrip');
 
     // Vérification isPremium côté serveur
     let isPremium = false;
@@ -1116,8 +1125,7 @@
     }
 
     if (!isPremium) {
-      if (upgradeStrip) upgradeStrip.style.display = 'block';
-      return;
+      return; // Carte d'offres déjà affichée dans profileSubscriptionCard
     }
 
     // Réafficher les favoris avec drag & drop activé
