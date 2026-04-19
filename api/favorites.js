@@ -115,7 +115,7 @@ async function actionReorder(piUserId, { order }) {
   const { ref, isPremium } = await getUser(piUserId);
 
   // Middleware Premium — non contournable
-  const guard = await requirePremium(piUserId);
+  const guard = await requirePremium(piUserId, 'favorites_reorder');
   if (guard) return [guard.status, guard.body];
 
   // Récupérer les données actuelles des favoris depuis Firestore

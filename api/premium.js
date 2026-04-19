@@ -2,7 +2,8 @@
 // Gestion centralisée des abonnements Premium VoirAnime
 // POST { action: 'activate'|'status'|'cancel', piUserId, ...params }
 //
-// activate : { piUserId, plan, paymentId, txid }  → appelé par pi-complete après confirmation Pi
+// activate : { piUserId, plan, paymentId, txid }  → proxy vers la logique dans pi-complete
+//             Préférer appeler pi-complete directement — cette action reste pour compatibilité
 // status   : { piUserId }                          → retourne statut Premium complet
 // cancel   : { piUserId }                          → désactive à expiration (pas de remboursement)
 
@@ -137,7 +138,7 @@ async function actionStatus(piUserId) {
 
 // Marquer pour annulation à expiration (pas de remboursement, accès jusqu'à expiresAt)
 async function actionCancel(piUserId) {
-  const guard = await requirePremium(piUserId);
+  const guard = await requirePremium(piUserId, 'subscription_cancel');
   if (guard) return [guard.status, { ...guard.body, error: 'No active subscription to cancel' }];
 
   const { ref } = await getUser(piUserId);

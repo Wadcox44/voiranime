@@ -66,13 +66,38 @@ export async function getUser(piUserId) {
 /* ── Middleware Premium ────────────────────────────────────────────────────
    Utilisation dans un handler :
 
-     const guard = await requirePremium(piUserId);
+     const guard = await requirePremium(piUserId, 'favorites_reorder');
      if (guard) return res.status(guard.status).json(guard.body);
-     // ici : isPremium confirmé, continuer
+     // ici : isPremium confirmé ✅
 
    Retourne null si Premium OK, ou { status, body } à renvoyer immédiatement.
+
+   Table des features Premium protégées par ce middleware :
+   ┌─────────────────────────────┬──────────────┬────────────────────────────┐
+   │ Feature                     │ Fichier      │ Action                     │
+   ├─────────────────────────────┼──────────────┼────────────────────────────┤
+   │ favorites_reorder           │ favorites.js │ actionReorder              │
+   │ subscription_cancel         │ premium.js   │ actionCancel               │
+   │ (filtre notifs, pas bloqué) │ notif.js     │ actionGet — filtre interne │
+   └─────────────────────────────┴──────────────┴────────────────────────────┘
+
+   Pour protéger une nouvelle feature :
+     1. Choisir un featureName descriptif
+     2. Ajouter une ligne dans la table ci-dessus
+     3. const guard = await requirePremium(piUserId, 'nom_feature');
+        if (guard) return [guard.status, guard.body];
 ──────────────────────────────────────────────────────────────────────────── */
-export async function requirePremium(piUserId) {
+
+// Messages par feature — personnalisables
+const FEATURE_MESSAGES = {
+  favorites_reorder:   'Reordering favorites requires a Premium subscription.',
+  subscription_cancel: 'No active subscription to cancel.',
+  stats_access:        'Detailed stats require a Premium subscription.',
+  early_access:        'Early access requires a Premium subscription.',
+  default:             'This feature requires a Premium subscription.',
+};
+
+export async function requirePremium(piUserId, featureName = 'default') {
   if (!piUserId) {
     return { status: 400, body: { error: 'piUserId required' } };
   }
@@ -80,14 +105,16 @@ export async function requirePremium(piUserId) {
   const { isPremium, subscriptionStatus, daysLeft } = await getUser(piUserId);
 
   if (!isPremium) {
+    const featureMsg = FEATURE_MESSAGES[featureName] || FEATURE_MESSAGES.default;
     return {
       status: 403,
       body: {
         error:              'PREMIUM_REQUIRED',
-        subscriptionStatus, // 'expired' ou 'none'
+        feature:            featureName,
+        subscriptionStatus, // 'expired' | 'none'
         message: subscriptionStatus === 'expired'
-          ? 'Your Premium subscription has expired. Renew to access this feature.'
-          : 'This feature requires a Premium subscription.',
+          ? `Your Premium subscription has expired. ${featureMsg}`
+          : featureMsg,
         upgradeUrl: 'https://voir-anime.vercel.app/soutenir',
       },
     };
