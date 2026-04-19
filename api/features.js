@@ -10,6 +10,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, Timestamp }       from 'firebase-admin/firestore';
+import { getUser }                         from './_userHelper.js';
 
 if (!getApps().length) {
   initializeApp({
@@ -29,11 +30,8 @@ const ADMIN_SECRET     = process.env.ADMIN_SECRET; // variable Vercel pour les a
 /* ── Helpers ── */
 async function getPremiumStatus(piUserId) {
   if (!piUserId) return false;
-  const doc  = await db.collection('users').doc(piUserId).get();
-  const data = doc.exists ? doc.data() : {};
-  return data.isPremium === true
-    && data.expiresAt
-    && data.expiresAt.toMillis() > Date.now();
+  const { isPremium } = await getUser(piUserId);
+  return isPremium;
 }
 
 function computeFeatureAccess(feature, isPremium, now) {

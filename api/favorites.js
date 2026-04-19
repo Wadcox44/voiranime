@@ -8,6 +8,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
+import { getUser } from './_userHelper.js';
 
 if (!getApps().length) {
   initializeApp({
@@ -25,14 +26,6 @@ const FREE_LIMIT = 20;
 /* ── Helpers ── */
 function initAdmin() {}
 
-async function getUser(piUserId) {
-  const doc  = await db.collection('users').doc(piUserId).get();
-  const data = doc.exists ? doc.data() : {};
-  const isPremium = data.isPremium === true
-    && data.expiresAt
-    && data.expiresAt.toMillis() > Date.now();
-  return { ref: db.collection('users').doc(piUserId), data, isPremium };
-}
 
 /* ── Actions ── */
 async function actionAdd(piUserId, { animeId, title, img }) {

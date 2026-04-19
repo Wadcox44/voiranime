@@ -8,6 +8,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, Timestamp }       from 'firebase-admin/firestore';
+import { getUser }                         from './_userHelper.js';
 
 if (!getApps().length) {
   initializeApp({
@@ -40,22 +41,6 @@ const PLANS = {
 };
 
 /* ── Helper : lire + calculer statut ── */
-async function getUserDoc(piUserId) {
-  const ref  = db.collection('users').doc(piUserId);
-  const doc  = await ref.get();
-  const data = doc.exists ? doc.data() : {};
-  const now  = Date.now();
-
-  const isPremium = data.isPremium === true
-    && data.expiresAt
-    && data.expiresAt.toMillis() > now;
-
-  const expiresAt    = data.expiresAt?.toMillis() || null;
-  const daysLeft     = expiresAt ? Math.max(0, Math.ceil((expiresAt - now) / 86400000)) : 0;
-  const willRenew    = data.willCancel !== true; // par défaut renouvellement actif
-
-  return { ref, data, isPremium, expiresAt, daysLeft, willRenew };
-}
 
 /* ── Actions ── */
 
@@ -79,7 +64,7 @@ async function actionActivate(piUserId, { plan, paymentId, txid, piUsername }) {
   }
 
   const now      = Date.now();
-  const { ref, data } = await getUserDoc(piUserId);
+  const { ref, data } = await getUser(piUserId);
 
   // Si déjà Premium actif → prolonger depuis expiresAt (pas depuis maintenant)
   const currentExpiry = (data.isPremium && data.expiresAt?.toMillis() > now)
@@ -128,11 +113,12 @@ async function actionActivate(piUserId, { plan, paymentId, txid, piUsername }) {
 async function actionStatus(piUserId) {
   if (!piUserId) return [400, { error: 'piUserId required' }];
 
-  const { isPremium, expiresAt, daysLeft, willRenew, data } = await getUserDoc(piUserId);
+  const { isPremium, subscriptionStatus, expiresAt, daysLeft, willRenew, data } = await getUser(piUserId);
 
   return [200, {
     ok: true,
     isPremium,
+    subscriptionStatus, // 'active' | 'expired' | 'none'
     plan:      data.plan || null,
     expiresAt,
     daysLeft,
@@ -153,7 +139,7 @@ async function actionStatus(piUserId) {
 async function actionCancel(piUserId) {
   if (!piUserId) return [400, { error: 'piUserId required' }];
 
-  const { ref, isPremium } = await getUserDoc(piUserId);
+  const { ref, isPremium } = await getUser(piUserId);
   if (!isPremium) return [400, { error: 'No active subscription to cancel' }];
 
   await ref.update({ willCancel: true });
