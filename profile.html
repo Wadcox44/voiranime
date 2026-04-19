@@ -25,42 +25,53 @@
     @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
 
     /* ── Profile page styles ── */
-    .profile-hero {
-      padding: calc(var(--nav-h) + 48px) 48px 40px;
-      display: flex;
-      align-items: center;
-      gap: 32px;
+
+    /* Hero v2 : 2 colonnes côte à côte */
+    .profile-hero-v2 {
+      padding: calc(var(--nav-h) + 40px) 48px 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
       max-width: 1160px;
       margin: 0 auto;
+      align-items: start;
+    }
+
+    /* Colonne gauche */
+    .profile-left { display: flex; flex-direction: column; gap: 16px; }
+    .profile-identity {
+      display: flex;
+      align-items: center;
+      gap: 16px;
     }
     .profile-avatar {
-      width: 96px; height: 96px;
+      width: 72px; height: 72px;
       border-radius: 50%;
       background: linear-gradient(135deg, #7c4dff, #ff4fd8);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2.8rem;
+      font-size: 2rem;
       flex-shrink: 0;
-      box-shadow: 0 0 32px rgba(124,77,255,0.35);
+      box-shadow: 0 0 24px rgba(124,77,255,0.35);
     }
-    .profile-info { flex: 1; }
+    .profile-identity-info { flex: 1; }
     .profile-name {
-      font-size: 1.8rem;
+      font-size: 1.4rem;
       font-weight: 900;
       letter-spacing: -0.5px;
-      margin-bottom: 6px;
+      margin-bottom: 3px;
     }
     .profile-since {
-      font-size: 0.8rem;
+      font-size: 0.74rem;
       color: var(--muted);
-      margin-bottom: 16px;
+      margin-bottom: 8px;
     }
-    .profile-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+    .profile-badges { display: flex; gap: 6px; flex-wrap: wrap; }
     .profile-badge {
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       font-weight: 600;
-      padding: 4px 12px;
+      padding: 3px 10px;
       border-radius: 20px;
       background: var(--ink3);
       border: 1px solid var(--b2);
@@ -69,34 +80,31 @@
     .profile-badge.gold { background: rgba(255,209,102,.12); border-color: rgba(255,209,102,.3); color: var(--gold); }
     .profile-badge.pink { background: var(--pink-dim); border-color: var(--b-pink); color: #ffaaee; }
 
-    /* Stats grid */
-    .profile-stats {
+    /* Colonne droite : grille stats 3×3 compacte */
+    .profile-stats-compact {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px;
-      max-width: 1160px;
-      margin: 0 auto 40px;
-      padding: 0 48px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
     }
-    .stat-card {
+    .stat-compact {
       background: var(--ink3);
       border: 1px solid var(--b1);
-      border-radius: var(--r-lg);
-      padding: 20px 16px;
+      border-radius: var(--r);
+      padding: 12px 8px;
       text-align: center;
       transition: border-color 0.2s, transform 0.2s;
     }
-    .stat-card:hover { border-color: var(--b2); transform: translateY(-2px); }
-    .stat-card-num {
-      font-size: 2rem;
+    .stat-compact:hover { border-color: var(--b2); transform: translateY(-2px); }
+    .stat-compact-num {
+      font-size: 1.4rem;
       font-weight: 900;
       line-height: 1;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
-    .stat-card-label {
-      font-size: 0.7rem;
+    .stat-compact-label {
+      font-size: 0.6rem;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.1em;
       color: var(--muted);
       font-weight: 600;
     }
@@ -219,11 +227,17 @@
     .profile-empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
 
     @media (max-width: 768px) {
-      .profile-hero { padding: calc(var(--nav-h) + 24px) 16px 28px; flex-direction: column; gap: 20px; }
-      .profile-stats { padding: 0 16px; }
+      .profile-hero-v2 {
+        grid-template-columns: 1fr;
+        padding: calc(var(--nav-h) + 20px) 16px 24px;
+        gap: 16px;
+      }
       .profile-section { padding: 0 16px; }
-      .profile-avatar { width: 72px; height: 72px; font-size: 2rem; }
-      .profile-name { font-size: 1.4rem; }
+    }
+    @media (max-width: 480px) {
+      .profile-stats-compact { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .stat-compact { padding: 10px 4px; }
+      .stat-compact-num { font-size: 1.2rem; }
     }
     .watch-filter-btn {
       padding: 6px 14px; border-radius: 20px; border: 1px solid var(--b2);
@@ -272,56 +286,63 @@
   </ul>
 </nav>
   <div class="notif-panel" id="notifPanel"></div>
-<!-- HERO PROFIL -->
-<div class="profile-hero">
-  <div class="profile-avatar" id="profileAvatar">👤</div>
-  <div class="profile-info">
-    <h1 class="profile-name" data-i18n="profile.title">Mon Profil</h1>
-    <p class="profile-since" id="profileSince">Membre depuis aujourd'hui</p>
-    <!-- Carte statut abonnement — rendue par renderSubscriptionStatus() -->
-    <div id="profileSubscriptionCard"></div>
-    <div class="profile-badges" id="profileBadges"></div>
-  </div>
-</div>
+<!-- HERO PROFIL — Layout 2 colonnes : identité + abonnement | stats -->
+<div class="profile-hero-v2">
 
-<!-- STATS -->
-<div class="profile-stats" id="profileStats">
-  <div class="stat-card">
-    <div class="stat-card-num" id="statFavCount" style="color:var(--pink)">0</div>
-    <div class="stat-card-label" data-i18n="profile.favs">Favoris</div>
+  <!-- Colonne gauche : identité + abonnement -->
+  <div class="profile-left">
+    <div class="profile-identity">
+      <div class="profile-avatar" id="profileAvatar">👤</div>
+      <div class="profile-identity-info">
+        <h1 class="profile-name" data-i18n="profile.title">Mon Profil</h1>
+        <p class="profile-since" id="profileSince">Membre depuis aujourd'hui</p>
+        <div class="profile-badges" id="profileBadges"></div>
+      </div>
+    </div>
+    <!-- Carte abonnement — toujours visible, jamais cachée en bas -->
+    <div id="profileSubscriptionCard"></div>
   </div>
-  <div class="stat-card">
-    <div class="stat-card-num" id="statHistCount" style="color:var(--violet)">0</div>
-    <div class="stat-card-label" data-i18n="profile.visited">Animes visités</div>
+
+  <!-- Colonne droite : stats compactes en grille 3×3 -->
+  <div class="profile-stats-compact" id="profileStats">
+    <div class="stat-compact">
+      <div class="stat-compact-num" id="statFavCount" style="color:var(--pink)">0</div>
+      <div class="stat-compact-label" data-i18n="profile.favs">Favoris</div>
+    </div>
+    <div class="stat-compact">
+      <div class="stat-compact-num" id="statHistCount" style="color:var(--violet)">0</div>
+      <div class="stat-compact-label" data-i18n="profile.visited">Visités</div>
+    </div>
+    <div class="stat-compact">
+      <div class="stat-compact-num" id="statRatingCount" style="color:var(--gold)">0</div>
+      <div class="stat-compact-label" data-i18n="profile.rated">Notés</div>
+    </div>
+    <div class="stat-compact">
+      <div class="stat-compact-num" id="statDuelCount" style="color:#ff8c42">0</div>
+      <div class="stat-compact-label" data-i18n="profile.duels">Duels</div>
+    </div>
+    <div class="stat-compact">
+      <div class="stat-compact-num" id="statStreakCount" style="color:#4cc9f0">0</div>
+      <div class="stat-compact-label" data-i18n="profile.streak">Streak 🔥</div>
+    </div>
+    <div class="stat-compact">
+      <div class="stat-compact-num" id="statCompletedCount" style="color:#4ade80">0</div>
+      <div class="stat-compact-label" data-i18n="profile.completed">Terminés</div>
+    </div>
+    <div class="stat-compact">
+      <div class="stat-compact-num" id="statWatchingCount" style="color:#60a5fa">0</div>
+      <div class="stat-compact-label" data-i18n="profile.watching">En cours</div>
+    </div>
+    <div class="stat-compact">
+      <div class="stat-compact-num" id="statPlanCount" style="color:#f59e0b">0</div>
+      <div class="stat-compact-label" data-i18n="profile.plan">À voir</div>
+    </div>
+    <div class="stat-compact">
+      <div class="stat-compact-num" id="statHoursCount" style="color:#a78bfa">0h</div>
+      <div class="stat-compact-label" data-i18n="profile.hours">Heures</div>
+    </div>
   </div>
-  <div class="stat-card">
-    <div class="stat-card-num" id="statRatingCount" style="color:var(--gold)">0</div>
-    <div class="stat-card-label" data-i18n="profile.rated">Animes notés</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-card-num" id="statDuelCount" style="color:#ff8c42">0</div>
-    <div class="stat-card-label" data-i18n="profile.duels">Duels joués</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-card-num" id="statStreakCount" style="color:#4cc9f0">0</div>
-    <div class="stat-card-label" data-i18n="profile.streak">Streak 🔥</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-card-num" id="statCompletedCount" style="color:#4ade80">0</div>
-    <div class="stat-card-label" data-i18n="profile.completed">Terminés ✓</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-card-num" id="statWatchingCount" style="color:#60a5fa">0</div>
-    <div class="stat-card-label" data-i18n="profile.watching">En cours ▶</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-card-num" id="statPlanCount" style="color:#f59e0b">0</div>
-    <div class="stat-card-label" data-i18n="profile.plan">À regarder 🔖</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-card-num" id="statHoursCount" style="color:#a78bfa">0h</div>
-    <div class="stat-card-label" data-i18n="profile.hours">Heures vues</div>
-  </div>
+
 </div>
 
 <!-- SUIVI DE VISIONNAGE -->
