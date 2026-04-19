@@ -26,6 +26,7 @@
     @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(255,79,216,.6),0 0 14px rgba(124,77,255,.3)}50%{text-shadow:0 0 10px #ff4fd8,0 0 24px rgba(255,79,216,.7),0 0 40px rgba(124,77,255,.45)}}
     @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
   </style>
+  <script src="i18n.js"></script>
 </head>
 <body class="page-duel">
 
@@ -41,7 +42,7 @@
 <div class="duel-page-loader" id="duelPageLoader">
   <div class="duel-loader-inner">
     <div class="duel-loader-logo">Voir<span>Anime</span></div>
-    <div class="duel-loader-sub">Chargement du duel…</div>
+    <div class="duel-loader-sub" data-i18n="duel.loading">Chargement du duel…</div>
     <div class="sk-dots large"><span></span><span></span><span></span></div>
   </div>
 </div>
@@ -52,20 +53,23 @@
 <nav class="navbar scrolled" id="navbar">
   <div class="nav-top">
     <div class="nav-left">
-      <a href="index.html" class="nav-logo" aria-label="VoirAnime">
-        <span class="logo-glitch" data-text="VoirAnime">
-          <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
-        </span>
-      </a>
+      <div class="nav-logo-wrap">
+        <a href="index.html" class="nav-logo" aria-label="VoirAnime">
+          <span class="logo-glitch" data-text="VoirAnime">
+            <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
+          </span>
+        </a>
+        <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
+      </div>
     </div>
     <div class="nav-right"></div>
   </div>
   <ul class="nav-links">
-    <li><a href="index.html"     class="nav-link">Accueil</a></li>
-    <li><a href="catalogue.html" class="nav-link active">Catalogue</a></li>
-    <li><a href="duel.html"      class="nav-link">⚔ Duels</a></li>
-    <li><a href="profile.html"   class="nav-link">Profil</a></li>
-    <li><a href="soutenir.html"  class="nav-link nav-link-support">💜 Soutenir</a></li>
+    <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="catalogue.html" class="nav-link" data-i18n="nav.catalogue">Catalogue</a></li>
+    <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
+    <li><a href="profile.html"   class="nav-link" data-i18n="nav.profile">Profil</a></li>
+    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Soutenir</a></li>
   </ul>
 </nav>
 
@@ -74,14 +78,14 @@
 ════════════════════════════════ -->
 <header class="duel-header">
   <p class="duel-eyebrow">⚔ Mode Duel</p>
-  <h1 class="duel-main-title">Lequel préfères-tu ?</h1>
-  <p class="duel-subtitle">Vote pour ton favori — vois ce que pensent les autres.</p>
+  <h1 class="duel-main-title" data-i18n="duel.title">Lequel préfères-tu ?</h1>
+  <p class="duel-subtitle" data-i18n="duel.subtitle">Vote pour ton favori — vois ce que pensent les autres.</p>
   <div class="duel-session-bar">
     <span id="statDuelsPlayed">0 duel joué</span>
     <span class="duel-sep">·</span>
     <span id="statStreak">0 🔥</span>
     <span class="duel-sep">·</span>
-    <span class="duel-hint">← → ou clic</span>
+    <span class="duel-hint" data-i18n="duel.hint">← → ou clic</span>
   </div>
 </header>
 
@@ -110,7 +114,7 @@
         <div class="duel-meta" id="metaA"></div>
         <button class="duel-vote-btn duel-vote-a" id="voteBtnA" data-side="A">
           <span class="duel-vote-icon">👈</span>
-          <span>Voter pour lui</span>
+          <span data-i18n="duel.vote">Voter pour lui</span>
         </button>
       </div>
     </div>
@@ -133,7 +137,7 @@
         <h2 class="duel-title" id="titleB">—</h2>
         <div class="duel-meta" id="metaB"></div>
         <button class="duel-vote-btn duel-vote-b" id="voteBtnB" data-side="B">
-          <span>Voter pour lui</span>
+          <span data-i18n="duel.vote">Voter pour lui</span>
           <span class="duel-vote-icon">👉</span>
         </button>
       </div>
@@ -177,7 +181,7 @@
           <polyline points="9 18 15 12 9 6"/>
         </svg>
       </button>
-      <a class="duel-btn-detail" id="winnerLink" href="#">Voir l'anime ›</a>
+      <a class="duel-btn-detail" id="winnerLink" href="#" data-i18n="duel.view_anime">Voir l'anime ›</a>
     </div>
 
   </div>
@@ -210,7 +214,7 @@
 ════════════════════════════════ -->
 <section class="duel-lb-section">
   <div class="duel-lb-header">
-    <h2 class="duel-lb-title">🏆 Classement populaire</h2>
+    <h2 class="duel-lb-title" data-i18n="duel.leaderboard">🏆 Classement populaire</h2>
     <button class="duel-lb-toggle" id="leaderboardToggle">Afficher ▼</button>
   </div>
   <div class="duel-lb-body hidden" id="leaderboardBody">
@@ -221,7 +225,7 @@
       <hr style="border:none;border-top:1px solid var(--b2);margin:16px 0"/>
     </div>
     <div class="duel-lb-grid" id="leaderboardGrid">
-      <p class="duel-lb-empty">Joue quelques duels pour voir le classement !</p>
+      <p class="duel-lb-empty" data-i18n="duel.lb_empty">Joue quelques duels pour voir le classement !</p>
     </div>
   </div>
 </section>
@@ -231,7 +235,7 @@
 ════════════════════════════════ -->
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
-  <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
+  <p class="footer-text" data-i18n="footer.no_video">Aucune vidéo n'est hébergée sur ce site.</p>
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -879,6 +883,16 @@ setTimeout(function(){ overlay.remove(); }, 450);
     setTimeout(function(){ window.location.href = href; }, 340);
   });
 })();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var raw  = location.pathname.split('/').pop() || 'index';
+  var path = raw.endsWith('.html') ? raw : (raw === '' ? 'index.html' : raw + '.html');
+  document.querySelectorAll('.nav-link').forEach(function(l){
+    var href = l.getAttribute('href');
+    l.classList.toggle('active', href === path);
+  });
+});
 </script>
 </body>
 </html>
