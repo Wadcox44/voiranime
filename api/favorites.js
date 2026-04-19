@@ -114,6 +114,39 @@ async function actionSync(piUserId, { favorites }) {
   return [200, { ok: true, synced: toSync.length, truncated: favorites.length > toSync.length, isPremium }];
 }
 
+// Reorder — Premium uniquement : sauvegarde le nouvel ordre dans Firestore
+// POST { piUserId, order: [animeId1, animeId2, ...] }
+async function actionReorder(piUserId, { order }) {
+  if (!Array.isArray(order)) return [400, { error: 'order array required' }];
+
+  const { ref, isPremium } = await getUser(piUserId);
+
+  // Vérification Premium côté serveur — non contournable
+  if (!isPremium) {
+    return [403, { error: 'PREMIUM_REQUIRED', message: 'Reordering favorites requires a Premium subscription.' }];
+  }
+
+  // Récupérer les données actuelles des favoris depuis Firestore
+  const favsSnap = await ref.collection('favorites').get();
+  const favsMap  = {};
+  favsSnap.docs.forEach(doc => {
+    favsMap[String(doc.data().animeId)] = doc.data();
+  });
+
+  // Reconstruire le tableau ordonné
+  const ordered = order
+    .map(id => favsMap[String(Number(id))])
+    .filter(Boolean);
+
+  // Sauvegarder le nouvel ordre sur le doc user (le tableau favorites[] définit l'ordre)
+  await ref.set({
+    favorites:      ordered.map(f => ({ id: f.animeId, title: f.title, img: f.img })),
+    favoritesOrder: order.map(Number), // tableau des IDs dans l'ordre
+  }, { merge: true });
+
+  return [200, { ok: true, count: ordered.length }];
+}
+
 /* ── Handler ── */
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -123,13 +156,14 @@ export default async function handler(req, res) {
 
   const { action, piUserId, ...params } = req.body || {};
   if (!piUserId) return res.status(400).json({ error: 'piUserId required' });
-  if (!action)   return res.status(400).json({ error: 'action required: add|remove|sync' });
+  if (!action)   return res.status(400).json({ error: 'action required: add|remove|sync|reorder' });
 
   try {
     let status, body;
-    if      (action === 'add')    [status, body] = await actionAdd(piUserId, params);
-    else if (action === 'remove') [status, body] = await actionRemove(piUserId, params);
-    else if (action === 'sync')   [status, body] = await actionSync(piUserId, params);
+    if      (action === 'add')     [status, body] = await actionAdd(piUserId, params);
+    else if (action === 'remove')  [status, body] = await actionRemove(piUserId, params);
+    else if (action === 'sync')    [status, body] = await actionSync(piUserId, params);
+    else if (action === 'reorder') [status, body] = await actionReorder(piUserId, params);
     else return res.status(400).json({ error: `Unknown action: ${action}` });
 
     return res.status(status).json(body);
