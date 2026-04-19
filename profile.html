@@ -44,7 +44,22 @@
       align-items: center;
       gap: 16px;
     }
-    .profile-avatar {
+    /* Avatar wrap + image */
+    .profile-avatar-wrap {
+      position: relative;
+      width: 72px; height: 72px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .profile-avatar-img {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--pink);
+      box-shadow: 0 0 20px rgba(124,77,255,0.4);
+      display: none;
+    }
+    .profile-avatar-fallback {
       width: 72px; height: 72px;
       border-radius: 50%;
       background: linear-gradient(135deg, #7c4dff, #ff4fd8);
@@ -52,9 +67,22 @@
       align-items: center;
       justify-content: center;
       font-size: 2rem;
-      flex-shrink: 0;
       box-shadow: 0 0 24px rgba(124,77,255,0.35);
     }
+    .profile-avatar-edit {
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 22px; height: 22px;
+      background: var(--pink);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem;
+      color: #fff;
+      border: 2px solid var(--ink1);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .profile-avatar-wrap:hover .profile-avatar-edit { opacity: 1; }
     .profile-identity-info { flex: 1; }
     .profile-name {
       font-size: 1.4rem;
@@ -67,18 +95,7 @@
       color: var(--muted);
       margin-bottom: 8px;
     }
-    .profile-badges { display: flex; gap: 6px; flex-wrap: wrap; }
-    .profile-badge {
-      font-size: 0.68rem;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 20px;
-      background: var(--ink3);
-      border: 1px solid var(--b2);
-      color: var(--text2);
-    }
-    .profile-badge.gold { background: rgba(255,209,102,.12); border-color: rgba(255,209,102,.3); color: var(--gold); }
-    .profile-badge.pink { background: var(--pink-dim); border-color: var(--b-pink); color: #ffaaee; }
+
 
     /* Colonne droite : grille stats 3×3 compacte */
     .profile-stats-compact {
@@ -286,58 +303,75 @@
   </ul>
 </nav>
   <div class="notif-panel" id="notifPanel"></div>
-<!-- HERO PROFIL — Layout 2 colonnes : identité + abonnement | stats -->
+<!-- HERO PROFIL -->
 <div class="profile-hero-v2">
 
-  <!-- Colonne gauche : identité + abonnement -->
+  <!-- Colonne gauche : avatar + identité + abonnement -->
   <div class="profile-left">
     <div class="profile-identity">
-      <div class="profile-avatar" id="profileAvatar">👤</div>
+
+      <!-- Avatar cliquable → sélecteur -->
+      <div class="profile-avatar-wrap" id="profileAvatarWrap" title="Change avatar">
+        <img class="profile-avatar-img" id="profileAvatarImg"
+             src="" alt="Avatar"
+             onerror="this.style.display='none';document.getElementById('profileAvatarFallback').style.display='flex'"/>
+        <div class="profile-avatar-fallback" id="profileAvatarFallback">👤</div>
+        <div class="profile-avatar-edit">✎</div>
+      </div>
+
       <div class="profile-identity-info">
         <h1 class="profile-name" data-i18n="profile.title">Mon Profil</h1>
         <p class="profile-since" id="profileSince">Membre depuis aujourd'hui</p>
-        <div class="profile-badges" id="profileBadges"></div>
       </div>
     </div>
-    <!-- Carte abonnement — toujours visible, jamais cachée en bas -->
+    <!-- Carte abonnement -->
     <div id="profileSubscriptionCard"></div>
   </div>
 
-  <!-- Colonne droite : stats en 2 lignes de 3
-       Ligne 1 : Visités / Favoris / Heures (cliquables)
-       Ligne 2 : À voir / En cours / Terminés -->
+  <!-- Colonne droite : stats 2 lignes de 3 (Free) -->
   <div class="profile-stats-compact" id="profileStats">
 
-    <!-- Ligne 1 — cliquables -->
+    <!-- Ligne 1 : Visités / Favoris / À voir -->
     <a href="history.html" class="stat-compact stat-compact-link">
       <div class="stat-compact-num" id="statHistCount" style="color:var(--violet)">0</div>
-      <div class="stat-compact-label" data-i18n="profile.visited">Visités</div>
+      <div class="stat-compact-label">Visités</div>
     </a>
     <a href="favorites.html" class="stat-compact stat-compact-link">
       <div class="stat-compact-num" id="statFavCount" style="color:var(--pink)">0</div>
-      <div class="stat-compact-label" data-i18n="profile.favs">Favoris</div>
+      <div class="stat-compact-label">Favoris</div>
     </a>
     <div class="stat-compact">
-      <div class="stat-compact-num" id="statHoursCount" style="color:#a78bfa">0h</div>
-      <div class="stat-compact-label" data-i18n="profile.hours">Heures</div>
+      <div class="stat-compact-num" id="statPlanCount" style="color:#f59e0b">0</div>
+      <div class="stat-compact-label">À voir</div>
     </div>
 
-    <!-- Ligne 2 -->
-    <div class="stat-compact">
-      <div class="stat-compact-num" id="statPlanCount" style="color:#f59e0b">0</div>
-      <div class="stat-compact-label" data-i18n="profile.plan">À voir</div>
-    </div>
+    <!-- Ligne 2 : En cours / Terminés / Notés -->
     <div class="stat-compact">
       <div class="stat-compact-num" id="statWatchingCount" style="color:#60a5fa">0</div>
-      <div class="stat-compact-label" data-i18n="profile.watching">En cours</div>
+      <div class="stat-compact-label">En cours</div>
     </div>
     <div class="stat-compact">
       <div class="stat-compact-num" id="statCompletedCount" style="color:#4ade80">0</div>
-      <div class="stat-compact-label" data-i18n="profile.completed">Terminés</div>
+      <div class="stat-compact-label">Terminés</div>
     </div>
+    <a href="ratings.html" class="stat-compact stat-compact-link">
+      <div class="stat-compact-num" id="statRatingCount" style="color:var(--gold)">0</div>
+      <div class="stat-compact-label">Notés</div>
+    </a>
 
   </div>
 
+</div>
+
+<!-- MODAL SÉLECTEUR AVATAR -->
+<div class="avatar-modal" id="avatarModal" style="display:none">
+  <div class="avatar-modal-box">
+    <div class="avatar-modal-header">
+      <span class="avatar-modal-title">Choose your avatar</span>
+      <button class="avatar-modal-close" id="avatarModalClose">✕</button>
+    </div>
+    <div class="avatar-modal-grid" id="avatarGrid"></div>
+  </div>
 </div>
 
 <!-- STATS PREMIUM -->
@@ -347,42 +381,43 @@
     ⭐ Premium Stats
     <span class="premium-stats-badge">Premium</span>
   </div>
+
+  <!-- Ligne 1 : métriques clés -->
   <div class="pstats-grid">
     <div class="pstat-card">
       <div class="pstat-icon">⏱</div>
-      <div class="pstat-value" id="pstatTime">—</div>
-      <div class="pstat-label">Time on site</div>
-    </div>
-    <div class="pstat-card">
-      <div class="pstat-icon">📺</div>
-      <div class="pstat-value" id="pstatAnimes">—</div>
-      <div class="pstat-label">Anime visited</div>
-    </div>
-    <div class="pstat-card">
-      <div class="pstat-icon">✅</div>
-      <div class="pstat-value" id="pstatCompleted">—</div>
-      <div class="pstat-label">Completed</div>
-    </div>
-    <div class="pstat-card">
-      <div class="pstat-icon">🕐</div>
       <div class="pstat-value" id="pstatHours">—</div>
-      <div class="pstat-label">Hours watched</div>
+      <div class="pstat-label">Heures regardées</div>
+    </div>
+    <div class="pstat-card">
+      <div class="pstat-icon">📅</div>
+      <div class="pstat-value" id="pstatActiveDays">—</div>
+      <div class="pstat-label">Jours actifs / mois</div>
+    </div>
+    <div class="pstat-card pstat-card-wide">
+      <div class="pstat-icon">🏁</div>
+      <div class="pstat-value" id="pstatProgression">—</div>
+      <div class="pstat-label">Progression globale</div>
+      <div class="pstat-progress-bar">
+        <div class="pstat-progress-fill" id="pstatProgressFill" style="width:0%"></div>
+      </div>
     </div>
   </div>
+
+  <!-- Top 3 animes -->
   <div class="pstats-block">
-    <div class="pstats-block-title">🎭 Top genres</div>
-    <div class="pstats-genres" id="pstatGenres">
-      <div class="pstats-empty-hint">Visit more anime to unlock your top genres!</div>
-    </div>
-  </div>
-  <div class="pstats-block">
-    <div class="pstats-block-title">🏆 Most watched</div>
+    <div class="pstats-block-title">🔥 Top 3 animes</div>
     <div class="pstats-top-list" id="pstatTopAnimes"></div>
   </div>
+
+  <!-- Genres préférés -->
   <div class="pstats-block">
-    <div class="pstats-block-title">📅 Activity — last 7 days</div>
-    <div class="pstats-timeline" id="pstatTimeline"></div>
+    <div class="pstats-block-title">🎯 Genres préférés</div>
+    <div class="pstats-genres" id="pstatGenres">
+      <div class="pstats-empty-hint">Visite plus d'animés pour débloquer tes genres !</div>
+    </div>
   </div>
+
 </section>
 
 <footer class="site-footer">
@@ -440,48 +475,159 @@
     const favs    = getFavs();
     const hist    = getHistory();
     const ratings = getRatings();
-    const duels   = parseInt(localStorage.getItem('voiranime_duels')  || '0');
-    const streak  = parseInt(localStorage.getItem('voiranime_streak') || '0');
 
     const watchList  = getWatchList();
     const watchArr   = Object.values(watchList);
     const completed  = watchArr.filter(a => a.status === 'completed');
     const watching   = watchArr.filter(a => a.status === 'watching');
     const planTo     = watchArr.filter(a => a.status === 'planToWatch');
-    const totalMins  = completed.reduce((acc, a) => acc + (a.episodes || 0) * (a.duration || 24), 0);
 
-    // Ligne 1 : Visités / Favoris / Heures
-    const hEl = el('statHistCount');      if (hEl) hEl.textContent      = hist.length;
-    const fEl = el('statFavCount');       if (fEl) fEl.textContent      = favs.length;
-    const hoEl = el('statHoursCount');    if (hoEl) hoEl.textContent    = Math.round(totalMins / 60) + 'h';
-    // Ligne 2 : À voir / En cours / Terminés
-    const pEl = el('statPlanCount');      if (pEl) pEl.textContent      = planTo.length;
-    const wEl = el('statWatchingCount');  if (wEl) wEl.textContent      = watching.length;
-    const cEl = el('statCompletedCount'); if (cEl) cEl.textContent      = completed.length;
+    // Ligne 1 : Visités / Favoris / À voir
+    const hEl = el('statHistCount');      if (hEl) hEl.textContent  = hist.length;
+    const fEl = el('statFavCount');       if (fEl) fEl.textContent  = favs.length;
+    const pEl = el('statPlanCount');      if (pEl) pEl.textContent  = planTo.length;
+    // Ligne 2 : En cours / Terminés / Notés
+    const wEl = el('statWatchingCount');  if (wEl) wEl.textContent  = watching.length;
+    const cEl = el('statCompletedCount'); if (cEl) cEl.textContent  = completed.length;
+    const rEl = el('statRatingCount');    if (rEl) rEl.textContent  = Object.keys(ratings).length;
 
-    // Avatar + depuis
-    const total  = favs.length + hist.length + duels;
-    const avatar = total < 5 ? '🌱' : total < 20 ? '⭐' : total < 50 ? '🔥' : '👑';
-    if (el('profileAvatar')) el('profileAvatar').textContent = avatar;
-
+    // Date membre
     const firstVisit = parseInt(localStorage.getItem('VoirAnime_firstVisit') || '0');
     if (!firstVisit) localStorage.setItem('VoirAnime_firstVisit', Date.now().toString());
-
-    // Badges
-    const badges = [];
-    if (favs.length >= 1)      badges.push({ label: '⭐ First favorite',   cls: 'gold' });
-    if (favs.length >= 10)     badges.push({ label: '❤ Confirmed fan',    cls: 'pink' });
-    if (hist.length >= 10)     badges.push({ label: '🎌 Explorer',         cls: '' });
-    if (duels >= 5)            badges.push({ label: '⚔ Duelist',          cls: '' });
-    if (duels >= 20)           badges.push({ label: '🏆 Champion',         cls: 'gold' });
-
-    const badgesEl = el('profileBadges');
-    if (badgesEl) {
-      badgesEl.innerHTML = badges.length
-        ? badges.map(b => `<span class="profile-badge ${b.cls}">${b.label}</span>`).join('')
-        : '<span class="profile-badge">🌱 New recruit</span>';
+    const sinceEl = el('profileSince');
+    if (sinceEl && firstVisit) {
+      const days = Math.floor((Date.now() - firstVisit) / 86400000);
+      sinceEl.textContent = days === 0 ? 'Membre depuis aujourd'hui'
+        : days === 1 ? 'Membre depuis 1 jour'
+        : `Membre depuis ${days} jours`;
     }
   }
+
+  /* ── Avatar ── */
+  // 30 personnages anime populaires (image + nom)
+  const AVATARS = [
+    { id:'naruto',      name:'Naruto',       url:'https://api.jikan.moe/v4/characters/17/pictures' },
+    { id:'goku',        name:'Goku',         url:'https://api.jikan.moe/v4/characters/246/pictures' },
+    { id:'luffy',       name:'Luffy',        url:'https://api.jikan.moe/v4/characters/40/pictures' },
+    { id:'levi',        name:'Levi',         url:'https://api.jikan.moe/v4/characters/36828/pictures' },
+    { id:'mikasa',      name:'Mikasa',       url:'https://api.jikan.moe/v4/characters/36827/pictures' },
+    { id:'zoro',        name:'Zoro',         url:'https://api.jikan.moe/v4/characters/62/pictures' },
+    { id:'ichigo',      name:'Ichigo',       url:'https://api.jikan.moe/v4/characters/5/pictures' },
+    { id:'vegeta',      name:'Vegeta',       url:'https://api.jikan.moe/v4/characters/913/pictures' },
+    { id:'light',       name:'Light Yagami', url:'https://api.jikan.moe/v4/characters/80/pictures' },
+    { id:'l',           name:'L',            url:'https://api.jikan.moe/v4/characters/71/pictures' },
+    { id:'gojo',        name:'Gojo',         url:'https://api.jikan.moe/v4/characters/163921/pictures' },
+    { id:'itadori',     name:'Itadori',      url:'https://api.jikan.moe/v4/characters/158219/pictures' },
+    { id:'deku',        name:'Deku',         url:'https://api.jikan.moe/v4/characters/64495/pictures' },
+    { id:'killua',      name:'Killua',       url:'https://api.jikan.moe/v4/characters/3/pictures' },
+    { id:'gon',         name:'Gon',          url:'https://api.jikan.moe/v4/characters/30/pictures' },
+    { id:'edward',      name:'Edward Elric', url:'https://api.jikan.moe/v4/characters/11/pictures' },
+    { id:'spike',       name:'Spike',        url:'https://api.jikan.moe/v4/characters/1/pictures' },
+    { id:'rem',         name:'Rem',          url:'https://api.jikan.moe/v4/characters/118737/pictures' },
+    { id:'asuna',       name:'Asuna',        url:'https://api.jikan.moe/v4/characters/36828/pictures' },
+    { id:'tanjiro',     name:'Tanjiro',      url:'https://api.jikan.moe/v4/characters/146156/pictures' },
+  ];
+
+  // Avatars avec images directes (CDN stable)
+  const AVATAR_IMGS = {
+    naruto:   'https://cdn.myanimelist.net/images/characters/2/284121.jpg',
+    goku:     'https://cdn.myanimelist.net/images/characters/7/350644.jpg',
+    luffy:    'https://cdn.myanimelist.net/images/characters/9/310307.jpg',
+    levi:     'https://cdn.myanimelist.net/images/characters/2/241413.jpg',
+    mikasa:   'https://cdn.myanimelist.net/images/characters/9/215563.jpg',
+    zoro:     'https://cdn.myanimelist.net/images/characters/3/100534.jpg',
+    ichigo:   'https://cdn.myanimelist.net/images/characters/3/319462.jpg',
+    vegeta:   'https://cdn.myanimelist.net/images/characters/3/72272.jpg',
+    light:    'https://cdn.myanimelist.net/images/characters/8/71782.jpg',
+    l:        'https://cdn.myanimelist.net/images/characters/7/74197.jpg',
+    gojo:     'https://cdn.myanimelist.net/images/characters/3/424699.jpg',
+    itadori:  'https://cdn.myanimelist.net/images/characters/5/494985.jpg',
+    deku:     'https://cdn.myanimelist.net/images/characters/7/502248.jpg',
+    killua:   'https://cdn.myanimelist.net/images/characters/7/25612.jpg',
+    gon:      'https://cdn.myanimelist.net/images/characters/8/96947.jpg',
+    edward:   'https://cdn.myanimelist.net/images/characters/3/143305.jpg',
+    spike:    'https://cdn.myanimelist.net/images/characters/4/8165.jpg',
+    rem:      'https://cdn.myanimelist.net/images/characters/4/350229.jpg',
+    asuna:    'https://cdn.myanimelist.net/images/characters/10/282295.jpg',
+    tanjiro:  'https://cdn.myanimelist.net/images/characters/2/430707.jpg',
+  };
+
+  const AVATAR_KEY = 'VoirAnime_avatar';
+
+  function getSavedAvatar() {
+    try { return JSON.parse(localStorage.getItem(AVATAR_KEY)); } catch { return null; }
+  }
+  function saveAvatar(avatarId) {
+    localStorage.setItem(AVATAR_KEY, JSON.stringify({ id: avatarId, img: AVATAR_IMGS[avatarId] }));
+    // Sync Firestore si connecté
+    const piUser = window.piAuth?.getUser?.() || (() => {
+      try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
+    })();
+    if (piUser?.uid) {
+      fetch('/api/favorites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'setAvatar', piUserId: piUser.uid, avatarId }),
+      }).catch(() => {});
+    }
+  }
+
+  function initAvatar() {
+    const saved = getSavedAvatar();
+    const imgEl = el('profileAvatarImg');
+    const fallback = el('profileAvatarFallback');
+
+    if (saved?.img && imgEl) {
+      imgEl.src = saved.img;
+      imgEl.style.display = 'block';
+      if (fallback) fallback.style.display = 'none';
+    } else {
+      if (imgEl) imgEl.style.display = 'none';
+      if (fallback) fallback.style.display = 'flex';
+    }
+
+    // Ouvrir le modal au clic
+    el('profileAvatarWrap')?.addEventListener('click', openAvatarModal);
+  }
+
+  function openAvatarModal() {
+    const modal = el('avatarModal');
+    const grid  = el('avatarGrid');
+    if (!modal || !grid) return;
+
+    modal.style.display = 'flex';
+    const saved = getSavedAvatar();
+
+    grid.innerHTML = AVATARS.map(a => `
+      <div class="avatar-option ${saved?.id === a.id ? 'avatar-option-selected' : ''}"
+           data-id="${a.id}" data-img="${AVATAR_IMGS[a.id]}">
+        <img src="${AVATAR_IMGS[a.id]}"
+             alt="${a.name}"
+             onerror="this.src='https://placehold.co/80x80/0f0e1a/555?text=?'"/>
+        <div class="avatar-option-name">${a.name}</div>
+      </div>`).join('');
+
+    grid.querySelectorAll('.avatar-option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        const id  = opt.dataset.id;
+        const img = opt.dataset.img;
+        saveAvatar(id);
+        const imgEl   = el('profileAvatarImg');
+        const fallback = el('profileAvatarFallback');
+        if (imgEl)   { imgEl.src = img; imgEl.style.display = 'block'; }
+        if (fallback) fallback.style.display = 'none';
+        modal.style.display = 'none';
+        showToast('Avatar updated!');
+      });
+    });
+  }
+
+  el('avatarModalClose')?.addEventListener('click', () => {
+    if (el('avatarModal')) el('avatarModal').style.display = 'none';
+  });
+  el('avatarModal')?.addEventListener('click', (e) => {
+    if (e.target === el('avatarModal')) el('avatarModal').style.display = 'none';
+  });
 
   /* ── renderSubscriptionStatus ──
      Affiche immédiatement l'état Free (offres visibles sans attendre le serveur)
@@ -610,48 +756,75 @@
     if (!isPremium) return;
     if (section) section.style.display = 'block';
 
-    const totalSecs = parseInt(localStorage.getItem('VoirAnime_sessionTime') || '0');
-    const h = Math.floor(totalSecs / 3600), m = Math.floor((totalSecs % 3600) / 60);
-    if (el('pstatTime'))      el('pstatTime').textContent      = h > 0 ? `${h}h ${m}m` : `${m}m`;
-    if (el('pstatAnimes'))    el('pstatAnimes').textContent    = getHistory().length;
-    const watchList = getWatchList(), watchArr = Object.values(watchList);
+    const watchList = getWatchList();
+    const watchArr  = Object.values(watchList);
     const completed = watchArr.filter(a => a.status === 'completed');
     const totalMins = completed.reduce((acc, a) => acc + (a.episodes||0)*(a.duration||24), 0);
-    if (el('pstatCompleted')) el('pstatCompleted').textContent = completed.length;
-    if (el('pstatHours'))     el('pstatHours').textContent     = Math.round(totalMins/60)+'h';
 
-    const genreNames = {1:'Action',4:'Comedy',8:'Drama',10:'Fantasy',22:'Romance',24:'Sci-Fi',36:'Slice of Life',40:'Psychological'};
+    // ⏱ Heures regardées
+    if (el('pstatHours')) el('pstatHours').textContent = Math.round(totalMins/60) + 'h';
+
+    // 📅 Jours actifs ce mois-ci (jours uniques dans VoirAnime_history)
+    const now       = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    const hist       = getHistory();
+    const activeDays = new Set(
+      hist.filter(h => (h.ts||0) >= monthStart)
+          .map(h => new Date(h.ts).toDateString())
+    ).size;
+    if (el('pstatActiveDays')) el('pstatActiveDays').textContent = activeDays || 0;
+
+    // 🏁 Progression globale : terminés / ~21k animés MAL (estimation catalogue)
+    const CATALOGUE_EST = 21000;
+    const pct = Math.min(Math.round((completed.length / CATALOGUE_EST) * 100 * 10) / 10, 100);
+    if (el('pstatProgression')) el('pstatProgression').textContent = `${completed.length} / ${CATALOGUE_EST} (${pct}%)`;
+    if (el('pstatProgressFill')) el('pstatProgressFill').style.width = Math.min(pct * 50, 100) + '%'; // ×50 pour rendre visible
+
+    // 🔥 Top 3 animes (les + récents de l'historique = les + consultés)
+    const topEl = el('pstatTopAnimes');
+    if (topEl) {
+      const top3 = hist.slice(0, 3);
+      topEl.innerHTML = top3.length === 0
+        ? '<div class="pstats-empty-hint">Visite des animés pour débloquer !</div>'
+        : top3.map((a,i) => `
+            <a href="anime.html?id=${a.id}" class="pstats-top-item">
+              <span class="pstats-top-rank">#${i+1}</span>
+              <img src="${a.img||''}" class="pstats-top-img"
+                   onerror="this.src='https://placehold.co/36x50/0f0e1a/555?text=?'"/>
+              <span class="pstats-top-title">${a.title}</span>
+            </a>`).join('');
+    }
+
+    // 🎯 Genres préférés
+    const GENRE_NAMES = {
+      1:'Action', 2:'Adventure', 4:'Comedy', 5:'Avant Garde',
+      7:'Mystery', 8:'Drama', 10:'Fantasy', 13:'Historical',
+      14:'Horror', 22:'Romance', 24:'Sci-Fi', 36:'Slice of Life',
+      37:'Supernatural', 40:'Psychological', 41:'Seinen', 27:'Shounen',
+    };
     const genreCount = {};
-    getHistory().forEach(h => (h.genres||[]).forEach(g => { genreCount[g]=(genreCount[g]||0)+1; }));
+    hist.forEach(h => (h.genres||[]).forEach(g => { genreCount[g]=(genreCount[g]||0)+1; }));
     const topGenres = Object.entries(genreCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
     const genresEl = el('pstatGenres');
     if (genresEl) {
       genresEl.innerHTML = topGenres.length === 0
-        ? '<div class="pstats-empty-hint">Visit more anime to unlock your top genres!</div>'
+        ? '<div class="pstats-empty-hint">Visite plus d'animés pour débloquer tes genres !</div>'
         : topGenres.map(([gid,count]) => {
-            const pct = Math.round((count/topGenres[0][1])*100);
+            const pct = Math.round((count / topGenres[0][1]) * 100);
             return `<div class="pstats-genre-row">
-              <span class="pstats-genre-name">${genreNames[gid]||'Genre '+gid}</span>
-              <div class="pstats-genre-bar-wrap"><div class="pstats-genre-bar" style="width:${pct}%"></div></div>
-              <span class="pstats-genre-count">${count}</span></div>`;
+              <span class="pstats-genre-name">${GENRE_NAMES[gid] || 'Genre '+gid}</span>
+              <div class="pstats-genre-bar-wrap">
+                <div class="pstats-genre-bar" style="width:${pct}%"></div>
+              </div>
+              <span class="pstats-genre-count">${count}</span>
+            </div>`;
           }).join('');
-    }
-
-    const topEl = el('pstatTopAnimes');
-    if (topEl) {
-      const top = getHistory().slice(0,5);
-      topEl.innerHTML = top.length === 0
-        ? '<div class="pstats-empty-hint">No anime visited yet.</div>'
-        : top.map((a,i) => `<a href="anime.html?id=${a.id}" class="pstats-top-item">
-            <span class="pstats-top-rank">#${i+1}</span>
-            <img src="${a.img}" class="pstats-top-img" onerror="this.src='https://placehold.co/36x50/0f0e1a/555?text=?'"/>
-            <span class="pstats-top-title">${a.title}</span>
-          </a>`).join('');
     }
   }
 
   /* ── Init ── */
   renderStats();
+  initAvatar();
   renderSubscriptionStatus();
   renderPremiumStats();
 
