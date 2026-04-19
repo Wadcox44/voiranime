@@ -303,48 +303,37 @@
     <div id="profileSubscriptionCard"></div>
   </div>
 
-  <!-- Colonne droite : stats compactes en grille 3×3
-       Stats cliquables → page dédiée | Stats non cliquables → div -->
+  <!-- Colonne droite : stats en 2 lignes de 3
+       Ligne 1 : Visités / Favoris / Heures (cliquables)
+       Ligne 2 : À voir / En cours / Terminés -->
   <div class="profile-stats-compact" id="profileStats">
 
-    <!-- ── Cliquables ── -->
-    <a href="favorites.html" class="stat-compact stat-compact-link">
-      <div class="stat-compact-num" id="statFavCount" style="color:var(--pink)">0</div>
-      <div class="stat-compact-label" data-i18n="profile.favs">Favoris</div>
-    </a>
+    <!-- Ligne 1 — cliquables -->
     <a href="history.html" class="stat-compact stat-compact-link">
       <div class="stat-compact-num" id="statHistCount" style="color:var(--violet)">0</div>
       <div class="stat-compact-label" data-i18n="profile.visited">Visités</div>
     </a>
-    <a href="ratings.html" class="stat-compact stat-compact-link">
-      <div class="stat-compact-num" id="statRatingCount" style="color:var(--gold)">0</div>
-      <div class="stat-compact-label" data-i18n="profile.rated">Notés</div>
+    <a href="favorites.html" class="stat-compact stat-compact-link">
+      <div class="stat-compact-num" id="statFavCount" style="color:var(--pink)">0</div>
+      <div class="stat-compact-label" data-i18n="profile.favs">Favoris</div>
     </a>
+    <div class="stat-compact">
+      <div class="stat-compact-num" id="statHoursCount" style="color:#a78bfa">0h</div>
+      <div class="stat-compact-label" data-i18n="profile.hours">Heures</div>
+    </div>
 
-    <!-- ── Non cliquables ── -->
+    <!-- Ligne 2 -->
     <div class="stat-compact">
-      <div class="stat-compact-num" id="statDuelCount" style="color:#ff8c42">0</div>
-      <div class="stat-compact-label" data-i18n="profile.duels">Duels</div>
-    </div>
-    <div class="stat-compact">
-      <div class="stat-compact-num" id="statStreakCount" style="color:#4cc9f0">0</div>
-      <div class="stat-compact-label" data-i18n="profile.streak">Streak 🔥</div>
-    </div>
-    <div class="stat-compact">
-      <div class="stat-compact-num" id="statCompletedCount" style="color:#4ade80">0</div>
-      <div class="stat-compact-label" data-i18n="profile.completed">Terminés</div>
+      <div class="stat-compact-num" id="statPlanCount" style="color:#f59e0b">0</div>
+      <div class="stat-compact-label" data-i18n="profile.plan">À voir</div>
     </div>
     <div class="stat-compact">
       <div class="stat-compact-num" id="statWatchingCount" style="color:#60a5fa">0</div>
       <div class="stat-compact-label" data-i18n="profile.watching">En cours</div>
     </div>
     <div class="stat-compact">
-      <div class="stat-compact-num" id="statPlanCount" style="color:#f59e0b">0</div>
-      <div class="stat-compact-label" data-i18n="profile.plan">À voir</div>
-    </div>
-    <div class="stat-compact">
-      <div class="stat-compact-num" id="statHoursCount" style="color:#a78bfa">0h</div>
-      <div class="stat-compact-label" data-i18n="profile.hours">Heures</div>
+      <div class="stat-compact-num" id="statCompletedCount" style="color:#4ade80">0</div>
+      <div class="stat-compact-label" data-i18n="profile.completed">Terminés</div>
     </div>
 
   </div>
@@ -461,15 +450,14 @@
     const planTo     = watchArr.filter(a => a.status === 'planToWatch');
     const totalMins  = completed.reduce((acc, a) => acc + (a.episodes || 0) * (a.duration || 24), 0);
 
-    el('statFavCount')?.       && (el('statFavCount').textContent       = favs.length);
-    el('statHistCount')?.       && (el('statHistCount').textContent      = hist.length);
-    el('statRatingCount')?.     && (el('statRatingCount').textContent    = Object.keys(ratings).length);
-    el('statDuelCount')?.       && (el('statDuelCount').textContent      = duels);
-    el('statStreakCount')?.     && (el('statStreakCount').textContent     = streak);
-    el('statCompletedCount')?.  && (el('statCompletedCount').textContent = completed.length);
-    el('statWatchingCount')?.   && (el('statWatchingCount').textContent  = watching.length);
-    el('statPlanCount')?.       && (el('statPlanCount').textContent      = planTo.length);
-    el('statHoursCount')?.      && (el('statHoursCount').textContent     = Math.round(totalMins / 60) + 'h');
+    // Ligne 1 : Visités / Favoris / Heures
+    const hEl = el('statHistCount');      if (hEl) hEl.textContent      = hist.length;
+    const fEl = el('statFavCount');       if (fEl) fEl.textContent      = favs.length;
+    const hoEl = el('statHoursCount');    if (hoEl) hoEl.textContent    = Math.round(totalMins / 60) + 'h';
+    // Ligne 2 : À voir / En cours / Terminés
+    const pEl = el('statPlanCount');      if (pEl) pEl.textContent      = planTo.length;
+    const wEl = el('statWatchingCount');  if (wEl) wEl.textContent      = watching.length;
+    const cEl = el('statCompletedCount'); if (cEl) cEl.textContent      = completed.length;
 
     // Avatar + depuis
     const total  = favs.length + hist.length + duels;
@@ -495,10 +483,16 @@
     }
   }
 
-  /* ── renderSubscriptionStatus ── */
+  /* ── renderSubscriptionStatus ──
+     Affiche immédiatement l'état Free (offres visibles sans attendre le serveur)
+     puis met à jour si Premium confirmé par VA_onPremiumReady
+  ── */
   function renderSubscriptionStatus() {
     const card = el('profileSubscriptionCard');
     if (!card) return;
+
+    // Afficher les offres immédiatement (état par défaut Free)
+    _renderFreeCard(card, false);
 
     VA_onPremiumReady && VA_onPremiumReady(function(status) {
       if (!status) return;
@@ -538,43 +532,46 @@
         el('subCancelBtn')?.addEventListener('click', () => _confirmCancel());
 
       } else {
-        const isExpired = status.subscriptionStatus === 'expired';
-        card.innerHTML = `
-          <div class="sub-card sub-offers-card">
-            <div class="sub-offers-header">
-              ${isExpired
-                ? '<span class="sub-card-badge sub-card-badge-free">Free · Subscription expired</span>'
-                : '<span class="sub-offers-title">⭐ Go Premium</span>'}
-            </div>
-            <div class="sub-offers-grid">
-              <div class="sub-offer-item" id="offerMonthly">
-                <div class="sub-offer-name">Monthly</div>
-                <div class="sub-offer-price">1.99 <span class="sub-offer-currency">Pi</span></div>
-                <div class="sub-offer-period">per month</div>
-                <button class="sub-offer-btn" data-plan="monthly">Subscribe</button>
-              </div>
-              <div class="sub-offer-item sub-offer-featured" id="offerAnnual">
-                <div class="sub-offer-badge-top">Best value</div>
-                <div class="sub-offer-name">Annual</div>
-                <div class="sub-offer-price">19.99 <span class="sub-offer-currency">Pi</span></div>
-                <div class="sub-offer-period">per year <span class="sub-offer-saving">Save 2 months</span></div>
-                <button class="sub-offer-btn sub-offer-btn-featured" data-plan="annual">Subscribe</button>
-              </div>
-            </div>
-            <div class="sub-offers-features">
-              ❤ Unlimited favorites &nbsp;·&nbsp;
-              📊 Detailed stats &nbsp;·&nbsp;
-              ⚡ Early access &nbsp;·&nbsp;
-              ↕ Reorder favorites
-            </div>
-          </div>`;
-
-        card.querySelectorAll('.sub-offer-btn').forEach(function(btn) {
-          btn.addEventListener('click', function() {
-            VA_showSubscriptionModal && VA_showSubscriptionModal({ defaultPlan: btn.dataset.plan });
-          });
-        });
+        _renderFreeCard(card, status.subscriptionStatus === 'expired');
       }
+    });
+  }
+
+  function _renderFreeCard(card, isExpired) {
+    card.innerHTML = `
+      <div class="sub-card sub-offers-card">
+        <div class="sub-offers-header">
+          ${isExpired
+            ? '<span class="sub-card-badge sub-card-badge-free">Free · Subscription expired</span>'
+            : '<span class="sub-offers-title">⭐ Go Premium</span>'}
+        </div>
+        <div class="sub-offers-grid">
+          <div class="sub-offer-item">
+            <div class="sub-offer-name">Monthly</div>
+            <div class="sub-offer-price">1.99 <span class="sub-offer-currency">Pi</span></div>
+            <div class="sub-offer-period">per month</div>
+            <button class="sub-offer-btn" data-plan="monthly">Subscribe</button>
+          </div>
+          <div class="sub-offer-item sub-offer-featured">
+            <div class="sub-offer-badge-top">Best value</div>
+            <div class="sub-offer-name">Annual</div>
+            <div class="sub-offer-price">19.99 <span class="sub-offer-currency">Pi</span></div>
+            <div class="sub-offer-period">per year <span class="sub-offer-saving">Save 2 months</span></div>
+            <button class="sub-offer-btn sub-offer-btn-featured" data-plan="annual">Subscribe</button>
+          </div>
+        </div>
+        <div class="sub-offers-features">
+          ❤ Unlimited favorites &nbsp;·&nbsp;
+          📊 Stats &nbsp;·&nbsp;
+          ⚡ Early access &nbsp;·&nbsp;
+          ↕ Reorder
+        </div>
+      </div>`;
+
+    card.querySelectorAll('.sub-offer-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        VA_showSubscriptionModal && VA_showSubscriptionModal({ defaultPlan: btn.dataset.plan });
+      });
     });
   }
 
