@@ -410,7 +410,7 @@
   <div class="pstats-block">
     <div class="pstats-block-title">🎯 Genres préférés</div>
     <div class="pstats-genres" id="pstatGenres">
-      <div class="pstats-empty-hint">Visite plus d'animés pour débloquer tes genres !</div>
+      <div class="pstats-empty-hint">Visite plus d&#39;anim&eacute;s pour d&eacute;bloquer tes genres !</div>
     </div>
   </div>
 
@@ -561,68 +561,41 @@
     const sinceEl = el('profileSince');
     if (sinceEl && firstVisit) {
       const days = Math.floor((Date.now() - firstVisit) / 86400000);
-      sinceEl.textContent = days === 0 ? 'Membre depuis aujourd'hui'
-        : days === 1 ? 'Membre depuis 1 jour'
-        : `Membre depuis ${days} jours`;
+      sinceEl.textContent = days === 0 ? "Membre depuis aujourd'hui" : days === 1 ? 'Membre depuis 1 jour' : ('Membre depuis ' + days + ' jours');
     }
   }
 
   /* ── Avatar ── */
-  // 30 personnages anime populaires (image + nom)
-  const AVATARS = [
-    { id:'naruto',      name:'Naruto',       url:'https://api.jikan.moe/v4/characters/17/pictures' },
-    { id:'goku',        name:'Goku',         url:'https://api.jikan.moe/v4/characters/246/pictures' },
-    { id:'luffy',       name:'Luffy',        url:'https://api.jikan.moe/v4/characters/40/pictures' },
-    { id:'levi',        name:'Levi',         url:'https://api.jikan.moe/v4/characters/36828/pictures' },
-    { id:'mikasa',      name:'Mikasa',       url:'https://api.jikan.moe/v4/characters/36827/pictures' },
-    { id:'zoro',        name:'Zoro',         url:'https://api.jikan.moe/v4/characters/62/pictures' },
-    { id:'ichigo',      name:'Ichigo',       url:'https://api.jikan.moe/v4/characters/5/pictures' },
-    { id:'vegeta',      name:'Vegeta',       url:'https://api.jikan.moe/v4/characters/913/pictures' },
-    { id:'light',       name:'Light Yagami', url:'https://api.jikan.moe/v4/characters/80/pictures' },
-    { id:'l',           name:'L',            url:'https://api.jikan.moe/v4/characters/71/pictures' },
-    { id:'gojo',        name:'Gojo',         url:'https://api.jikan.moe/v4/characters/163921/pictures' },
-    { id:'itadori',     name:'Itadori',      url:'https://api.jikan.moe/v4/characters/158219/pictures' },
-    { id:'deku',        name:'Deku',         url:'https://api.jikan.moe/v4/characters/64495/pictures' },
-    { id:'killua',      name:'Killua',       url:'https://api.jikan.moe/v4/characters/3/pictures' },
-    { id:'gon',         name:'Gon',          url:'https://api.jikan.moe/v4/characters/30/pictures' },
-    { id:'edward',      name:'Edward Elric', url:'https://api.jikan.moe/v4/characters/11/pictures' },
-    { id:'spike',       name:'Spike',        url:'https://api.jikan.moe/v4/characters/1/pictures' },
-    { id:'rem',         name:'Rem',          url:'https://api.jikan.moe/v4/characters/118737/pictures' },
-    { id:'asuna',       name:'Asuna',        url:'https://api.jikan.moe/v4/characters/36828/pictures' },
-    { id:'tanjiro',     name:'Tanjiro',      url:'https://api.jikan.moe/v4/characters/146156/pictures' },
-  ];
-
-  // Avatars avec images directes (CDN stable)
-  const AVATAR_IMGS = {
-    naruto:   'https://cdn.myanimelist.net/images/characters/2/284121.jpg',
-    goku:     'https://cdn.myanimelist.net/images/characters/7/350644.jpg',
-    luffy:    'https://cdn.myanimelist.net/images/characters/9/310307.jpg',
-    levi:     'https://cdn.myanimelist.net/images/characters/2/241413.jpg',
-    mikasa:   'https://cdn.myanimelist.net/images/characters/9/215563.jpg',
-    zoro:     'https://cdn.myanimelist.net/images/characters/3/100534.jpg',
-    ichigo:   'https://cdn.myanimelist.net/images/characters/3/319462.jpg',
-    vegeta:   'https://cdn.myanimelist.net/images/characters/3/72272.jpg',
-    light:    'https://cdn.myanimelist.net/images/characters/8/71782.jpg',
-    l:        'https://cdn.myanimelist.net/images/characters/7/74197.jpg',
-    gojo:     'https://cdn.myanimelist.net/images/characters/3/424699.jpg',
-    itadori:  'https://cdn.myanimelist.net/images/characters/5/494985.jpg',
-    deku:     'https://cdn.myanimelist.net/images/characters/7/502248.jpg',
-    killua:   'https://cdn.myanimelist.net/images/characters/7/25612.jpg',
-    gon:      'https://cdn.myanimelist.net/images/characters/8/96947.jpg',
-    edward:   'https://cdn.myanimelist.net/images/characters/3/143305.jpg',
-    spike:    'https://cdn.myanimelist.net/images/characters/4/8165.jpg',
-    rem:      'https://cdn.myanimelist.net/images/characters/4/350229.jpg',
-    asuna:    'https://cdn.myanimelist.net/images/characters/10/282295.jpg',
-    tanjiro:  'https://cdn.myanimelist.net/images/characters/2/430707.jpg',
+  // Personnages anime via Jikan — chargés dynamiquement à l'ouverture du modal
+  // IDs Jikan des personnages populaires
+  var AVATAR_CHAR_IDS = [17,40,246,36828,5,62,3,80,71,30,64495,146156,158219,163921,11,1,350229,430707,282295,96947];
+  var AVATAR_CHAR_NAMES = {
+    17:'Naruto', 40:'Luffy', 246:'Goku', 36828:'Levi', 5:'Ichigo',
+    62:'Zoro', 3:'Killua', 80:'Light', 71:'L', 30:'Gon',
+    64495:'Deku', 146156:'Tanjiro', 158219:'Itadori', 163921:'Gojo', 11:'Edward',
+    1:'Spike', 350229:'Rem', 430707:'Tanjiro K.', 282295:'Asuna', 96947:'Gon F.'
   };
+  // Cache localStorage des images déjà chargées
+  var _avatarCache = null;
+  function getAvatarCache() {
+    if (_avatarCache) return _avatarCache;
+    try { _avatarCache = JSON.parse(localStorage.getItem('VA_avatarCache') || '{}'); }
+    catch { _avatarCache = {}; }
+    return _avatarCache;
+  }
+  function saveAvatarCache(cache) {
+    _avatarCache = cache;
+    try { localStorage.setItem('VA_avatarCache', JSON.stringify(cache)); } catch {}
+  }
 
-  const AVATAR_KEY = 'VoirAnime_avatar';
+    const AVATAR_KEY = 'VoirAnime_avatar';
 
   function getSavedAvatar() {
     try { return JSON.parse(localStorage.getItem(AVATAR_KEY)); } catch { return null; }
   }
-  function saveAvatar(avatarId) {
-    localStorage.setItem(AVATAR_KEY, JSON.stringify({ id: avatarId, img: AVATAR_IMGS[avatarId] }));
+  function saveAvatar(avatarId, img) {
+    img = img || (getAvatarCache()[avatarId] || '');
+    localStorage.setItem(AVATAR_KEY, JSON.stringify({ id: String(avatarId), img: img }));
     // Sync Firestore si connecté
     const piUser = window.piAuth?.getUser?.() || (() => {
       try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
@@ -655,34 +628,80 @@
   }
 
   function openAvatarModal() {
-    const modal = el('avatarModal');
-    const grid  = el('avatarGrid');
+    var modal = el('avatarModal');
+    var grid  = el('avatarGrid');
     if (!modal || !grid) return;
 
     modal.style.display = 'flex';
-    const saved = getSavedAvatar();
+    var saved = getSavedAvatar();
+    var cache = getAvatarCache();
 
-    grid.innerHTML = AVATARS.map(a => `
-      <div class="avatar-option ${saved?.id === a.id ? 'avatar-option-selected' : ''}"
-           data-id="${a.id}" data-img="${AVATAR_IMGS[a.id]}">
-        <img src="${AVATAR_IMGS[a.id]}"
-             alt="${a.name}"
-             onerror="this.src='https://placehold.co/80x80/0f0e1a/555?text=?'"/>
-        <div class="avatar-option-name">${a.name}</div>
-      </div>`).join('');
+    // Afficher squelettes pendant le chargement
+    grid.innerHTML = AVATAR_CHAR_IDS.map(function(id) {
+      var name = AVATAR_CHAR_NAMES[id] || ('Char #' + id);
+      var img  = cache[id] || '';
+      var selectedClass = (saved && saved.id === String(id)) ? 'avatar-option-selected' : '';
+      return '<div class="avatar-option ' + selectedClass + '" data-id="' + id + '" data-img="' + img + '">'
+        + (img
+            ? '<img src="' + img + '" alt="' + name + '" onerror="this.src=\'\'" />'
+            : '<div class="avatar-loading-placeholder"></div>')
+        + '<div class="avatar-option-name">' + name + '</div>'
+        + '</div>';
+    }).join('');
 
-    grid.querySelectorAll('.avatar-option').forEach(opt => {
-      opt.addEventListener('click', () => {
-        const id  = opt.dataset.id;
-        const img = opt.dataset.img;
-        saveAvatar(id);
-        const imgEl   = el('profileAvatarImg');
-        const fallback = el('profileAvatarFallback');
-        if (imgEl)   { imgEl.src = img; imgEl.style.display = 'block'; }
-        if (fallback) fallback.style.display = 'none';
-        modal.style.display = 'none';
-        showToast('Avatar updated!');
+    // Charger les images manquantes depuis Jikan (avec délai pour éviter rate limit)
+    var toLoad = AVATAR_CHAR_IDS.filter(function(id) { return !cache[id]; });
+    var delay  = 0;
+    toLoad.forEach(function(charId) {
+      setTimeout(function() {
+        fetch('https://api.jikan.moe/v4/characters/' + charId + '/pictures')
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            var img = data.data && data.data[0] && data.data[0].jpg && data.data[0].jpg.image_url;
+            if (!img) return;
+            cache[charId] = img;
+            saveAvatarCache(cache);
+            // Mettre à jour la case dans la grille
+            var opt = grid.querySelector('[data-id="' + charId + '"]');
+            if (opt) {
+              opt.dataset.img = img;
+              var placeholder = opt.querySelector('.avatar-loading-placeholder');
+              if (placeholder) {
+                var imgEl = document.createElement('img');
+                imgEl.src = img;
+                imgEl.alt = AVATAR_CHAR_NAMES[charId] || '';
+                imgEl.onerror = function() { this.src = ''; };
+                opt.replaceChild(imgEl, placeholder);
+              }
+            }
+          })
+          .catch(function() {}); // ignorer les erreurs individuelles
+      }, delay);
+      delay += 300; // 300ms entre chaque pour respecter le rate limit Jikan
+    });
+
+    // Attacher les clics
+    grid.addEventListener('click', function(e) {
+      var opt = e.target.closest('.avatar-option');
+      if (!opt) return;
+      var id  = opt.dataset.id;
+      var img = opt.dataset.img;
+      if (!img) return; // image pas encore chargée
+      saveAvatar(id, img);
+      var imgEl   = el('profileAvatarImg');
+      var fallback = el('profileAvatarFallback');
+      if (imgEl)    { imgEl.src = img; imgEl.style.display = 'block'; }
+      if (fallback) fallback.style.display = 'none';
+      // Mettre à jour l'avatar dans toutes les navbars de la page
+      document.querySelectorAll('.nav-avatar-img').forEach(function(ni) {
+        ni.src = img;
+        ni.style.display = 'block';
       });
+      document.querySelectorAll('.nav-avatar-fallback').forEach(function(nf) {
+        nf.style.display = 'none';
+      });
+      modal.style.display = 'none';
+      showToast('Avatar mis à jour !');
     });
   }
 
@@ -718,108 +737,94 @@
   }
 
   function _buildSubCard(card, status) {
-    const isPremium = status && status.isPremium;
-    const isExpired = status && status.subscriptionStatus === 'expired';
+    var isPremium = status && status.isPremium;
+    var isExpired = status && status.subscriptionStatus === 'expired';
 
     if (isPremium) {
-      // ── Vue Premium actif ──
-      const planLabel  = status.plan === 'annual' ? 'Annuel' : 'Mensuel';
-      const renewPrice = status.plan === 'annual' ? '19.99 Pi/an' : '1.99 Pi/mois';
-      const days       = status.daysLeft || 0;
-      const urgency    = days <= 3 ? 'sub-card-urgent' : days <= 7 ? 'sub-card-warning' : '';
-      const expDate    = status.expiresAt
-        ? new Date(status.expiresAt).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' })
-        : '—';
+      var planLabel  = status.plan === 'annual' ? 'Annuel' : 'Mensuel';
+      var renewPrice = status.plan === 'annual' ? '19.99 Pi/an' : '1.99 Pi/mois';
+      var days       = status.daysLeft || 0;
+      var urgency    = days <= 3 ? 'sub-card-urgent' : days <= 7 ? 'sub-card-warning' : '';
 
-      card.innerHTML = `
-        <div class="sub-card sub-card-premium ${urgency}">
-          <div class="sub-card-header">
-            <span class="sub-card-badge">⭐ Premium actif</span>
-            <span class="sub-card-plan">${planLabel} · ${renewPrice}</span>
-          </div>
-          <div class="sub-card-expiry">
-            Expire dans <strong>${days} jour${days !== 1 ? 's' : ''}</strong> · ${expDate}
-          </div>
-          <div class="sub-card-perks">
-            <span class="sub-perk active">❤ Favoris illimités</span>
-            <span class="sub-perk active">📊 Stats détaillées</span>
-            <span class="sub-perk active">⚡ Accès anticipé</span>
-            <span class="sub-perk active">↕ Réorganiser les favoris</span>
-            <span class="sub-perk active">🔔 News personnalisées</span>
-          </div>
-          <div class="sub-card-actions">
-            <button class="sub-card-btn sub-card-btn-renew" id="subRenewBtn">🔄 Renouveler</button>
-            <button class="sub-card-btn sub-card-btn-cancel" id="subCancelBtn">Annuler</button>
-          </div>
-        </div>`;
+      var html = '<div class="sub-card sub-card-premium ' + urgency + '">'
+        + '<div class="sub-card-header">'
+        + '<span class="sub-card-badge">&#11088; Premium actif</span>'
+        + '<span class="sub-card-plan">' + planLabel + ' &middot; ' + renewPrice + '</span>'
+        + '</div>'
+        + '<div class="sub-card-perks">'
+        + '<span class="sub-perk active">&#10084; Favoris illimit&eacute;s</span>'
+        + '<span class="sub-perk active">&#128202; Stats d&eacute;taill&eacute;es</span>'
+        + '<span class="sub-perk active">&#9889; Acc&egrave;s anticip&eacute;</span>'
+        + '<span class="sub-perk active">&#8597; R&eacute;organiser</span>'
+        + '</div>'
+        + '<div class="sub-card-actions">'
+        + '<button class="sub-card-btn sub-card-btn-renew" id="subRenewBtn">Renouveler</button>'
+        + '<button class="sub-card-btn sub-card-btn-cancel" id="subCancelBtn">Annuler</button>'
+        + '</div>'
+        + '</div>';
 
-      el('subRenewBtn')?.addEventListener('click', () => _launchSubscription(status.plan || 'monthly'));
-      el('subCancelBtn')?.addEventListener('click', () => _confirmCancel());
+      card.innerHTML = html;
+
+      var renewBtn = document.getElementById('subRenewBtn');
+      var cancelBtn = document.getElementById('subCancelBtn');
+      if (renewBtn)  renewBtn.addEventListener('click',  function() { _launchSubscription(status.plan || 'monthly'); });
+      if (cancelBtn) cancelBtn.addEventListener('click', function() { _confirmCancel(); });
 
     } else {
-      // ── Vue Free / offres ──
-      card.innerHTML = `
-        <div class="sub-card sub-offers-card">
+      // ── Vue offres (Free ou expiré) ──
+      var expiredHtml = isExpired
+        ? '<span class="sub-expired-tag">Abonn. expir&eacute;</span>'
+        : '<span class="sub-upgrade-title">&#11088; Passer Premium</span>';
 
-          <!-- Titre -->
-          <div class="sub-offers-title-row">
-            ${isExpired
-              ? '<span class="sub-expired-tag">Abonnement expiré</span>'
-              : '<span class="sub-upgrade-title">⭐ Passer Premium</span>'}
-          </div>
+      var html = '<div class="sub-card sub-offers-card">'
+        + '<div class="sub-offers-title-row">' + expiredHtml + '</div>'
 
-          <!-- Comparatif Free vs Premium -->
-          <div class="sub-compare">
-            <div class="sub-compare-col">
-              <div class="sub-compare-header sub-compare-free">Gratuit</div>
-              <ul class="sub-compare-list">
-                <li class="sub-perk">❤ 20 favoris max</li>
-                <li class="sub-perk">📺 Animes visités</li>
-                <li class="sub-perk">⏱ Suivi de visionnage</li>
-                <li class="sub-perk sub-perk-no">📊 Pas de stats</li>
-                <li class="sub-perk sub-perk-no">↕ Pas de réorganisation</li>
-                <li class="sub-perk sub-perk-no">⚡ Accès différé (15j)</li>
-                <li class="sub-perk sub-perk-no">🔔 News générales</li>
-              </ul>
-            </div>
-            <div class="sub-compare-col sub-compare-col-premium">
-              <div class="sub-compare-header sub-compare-premium">⭐ Premium</div>
-              <ul class="sub-compare-list">
-                <li class="sub-perk active">❤ Favoris illimités</li>
-                <li class="sub-perk active">📺 Animes visités</li>
-                <li class="sub-perk active">⏱ Suivi de visionnage</li>
-                <li class="sub-perk active">📊 Stats détaillées</li>
-                <li class="sub-perk active">↕ Réorganiser les favoris</li>
-                <li class="sub-perk active">⚡ Accès anticipé aux features</li>
-                <li class="sub-perk active">🔔 News perso + alertes sorties</li>
-              </ul>
-            </div>
-          </div>
+        // Comparatif
+        + '<div class="sub-compare">'
+        + '<div class="sub-compare-col">'
+        + '<div class="sub-compare-header sub-compare-free">Gratuit</div>'
+        + '<ul class="sub-compare-list">'
+        + '<li class="sub-perk">&#10084; 20 favoris max</li>'
+        + '<li class="sub-perk">&#128250; Suivi visionnage</li>'
+        + '<li class="sub-perk sub-perk-no">&#128202; Pas de stats</li>'
+        + '<li class="sub-perk sub-perk-no">&#9889; Acc&egrave;s diff&eacute;r&eacute; (15j)</li>'
+        + '</ul></div>'
+        + '<div class="sub-compare-col sub-compare-col-premium">'
+        + '<div class="sub-compare-header sub-compare-premium">&#11088; Premium</div>'
+        + '<ul class="sub-compare-list">'
+        + '<li class="sub-perk active">&#10084; Favoris illimit&eacute;s</li>'
+        + '<li class="sub-perk active">&#128250; Suivi visionnage</li>'
+        + '<li class="sub-perk active">&#128202; Stats d&eacute;taill&eacute;es</li>'
+        + '<li class="sub-perk active">&#9889; Acc&egrave;s anticip&eacute;</li>'
+        + '</ul></div>'
+        + '</div>'
 
-          <!-- Plans -->
-          <div class="sub-offers-grid">
-            <div class="sub-offer-item">
-              <div class="sub-offer-name">Mensuel</div>
-              <div class="sub-offer-price">1.99 <span class="sub-offer-currency">Pi</span></div>
-              <div class="sub-offer-period">par mois</div>
-              <button class="sub-offer-btn" data-plan="monthly">S'abonner</button>
-            </div>
-            <div class="sub-offer-item sub-offer-featured">
-              <div class="sub-offer-badge-top">Meilleure offre</div>
-              <div class="sub-offer-name">Annuel</div>
-              <div class="sub-offer-price">19.99 <span class="sub-offer-currency">Pi</span></div>
-              <div class="sub-offer-period">par an <span class="sub-offer-saving">2 mois offerts</span></div>
-              <button class="sub-offer-btn sub-offer-btn-featured" data-plan="annual">S'abonner</button>
-            </div>
-          </div>
+        // Plans
+        + '<div class="sub-offers-grid">'
+        + '<div class="sub-offer-item">'
+        + '<div class="sub-offer-name">Mensuel</div>'
+        + '<div class="sub-offer-price">1.99 <span class="sub-offer-currency">Pi</span></div>'
+        + '<div class="sub-offer-period">par mois</div>'
+        + '<button class="sub-offer-btn" data-plan="monthly">S\'abonner</button>'
+        + '</div>'
+        + '<div class="sub-offer-item sub-offer-featured">'
+        + '<div class="sub-offer-badge-top">Meilleure offre</div>'
+        + '<div class="sub-offer-name">Annuel</div>'
+        + '<div class="sub-offer-price">19.99 <span class="sub-offer-currency">Pi</span></div>'
+        + '<div class="sub-offer-period">par an <span class="sub-offer-saving">2 mois offerts</span></div>'
+        + '<button class="sub-offer-btn sub-offer-btn-featured" data-plan="annual">S\'abonner</button>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
 
-        </div>`;
+      card.innerHTML = html;
 
       card.querySelectorAll('.sub-offer-btn').forEach(function(btn) {
         btn.addEventListener('click', function() { _launchSubscription(btn.dataset.plan); });
       });
     }
   }
+
 
   // Lance le paiement Pi directement — même logique que les dons dans soutenir.html
   function _launchSubscription(plan) {
@@ -828,7 +833,7 @@
     if (!planDef) return;
 
     if (typeof Pi === 'undefined') {
-      alert('Ouvre VoirAnime dans le Pi Browser pour t'abonner.');
+      alert("Ouvre VoirAnime dans le Pi Browser pour t'abonner.");
       return;
     }
 
@@ -888,7 +893,7 @@
       try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
     })();
     if (!piUser?.uid) return;
-    if (!confirm('Annuler l'abonnement ? Tu gardes l'accès jusqu'à expiration.')) return;
+    if (!confirm("Annuler l'abonnement ? Tu gardes l'accès jusqu'à expiration.")) return;
     fetch('/api/premium', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -947,7 +952,7 @@
     if (topEl) {
       const top3 = hist.slice(0, 3);
       topEl.innerHTML = top3.length === 0
-        ? '<div class="pstats-empty-hint">Visite des animés pour débloquer !</div>'
+        ? '<div class="pstats-empty-hint">Visite des anim&eacute;s pour d&eacute;bloquer !</div>'
         : top3.map((a,i) => `
             <a href="anime.html?id=${a.id}" class="pstats-top-item">
               <span class="pstats-top-rank">#${i+1}</span>
@@ -970,7 +975,7 @@
     const genresEl = el('pstatGenres');
     if (genresEl) {
       genresEl.innerHTML = topGenres.length === 0
-        ? '<div class="pstats-empty-hint">Visite plus d'animés pour débloquer tes genres !</div>'
+        ? '<div class="pstats-empty-hint">Visite plus d&#39;anim&eacute;s pour d&eacute;bloquer tes genres !</div>'
         : topGenres.map(([gid,count]) => {
             const pct = Math.round((count / topGenres[0][1]) * 100);
             return `<div class="pstats-genre-row">

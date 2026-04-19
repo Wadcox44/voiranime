@@ -198,35 +198,73 @@
 
   function loadGlobalNews(source) {
     var feed = document.getElementById('newsFeedGlobal');
-    feed.innerHTML = '<div class="news-loading">Chargement…</div>';
+    if (!feed) return;
+    feed.innerHTML = '<div class="news-loading">Chargement des articles&#8230;</div>';
 
-    fetch(JIKAN_NEWS)
-      .then(function(r) { return r.json(); })
+    // Timeout de 8s pour éviter le blocage indéfini
+    var controller = null;
+    var timeoutId  = null;
+    if (window.AbortController) {
+      controller = new AbortController();
+      timeoutId  = setTimeout(function() { controller.abort(); }, 8000);
+    }
+
+    var opts = controller ? { signal: controller.signal } : {};
+
+    fetch(JIKAN_NEWS, opts)
+      .then(function(r) {
+        if (timeoutId) clearTimeout(timeoutId);
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
       .then(function(data) {
         var articles = data.data || [];
-        if (!articles.length) { feed.innerHTML = '<div class="news-empty">Aucun article disponible.</div>'; return; }
 
-        // Filtrer par source si sélectionné
-        if (source && source !== 'all') {
-          articles = articles.filter(function(a) {
-            return (a.forum_url || '').toLowerCase().includes(source) ||
-                   (a.title || '').toLowerCase().includes(source);
-          });
+        if (!articles.length) {
+          feed.innerHTML = '<div class="news-empty">Aucun article disponible pour le moment.</div>';
+          return;
         }
 
-        feed.innerHTML = articles.map(function(a) {
-          var date = a.date ? new Date(a.date).toLocaleDateString('fr-FR', {day:'numeric',month:'long'}) : '';
-          return '<a href="' + (a.url||'#') + '" target="_blank" rel="noopener" class="news-article-card">' +
-            (a.images?.jpg?.image_url ? '<img class="news-article-img" src="' + a.images.jpg.image_url + '" alt=""/>' : '<div class="news-article-img news-article-img-placeholder"></div>') +
-            '<div class="news-article-body">' +
-              '<div class="news-article-source">' + (a.forum_url ? new URL(a.forum_url).hostname.replace('www.','') : 'MyAnimeList') + '</div>' +
-              '<div class="news-article-title">' + (a.title||'') + '</div>' +
-              '<div class="news-article-date">' + date + '</div>' +
-            '</div>' +
-          '</a>';
-        }).join('');
+        // Filtrer par source
+        var filtered = articles;
+        if (source && source !== 'all') {
+          filtered = articles.filter(function(a) {
+            return (a.forum_url || '').toLowerCase().indexOf(source) !== -1 ||
+                   (a.title || '').toLowerCase().indexOf(source) !== -1;
+          });
+          if (!filtered.length) filtered = articles; // fallback : tout afficher
+        }
+
+        var html = '';
+        filtered.forEach(function(a) {
+          var date   = '';
+          try { date = a.date ? new Date(a.date).toLocaleDateString('fr-FR', {day:'numeric',month:'long'}) : ''; } catch(e){}
+          var imgSrc = (a.images && a.images.jpg && a.images.jpg.image_url) ? a.images.jpg.image_url : '';
+          var imgHtml = imgSrc
+            ? '<img class="news-article-img" src="' + imgSrc + '" alt="" onerror="this.parentNode.removeChild(this)"/>'
+            : '<div class="news-article-img news-article-img-placeholder"></div>';
+          var source_name = 'MyAnimeList';
+          try { if (a.forum_url) source_name = new URL(a.forum_url).hostname.replace('www.',''); } catch(e) {}
+
+          html += '<a href="' + (a.url || '#') + '" target="_blank" rel="noopener" class="news-article-card">'
+            + imgHtml
+            + '<div class="news-article-body">'
+            + '<div class="news-article-source">' + source_name + '</div>'
+            + '<div class="news-article-title">' + (a.title || '') + '</div>'
+            + '<div class="news-article-date">' + date + '</div>'
+            + '</div>'
+            + '</a>';
+        });
+        feed.innerHTML = html;
       })
-      .catch(function() { feed.innerHTML = '<div class="news-empty">Erreur de chargement. Réessaie.</div>'; });
+      .catch(function(e) {
+        if (timeoutId) clearTimeout(timeoutId);
+        var isAbort = e && e.name === 'AbortError';
+        feed.innerHTML = '<div class="news-empty">'
+          + (isAbort ? 'Délai dépassé.' : 'Erreur de chargement.')
+          + ' <button onclick="loadGlobalNews(currentSource)" style="background:none;border:1px solid var(--b2);color:var(--pink);padding:4px 12px;border-radius:20px;cursor:pointer;font-family:inherit">Réessayer</button>'
+          + '</div>';
+      });
   }
 
   // Filtres source
@@ -250,7 +288,7 @@
     } else {
       alertsEl.innerHTML = favs.slice(0,5).map(function(f) {
         return '<div class="news-fav-alert">' +
-          '<img src="' + (f.img||'') + '" class="news-fav-img" onerror="this.style.display='none'"/>' +
+          '<img src="' + (f.img||'') + '" class="news-fav-img"/>' +
           '<div class="news-fav-info"><div class="news-fav-title">' + f.title + '</div>' +
           '<div class="news-fav-sub">Alertes activées</div></div>' +
           '<span class="news-fav-badge">🔔</span>' +
@@ -277,37 +315,8 @@
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
   <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
-  <div class="footer-contact">
-    <button class="footer-contact-btn" id="footerContactBtn">✉ Contact</button>
-  </div>
 </footer>
 
-<div class="footer-contact-modal" id="footerContactModal" style="display:none">
-  <div class="footer-contact-box">
-    <div class="footer-contact-header">
-      <span>✉ Nous contacter</span>
-      <button class="footer-contact-close" id="footerContactClose">✕</button>
-    </div>
-    <form class="footer-contact-form" id="footerContactForm"
-          action="https://formspree.io/f/myklpggz" method="POST">
-      <div class="fcf-field"><label class="fcf-label">Nom</label><input class="fcf-input" type="text" name="name" placeholder="Votre nom" required/></div>
-      <div class="fcf-field"><label class="fcf-label">Email</label><input class="fcf-input" type="email" name="email" placeholder="votre@email.com" required/></div>
-      <div class="fcf-field"><label class="fcf-label">Message</label><textarea class="fcf-input fcf-textarea" name="message" rows="4" required></textarea></div>
-      <button class="fcf-submit" type="submit">Envoyer ✉</button>
-    </form>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-(function() {
-  var btn=document.getElementById('footerContactBtn'),modal=document.getElementById('footerContactModal'),close=document.getElementById('footerContactClose');
-  if(btn) btn.addEventListener('click',function(){modal.style.display='flex';});
-  if(close) close.addEventListener('click',function(){modal.style.display='none';});
-  if(modal) modal.addEventListener('click',function(e){if(e.target===modal)modal.style.display='none';});
-})();
-</script>
 
 <script>
 /* Transition cinématique entre pages */

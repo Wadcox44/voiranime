@@ -305,76 +305,8 @@
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
   <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
-  <div class="footer-contact">
-    <button class="footer-contact-btn" id="footerContactBtn">✉ Contact</button>
-  </div>
 </footer>
 
-<div class="footer-contact-modal" id="footerContactModal" style="display:none">
-  <div class="footer-contact-box">
-    <div class="footer-contact-header">
-      <span>✉ Nous contacter</span>
-      <button class="footer-contact-close" id="footerContactClose">✕</button>
-    </div>
-    <form class="footer-contact-form" id="footerContactForm"
-          action="https://formspree.io/f/myklpggz"
-          method="POST">
-      <div class="fcf-field">
-        <label class="fcf-label" for="fcf_name">Nom</label>
-        <input class="fcf-input" type="text" id="fcf_name" name="name" placeholder="Votre nom" required/>
-      </div>
-      <div class="fcf-field">
-        <label class="fcf-label" for="fcf_email">Email</label>
-        <input class="fcf-input" type="email" id="fcf_email" name="email" placeholder="votre@email.com" required/>
-      </div>
-      <div class="fcf-field">
-        <label class="fcf-label" for="fcf_msg">Message</label>
-        <textarea class="fcf-input fcf-textarea" id="fcf_msg" name="message" placeholder="Votre message..." rows="4" required></textarea>
-      </div>
-      <button class="fcf-submit" type="submit">Envoyer ✉</button>
-      <div class="fcf-success" id="fcfSuccess" style="display:none">✅ Message envoyé !</div>
-    </form>
-  </div>
-</div>
-
-<script>
-(function() {
-  var btn   = document.getElementById('footerContactBtn');
-  var modal = document.getElementById('footerContactModal');
-  var close = document.getElementById('footerContactClose');
-  var form  = document.getElementById('footerContactForm');
-  var ok    = document.getElementById('fcfSuccess');
-
-  if (btn)   btn.addEventListener('click',   function() { modal.style.display = 'flex'; });
-  if (close) close.addEventListener('click', function() { modal.style.display = 'none'; });
-  if (modal) modal.addEventListener('click', function(e) { if (e.target === modal) modal.style.display = 'none'; });
-
-  if (form) form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    var submitBtn = form.querySelector('.fcf-submit');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Envoi…';
-    fetch(form.action, {
-      method: 'POST',
-      body: new FormData(form),
-      headers: { 'Accept': 'application/json' }
-    }).then(function(r) {
-      if (r.ok) {
-        form.reset();
-        if (ok) { ok.style.display = 'block'; }
-        submitBtn.textContent = '✅ Envoyé';
-        setTimeout(function() { modal.style.display = 'none'; if(ok) ok.style.display='none'; submitBtn.disabled=false; submitBtn.textContent='Envoyer ✉'; }, 2500);
-      } else {
-        submitBtn.textContent = '❌ Erreur — réessaie';
-        submitBtn.disabled = false;
-      }
-    }).catch(function() {
-      submitBtn.textContent = '❌ Erreur réseau';
-      submitBtn.disabled = false;
-    });
-  });
-})();
-</script>
 <div class="toast" id="toast"></div>
 
 <script>

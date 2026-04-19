@@ -3791,7 +3791,7 @@ a:active {
   }
   .nav-left  { justify-content: center; }
   .nav-right { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
-  .nav-avatar-left { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); }
+  .nav-avatar-left { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); z-index: 10; }
   .logo-glitch { font-size: 1.25rem; }
   .search-toggle-label { display: none; }
 
@@ -6402,26 +6402,25 @@ a.stat-compact.stat-compact-link:hover::after {
    AVATAR NAVBAR — remplace le lien Profil
    ═══════════════════════════════════════════════════════════════ */
 
+/* ── Avatar navbar ── */
 .nav-avatar-btn {
-  display: flex;
+  display: flex !important;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   text-decoration: none;
   flex-shrink: 0;
-  position: relative;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 .nav-avatar-btn:hover {
   transform: scale(1.08);
   box-shadow: 0 0 12px rgba(255,79,216,0.5);
 }
-
-/* Avatar dans nav-left — positionné à gauche du logo sur mobile */
+/* Desktop : l'avatar est dans nav-left, order:-1 le place avant le logo */
 .nav-avatar-left {
-  order: -1; /* avant le logo-wrap dans le flex container */
+  order: -1;
 }
 
 .nav-avatar-img {
@@ -6807,4 +6806,18 @@ a.stat-compact.stat-compact-link:hover::after {
   .news-page { padding: calc(var(--nav-h) + 20px) 16px 40px; }
   .sub-compare { grid-template-columns: 1fr; }
   .sub-compare-col-premium { order: -1; }
+}
+
+/* ── Avatar modal — placeholder chargement ── */
+.avatar-loading-placeholder {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ink3), var(--ink2));
+  animation: avatarPulse 1.2s ease-in-out infinite;
+  margin-bottom: 0;
+}
+@keyframes avatarPulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
 }
