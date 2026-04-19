@@ -1,3 +1,6 @@
+(function() {
+'use strict';
+
 /* ═══════════════════════════════════════════════════════════════
    VoirAnime — featuresManager.js
    Gestion des feature flags Free vs Premium côté client
@@ -149,3 +152,5 @@ window.VA_isFeatureEnabled  = VA_isFeatureEnabled;
 window.VA_getFeatureStatus  = VA_getFeatureStatus;
 window.VA_onFeaturesReady   = VA_onFeaturesReady;
 window.VA_guardFeature      = VA_guardFeature;
+
+})();

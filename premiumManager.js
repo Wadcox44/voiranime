@@ -1,3 +1,6 @@
+(function() {
+'use strict';
+
 /* ═══════════════════════════════════════════════════════════════
    VoirAnime — premiumManager.js
    Gestion client du statut Premium
@@ -308,3 +311,5 @@ window.VA_onPremiumReady       = VA_onPremiumReady;
 window.VA_renderPremiumBadge   = VA_renderPremiumBadge;
 window.VA_showSubscriptionModal = VA_showSubscriptionModal;
 window.VA_clearPremiumCache    = clearCache;
+
+})();
