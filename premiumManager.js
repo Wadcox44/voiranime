@@ -238,7 +238,7 @@ async function _startSubscription(planId, onSuccess) {
           fetch('https://voir-anime.vercel.app/api/pi-approve', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ paymentId }),
+            body:    JSON.stringify({ paymentId, plan: planId }),
           }).catch(() => {});
         },
 
