@@ -8,7 +8,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
-import { getUser } from './_userHelper.js';
+import { getUser, requirePremium } from './_userHelper.js';
 
 if (!getApps().length) {
   initializeApp({
@@ -114,10 +114,9 @@ async function actionReorder(piUserId, { order }) {
 
   const { ref, isPremium } = await getUser(piUserId);
 
-  // Vérification Premium côté serveur — non contournable
-  if (!isPremium) {
-    return [403, { error: 'PREMIUM_REQUIRED', message: 'Reordering favorites requires a Premium subscription.' }];
-  }
+  // Middleware Premium — non contournable
+  const guard = await requirePremium(piUserId);
+  if (guard) return [guard.status, guard.body];
 
   // Récupérer les données actuelles des favoris depuis Firestore
   const favsSnap = await ref.collection('favorites').get();

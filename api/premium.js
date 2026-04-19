@@ -8,7 +8,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, Timestamp }       from 'firebase-admin/firestore';
-import { getUser }                         from './_userHelper.js';
+import { getUser, requirePremium }          from './_userHelper.js';
 
 if (!getApps().length) {
   initializeApp({
@@ -137,10 +137,10 @@ async function actionStatus(piUserId) {
 
 // Marquer pour annulation à expiration (pas de remboursement, accès jusqu'à expiresAt)
 async function actionCancel(piUserId) {
-  if (!piUserId) return [400, { error: 'piUserId required' }];
+  const guard = await requirePremium(piUserId);
+  if (guard) return [guard.status, { ...guard.body, error: 'No active subscription to cancel' }];
 
-  const { ref, isPremium } = await getUser(piUserId);
-  if (!isPremium) return [400, { error: 'No active subscription to cancel' }];
+  const { ref } = await getUser(piUserId);
 
   await ref.update({ willCancel: true });
 

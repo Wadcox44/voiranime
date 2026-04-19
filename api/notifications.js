@@ -9,7 +9,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
-import { getUser } from './_userHelper.js';
+import { getUser, requirePremium } from './_userHelper.js';
 
 if (!getApps().length) {
   initializeApp({
@@ -191,8 +191,7 @@ async function actionGenerate(secret) {
     const userData  = doc.data();
     if (!userData.favorites?.length) continue;
     const userRef   = doc.ref;
-    const isPremium = userData.isPremium === true
-      && userData.expiresAt?.toMillis() > Date.now();
+    const isPremium = (await getUser(doc.id)).isPremium; // via _userHelper — vérifie expiresAt
     try {
       totalNotifs += await generateNewEpisode(userRef, userData.favorites);
       if (isPremium) {

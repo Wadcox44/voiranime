@@ -10,7 +10,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, Timestamp }       from 'firebase-admin/firestore';
-import { getUser }                         from './_userHelper.js';
+import { getUser, requirePremium }          from './_userHelper.js';
 
 if (!getApps().length) {
   initializeApp({
