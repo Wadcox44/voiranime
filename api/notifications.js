@@ -205,7 +205,75 @@ async function actionGenerate(secret) {
     }
   }
 
-  return [200, { ok: true, usersProcessed, notifsGenerated: totalNotifs }];
+  // Expiration automatique : exécutée après chaque génération de notifs
+  const expireResult = await actionExpire(secret, { _internal: true });
+
+  return [200, {
+    ok: true,
+    usersProcessed,
+    notifsGenerated: totalNotifs,
+    expiredAccounts: expireResult[1]?.expired || 0,
+  }];
+}
+
+/* ── Expiration automatique des abonnements ────────────────────────────────
+   Parcourt tous les utilisateurs avec isPremium:true dont expiresAt est passé
+   → met isPremium:false + plan:null + subscriptionStatus:'expired'
+   Appelé automatiquement par actionGenerate (cron 9h UTC)
+   ou manuellement : POST { action:'expire' } avec x-cron-secret
+──────────────────────────────────────────────────────────────────────────── */
+async function actionExpire(secret, opts = {}) {
+  if (!opts._internal && CRON_SECRET && secret !== CRON_SECRET) {
+    return [401, { error: 'Unauthorized' }];
+  }
+
+  const now  = Date.now();
+  let expired = 0, errors = 0;
+
+  // Requête ciblée : uniquement les isPremium:true (pas tous les users)
+  const snap = await db.collection('users')
+    .where('isPremium', '==', true)
+    .get();
+
+  if (snap.empty) return [200, { ok: true, expired: 0, checked: 0 }];
+
+  // Traitement en batch (max 500 ops Firestore)
+  const BATCH_SIZE = 400;
+  let   batch      = db.batch();
+  let   batchCount = 0;
+
+  for (const doc of snap.docs) {
+    const data        = doc.data();
+    const expiresAtMs = data.expiresAt?.toMillis?.() || null;
+
+    // Ignorer si pas de date d'expiration ou pas encore expiré
+    if (!expiresAtMs || expiresAtMs > now) continue;
+
+    try {
+      batch.update(doc.ref, {
+        isPremium: false,
+        plan:      null,         // subscriptionType → none
+      });
+      batchCount++;
+      expired++;
+
+      // Commit par tranche de 400 pour ne pas dépasser la limite Firestore
+      if (batchCount >= BATCH_SIZE) {
+        await batch.commit();
+        batch      = db.batch();
+        batchCount = 0;
+      }
+    } catch (e) {
+      errors++;
+      console.error(`[expire] Error for ${doc.id}:`, e.message);
+    }
+  }
+
+  // Commit le reste
+  if (batchCount > 0) await batch.commit();
+
+  console.log(`[expire] Done — ${expired} expired, ${errors} errors, ${snap.size} checked`);
+  return [200, { ok: true, expired, errors, checked: snap.size }];
 }
 
 /* ── Handler principal ── */
@@ -228,10 +296,12 @@ export default async function handler(req, res) {
 
       if (action === 'generate') {
         [status, body] = await actionGenerate(secret);
+      } else if (action === 'expire') {
+        [status, body] = await actionExpire(secret);
       } else {
         if (!piUserId) return res.status(400).json({ error: 'piUserId required' });
         if (action === 'read') [status, body] = await actionRead(piUserId, params);
-        else return res.status(400).json({ error: 'Unknown action: use read|generate' });
+        else return res.status(400).json({ error: 'Unknown action: use read|generate|expire' });
       }
     } else {
       return res.status(405).json({ error: 'Method not allowed' });
