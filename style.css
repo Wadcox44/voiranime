@@ -6396,3 +6396,49 @@ a.stat-compact.stat-compact-link:hover::after {
 @media (max-width: 480px) {
   .avatar-modal-grid { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   AVATAR NAVBAR — remplace le lien Profil
+   ═══════════════════════════════════════════════════════════════ */
+
+.nav-avatar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  text-decoration: none;
+  flex-shrink: 0;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.nav-avatar-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 12px rgba(255,79,216,0.5);
+}
+
+.nav-avatar-img {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--pink);
+  display: none;
+}
+
+.nav-avatar-fallback {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c4dff, #ff4fd8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+.nav-avatar-btn:hover .nav-avatar-fallback {
+  border-color: var(--pink);
+}

@@ -79,6 +79,13 @@
       </div>
     </div>
     <div class="nav-right">
+      <!-- Avatar profil — remplace le lien Profil dans la navbar -->
+      <a href="profile.html" class="nav-avatar-btn" id="navAvatarBtn" title="Mon profil">
+        <img class="nav-avatar-img" id="navAvatarImg"
+             src="" alt="Profil"
+             onerror="this.style.display='none';document.getElementById('navAvatarFallback_anime').style.display='flex'"/>
+        <div class="nav-avatar-fallback" id="navAvatarFallback_anime">👤</div>
+      </a>
       <button class="notif-toggle" id="notifToggle" aria-label="Notifications">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -92,7 +99,6 @@
     <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
     <li><a href="catalogue.html" class="nav-link" data-i18n="nav.catalogue">Catalogue</a></li>
     <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
-    <li><a href="profile.html"   class="nav-link" data-i18n="nav.profile">Profil</a></li>
     <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Soutenir</a></li>
   </ul>
 </nav>
@@ -404,6 +410,20 @@ document.addEventListener('DOMContentLoaded', function(){
   } else {
     setTimeout(tryInitNotifs, 1500);
   }
+})();
+</script>
+<script>
+/* Chargement avatar navbar */
+(function() {
+  try {
+    var saved = JSON.parse(localStorage.getItem('VoirAnime_avatar') || 'null');
+    if (saved && saved.img) {
+      var imgs = document.querySelectorAll('.nav-avatar-img');
+      var fallbacks = document.querySelectorAll('.nav-avatar-fallback');
+      imgs.forEach(function(img) { img.src = saved.img; img.style.display = 'block'; });
+      fallbacks.forEach(function(f) { f.style.display = 'none'; });
+    }
+  } catch(e) {}
 })();
 </script>
 </body>
