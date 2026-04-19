@@ -64,10 +64,10 @@ async function fetchNotifications(piUserId) {
 
 async function markRead(piUserId, notifId = null) {
   clearCache(); // invalider le cache immédiatement
-  await fetch('/api/notifications-read', {
+  await fetch('/api/notifications', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ piUserId, notifId }),
+    body:    JSON.stringify({ action: 'read', piUserId, notifId }),
   });
 }
 
