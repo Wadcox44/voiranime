@@ -750,7 +750,7 @@ ul, ol { list-style: none; }
    SECTIONS & CAROUSELS
 ───────────────────────────────────────────────────────── */
 .content-section {
-  padding: 12px 48px 16px;
+  padding: 4px 48px 6px;
   max-width: 1600px;
   margin: 0 auto;
   width: 100%;
@@ -761,7 +761,7 @@ ul, ol { list-style: none; }
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 18px;
+  margin-bottom: 6px;
 }
 
 .section-title {
@@ -1487,10 +1487,11 @@ ul, ol { list-style: none; }
 ───────────────────────────────────────────────────────── */
 .site-footer {
   text-align: center;
-  padding: 12px 24px 10px;
+  padding: 6px 24px 4px;
   border-top: 1px solid rgba(148,163,184,0.06);
   color: var(--muted);
   font-size: 0.76rem;
+  margin-top: 0;
 }
 
 .footer-logo {
@@ -1540,7 +1541,7 @@ ul, ol { list-style: none; }
     white-space: nowrap;
   }
   .hero::after { display: none; }
-  .content-section { padding: 8px 14px 12px; }
+  .content-section { padding: 2px 14px 4px; }
   .anime-card { width: 140px; }
   .anime-card:hover { transform: scale(1.03) translateY(-3px); }
   .carousel-btn { display: flex; opacity: 1; pointer-events: all; width: 32px; height: 64px; font-size: 1.1rem; }
@@ -3294,7 +3295,7 @@ body {
 
 /* Espacement cohérent entre sections */
 .content-section + .content-section {
-  margin-top: 8px;
+  margin-top: 0;
 }
 .zone-separator + .content-section {
   margin-top: 0;
@@ -3861,7 +3862,7 @@ a:active {
    SECTIONS & CAROUSELS — Mobile
 ───────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .content-section { padding: 8px 12px 12px; }
+  .content-section { padding: 2px 12px 4px; }
 
   /* Titres de section */
   .section-title { font-size: 0.92rem; }
@@ -3878,9 +3879,10 @@ a:active {
   /* Carousel mobile : scroll libre et fluide */
   .carousel {
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
+    /* pan-x supprimé — bloquait le scroll vertical sur les cards */
     padding-bottom: 16px;
   }
+  .anime-card { touch-action: pan-y !important; }
 }
 
 @media (max-width: 480px) {
@@ -7328,28 +7330,4 @@ button.npg-cta-annual      { background: linear-gradient(135deg, #f59e0b, var(--
   border: 1px solid rgba(255,255,255,0.3);
   padding: 1px 6px;
   border-radius: 99px;
-}
-
-/* ── Fix Pi Browser reflow navbar ── */
-@media (max-width: 768px) {
-  .nav-top {
-    position: relative !important;
-    min-height: 52px !important;
-    box-sizing: border-box;
-  }
-  /* Remplace top:50%+transform par top fixe — stable après reflow Pi Browser */
-  .nav-avatar-left {
-    position: absolute !important;
-    left: 12px !important;
-    top: 10px !important;          /* (52px - 34px avatar) / 2 = 9px → 10px */
-    transform: none !important;    /* supprime le transform dynamique */
-    will-change: auto;
-  }
-  /* Même correction pour nav-right (bouton recherche) */
-  .nav-right {
-    position: absolute !important;
-    right: 16px !important;
-    top: 10px !important;
-    transform: none !important;
-  }
 }
