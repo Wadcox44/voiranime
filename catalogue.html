@@ -42,12 +42,18 @@
     /* ── Barre recherche principale ── */
     .cat-search-bar {
       display: flex;
-      gap: 8px;
-      align-items: center;
+      flex-direction: column;
+      gap: 6px;
       padding: 0 48px 8px;
       max-width: 1600px;
       margin: 0 auto;
     }
+    .cat-search-row2 {
+      display: flex;
+      gap: 8px;
+    }
+    .cat-search-row2 .cat-btn-search { flex: 1; justify-content: center; }
+    .cat-search-row2 .cat-adv-toggle { flex: 1; justify-content: center; }
 
     /* ── Toggle filtres avancés ── */
     .cat-adv-toggle {
@@ -355,22 +361,24 @@
 
 <!-- BARRE RECHERCHE PRINCIPALE -->
 <div class="cat-search-bar">
-  <div class="cat-search-wrap" style="flex:1;min-width:0;max-width:55%">
+  <div class="cat-search-wrap" style="width:100%;min-width:0;max-width:100%">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--muted);flex-shrink:0">
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
     <input type="text" id="catSearchInput" class="cat-search-input"
            placeholder="Rechercher un anime…" autocomplete="off" spellcheck="false"/>
   </div>
-  <button class="cat-btn-search" id="catBtnSearch">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    Rechercher
-  </button>
-  <button class="cat-adv-toggle" id="catAdvToggle">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
-    Filtres
-    <span class="cat-adv-arrow">▼</span>
-  </button>
+  <div class="cat-search-row2">
+    <button class="cat-btn-search" id="catBtnSearch">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Rechercher
+    </button>
+    <button class="cat-adv-toggle" id="catAdvToggle">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+      Filtres
+      <span class="cat-adv-arrow">▼</span>
+    </button>
+  </div>
 </div>
 
 <!-- FILTRES AVANCÉS (masqués par défaut) -->
@@ -445,7 +453,8 @@
   </div>
 
   <div class="cat-filter-group" style="align-self:flex-end">
-    <button class="cat-btn-reset" id="catBtnReset">↺ Reset</button>
+    <label class="cat-label">Réinitialiser</label>
+    <button class="cat-btn-reset" id="catBtnReset" style="background:rgba(239,68,68,0.15);border-color:#ef4444;color:#ef4444;font-weight:700;min-width:130px;padding:6px 10px;font-size:0.82rem;">↺ Reset</button>
   </div>
 </div>
 
