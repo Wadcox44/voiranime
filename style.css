@@ -7225,3 +7225,26 @@ input:focus, select:focus, textarea:focus {
 .news-source-tag:hover { border-color: rgba(34,211,238,0.40); color: #22d3ee; background: rgba(34,211,238,0.06); }
 .npg-cta { background: linear-gradient(135deg, #22d3ee, #38bdf8); color: #020617; }
 .npg-cta-annual { background: linear-gradient(135deg, #a78bfa, #818cf8); color: #fff; }
+
+
+/* ── Badge "Offre de lancement" ── */
+.sub-launch-badge,
+.va-launch-badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #020617;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 8px rgba(245,158,11,0.35);
+}
+.sub-launch-badge-sm {
+  font-size: 0.58rem;
+  padding: 2px 6px;
+}
+.va-launch-badge {
+  margin: 2px 0 6px;
+}

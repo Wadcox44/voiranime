@@ -23,8 +23,8 @@ const _cbs     = [];
 
 /* ── Plans ── */
 const PLANS = {
-  monthly: { label: 'Monthly',  price: '1.99 Pi',  period: '/month', amount: 1.99,  durationDays: 30  },
-  annual:  { label: 'Annual',   price: '19.99 Pi', period: '/year',  amount: 19.99, durationDays: 365,
+  monthly: { label: 'Monthly',  price: '1.99 Pi',  period: '/month', amount: 1.99,  durationDays: 30,  launch: true },
+  annual:  { label: 'Annual',   price: '19.99 Pi', period: '/year',  amount: 19.99, durationDays: 365, launch: true,
              badge: 'Best value', savings: 'Save 2 months' },
 };
 
@@ -158,6 +158,7 @@ function VA_showSubscriptionModal(opts = {}) {
                data-plan="${planId}">
             ${plan.badge ? `<div class="va-plan-badge">${plan.badge}</div>` : ''}
             <div class="va-plan-name">${plan.label}</div>
+            ${plan.launch ? '<div class="va-launch-badge">&#128293; Offre de lancement</div>' : ''}
             <div class="va-plan-price">${plan.price}<span class="va-plan-period">${plan.period}</span></div>
             ${plan.savings ? `<div class="va-plan-savings">${plan.savings}</div>` : ''}
             <button class="va-plan-btn" data-plan="${planId}" id="vaPlanBtn_${planId}">
