@@ -184,13 +184,6 @@
 
     <!-- Actions -->
     <div class="duel-post-actions">
-      <button class="duel-btn-next" id="nextDuelBtn">
-        Duel suivant
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2.5">
-          <polyline points="9 18 15 12 9 6"/>
-        </svg>
-      </button>
       <a class="duel-btn-detail" id="winnerLink" href="#" data-i18n="duel.view_anime">Voir l'anime ›</a>
     </div>
 
@@ -700,15 +693,20 @@ async function loadLeaderboard() {
     const grid = el('leaderboardGrid');
     grid.innerHTML = '';
     top.forEach((item, i) => {
-      const div = document.createElement('div');
+      const div = document.createElement('a');
       div.className = 'lb-item';
+      div.href = `anime.html?id=${item.animeId}`;
+      // Récupérer l'image depuis le cache Jikan si dispo
+      const cachedImg = item.img || '';
       div.innerHTML = `
-        <span class="lb-rank">${i + 1}</span>
-        <a href="anime.html?id=${item.animeId}" class="lb-title">Anime #${item.animeId}</a>
-        <div class="lb-stats">
-          <span class="lb-views">👁 ${item.views}</span>
-          <span class="lb-clicks">🖱 ${item.clicks}</span>
-        </div>`;
+        <span class="lb-rank">#${i + 1}</span>
+        ${cachedImg
+          ? `<img src="${cachedImg}" alt="Anime #${item.animeId}" loading="lazy"
+                  onerror="this.src='https://placehold.co/90x135/0f0e1a/555?text=?'"/>`
+          : `<img src="https://placehold.co/90x135/0f0e1a/555?text=${item.animeId}"
+                  alt="Anime #${item.animeId}"/>`}
+        <span class="lb-title">Anime #${item.animeId}</span>
+        <span class="lb-stats">👁 ${item.views}</span>`;
       grid.appendChild(div);
     });
   } catch (e) { console.warn('[Duel] loadLeaderboard error:', e); }
@@ -832,7 +830,7 @@ function initEvents() {
 
   el('duelCardA').addEventListener('click', (e) => { if (!e.target.closest('.duel-vote-btn') && !state.voted) handleVote('A'); });
   el('duelCardB').addEventListener('click', (e) => { if (!e.target.closest('.duel-vote-btn') && !state.voted) handleVote('B'); });
-  el('nextDuelBtn').addEventListener('click', nextDuel);
+  // nextDuelBtn supprimé — 1 duel par semaine
   el('leaderboardToggle').addEventListener('click', () => {
     const body = el('leaderboardBody');
     body.classList.toggle('hidden');
@@ -843,7 +841,7 @@ function initEvents() {
     if (e.target.tagName === 'INPUT') return;
     if (e.key === 'ArrowLeft'  && !state.voted) handleVote('A');
     if (e.key === 'ArrowRight' && !state.voted) handleVote('B');
-    if (e.key === 'Enter'      &&  state.voted) nextDuel();
+    // Enter : duel suivant supprimé
   });
 }
 
