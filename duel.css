@@ -73,9 +73,9 @@
   margin: 0 auto 16px;
   position: relative;
   /* Hauteur calculée pour tout voir sans scroll : viewport - navbar - header - marge */
-  height: calc(100dvh - var(--nav-h) - 120px);
-  max-height: 520px;
-  min-height: 300px;
+  height: calc((100dvh - var(--nav-h) - 120px) * 0.67);
+  max-height: 347px;
+  min-height: 200px;
 }
 
 /* ── Cartes ── */
@@ -465,54 +465,3 @@
 /* ── Touch ── */
 .duel-card  { touch-action: manipulation; }
 .duel-arena { touch-action: pan-y; }
-
-/* ── Podium global — taille anime-card accueil ── */
-.global-podium-grid {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.global-podium-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  width: 80px;        /* même ordre de grandeur que les cards accueil */
-  text-decoration: none;
-  color: var(--text);
-}
-.global-podium-medal {
-  font-size: 1rem;
-  line-height: 1;
-}
-.global-podium-item img {
-  width: 80px;
-  aspect-ratio: 2/3;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid var(--b1);
-  display: block;
-}
-.global-podium-item:first-child img {
-  width: 96px;        /* gagnant légèrement plus grand */
-  border-color: #f59e0b;
-  box-shadow: 0 0 12px rgba(245,158,11,0.3);
-}
-.global-podium-title {
-  font-size: 0.62rem;
-  font-weight: 600;
-  color: var(--text2);
-  text-align: center;
-  line-height: 1.3;
-  width: 100%;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: break-word;
-}
-.global-podium-wins {
-  font-size: 0.58rem;
-  color: var(--muted);
-}
