@@ -150,8 +150,8 @@
         des annonces de saisons, et un calendrier des sorties à venir.
       </div>
       <div class="npg-plans">
-        <a href="soutenir.html" class="npg-cta">Mensuel — 1.99 Pi/mois</a>
-        <a href="soutenir.html" class="npg-cta npg-cta-annual">Annuel — 19.99 Pi/an <span class="npg-saving">2 mois offerts</span></a>
+        <button class="npg-cta" id="npgMonthly">Mensuel — 1.99 Pi/mois</button>
+        <button class="npg-cta npg-cta-annual" id="npgAnnual">Annuel — 19.99 Pi/an <span class="npg-saving">2 mois offerts</span></button>
       </div>
     </div>
     <div class="news-perso-content hidden" id="newsPersoContent">
@@ -197,12 +197,16 @@
 
   // ── Chargement actu globale via Jikan News ──
   var currentSource = 'all';
-  // Endpoints news avec fallback (Jikan /news peut 429)
-  var JIKAN_NEWS_ENDPOINTS = [
-    'https://api.jikan.moe/v4/news/anime?limit=20',
-    'https://api.jikan.moe/v4/top/anime?filter=airing&limit=20'
+  var _newsRetryCount = 0;
+  var _newsMaxRetry   = 3;
+
+  // Plusieurs endpoints par ordre de fiabilité
+  var NEWS_SOURCES = [
+    { url: 'https://api.jikan.moe/v4/news/anime?limit=20', type: 'news' },
+    { url: 'https://api.jikan.moe/v4/news/anime?page=1',   type: 'news' },
+    { url: 'https://api.jikan.moe/v4/top/anime?filter=airing&limit=20', type: 'anime' },
   ];
-  var JIKAN_NEWS = JIKAN_NEWS_ENDPOINTS[0];
+  var _currentSourceIdx = 0;
 
   function loadGlobalNews(source) {
     var feed = document.getElementById('newsFeedGlobal');
@@ -218,17 +222,25 @@
     }
 
     var opts = controller ? { signal: controller.signal } : {};
+    var endpoint = NEWS_SOURCES[_currentSourceIdx] || NEWS_SOURCES[0];
 
-    fetch(JIKAN_NEWS, opts)
+    fetch(endpoint.url, opts)
       .then(function(r) {
         if (timeoutId) clearTimeout(timeoutId);
-        // 429 = rate limit → retry dans 3s
+        // 429 = rate limit → retry avec délai croissant
         if (r.status === 429) {
-          feed.innerHTML = '<div class="news-loading">Rate limit — nouvel essai dans 3s&#8230;</div>';
-          setTimeout(function() { loadGlobalNews(source); }, 3000);
+          _newsRetryCount++;
+          var delay = Math.min(2000 * _newsRetryCount, 8000);
+          feed.innerHTML = '<div class="news-loading">Chargement&#8230; (' + _newsRetryCount + '/3)</div>';
+          setTimeout(function() { loadGlobalNews(source); }, delay);
           throw new Error('429_SKIP');
         }
-        if (!r.ok) throw new Error('HTTP ' + r.status);
+        if (!r.ok) {
+          // Essayer l'endpoint suivant
+          _currentSourceIdx = (_currentSourceIdx + 1) % NEWS_SOURCES.length;
+          throw new Error('HTTP ' + r.status);
+        }
+        _newsRetryCount = 0;
         return r.json();
       })
       .then(function(data) {
@@ -250,26 +262,49 @@
         }
 
         var html = '';
+        var isAnimeType = endpoint && endpoint.type === 'anime';
+
         filtered.forEach(function(a) {
           var date   = '';
-          try { date = a.date ? new Date(a.date).toLocaleDateString('fr-FR', {day:'numeric',month:'long'}) : ''; } catch(e){}
-          var imgSrc = (a.images && a.images.jpg && a.images.jpg.image_url) ? a.images.jpg.image_url : '';
+          try {
+            var dateStr = a.date || a.aired && a.aired.from;
+            if (dateStr) date = new Date(dateStr).toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric'});
+          } catch(e){}
+
+          // Image : news a images.jpg, anime top a images.jpg aussi
+          var imgSrc = '';
+          try {
+            imgSrc = a.images && a.images.jpg
+              ? (a.images.jpg.small_image_url || a.images.jpg.image_url || '')
+              : '';
+          } catch(e){}
+
           var imgHtml = imgSrc
-            ? '<img class="news-article-img" src="' + imgSrc + '" alt="" onerror="this.parentNode.removeChild(this)"/>'
+            ? '<img class="news-article-img" src="' + imgSrc + '" alt="" loading="lazy" onerror="this.style.display='none'"/>'
             : '<div class="news-article-img news-article-img-placeholder"></div>';
-          var source_name = 'MyAnimeList';
+
+          var source_name = isAnimeType ? 'MyAnimeList Top Airing' : 'MyAnimeList';
           try { if (a.forum_url) source_name = new URL(a.forum_url).hostname.replace('www.',''); } catch(e) {}
 
-          html += '<a href="' + (a.url || '#') + '" target="_blank" rel="noopener" class="news-article-card">'
+          // Lien : news → a.url, anime → page MAL
+          var link = a.url || (a.mal_id ? 'https://myanimelist.net/anime/' + a.mal_id : '#');
+
+          // Titre et description
+          var title = a.title || a.title_english || '';
+          var excerpt = a.excerpt || a.synopsis || '';
+          if (excerpt && excerpt.length > 100) excerpt = excerpt.substring(0, 100) + '…';
+
+          html += '<a href="' + link + '" target="_blank" rel="noopener" class="news-article-card">'
             + imgHtml
             + '<div class="news-article-body">'
             + '<div class="news-article-source">' + source_name + '</div>'
-            + '<div class="news-article-title">' + (a.title || '') + '</div>'
+            + '<div class="news-article-title">' + title + '</div>'
+            + (excerpt ? '<div class="news-article-excerpt">' + excerpt + '</div>' : '')
             + '<div class="news-article-date">' + date + '</div>'
             + '</div>'
             + '</a>';
         });
-        feed.innerHTML = html;
+        feed.innerHTML = html || '<div class="news-empty">Aucun article disponible.</div>';
       })
       .catch(function(e) {
         if (timeoutId) clearTimeout(timeoutId);
@@ -311,6 +346,63 @@
       }).join('');
     }
   }
+
+  // ── Boutons Premium dans le gate ──
+  function _launchSubscriptionNews(plan) {
+    // Utilise premiumManager si disponible
+    if (window.VA_showSubscriptionModal) {
+      window.VA_showSubscriptionModal({ defaultPlan: plan });
+      return;
+    }
+    // Fallback : paiement Pi direct
+    var PLANS = {
+      monthly: { amount: 1.99, label: 'Premium Mensuel' },
+      annual:  { amount: 19.99, label: 'Premium Annuel' }
+    };
+    var planDef = PLANS[plan];
+    if (!planDef) return;
+    if (typeof Pi === 'undefined') {
+      alert('Ouvre VoirAnime dans le Pi Browser pour t'abonner.');
+      return;
+    }
+    var piUser = null;
+    try { piUser = JSON.parse(localStorage.getItem('pi_user')); } catch(e) {}
+    Pi.authenticate(['payments', 'username'], function() {})
+      .then(function(auth) {
+        Pi.createPayment(
+          { amount: planDef.amount, memo: 'VoirAnime ' + planDef.label, metadata: { app: 'voiranime', type: 'subscription', plan: plan } },
+          {
+            onReadyForServerApproval: function(paymentId) {
+              fetch('https://voir-anime.vercel.app/api/pi-approve', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paymentId: paymentId, plan: plan })
+              }).catch(function(){});
+            },
+            onReadyForServerCompletion: function(paymentId, txid) {
+              fetch('https://voir-anime.vercel.app/api/pi-complete', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paymentId: paymentId, txid: txid, piUserId: piUser && piUser.uid, plan: plan, piUsername: auth.user && auth.user.username })
+              }).then(function(r) { return r.json(); })
+                .then(function(data) {
+                  if (data.premium && data.premium.isPremium) {
+                    document.getElementById('newsPersoGate').classList.add('hidden');
+                    document.getElementById('newsPersoContent').classList.remove('hidden');
+                    loadPersoNews();
+                    alert('✅ Premium activé ! Bienvenue 🎉');
+                  }
+                }).catch(function() { alert('Paiement reçu — activation en cours…'); });
+            },
+            onCancel: function() {},
+            onError: function(e) { console.error('[news sub]', e); }
+          }
+        );
+      }).catch(function(e) { console.error('[news pi auth]', e); });
+  }
+
+  var npgMonthly = document.getElementById('npgMonthly');
+  var npgAnnual  = document.getElementById('npgAnnual');
+  if (npgMonthly) npgMonthly.addEventListener('click', function() { _launchSubscriptionNews('monthly'); });
+  if (npgAnnual)  npgAnnual.addEventListener('click',  function() { _launchSubscriptionNews('annual'); });
 
   // ── Init ──
   loadGlobalNews('all');
