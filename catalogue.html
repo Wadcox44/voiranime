@@ -42,26 +42,20 @@
     /* ── Barre recherche principale ── */
     .cat-search-bar {
       display: flex;
-      flex-direction: column;
-      gap: 6px;
+      gap: 8px;
+      align-items: center;
       padding: 0 48px 8px;
       max-width: 1600px;
       margin: 0 auto;
-    }
-    .cat-search-row1 {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .cat-search-row1 .cat-search-wrap {
-      flex: 1;
-      min-width: 0;
-      max-width: 100%;
-    }
-    .cat-btn-search-full {
+      box-sizing: border-box;
       width: 100%;
-      justify-content: center;
+      overflow: hidden;
     }
+    /* Le champ prend tout l'espace dispo, les boutons ne rétrécissent pas */
+    .cat-search-bar .cat-search-wrap { flex: 1; min-width: 0; }
+    .cat-search-bar .cat-btn-search  { flex-shrink: 0; }
+    .cat-search-bar .cat-adv-toggle  { flex-shrink: 0; }
+    .cat-search-bar .cat-btn-reset   { flex-shrink: 0; }
 
     /* ── Toggle filtres avancés ── */
     .cat-adv-toggle {
@@ -314,6 +308,7 @@
     @media (max-width: 768px) {
       .cat-header { padding: calc(var(--nav-h) + 16px) 16px 14px; }
       .cat-search-bar { padding: 0 16px 6px; gap: 6px; }
+      .cat-btn-label { display: none; } /* icône seule sur mobile */
       .cat-filters { padding: 6px 16px 10px; gap: 6px; }
       .cat-toolbar { padding: 0 16px 6px; }
       .cat-grid-wrap { padding: 0 16px; }
@@ -369,27 +364,23 @@
 
 <!-- BARRE RECHERCHE PRINCIPALE -->
 <div class="cat-search-bar">
-  <!-- Ligne 1 : input + filtres + reset -->
-  <div class="cat-search-row1">
-    <div class="cat-search-wrap">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--muted);flex-shrink:0">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      <input type="text" id="catSearchInput" class="cat-search-input"
-             placeholder="Rechercher un anime…" autocomplete="off" spellcheck="false"/>
-    </div>
-    <button class="cat-adv-toggle" id="catAdvToggle">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
-      Filtres
-      <span class="cat-adv-arrow">▼</span>
-    </button>
-    <button class="cat-btn-reset" id="catBtnReset">✕</button>
+  <div class="cat-search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--muted);flex-shrink:0">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="catSearchInput" class="cat-search-input"
+           placeholder="Rechercher un anime…" autocomplete="off" spellcheck="false"/>
   </div>
-  <!-- Ligne 2 : bouton rechercher pleine largeur -->
-  <button class="cat-btn-search cat-btn-search-full" id="catBtnSearch">
+  <button class="cat-btn-search" id="catBtnSearch">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    Rechercher
+    <span class="cat-btn-label">Rechercher</span>
   </button>
+  <button class="cat-adv-toggle" id="catAdvToggle">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+    Filtres
+    <span class="cat-adv-arrow">▼</span>
+  </button>
+  <button class="cat-btn-reset" id="catBtnReset">✕</button>
 </div>
 
 <!-- FILTRES AVANCÉS (masqués par défaut) -->
@@ -464,23 +455,23 @@
   </div>
 </div>
 
-<!-- PAGINATION HAUT -->
-<div class="cat-pagination cat-pagination-top" id="catPaginationTop"></div>
-
-<!-- SORT BY — entre pagination et grille -->
+<!-- TOOLBAR -->
 <div class="cat-toolbar">
   <p class="cat-count" id="catCount"></p>
   <div class="cat-sort">
-    <span class="cat-sort-label">Trier par</span>
-    <select id="catSort" class="cat-select" style="min-width:140px">
+    <span class="cat-sort-label"><span data-i18n="sort.label">Sort by</span></span>
+    <select id="catSort" class="cat-select" style="min-width:150px">
       <option value="bypopularity">Popularité</option>
-      <option value="score">Score</option>
-      <option value="title">Titre A–Z</option>
-      <option value="start_date">Date</option>
+      <option value="score" data-i18n="sort.score">Score</option>
+      <option value="title" data-i18n="sort.title">Title A–Z</option>
+      <option value="start_date" data-i18n="sort.date">Release date</option>
       <option value="rank">Rang</option>
     </select>
   </div>
 </div>
+
+<!-- PAGINATION HAUT -->
+<div class="cat-pagination cat-pagination-top" id="catPaginationTop"></div>
 
 <!-- GRILLE -->
 <div class="cat-grid-wrap">
