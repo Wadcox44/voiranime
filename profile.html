@@ -97,12 +97,29 @@
     }
 
 
-    /* Colonne droite : grille stats 3×3 compacte */
+    /* Stats : 2×3 + ligne 3 centrée */
     .profile-stats-compact {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
+    /* Ligne 3 : 2 cases centrées sur 3 colonnes */
+    .stat-compact-half {
+      grid-column: auto;
+    }
+    .stat-compact-half:first-of-type {
+      grid-column: 1;
+    }
+    /* Centrer la dernière ligne via sous-grille */
+    .profile-stats-compact::after {
+      content: '';
+    }
+    @supports (grid-template-columns: subgrid) {
+      .stat-compact-half { grid-column: auto; }
+    }
+    /* Fallback simple : 7e et 8e items décalés */
+    .stat-compact:nth-child(7) { grid-column: 1; }
+    .stat-compact:nth-child(8) { grid-column: 2; }
     .stat-compact {
       background: var(--ink3);
       border: 1px solid var(--b1);
@@ -319,7 +336,12 @@
       </div>
 
       <div class="profile-identity-info">
-        <h1 class="profile-name" data-i18n="profile.title">Mon Profil</h1>
+        <div style="display:flex;align-items:center;gap:10px">
+          <h1 class="profile-name" data-i18n="profile.title">Mon Profil</h1>
+          <button id="footerContactBtn" title="Nous contacter"
+            style="background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.3);color:#22d3ee;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.9rem;flex-shrink:0;transition:background 0.2s"
+            onmouseover="this.style.background='rgba(34,211,238,0.2)'" onmouseout="this.style.background='rgba(34,211,238,0.1)'">✉</button>
+        </div>
         <p class="profile-since" id="profileSince">Membre depuis aujourd'hui</p>
       </div>
     </div>
@@ -327,10 +349,10 @@
     <div id="profileSubscriptionCard"></div>
   </div>
 
-  <!-- Colonne droite : stats 2 lignes de 3 (Free) -->
+  <!-- Stats : 2×3 + 1×2 centré ─ Free + Premium fusionnés -->
   <div class="profile-stats-compact" id="profileStats">
 
-    <!-- Ligne 1 : Visités / Favoris / À voir -->
+    <!-- Ligne 1 -->
     <a href="history.html" class="stat-compact stat-compact-link">
       <div class="stat-compact-num" id="statHistCount" style="color:var(--violet)">0</div>
       <div class="stat-compact-label">Visités</div>
@@ -344,7 +366,7 @@
       <div class="stat-compact-label">À voir</div>
     </div>
 
-    <!-- Ligne 2 : En cours / Terminés / Notés -->
+    <!-- Ligne 2 -->
     <div class="stat-compact">
       <div class="stat-compact-num" id="statWatchingCount" style="color:#60a5fa">0</div>
       <div class="stat-compact-label">En cours</div>
@@ -353,7 +375,20 @@
       <div class="stat-compact-num" id="statCompletedCount" style="color:#4ade80">0</div>
       <div class="stat-compact-label">Terminés</div>
     </div>
+    <div class="stat-compact">
+      <div class="stat-compact-num" id="statHoursCount" style="color:#a78bfa">—</div>
+      <div class="stat-compact-label">Heures</div>
+    </div>
 
+    <!-- Ligne 3 : 2 centré -->
+    <div class="stat-compact stat-compact-half">
+      <div class="stat-compact-num" id="statActiveDaysCount" style="color:#22d3ee">—</div>
+      <div class="stat-compact-label">Jours actifs</div>
+    </div>
+    <div class="stat-compact stat-compact-half">
+      <div class="stat-compact-num" id="statProgressCount" style="color:#f59e0b">—</div>
+      <div class="stat-compact-label">Progression</div>
+    </div>
 
   </div>
 
@@ -370,58 +405,27 @@
   </div>
 </div>
 
-<!-- STATS PREMIUM -->
-<section class="profile-section premium-stats-section" id="premiumStatsSection" style="display:none">
+<!-- STATS PREMIUM DÉTAILLÉES (genres + top animes — masquées si non Premium) -->
+<section class="profile-section" id="premiumStatsSection" style="display:none">
   <div class="profile-section-title">
     <span class="section-dot gold"></span>
-    ⭐ Premium Stats
-    <span class="premium-stats-badge">Premium</span>
+    🎯 Détails Premium
   </div>
-
-  <!-- Ligne 1 : métriques clés -->
-  <div class="pstats-grid">
-    <div class="pstat-card">
-      <div class="pstat-icon">⏱</div>
-      <div class="pstat-value" id="pstatHours">—</div>
-      <div class="pstat-label">Heures regardées</div>
-    </div>
-    <div class="pstat-card">
-      <div class="pstat-icon">📅</div>
-      <div class="pstat-value" id="pstatActiveDays">—</div>
-      <div class="pstat-label">Jours actifs / mois</div>
-    </div>
-    <div class="pstat-card pstat-card-wide">
-      <div class="pstat-icon">🏁</div>
-      <div class="pstat-value" id="pstatProgression">—</div>
-      <div class="pstat-label">Progression globale</div>
-      <div class="pstat-progress-bar">
-        <div class="pstat-progress-fill" id="pstatProgressFill" style="width:0%"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Top 3 animes -->
   <div class="pstats-block">
     <div class="pstats-block-title">🔥 Top 3 animes</div>
     <div class="pstats-top-list" id="pstatTopAnimes"></div>
   </div>
-
-  <!-- Genres préférés -->
   <div class="pstats-block">
     <div class="pstats-block-title">🎯 Genres préférés</div>
     <div class="pstats-genres" id="pstatGenres">
-      <div class="pstats-empty-hint">Visite plus d&#39;anim&eacute;s pour d&eacute;bloquer tes genres !</div>
+      <div class="pstats-empty-hint">Visite plus d'animés pour débloquer tes genres !</div>
     </div>
   </div>
-
 </section>
 
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
   <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
-  <div class="footer-contact">
-    <button class="footer-contact-btn" id="footerContactBtn">✉ Contact</button>
-  </div>
 </footer>
 
 <div class="footer-contact-modal" id="footerContactModal" style="display:none">
@@ -554,6 +558,30 @@
     // Ligne 2 : En cours / Terminés / Notés
     const wEl = el('statWatchingCount');  if (wEl) wEl.textContent  = watching.length;
     const cEl = el('statCompletedCount'); if (cEl) cEl.textContent  = completed.length;
+
+    // ⏱ Heures regardées (tous utilisateurs)
+    const totalMins = completed.reduce((acc, a) => acc + (a.episodes||0)*(a.duration||24), 0);
+    const hEl2 = el('statHoursCount'); if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
+
+    // 📅 Jours actifs ce mois
+    const now2 = new Date();
+    const monthStart2 = new Date(now2.getFullYear(), now2.getMonth(), 1).getTime();
+    const histAll = getHistory();
+    const activeDays2 = new Set(histAll.filter(h=>(h.ts||0)>=monthStart2).map(h=>new Date(h.ts).toDateString())).size;
+    const dEl = el('statActiveDaysCount'); if (dEl) dEl.textContent = activeDays2 || 0;
+
+    // 🏁 Progression (fetch async)
+    (async function() {
+      try {
+        const r = await fetch('/api/jikan?path=' + encodeURIComponent('/anime?limit=1&page=1'));
+        const d = await r.json();
+        const total = d.pagination?.items?.total || 24000;
+        const pct = +(completed.length / total * 100).toFixed(1);
+        const pEl2 = el('statProgressCount'); if (pEl2) pEl2.textContent = pct + '%';
+      } catch {
+        const pEl2 = el('statProgressCount'); if (pEl2) pEl2.textContent = completed.length > 0 ? completed.length + ' vus' : '—';
+      }
+    })();
 
     // Date membre
     const firstVisit = parseInt(localStorage.getItem('VoirAnime_firstVisit') || '0');
@@ -746,12 +774,12 @@
       var days       = status.daysLeft || 0;
       var urgency    = days <= 3 ? 'sub-card-urgent' : days <= 7 ? 'sub-card-warning' : '';
 
-      var html = '<div class="sub-card sub-card-premium ' + urgency + '">'
-        + '<div class="sub-card-header">'
-        + '<span class="sub-card-badge">&#11088; Premium actif</span>'
-        + '<span class="sub-card-plan">' + planLabel + ' &middot; ' + renewPrice + '</span>'
-        + '</div>'
-        + '<div class="sub-card-perks">'
+      var renewalNotice = days <= 7 && days > 0
+        ? '<div style="font-size:0.7rem;color:#f59e0b;margin-bottom:6px">⚠ Expire dans ' + days + ' jour' + (days>1?'s':'') + ' — pensez à renouveler</div>'
+        : (days === 0 ? '<div style="font-size:0.7rem;color:#ef4444;margin-bottom:6px">⚠ Expire aujourd'hui</div>' : '');
+      var html = '<div class="sub-card sub-card-premium ' + urgency + '">'        + '<div class="sub-card-header">'        + '<span class="sub-card-badge">&#11088; Premium actif</span>'        + '<span class="sub-card-plan">' + planLabel + ' &middot; ' + renewPrice + '</span>'        + '</div>'        + renewalNotice
+        + '<button id="subPerksToggle" style="background:none;border:none;color:var(--muted);font-size:0.72rem;cursor:pointer;font-family:var(--font);padding:2px 0;text-align:left;">Voir les avantages ▼</button>'
+        + '<div id="subPerksBody" class="sub-card-perks" style="display:none">'
         + '<span class="sub-perk active">&#10084; Favoris illimit&eacute;s</span>'
         + '<span class="sub-perk active">&#128202; Stats d&eacute;taill&eacute;es</span>'
         + '<span class="sub-perk active">&#9889; Acc&egrave;s anticip&eacute;</span>'
@@ -765,10 +793,19 @@
 
       card.innerHTML = html;
 
-      var renewBtn = document.getElementById('subRenewBtn');
+      var renewBtn  = document.getElementById('subRenewBtn');
       var cancelBtn = document.getElementById('subCancelBtn');
+      var perksToggle = document.getElementById('subPerksToggle');
+      var perksBody   = document.getElementById('subPerksBody');
       if (renewBtn)  renewBtn.addEventListener('click',  function() { _launchSubscription(status.plan || 'monthly'); });
       if (cancelBtn) cancelBtn.addEventListener('click', function() { _confirmCancel(); });
+      if (perksToggle && perksBody) {
+        perksToggle.addEventListener('click', function() {
+          var open = perksBody.style.display !== 'none';
+          perksBody.style.display = open ? 'none' : 'flex';
+          perksToggle.textContent = open ? 'Voir les avantages ▼' : 'Masquer ▲';
+        });
+      }
 
     } else {
       // ── Vue offres (Free ou expiré) ──
@@ -779,25 +816,8 @@
       var html = '<div class="sub-card sub-offers-card">'
         + '<div class="sub-offers-title-row">' + expiredHtml + '</div>'
 
-        // Comparatif compact
-        + '<div class="sub-compare">'
-        + '<div class="sub-compare-col">'
-        + '<div class="sub-compare-header sub-compare-free">Gratuit</div>'
-        + '<ul class="sub-compare-list">'
-        + '<li class="sub-perk">&#10084; 20 favoris</li>'
-        + '<li class="sub-perk sub-perk-no">&#128202; Stats</li>'
-        + '<li class="sub-perk sub-perk-no">&#9889; Anticip&eacute;</li>'
-        + '<li class="sub-perk sub-perk-no">&#128276; News perso</li>'
-        + '</ul></div>'
-        + '<div class="sub-compare-col sub-compare-col-premium">'
-        + '<div class="sub-compare-header sub-compare-premium">&#11088; Premium</div>'
-        + '<ul class="sub-compare-list">'
-        + '<li class="sub-perk active">&#10084; Illimit&eacute;s</li>'
-        + '<li class="sub-perk active">&#128202; Stats</li>'
-        + '<li class="sub-perk active">&#9889; Anticip&eacute;</li>'
-        + '<li class="sub-perk active">&#128276; News perso</li>'
-        + '</ul></div>'
-        + '</div>'
+        // Tableau 3 colonnes : Fonctionnalité / Gratuit / Premium
+        + '<table style="width:100%;border-collapse:collapse;font-size:0.74rem;margin-bottom:12px">'        + '<thead><tr>'        + '<th style="text-align:left;padding:5px 6px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--b1)">Fonctionnalité</th>'        + '<th style="text-align:center;padding:5px 6px;color:var(--text2);font-weight:700;border-bottom:1px solid var(--b1)">Gratuit</th>'        + '<th style="text-align:center;padding:5px 6px;color:#22d3ee;font-weight:700;border-bottom:1px solid var(--b1)">⭐ Premium<br><span style=\'font-size:0.62rem;color:var(--muted);font-weight:400\'>1.99π/mois · 19.99π/an<br>🔥 Offre de lancement</span></th>'        + '</tr></thead><tbody>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">❤ Favoris</td><td style="text-align:center;color:var(--muted)">20 max</td><td style="text-align:center;color:#4ade80">✓ Illimités</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">📊 Stats détaillées</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">⚡ Accès anticipé</td><td style="text-align:center;color:var(--muted)">+15j</td><td style="text-align:center;color:#4ade80">✓ Immédiat</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">↕ Réorganiser</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">🔔 News perso</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '</tbody></table>'
 
         // Plans
         + '<div class="sub-offers-grid">'
@@ -990,11 +1010,19 @@
     ).size;
     if (el('pstatActiveDays')) el('pstatActiveDays').textContent = activeDays || 0;
 
-    // 🏁 Progression globale : terminés / ~21k animés MAL (estimation catalogue)
-    const CATALOGUE_EST = 21000;
-    const pct = Math.min(Math.round((completed.length / CATALOGUE_EST) * 100 * 10) / 10, 100);
-    if (el('pstatProgression')) el('pstatProgression').textContent = `${completed.length} / ${CATALOGUE_EST} (${pct}%)`;
-    if (el('pstatProgressFill')) el('pstatProgressFill').style.width = Math.min(pct * 50, 100) + '%'; // ×50 pour rendre visible
+    // 🏁 Progression globale : fetch vrai total depuis Jikan
+    try {
+      const r = await fetch('/api/jikan?path=' + encodeURIComponent('/anime?limit=1&page=1'));
+      const d = await r.json();
+      const CATALOGUE_TOTAL = d.data?.pagination?.items?.total || d.pagination?.items?.total || 24000;
+      const pct = +(completed.length / CATALOGUE_TOTAL * 100).toFixed(2);
+      if (el('pstatProgression')) el('pstatProgression').textContent = `${completed.length} / ${CATALOGUE_TOTAL.toLocaleString()} (${pct}%)`;
+      if (el('pstatProgressFill')) el('pstatProgressFill').style.width = Math.min(pct * 100, 100) + '%';
+    } catch {
+      const CATALOGUE_EST = 24000;
+      const pct = +(completed.length / CATALOGUE_EST * 100).toFixed(2);
+      if (el('pstatProgression')) el('pstatProgression').textContent = `${completed.length} / ~${CATALOGUE_EST.toLocaleString()} (${pct}%)`;
+    }
 
     // 🔥 Top 3 animes (les + récents de l'historique = les + consultés)
     const topEl = el('pstatTopAnimes');
