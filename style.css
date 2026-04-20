@@ -1502,7 +1502,7 @@ ul, ol { list-style: none; }
 }
 .footer-logo span { color: var(--pink); }
 
-.footer-text { margin-bottom: 0; line-height: 1.75; }
+.footer-text { margin-bottom: 5px; line-height: 1.75; }
 .footer-text a { color: var(--muted); transition: color 0.2s; }
 .footer-text a:hover { color: var(--text); }
 .footer-copy { color: var(--ink5); font-size: 0.72rem; }
@@ -3876,11 +3876,13 @@ a:active {
   .carousel-btn { display: flex !important; opacity: 1 !important; pointer-events: all !important; width: 28px; height: 56px; font-size: 1rem; }
 
   /* Carousel mobile : scroll libre et fluide */
+  /* pan-x supprimé — bloquait le scroll vertical quand le doigt partait d'une card */
   .carousel {
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
     padding-bottom: 16px;
   }
+  /* Force pan-y sur les cards : écrase toute règle parente */
+  .anime-card { touch-action: pan-y !important; }
 }
 
 @media (max-width: 480px) {
