@@ -399,6 +399,9 @@ function buildCard(anime, opts = {}) {
   card.className = 'anime-card' + (showProgress ? ' continue-card' : '');
   card.setAttribute('role', 'button');
   card.setAttribute('tabindex', '0');
+  // Fix scroll vertical bloqué sur mobile : pan-y autorise le scroll natif
+  // même quand le doigt démarre sur une card (role=button capture sinon)
+  card.style.touchAction = 'pan-y';
 
   card.innerHTML = `
     <div class="card-thumb">

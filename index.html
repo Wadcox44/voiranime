@@ -41,22 +41,33 @@
     @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
 
     /* Séparateur néon */
-    .section-divider{height:1px;background:linear-gradient(to right,transparent,rgba(124,77,255,.18) 30%,rgba(255,79,216,.18) 70%,transparent);margin:4px 48px}
+    .section-divider{height:1px;background:linear-gradient(to right,transparent,rgba(124,77,255,.18) 30%,rgba(255,79,216,.18) 70%,transparent);margin:2px 48px}
 
     /* Mood pills */
-    .mood-section{padding:12px 48px 24px;max-width:1600px;margin:0 auto;width:100%}
-    .mood-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+    .mood-section{padding:8px 48px 12px;max-width:1600px;margin:0 auto;width:100%}
+    .mood-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
     .mood-row::-webkit-scrollbar{display:none}
-    .mood-pill{flex-shrink:0;display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:24px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.04);cursor:pointer;transition:all .22s;white-space:nowrap;font-family:'Outfit',sans-serif}
+    .mood-pill{flex-shrink:0;display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:24px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.04);cursor:pointer;transition:all .22s;white-space:nowrap;font-family:'Outfit',sans-serif}
     .mood-pill:hover{background:rgba(124,77,255,.12);border-color:rgba(124,77,255,.3);transform:translateY(-2px)}
     .mood-pill.active{background:rgba(255,79,216,.14);border-color:rgba(255,79,216,.4)}
     .mood-pill-icon{font-size:15px;line-height:1}
     .mood-pill-label{font-size:.78rem;font-weight:600;color:#a8a6c4}
     .mood-pill:hover .mood-pill-label,.mood-pill.active .mood-pill-label{color:#eceaf8}
 
+    /* ── Sections compactes ── */
+    .content-section{padding:6px 48px 8px !important}
+    .section-header{margin-bottom:8px !important}
+    .carousel{padding:8px 2px 14px !important}
+
+    /* ── Footer sans espace superflu ── */
+    .site-footer{padding:8px 24px 6px !important;margin-top:4px}
+
     @media(max-width:768px){
-      .mood-section{padding:10px 16px 20px}
-      .section-divider{margin:4px 16px}
+      .mood-section{padding:8px 16px 10px}
+      .section-divider{margin:2px 16px}
+      .content-section{padding:4px 12px 6px !important}
+      .section-header{margin-bottom:6px !important}
+      .carousel{padding:6px 2px 10px !important}
     }
   </style>
   <script src="i18n.js"></script>
