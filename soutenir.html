@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VoirAnime — Soutenir le projet</title>
+  <title>VoirAnime — Soutenir &amp; Premium</title>
   <link rel="stylesheet" href="style.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
@@ -19,66 +19,98 @@
     .logo-voir{color:#fff}
     .logo-anime{color:#22d3ee}
 
-    /* ── Page Soutenir ── */
+    /* ── Layout ── */
     .support-page {
-      min-height: unset;
-      padding: calc(var(--nav-h) + 8px) 24px 20px;
-      max-width: 800px;
+      padding: calc(var(--nav-h) + 24px) 24px 48px;
+      max-width: 820px;
       margin: 0 auto;
     }
 
+    /* ── Hero ── */
     .support-hero {
       text-align: center;
-      margin-bottom: 12px;
+      margin-bottom: 24px;
     }
     .support-icon {
-      font-size: 2rem;
-      margin-bottom: 8px;
+      font-size: 2.4rem;
+      margin-bottom: 10px;
       display: block;
       animation: heartbeat 1.8s ease-in-out infinite;
     }
     @keyframes heartbeat {
-      0%,100% { transform: scale(1); }
-      14%     { transform: scale(1.15); }
-      28%     { transform: scale(1); }
-      42%     { transform: scale(1.08); }
-      56%     { transform: scale(1); }
+      0%,100%{transform:scale(1)}14%{transform:scale(1.15)}28%{transform:scale(1)}42%{transform:scale(1.08)}56%{transform:scale(1)}
     }
     .support-title {
-      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
       font-weight: 900;
       line-height: 1.1;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       background: linear-gradient(135deg, #fff 30%, var(--pink) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
     .support-subtitle {
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       color: var(--text2);
-      line-height: 1.5;
-      max-width: 480px;
+      line-height: 1.6;
+      max-width: 500px;
       margin: 0 auto;
       font-weight: 300;
     }
 
-    /* Montants */
+    /* ── Tabs ── */
+    .support-tabs {
+      display: flex;
+      gap: 8px;
+      background: var(--ink3);
+      border: 1px solid var(--b1);
+      border-radius: 14px;
+      padding: 5px;
+      margin-bottom: 28px;
+    }
+    .support-tab {
+      flex: 1;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text2);
+      font-family: var(--font);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .support-tab.active {
+      background: var(--ink1);
+      color: var(--text);
+      border: 1px solid var(--b2);
+    }
+    .support-tab-icon { margin-right: 6px; }
+
+    /* ── Panels ── */
+    .support-panel { display: none; }
+    .support-panel.active { display: block; }
+
+    /* ═══════════════════════════
+       PANEL DON
+    ═══════════════════════════ */
     .support-amounts-title {
       font-size: 0.72rem;
       font-weight: 700;
       color: var(--text2);
-      text-align: center;
       text-transform: uppercase;
       letter-spacing: 0.12em;
-      margin-bottom: 6px;
-      margin-top: 16px;
+      margin-bottom: 10px;
+      text-align: center;
     }
     .support-amounts {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
-      margin-bottom: 6px;
+      margin-bottom: 12px;
     }
     .amount-btn {
       background: var(--ink3);
@@ -90,230 +122,246 @@
       transition: all 0.2s var(--ease-spring);
       font-family: var(--font);
     }
-    .amount-btn:hover {
-      border-color: var(--b-pink);
-      background: var(--pink-dim);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(255,79,216,0.2);
-    }
+    .amount-btn:hover { border-color: var(--b-pink); background: var(--pink-dim); transform: translateY(-3px); }
     .amount-btn.selected {
       border-color: var(--pink);
       background: var(--pink-dim);
       box-shadow: 0 0 0 1px var(--pink), 0 8px 24px rgba(255,79,216,0.25);
     }
-    .amount-value {
-      font-size: 1.2rem;
-      font-weight: 900;
-      color: var(--text);
-      display: block;
-      margin-bottom: 2px;
-    }
+    .amount-value { font-size: 1.2rem; font-weight: 900; color: var(--text); display: block; margin-bottom: 2px; }
     .amount-btn.selected .amount-value { color: var(--pink); }
-    .amount-label {
-      font-size: 0.68rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
+    .amount-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
     .amount-badge {
-      display: inline-block;
-      font-size: 0.6rem;
-      background: var(--gold-dim);
-      color: var(--gold);
-      border: 1px solid var(--b-gold);
-      border-radius: 20px;
-      padding: 2px 7px;
-      margin-top: 6px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
+      display: inline-block; font-size: 0.6rem;
+      background: var(--gold-dim); color: var(--gold);
+      border: 1px solid var(--b-gold); border-radius: 20px;
+      padding: 2px 7px; margin-top: 6px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
     }
-
-    /* Montant libre */
     .support-custom {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: var(--ink3);
-      border: 1.5px solid var(--b2);
-      border-radius: var(--r-lg);
-      padding: 10px 16px;
-      margin-bottom: 9px;
+      display: flex; align-items: center; gap: 12px;
+      background: var(--ink3); border: 1.5px solid var(--b2);
+      border-radius: var(--r-lg); padding: 10px 16px; margin-bottom: 16px;
       transition: border-color 0.2s;
     }
-    .support-custom:focus-within {
-      border-color: rgba(124,77,255,0.4);
-      box-shadow: 0 0 0 3px rgba(124,77,255,0.1);
-    }
-    .support-custom label {
-      font-size: 0.8rem;
-      color: var(--text2);
-      white-space: nowrap;
-      font-weight: 500;
-    }
+    .support-custom:focus-within { border-color: rgba(124,77,255,0.4); box-shadow: 0 0 0 3px rgba(124,77,255,0.1); }
+    .support-custom label { font-size: 0.8rem; color: var(--text2); white-space: nowrap; font-weight: 500; }
     .support-custom input {
-      flex: 1;
-      background: none;
-      border: none;
-      outline: none;
-      font-family: var(--font);
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--text);
-      min-width: 0;
+      flex: 1; background: none; border: none; outline: none;
+      font-family: var(--font); font-size: 1.2rem; font-weight: 700;
+      color: var(--text); min-width: 0;
     }
     .support-custom input::placeholder { color: var(--muted); font-weight: 400; font-size: 0.95rem; }
-    .support-custom-currency {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--violet);
-    }
+    .support-custom-currency { font-size: 1.2rem; font-weight: 700; color: var(--violet); }
 
-    /* CTA don */
-    .support-cta {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
+    /* ═══════════════════════════
+       PANEL PREMIUM
+    ═══════════════════════════ */
+    .premium-plans {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
     }
-    .support-btn-main {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: linear-gradient(135deg, #f59e0b, #f97316);
-      color: #fff;
-      font-family: var(--font);
-      font-weight: 800;
-      font-size: 1.05rem;
-      padding: 13px 36px;
-      border-radius: var(--r-lg);
-      border: none;
+    .plan-card {
+      background: var(--ink3);
+      border: 2px solid var(--b1);
+      border-radius: 16px;
+      padding: 24px 20px;
       cursor: pointer;
-      transition: transform 0.2s var(--ease-spring), box-shadow 0.2s;
-      box-shadow: 0 4px 24px rgba(249,115,22,0.45);
-      text-decoration: none;
-      animation: support-glow 2.6s ease-in-out infinite;
-    }
-    .support-btn-main:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 10px 40px rgba(249,115,22,0.65);
-      animation: none;
-    }
-    .support-btn-main:disabled { opacity: 0.6; animation: none; }
-    @keyframes support-glow {
-      0%,100% { box-shadow: 0 4px 24px rgba(249,115,22,0.4); }
-      50%      { box-shadow: 0 4px 32px rgba(249,115,22,0.75), 0 0 0 6px rgba(249,115,22,0.12); }
-    }
-    .support-btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: none;
-      color: var(--text2);
-      font-family: var(--font);
-      font-size: 0.84rem;
-      padding: 10px 20px;
-      border-radius: var(--r);
-      border: 1px solid var(--b2);
-      cursor: pointer;
-      transition: all 0.2s;
-      text-decoration: none;
-    }
-    .support-btn-secondary:hover { color: var(--text); border-color: var(--b3); background: rgba(255,255,255,0.04); }
-
-    /* Remerciements */
-    .support-thanks {
-      margin-bottom: 9px;
-    }
-    .support-thanks-title {
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--muted);
-      margin-bottom: 9px;
+      transition: all 0.25s var(--ease-spring);
+      position: relative;
       text-align: center;
     }
-    .thanks-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
+    .plan-card:hover { border-color: var(--b2); transform: translateY(-4px); }
+    .plan-card.selected {
+      border-color: var(--violet, #a78bfa);
+      background: rgba(167,139,250,0.08);
+      box-shadow: 0 0 0 1px var(--violet, #a78bfa), 0 12px 32px rgba(167,139,250,0.2);
     }
-    .thanks-name {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+    .plan-badge-top {
+      position: absolute;
+      top: -12px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, #a78bfa, #818cf8);
+      color: #fff; font-size: 0.64rem; font-weight: 800;
+      padding: 3px 12px; border-radius: 20px;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      white-space: nowrap;
+    }
+    .plan-name { font-size: 0.78rem; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px; }
+    .plan-price { font-size: 2.2rem; font-weight: 900; color: var(--text); line-height: 1; margin-bottom: 4px; }
+    .plan-price span { font-size: 1rem; font-weight: 600; color: var(--muted); }
+    .plan-card.selected .plan-price { color: var(--violet, #a78bfa); }
+    .plan-period { font-size: 0.76rem; color: var(--muted); margin-bottom: 14px; }
+    .plan-saving {
+      display: inline-block; font-size: 0.68rem; font-weight: 700;
+      background: rgba(6,214,160,0.12); color: #06d6a0;
+      border: 1px solid rgba(6,214,160,0.3);
+      border-radius: 20px; padding: 3px 10px; margin-bottom: 14px;
+    }
+
+    /* Features list */
+    .plan-features { list-style: none; padding: 0; margin: 0; text-align: left; }
+    .plan-features li {
+      font-size: 0.82rem; color: var(--text2); padding: 5px 0;
+      border-bottom: 1px solid var(--b1); display: flex; align-items: center; gap: 8px;
+    }
+    .plan-features li:last-child { border-bottom: none; }
+    .plan-features li::before { content: '✓'; color: #06d6a0; font-weight: 800; flex-shrink: 0; }
+    .plan-features li.locked { color: var(--muted); }
+    .plan-features li.locked::before { content: '✕'; color: var(--muted); }
+
+    /* Comparatif Free vs Premium */
+    .premium-compare {
       background: var(--ink3);
       border: 1px solid var(--b1);
-      border-radius: 20px;
-      padding: 5px 13px;
-      font-size: 0.8rem;
-      color: var(--text2);
-      transition: all 0.2s;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 24px;
     }
+    .compare-header {
+      display: grid;
+      grid-template-columns: 1fr 80px 80px;
+      gap: 0;
+      background: var(--ink2);
+      padding: 10px 16px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1fr 80px 80px;
+      padding: 11px 16px;
+      border-top: 1px solid var(--b1);
+      font-size: 0.84rem;
+      align-items: center;
+    }
+    .compare-row:hover { background: rgba(255,255,255,0.02); }
+    .compare-feature { color: var(--text2); }
+    .compare-val { text-align: center; font-weight: 700; font-size: 0.8rem; }
+    .compare-val.yes { color: #06d6a0; }
+    .compare-val.no  { color: var(--muted); }
+    .compare-val.txt { color: var(--text2); font-size: 0.76rem; font-weight: 500; }
+
+    /* Statut Premium actif */
+    .premium-status-card {
+      background: linear-gradient(135deg, rgba(167,139,250,0.12), rgba(129,140,248,0.08));
+      border: 1px solid rgba(167,139,250,0.35);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      display: none;
+    }
+    .premium-status-card.visible { display: block; }
+    .ps-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .ps-badge {
+      background: linear-gradient(135deg, #a78bfa, #818cf8);
+      color: #fff; font-size: 0.72rem; font-weight: 800;
+      padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .ps-title { font-size: 1rem; font-weight: 700; }
+    .ps-expiry { font-size: 0.82rem; color: var(--text2); }
+    .ps-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .ps-btn-cancel {
+      font-size: 0.78rem; color: var(--muted); background: none;
+      border: 1px solid var(--b2); border-radius: 8px; padding: 6px 14px;
+      font-family: var(--font); cursor: pointer; transition: all 0.2s;
+    }
+    .ps-btn-cancel:hover { border-color: #ef4444; color: #ef4444; }
+
+    /* ── CTA commun ── */
+    .support-cta {
+      display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 16px;
+    }
+    .support-btn-main {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: #fff; font-family: var(--font); font-weight: 800;
+      font-size: 1.05rem; padding: 13px 36px; border-radius: var(--r-lg);
+      border: none; cursor: pointer;
+      transition: transform 0.2s var(--ease-spring), box-shadow 0.2s;
+      box-shadow: 0 4px 24px rgba(249,115,22,0.45);
+      animation: support-glow 2.6s ease-in-out infinite;
+    }
+    .support-btn-main.violet {
+      background: linear-gradient(135deg, #a78bfa, #818cf8);
+      box-shadow: 0 4px 24px rgba(167,139,250,0.45);
+      animation: support-glow-violet 2.6s ease-in-out infinite;
+    }
+    .support-btn-main:hover { transform: translateY(-3px) scale(1.02); animation: none; }
+    .support-btn-main:disabled { opacity: 0.6; animation: none; cursor: not-allowed; }
+    @keyframes support-glow {
+      0%,100%{box-shadow:0 4px 24px rgba(249,115,22,0.4)}
+      50%{box-shadow:0 4px 32px rgba(249,115,22,0.75),0 0 0 6px rgba(249,115,22,0.12)}
+    }
+    @keyframes support-glow-violet {
+      0%,100%{box-shadow:0 4px 24px rgba(167,139,250,0.4)}
+      50%{box-shadow:0 4px 32px rgba(167,139,250,0.75),0 0 0 6px rgba(167,139,250,0.12)}
+    }
+
+    /* ── Pay status ── */
+    .pay-status {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      padding: 16px 24px; background: var(--ink3); border: 1px solid var(--b2);
+      border-radius: var(--r-lg); width: 100%; max-width: 400px; transition: opacity 0.3s;
+    }
+    .pay-status.hidden { display: none; }
+    .pay-status-icon { font-size: 1.8rem; }
+    .pay-status-msg { font-size: 0.88rem; color: var(--text2); text-align: center; line-height: 1.5; }
+
+    /* ── Merci ── */
+    .support-merci {
+      background: rgba(6,214,160,0.08); border: 1px solid rgba(6,214,160,0.3);
+      border-radius: var(--r-lg); padding: 20px 24px; text-align: center;
+      width: 100%; max-width: 400px;
+    }
+    .support-merci-text { font-size: 1.05rem; font-weight: 700; color: #06d6a0; margin-bottom: 7px; }
+    .support-merci-close {
+      background: transparent; border: 1px solid rgba(6,214,160,0.35);
+      color: #06d6a0; border-radius: 20px; padding: 6px 18px;
+      font-size: 0.82rem; font-family: var(--font); cursor: pointer;
+    }
+    .support-merci-close:hover { background: rgba(6,214,160,0.1); }
+
+    /* Premium activé merci */
+    .premium-merci {
+      background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.4);
+      border-radius: var(--r-lg); padding: 20px 24px; text-align: center;
+      width: 100%; max-width: 440px;
+    }
+    .premium-merci-title { font-size: 1.1rem; font-weight: 800; color: #a78bfa; margin-bottom: 6px; }
+    .premium-merci-text  { font-size: 0.88rem; color: var(--text2); margin-bottom: 12px; line-height: 1.5; }
+    .premium-merci-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg,#a78bfa,#818cf8); color:#fff;
+      font-family: var(--font); font-weight: 700; font-size: 0.88rem;
+      padding: 9px 20px; border-radius: 10px; border: none; cursor: pointer;
+      text-decoration: none; transition: opacity 0.2s;
+    }
+    .premium-merci-btn:hover { opacity: 0.88; }
+
+    /* ── Donateurs ── */
+    .support-thanks { margin-bottom: 12px; }
+    .support-thanks-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 9px; text-align: center; }
+    .thanks-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .thanks-name { display: inline-flex; align-items: center; gap: 6px; background: var(--ink3); border: 1px solid var(--b1); border-radius: 20px; padding: 5px 13px; font-size: 0.8rem; color: var(--text2); transition: all 0.2s; }
     .thanks-name:hover { border-color: var(--b-violet); color: #c0adff; }
     .thanks-name-star { color: var(--gold); font-size: 0.7rem; }
 
     /* ── Responsive ── */
     @media (max-width: 768px) {
-      .support-page { padding: calc(var(--nav-h) + 12px) 16px 32px; }
+      .support-page { padding: calc(var(--nav-h) + 12px) 16px 40px; }
       .support-amounts { grid-template-columns: repeat(2, 1fr); }
+      .premium-plans { grid-template-columns: 1fr; gap: 20px; }
     }
     @media (max-width: 480px) {
       .support-amounts { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-      .amount-value { font-size: 1.1rem; }
+      .support-tabs { flex-direction: column; }
     }
-
-    /* ── Message merci ── */
-    .support-merci {
-      background: rgba(6,214,160,0.08);
-      border: 1px solid rgba(6,214,160,0.3);
-      border-radius: var(--r-lg);
-      padding: 20px 24px;
-      text-align: center;
-      width: 100%;
-      max-width: 400px;
-    }
-    .support-merci-text { font-size: 1.05rem; font-weight: 700; color: #06d6a0; margin-bottom: 7px; }
-    .support-merci-close {
-      background: transparent;
-      border: 1px solid rgba(6,214,160,0.35);
-      color: #06d6a0;
-      border-radius: 20px;
-      padding: 6px 18px;
-      font-size: 0.82rem;
-      font-family: var(--font);
-      cursor: pointer;
-    }
-    .support-merci-close:hover { background: rgba(6,214,160,0.1); }
-
-    /* ── Statut paiement ── */
-    .pay-status {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      padding: 16px 24px;
-      background: var(--ink3);
-      border: 1px solid var(--b2);
-      border-radius: var(--r-lg);
-      width: 100%;
-      max-width: 400px;
-      transition: opacity 0.3s;
-    }
-    .pay-status.hidden { display: none; }
-    .pay-status-icon { font-size: 1.8rem; }
-    .pay-status-msg {
-      font-size: 0.88rem;
-      color: var(--text2);
-      text-align: center;
-      line-height: 1.5;
-    }
-
   </style>
-  <!-- Pi Network SDK -->
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <script src="pi-auth.js" defer></script>
   <script src="i18n.js"></script>
@@ -322,9 +370,7 @@
 </head>
 <body>
 
-<!-- ════════════════════════════════
-     NAVBAR
-════════════════════════════════ -->
+<!-- ════════════ NAVBAR ════════════ -->
 <nav class="navbar scrolled" id="navbar">
   <div class="nav-top">
     <div class="nav-left">
@@ -337,124 +383,211 @@
         <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
       </div>
     </div>
-    <!-- Avatar profil en haut à gauche -->
     <a href="profile.html" class="nav-avatar-btn nav-avatar-left" id="navAvatarBtn" title="Mon profil">
-      <img class="nav-avatar-img" id="navAvatarImg"
-           src="" alt="Profil"
-           onerror="this.style.display='none';document.getElementById('navAvatarFallback_soutenir').style.display='flex'"/>
+      <img class="nav-avatar-img" id="navAvatarImg" src="" alt="Profil"
+           onerror="this.style.display=\'none\';document.getElementById(\'navAvatarFallback_soutenir\').style.display=\'flex\'"/>
       <div class="nav-avatar-fallback" id="navAvatarFallback_soutenir">👤</div>
     </a>
-    <div class="nav-right">
-      </div>
+    <div class="nav-right"></div>
   </div>
   <ul class="nav-links">
     <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
     <li><a href="catalogue.html" class="nav-link" data-i18n="nav.catalogue">Catalogue</a></li>
     <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
-    <li><a href="news.html" class="nav-link">📰 News</a></li>
-    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Faire un don</a></li>
+    <li><a href="news.html"      class="nav-link">📰 News</a></li>
+    <li><a href="soutenir.html"  class="nav-link nav-link-support active" data-i18n="nav.support">💜 Soutenir</a></li>
   </ul>
 </nav>
 
-<!-- ════════════════════════════════
-     CONTENU
-════════════════════════════════ -->
+<!-- ════════════ CONTENU ════════════ -->
 <main class="support-page">
 
   <!-- Hero -->
   <div class="support-hero">
-    <span class="support-icon">Pi</span>
-    <h1 class="support-title" data-i18n="sup.title">Soutenir VoirAnime</h1>
-    <p class="support-subtitle" data-i18n="sup.subtitle">Projet 100% indépendant : les dons servent à couvrir les coûts du serveur et à financer le développement.</p>
+    <span class="support-icon">💜</span>
+    <h1 class="support-title">Soutenir VoirAnime</h1>
+    <p class="support-subtitle">Projet 100% indépendant. Les dons couvrent les coûts serveur. Le Premium finance le développement continu.</p>
   </div>
 
-  <!-- Montants -->
-  <p class="support-amounts-title" data-i18n="sup.amounts_title">Choisir un montant (Pi)</p>
-  <div class="support-amounts" id="amountsGrid">
-    <button class="amount-btn" data-amount="1">
-      <span class="amount-value">1 Pi</span>
-      <span class="amount-label" data-i18n="sup.label_1">Curieux</span>
+  <!-- Tabs -->
+  <div class="support-tabs" id="supportTabs">
+    <button class="support-tab active" id="tabDon" onclick="switchTab('don')">
+      <span class="support-tab-icon">🙏</span> Faire un don
     </button>
-    <button class="amount-btn selected" data-amount="2">
-      <span class="amount-value">2 Pi</span>
-      <span class="amount-label" data-i18n="sup.label_2">Contributeur</span>
-    </button>
-    <button class="amount-btn" data-amount="5">
-      <span class="amount-value">5 Pi</span>
-      <span class="amount-label" data-i18n="sup.label_5">Soutien</span>
-      <span class="amount-badge" data-i18n="sup.popular">Populaire</span>
-    </button>
-    <button class="amount-btn" data-amount="10">
-      <span class="amount-value">10 Pi</span>
-      <span class="amount-label" data-i18n="sup.label_10">Pilier</span>
-      <span class="amount-badge" data-i18n="sup.top">★ Top</span>
+    <button class="support-tab" id="tabPremium" onclick="switchTab('premium')">
+      <span class="support-tab-icon">⭐</span> Passer Premium
     </button>
   </div>
 
-  <!-- Montant libre -->
-  <div class="support-custom">
-    <label for="customAmount" data-i18n="sup.custom">Montant libre</label>
-    <input type="number" id="customAmount" placeholder="Autre montant" min="0.01" step="0.01"/>
-    <span class="support-custom-currency">Pi</span>
-  </div>
+  <!-- ══ PANEL DON ══ -->
+  <div class="support-panel active" id="panelDon">
 
-  <!-- Bouton de paiement Pi direct -->
-  <div class="support-cta">
-    <button class="support-btn-main" id="payBtn" onclick="initiatePiPayment()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-        <path d="M8 12h8M12 8l4 4-4 4"/>
-      </svg>
-      Envoyer 2 Pi via Pi Wallet
-    </button>
-
-    <!-- État de paiement -->
-    <div class="pay-status hidden" id="payStatus">
-      <div class="pay-status-icon" id="payStatusIcon">⏳</div>
-      <p class="pay-status-msg" id="payStatusMsg">Paiement en cours…</p>
+    <p class="support-amounts-title">Choisir un montant (Pi)</p>
+    <div class="support-amounts" id="amountsGrid">
+      <button class="amount-btn" data-amount="1">
+        <span class="amount-value">1 Pi</span>
+        <span class="amount-label">Curieux</span>
+      </button>
+      <button class="amount-btn selected" data-amount="2">
+        <span class="amount-value">2 Pi</span>
+        <span class="amount-label">Contributeur</span>
+      </button>
+      <button class="amount-btn" data-amount="5">
+        <span class="amount-value">5 Pi</span>
+        <span class="amount-label">Soutien</span>
+        <span class="amount-badge">Populaire</span>
+      </button>
+      <button class="amount-btn" data-amount="10">
+        <span class="amount-value">10 Pi</span>
+        <span class="amount-label">Pilier</span>
+        <span class="amount-badge">★ Top</span>
+      </button>
     </div>
 
-    <!-- Message de remerciement — affiché uniquement après paiement validé -->
-    <div class="support-merci" id="supportMerci" style="display:none">
-      <p class="support-merci-text" data-i18n="sup.merci">Merci pour ton soutien 🙏</p>
-      <button class="support-merci-close" onclick="document.getElementById('supportMerci').style.display='none'" data-i18n="sup.close">Fermer</button>
+    <div class="support-custom">
+      <label for="customAmount">Montant libre</label>
+      <input type="number" id="customAmount" placeholder="Autre montant" min="0.01" step="0.01"/>
+      <span class="support-custom-currency">Pi</span>
+    </div>
+
+    <div class="support-cta">
+      <button class="support-btn-main" id="payBtnDon" onclick="initiatePiPayment('donation')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12h8M12 8l4 4-4 4"/></svg>
+        <span id="payBtnDonLabel">Envoyer 2 Pi via Pi Wallet</span>
+      </button>
+      <div class="pay-status hidden" id="payStatusDon">
+        <div class="pay-status-icon" id="payStatusDonIcon">⏳</div>
+        <p class="pay-status-msg" id="payStatusDonMsg">Paiement en cours…</p>
+      </div>
+      <div class="support-merci" id="supportMerci" style="display:none">
+        <p class="support-merci-text">Merci pour ton soutien 🙏</p>
+        <button class="support-merci-close" onclick="document.getElementById('supportMerci').style.display='none'">Fermer</button>
+      </div>
+    </div>
+
+    <div class="support-thanks" id="thanksSection" style="display:none">
+      <p class="support-thanks-title">Nos Pioneers — Merci à vous 💜</p>
+      <div class="thanks-grid" id="thanksGrid"></div>
     </div>
   </div>
 
-  <!-- Donateurs — masqué si aucun don -->
-  <div class="support-thanks" id="thanksSection" style="display:none">
-    <p class="support-thanks-title" data-i18n="sup.pioneers">Nos Pioneers — Merci à vous 💜</p>
-    <div class="thanks-grid" id="thanksGrid"></div>
+  <!-- ══ PANEL PREMIUM ══ -->
+  <div class="support-panel" id="panelPremium">
+
+    <!-- Statut Premium actif (affiché si déjà Premium) -->
+    <div class="premium-status-card" id="premiumStatusCard">
+      <div class="ps-header">
+        <span class="ps-badge">⭐ Premium actif</span>
+        <span class="ps-title" id="psTitle">Abonnement mensuel</span>
+      </div>
+      <p class="ps-expiry" id="psExpiry">Expire le —</p>
+      <div class="ps-actions">
+        <button class="ps-btn-cancel" onclick="cancelSubscription()">Annuler le renouvellement</button>
+      </div>
+    </div>
+
+    <!-- Plans -->
+    <div class="premium-plans" id="premiumPlans">
+      <div class="plan-card selected" data-plan="monthly" onclick="selectPlan('monthly')">
+        <div class="plan-name">Mensuel</div>
+        <div class="plan-price">1.99 <span>Pi</span></div>
+        <div class="plan-period">par mois · résiliable à tout moment</div>
+        <ul class="plan-features">
+          <li>Favoris illimités</li>
+          <li>Réorganisation drag &amp; drop</li>
+          <li>Statistiques détaillées</li>
+          <li>Notifications enrichies</li>
+          <li>Accès anticipé aux features</li>
+          <li>Badge Premium profil</li>
+        </ul>
+      </div>
+      <div class="plan-card" data-plan="annual" onclick="selectPlan('annual')">
+        <div class="plan-badge-top">🔥 Meilleure offre</div>
+        <div class="plan-name">Annuel</div>
+        <div class="plan-price">19.99 <span>Pi</span></div>
+        <div class="plan-period">par an</div>
+        <div class="plan-saving">Économise ~2 mois</div>
+        <ul class="plan-features">
+          <li>Tout du plan mensuel</li>
+          <li>Priorité support</li>
+          <li>Accès bêta exclusif</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Comparatif Free vs Premium -->
+    <div class="premium-compare">
+      <div class="compare-header">
+        <div>Fonctionnalité</div>
+        <div style="text-align:center">Free</div>
+        <div style="text-align:center">Premium</div>
+      </div>
+      <div class="compare-row"><div class="compare-feature">Favoris</div><div class="compare-val txt">20 max</div><div class="compare-val yes">Illimités</div></div>
+      <div class="compare-row"><div class="compare-feature">Réorganisation favoris</div><div class="compare-val no">✕</div><div class="compare-val yes">✓</div></div>
+      <div class="compare-row"><div class="compare-feature">Stats de visionnage</div><div class="compare-val no">✕</div><div class="compare-val yes">✓</div></div>
+      <div class="compare-row"><div class="compare-feature">Notifs épisodes</div><div class="compare-val yes">✓</div><div class="compare-val yes">✓</div></div>
+      <div class="compare-row"><div class="compare-feature">Notifs recommandations</div><div class="compare-val no">✕</div><div class="compare-val yes">✓</div></div>
+      <div class="compare-row"><div class="compare-feature">Accès anticipé features</div><div class="compare-val txt">+15 jours</div><div class="compare-val yes">Immédiat</div></div>
+      <div class="compare-row"><div class="compare-feature">Badge profil</div><div class="compare-val no">✕</div><div class="compare-val yes">✓</div></div>
+    </div>
+
+    <div class="support-cta">
+      <button class="support-btn-main violet" id="payBtnPremium" onclick="initiatePiPayment('subscription')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span id="payBtnPremiumLabel">Passer Premium — 1.99 Pi/mois</span>
+      </button>
+      <div class="pay-status hidden" id="payStatusPremium">
+        <div class="pay-status-icon" id="payStatusPremiumIcon">⏳</div>
+        <p class="pay-status-msg" id="payStatusPremiumMsg">Paiement en cours…</p>
+      </div>
+      <div class="premium-merci" id="premiumMerci" style="display:none">
+        <div class="premium-merci-title">🎉 Bienvenue dans le Premium !</div>
+        <p class="premium-merci-text">Ton abonnement est actif. Toutes les fonctionnalités sont débloquées.</p>
+        <a href="profile.html" class="premium-merci-btn">Voir mon profil ⭐</a>
+      </div>
+    </div>
   </div>
 
 </main>
 
+<footer class="site-footer">
+  <div class="footer-logo">Voir<span>Anime</span></div>
+  <p class="footer-text" data-i18n="footer.no_video">Aucune vidéo n'est hébergée sur ce site.</p>
+</footer>
+
 <script>
-/* ═══════════════════════════════════
-   VOIRANIME — Pi Payment (sandbox)
-   ═══════════════════════════════════ */
+/* ═══════════════════════════════════════
+   VoirAnime — soutenir.html
+   Gère : don Pi + abonnement Premium Pi
+═══════════════════════════════════════ */
 
-let selectedAmount = 2;
-let piReady = false;
-let paying   = false;
+const BASE_URL  = 'https://voir-anime.vercel.app';
+let selectedAmount  = 2;
+let selectedPlan    = 'monthly';
+let piReady         = false;
+let paying          = false;
+let currentPiUserId = null;
+let currentPiUser   = null;
 
-/* ── 1. Init SDK au chargement ── */
+/* ── Plans (doit correspondre à api/premium.js) ── */
+const PLANS = {
+  monthly: { amount: 1.99, label: 'mensuel', btnLabel: 'Passer Premium — 1.99 Pi/mois' },
+  annual:  { amount: 19.99, label: 'annuel', btnLabel: 'Passer Premium Annuel — 19.99 Pi/an' },
+};
+
+/* ════════════════════════════
+   INIT
+════════════════════════════ */
 window.addEventListener('load', function () {
 
-  /* Boutons montant */
+  /* Boutons montant don */
   document.querySelectorAll('.amount-btn').forEach(function(btn) {
     btn.onclick = function() {
-      document.querySelectorAll('.amount-btn').forEach(function(b) {
-        b.classList.remove('selected');
-        b.style.borderColor = '';
-        b.style.background  = '';
-      });
+      document.querySelectorAll('.amount-btn').forEach(function(b) { b.classList.remove('selected'); });
       btn.classList.add('selected');
-      btn.style.borderColor = '#ff4fd8';
-      btn.style.background  = 'rgba(255,79,216,0.15)';
       selectedAmount = parseFloat(btn.getAttribute('data-amount'));
       document.getElementById('customAmount').value = '';
-      document.getElementById('payBtn').querySelector('.va-pay-label') && (document.getElementById('payBtn').querySelector('.va-pay-label').textContent = t('sup.btn', selectedAmount));
+      updateDonBtn();
     };
   });
 
@@ -464,160 +597,294 @@ window.addEventListener('load', function () {
     customInput.oninput = function() {
       var val = parseFloat(this.value);
       if (val > 0) {
-        document.querySelectorAll('.amount-btn').forEach(function(b) {
-          b.classList.remove('selected');
-          b.style.borderColor = '';
-          b.style.background  = '';
-        });
+        document.querySelectorAll('.amount-btn').forEach(function(b) { b.classList.remove('selected'); });
         selectedAmount = val;
-        document.getElementById('payBtn').textContent = 'Envoyer ' + val + ' Pi';
+        updateDonBtn();
       }
     };
   }
 
   /* Init Pi SDK */
-  if (typeof window.Pi === 'undefined') {
-    return;
+  if (typeof window.Pi !== 'undefined') {
+    try {
+      Pi.init({ version: '2.0', sandbox: true });
+      piReady = true;
+    } catch(e) { console.warn('[Pi] init error', e); }
   }
 
-  try {
-    Pi.init({ version: '2.0', sandbox: true });
-    piReady = true;
-  } catch (e) {
-    log('❌ Erreur Pi.init : ' + e.message, 'error');
-  }
+  /* Charger statut Premium si connecté */
+  loadPremiumStatus();
+
+  /* Ouvrir le bon onglet selon ?tab= */
+  var urlTab = new URLSearchParams(location.search).get('tab');
+  if (urlTab === 'premium') switchTab('premium');
 });
 
-/* ── 2. Bouton payer ── */
-function initiatePiPayment() {
-  if (paying) { log('⏳ Paiement déjà en cours…', 'info'); return; }
+function updateDonBtn() {
+  var lbl = document.getElementById('payBtnDonLabel');
+  if (lbl) lbl.textContent = 'Envoyer ' + selectedAmount + ' Pi via Pi Wallet';
+}
 
-  if (!piReady || typeof window.Pi === 'undefined') {
-    /* Dernier essai d'init */
-    if (typeof window.Pi !== 'undefined') {
-      try { Pi.init({ version: '2.0', sandbox: true }); piReady = true; }
-      catch(e) {}
-    }
-    if (!piReady) {
-      log('⚠️ Ouvre VoirAnime dans Pi Browser pour payer en Pi.', 'warn');
-      return;
-    }
+/* ════════════════════════════
+   TABS
+════════════════════════════ */
+function switchTab(tab) {
+  document.getElementById('tabDon').classList.toggle('active', tab === 'don');
+  document.getElementById('tabPremium').classList.toggle('active', tab === 'premium');
+  document.getElementById('panelDon').classList.toggle('active', tab === 'don');
+  document.getElementById('panelPremium').classList.toggle('active', tab === 'premium');
+}
+
+/* ════════════════════════════
+   PLANS PREMIUM
+════════════════════════════ */
+function selectPlan(plan) {
+  selectedPlan = plan;
+  document.querySelectorAll('.plan-card').forEach(function(c) {
+    c.classList.toggle('selected', c.getAttribute('data-plan') === plan);
+  });
+  var lbl = document.getElementById('payBtnPremiumLabel');
+  if (lbl) lbl.textContent = PLANS[plan].btnLabel;
+}
+
+/* ════════════════════════════
+   STATUT PREMIUM
+════════════════════════════ */
+function loadPremiumStatus() {
+  var piUser = null;
+  try { piUser = JSON.parse(localStorage.getItem('pi_user') || 'null'); } catch(e) {}
+  if (!piUser || !piUser.uid) return;
+
+  currentPiUserId = piUser.uid;
+  currentPiUser   = piUser;
+
+  fetch(BASE_URL + '/api/premium?piUserId=' + encodeURIComponent(piUser.uid))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.isPremium) showPremiumStatus(data);
+    })
+    .catch(function() {});
+}
+
+function showPremiumStatus(data) {
+  var card = document.getElementById('premiumStatusCard');
+  if (!card) return;
+  card.classList.add('visible');
+
+  var planLabels = { monthly: 'Abonnement mensuel', annual: 'Abonnement annuel' };
+  var title = document.getElementById('psTitle');
+  if (title) title.textContent = planLabels[data.plan] || 'Abonnement Premium';
+
+  var expiry = document.getElementById('psExpiry');
+  if (expiry && data.expiresAt) {
+    var d = new Date(data.expiresAt);
+    expiry.textContent = 'Expire le ' + d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+      + (data.daysLeft ? ' (' + data.daysLeft + ' jours restants)' : '');
   }
 
-  if (!selectedAmount || selectedAmount <= 0) {
-    log('⚠️ Choisis un montant.', 'warn');
+  /* Masquer le CTA si déjà Premium */
+  var btn = document.getElementById('payBtnPremium');
+  if (btn) {
+    btn.textContent = '✓ Renouveler l\'abonnement';
+    btn.classList.remove('violet');
+    btn.style.background = 'var(--ink3)';
+    btn.style.color = 'var(--text2)';
+    btn.style.border = '1px solid var(--b2)';
+    btn.style.boxShadow = 'none';
+    btn.style.animation = 'none';
+  }
+}
+
+/* ════════════════════════════
+   ANNULATION
+════════════════════════════ */
+function cancelSubscription() {
+  if (!currentPiUserId) { alert('Connecte-toi via Pi Browser.'); return; }
+  if (!confirm('L\'accès reste actif jusqu\'à expiration. Confirmer l\'annulation du renouvellement ?')) return;
+
+  fetch(BASE_URL + '/api/premium', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'cancel', piUserId: currentPiUserId })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.ok) {
+      alert('Renouvellement annulé. Ton accès Premium reste actif jusqu\'à expiration.');
+      var btn = document.querySelector('.ps-btn-cancel');
+      if (btn) { btn.textContent = '✓ Annulé'; btn.disabled = true; }
+    }
+  })
+  .catch(function() { alert('Erreur réseau. Réessaie.'); });
+}
+
+/* ════════════════════════════
+   PAIEMENT PI (don + abonnement)
+════════════════════════════ */
+function initiatePiPayment(type) {
+  if (paying) return;
+
+  /* Init SDK si pas encore fait */
+  if (typeof window.Pi !== 'undefined' && !piReady) {
+    try { Pi.init({ version: '2.0', sandbox: true }); piReady = true; } catch(e) {}
+  }
+  if (!piReady) {
+    logStatus(type, '⚠️ Ouvre VoirAnime dans Pi Browser pour payer en Pi.', 'warn');
     return;
+  }
+
+  var isDon = (type === 'donation');
+  var amount, memo, metadata;
+
+  if (isDon) {
+    if (!selectedAmount || selectedAmount <= 0) {
+      logStatus('donation', '⚠️ Choisis un montant.', 'warn');
+      return;
+    }
+    amount   = selectedAmount;
+    memo     = 'Don VoirAnime (' + amount + ' Pi)';
+    metadata = { app: 'voiranime', type: 'donation' };
+  } else {
+    amount   = PLANS[selectedPlan].amount;
+    memo     = 'VoirAnime Premium ' + PLANS[selectedPlan].label + ' (' + amount + ' Pi)';
+    metadata = { app: 'voiranime', type: 'subscription', plan: selectedPlan };
   }
 
   paying = true;
-  var btn = document.getElementById('payBtn');
-  if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
-  log('⏳ Authentification Pi…', 'info');
+  var btn = document.getElementById(isDon ? 'payBtnDon' : 'payBtnPremium');
+  if (btn) { btn.disabled = true; }
+  logStatus(type, '⏳ Authentification Pi…', 'info');
 
   /* Authenticate */
   Pi.authenticate(['payments', 'username'], function onIncomplete(payment) {
     if (!payment || !payment.identifier) return;
-    log('⚠️ Paiement incomplet trouvé, tentative de complétion…', 'warn');
-    fetch('https://voir-anime.vercel.app/api/pi-complete', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        paymentId: payment.identifier,
-        txid: payment.transaction && payment.transaction.txid
-      })
+    fetch(BASE_URL + '/api/pi-complete', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paymentId: payment.identifier, txid: payment.transaction && payment.transaction.txid })
     }).catch(function() {});
   })
   .then(function(auth) {
-    log('✅ Connecté : ' + (auth.user && auth.user.username || 'Pioneer'), 'success');
-    log('⏳ Création du paiement…', 'info');
+    currentPiUserId = auth.user && auth.user.uid;
+    currentPiUser   = auth.user;
 
-    var amount = selectedAmount;
+    /* Persister pour les autres pages */
+    try { localStorage.setItem('pi_user', JSON.stringify(auth.user || {})); } catch(e) {}
+
+    logStatus(type, '⏳ Création du paiement…', 'info');
 
     Pi.createPayment(
-      {
-        amount:   amount,
-        memo:     'Don VoirAnime (' + amount + ' Pi)',
-        metadata: { app: 'voiranime', type: 'donation' }
-      },
+      { amount: amount, memo: memo, metadata: metadata },
       {
         onReadyForServerApproval: function(paymentId) {
-          log('⏳ Approbation serveur…', 'info');
-          fetch('https://voir-anime.vercel.app/api/pi-approve', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ paymentId: paymentId, payment: { identifier: paymentId } })
+          logStatus(type, '⏳ Approbation serveur…', 'info');
+          fetch(BASE_URL + '/api/pi-approve', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentId: paymentId })
           })
-          .then(function(r) {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.json();
-          })
-          .then(function() {
-            log('✅ Approuvé — signe dans ton wallet Pi', 'success');
-          })
-          .catch(function(e) {
-            log('⚠️ Approbation échouée : ' + e.message, 'warn');
-          });
+          .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function() { logStatus(type, '✅ Approuvé — signe dans ton wallet Pi', 'success'); })
+          .catch(function(e) { logStatus(type, '⚠️ Approbation : ' + e.message, 'warn'); });
         },
 
         onReadyForServerCompletion: function(paymentId, txid) {
-          log('⏳ Finalisation…', 'info');
-          fetch('https://voir-anime.vercel.app/api/pi-complete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ paymentId: paymentId, txid: txid, payment: { identifier: paymentId, transaction: { txid: txid } } })
+          logStatus(type, '⏳ Finalisation…', 'info');
+
+          /* Body complet avec plan + piUserId pour les abonnements */
+          var body = { paymentId: paymentId, txid: txid };
+          if (!isDon) {
+            body.plan       = selectedPlan;
+            body.piUserId   = currentPiUserId;
+            body.piUsername = currentPiUser && currentPiUser.username;
+          }
+
+          fetch(BASE_URL + '/api/pi-complete', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
           })
-          .then(function(r) {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.json();
-          })
-          .then(function() {
-            log('💜 Don de ' + amount + ' Pi reçu. Merci !', 'success');
-            afficherMerci();
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (isDon) {
+              logStatus('donation', '💜 Don de ' + amount + ' Pi reçu. Merci !', 'success');
+              afficherMerci('don');
+            } else {
+              if (data.ok && data.premium) {
+                logStatus('subscription', '⭐ Premium activé ! Bienvenue.', 'success');
+                afficherMerci('premium');
+                loadPremiumStatus();
+              } else {
+                logStatus('subscription', '⚠️ ' + (data.warning || 'Paiement reçu, activation en cours…'), 'warn');
+              }
+            }
             paying = false;
+            resetBtn(type);
           })
-          .catch(function(e) {
-            log('✅ Don confirmé sur la blockchain. Merci !', 'success');
-            afficherMerci();
+          .catch(function() {
+            logStatus(type, isDon ? '💜 Don confirmé. Merci !' : '⭐ Paiement confirmé, activation en cours…', 'success');
+            if (isDon) afficherMerci('don'); else afficherMerci('premium');
             paying = false;
+            resetBtn(type);
           });
         },
 
-        onCancel: function(paymentId) {
-          log('Don annulé.', 'info');
-          reset();
+        onCancel: function() {
+          logStatus(type, 'Paiement annulé.', 'info');
+          paying = false;
+          resetBtn(type);
         },
 
         onError: function(error) {
-          log('❌ Erreur : ' + (error && error.message || String(error)), 'error');
-          reset();
+          logStatus(type, '❌ ' + (error && error.message || String(error)), 'error');
+          paying = false;
+          resetBtn(type);
         }
       }
     );
   })
   .catch(function(e) {
-    log('❌ Auth échouée : ' + (e && e.message || String(e)), 'error');
-    reset();
+    logStatus(type, '❌ Auth : ' + (e && e.message || String(e)), 'error');
+    paying = false;
+    resetBtn(type);
   });
 }
 
-function reset() {
-  paying = false;
-  var btn = document.getElementById('payBtn');
-  if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+/* ════════════════════════════
+   HELPERS UI
+════════════════════════════ */
+function resetBtn(type) {
+  var id = type === 'donation' ? 'payBtnDon' : 'payBtnPremium';
+  var btn = document.getElementById(id);
+  if (btn) { btn.disabled = false; }
 }
 
-function afficherMerci() {
-  var merci = document.getElementById('supportMerci');
-  if (!merci) return;
-  merci.style.display = 'block';
-  setTimeout(function() { merci.style.display = 'none'; }, 6000);
+function afficherMerci(type) {
+  if (type === 'don') {
+    var m = document.getElementById('supportMerci');
+    if (m) { m.style.display = 'block'; setTimeout(function() { m.style.display = 'none'; }, 6000); }
+  } else {
+    var p = document.getElementById('premiumMerci');
+    if (p) { p.style.display = 'block'; }
+  }
+}
+
+function logStatus(type, msg, level) {
+  console.log('[Pi]', msg);
+  var suffix  = type === 'donation' ? 'Don' : 'Premium';
+  var s = document.getElementById('payStatus' + suffix);
+  var i = document.getElementById('payStatus' + suffix + 'Icon');
+  var m = document.getElementById('payStatus' + suffix + 'Msg');
+  if (!s) return;
+  s.classList.remove('hidden');
+  var bg    = { info: 'rgba(76,201,240,0.1)', success: 'rgba(6,214,160,0.15)', warn: 'rgba(255,209,102,0.12)', error: 'rgba(230,57,70,0.15)' };
+  var icons = { info: 'ℹ️', success: '✅', warn: '⚠️', error: '❌' };
+  s.style.background = bg[level] || bg.info;
+  if (i) i.textContent = icons[level] || 'ℹ️';
+  if (m) m.textContent = msg;
 }
 
 function chargerDonateurs(pseudos) {
   var section = document.getElementById('thanksSection');
   var grid = document.getElementById('thanksGrid');
-  if (!section || !grid) return;
-  if (!pseudos || pseudos.length === 0) { section.style.display = 'none'; return; }
+  if (!section || !grid || !pseudos || pseudos.length === 0) { if (section) section.style.display = 'none'; return; }
   grid.innerHTML = '';
   pseudos.forEach(function(p) {
     var span = document.createElement('span');
@@ -627,48 +894,9 @@ function chargerDonateurs(pseudos) {
   });
   section.style.display = 'block';
 }
-
-/* ── Logger visible à l'écran ── */
-function log(msg, type) {
-  console.log('[Pi]', msg);
-  var s = document.getElementById('payStatus');
-  var i = document.getElementById('payStatusIcon');
-  var m = document.getElementById('payStatusMsg');
-  if (!s) return;
-  s.classList.remove('hidden');
-  var colors = {
-    info:    'rgba(76,201,240,0.1)',
-    success: 'rgba(6,214,160,0.15)',
-    warn:    'rgba(255,209,102,0.12)',
-    error:   'rgba(230,57,70,0.15)'
-  };
-  var icons = { info:'ℹ️', success:'✅', warn:'⚠️', error:'❌' };
-  s.style.background = colors[type] || colors.info;
-  if (i) i.textContent = icons[type] || 'ℹ️';
-  if (m) m.textContent = msg;
-}
-
-/* ── Page transition ── */
-(function() {
-  var ov = document.createElement('div');
-  ov.className = 'page-transition-overlay in';
-  document.body.appendChild(ov);
-  setTimeout(function() { ov.remove(); }, 450);
-  document.addEventListener('click', function(e) {
-    var link = e.target.closest('a[href]');
-    if (!link) return;
-    var href = link.getAttribute('href');
-    if (!href || href[0] === '#' || href.startsWith('http') ||
-        href.startsWith('mailto') || link.target === '_blank') return;
-    e.preventDefault();
-    var o = document.createElement('div');
-    o.className = 'page-transition-overlay out';
-    document.body.appendChild(o);
-    setTimeout(function() { location.href = href; }, 340);
-  });
-})();
 </script>
 
+<!-- Nav active + avatar + transitions -->
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   var raw  = location.pathname.split('/').pop() || 'index';
@@ -679,25 +907,36 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 });
 </script>
-
 <script>
-/* Chargement avatar navbar */
 (function() {
   try {
     var saved = JSON.parse(localStorage.getItem('VoirAnime_avatar') || 'null');
     if (saved && saved.img) {
-      var imgs = document.querySelectorAll('.nav-avatar-img');
-      var fallbacks = document.querySelectorAll('.nav-avatar-fallback');
-      imgs.forEach(function(img) { img.src = saved.img; img.style.display = 'block'; });
-      fallbacks.forEach(function(f) { f.style.display = 'none'; });
+      document.querySelectorAll('.nav-avatar-img').forEach(function(img) { img.src = saved.img; img.style.display = 'block'; });
+      document.querySelectorAll('.nav-avatar-fallback').forEach(function(f) { f.style.display = 'none'; });
     }
   } catch(e) {}
 })();
 </script>
-<footer class="site-footer">
-  <div class="footer-logo">Voir<span>Anime</span></div>
-  <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
-</footer>
+<script>
+(function() {
+  var ov = document.createElement('div');
+  ov.className = 'page-transition-overlay in';
+  document.body.appendChild(ov);
+  setTimeout(function() { ov.remove(); }, 450);
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('a[href]');
+    if (!link) return;
+    var href = link.getAttribute('href');
+    if (!href || href[0] === '#' || href.startsWith('http') || href.startsWith('mailto') || link.target === '_blank') return;
+    e.preventDefault();
+    var o = document.createElement('div');
+    o.className = 'page-transition-overlay out';
+    document.body.appendChild(o);
+    setTimeout(function() { location.href = href; }, 340);
+  });
+})();
+</script>
 
 </body>
 </html>
