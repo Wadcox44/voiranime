@@ -7333,14 +7333,23 @@ button.npg-cta-annual      { background: linear-gradient(135deg, #f59e0b, var(--
 /* ── Fix Pi Browser reflow navbar ── */
 @media (max-width: 768px) {
   .nav-top {
-    position: relative;
-    min-height: 52px;
+    position: relative !important;
+    min-height: 52px !important;
+    box-sizing: border-box;
   }
+  /* Remplace top:50%+transform par top fixe — stable après reflow Pi Browser */
   .nav-avatar-left {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    will-change: transform;
+    position: absolute !important;
+    left: 12px !important;
+    top: 10px !important;          /* (52px - 34px avatar) / 2 = 9px → 10px */
+    transform: none !important;    /* supprime le transform dynamique */
+    will-change: auto;
+  }
+  /* Même correction pour nav-right (bouton recherche) */
+  .nav-right {
+    position: absolute !important;
+    right: 16px !important;
+    top: 10px !important;
+    transform: none !important;
   }
 }
