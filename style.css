@@ -750,7 +750,7 @@ ul, ol { list-style: none; }
    SECTIONS & CAROUSELS
 ───────────────────────────────────────────────────────── */
 .content-section {
-  padding: 4px 48px 6px;
+  padding: 12px 48px 16px;
   max-width: 1600px;
   margin: 0 auto;
   width: 100%;
@@ -761,7 +761,7 @@ ul, ol { list-style: none; }
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 6px;
+  margin-bottom: 18px;
 }
 
 .section-title {
@@ -1487,11 +1487,10 @@ ul, ol { list-style: none; }
 ───────────────────────────────────────────────────────── */
 .site-footer {
   text-align: center;
-  padding: 6px 24px 4px;
+  padding: 12px 24px 10px;
   border-top: 1px solid rgba(148,163,184,0.06);
   color: var(--muted);
   font-size: 0.76rem;
-  margin-top: 0;
 }
 
 .footer-logo {
@@ -1503,7 +1502,7 @@ ul, ol { list-style: none; }
 }
 .footer-logo span { color: var(--pink); }
 
-.footer-text { margin-bottom: 5px; line-height: 1.75; }
+.footer-text { margin-bottom: 0; line-height: 1.75; }
 .footer-text a { color: var(--muted); transition: color 0.2s; }
 .footer-text a:hover { color: var(--text); }
 .footer-copy { color: var(--ink5); font-size: 0.72rem; }
@@ -1541,7 +1540,7 @@ ul, ol { list-style: none; }
     white-space: nowrap;
   }
   .hero::after { display: none; }
-  .content-section { padding: 2px 14px 4px; }
+  .content-section { padding: 8px 14px 12px; }
   .anime-card { width: 140px; }
   .anime-card:hover { transform: scale(1.03) translateY(-3px); }
   .carousel-btn { display: flex; opacity: 1; pointer-events: all; width: 32px; height: 64px; font-size: 1.1rem; }
@@ -3295,7 +3294,7 @@ body {
 
 /* Espacement cohérent entre sections */
 .content-section + .content-section {
-  margin-top: 0;
+  margin-top: 8px;
 }
 .zone-separator + .content-section {
   margin-top: 0;
@@ -3862,7 +3861,7 @@ a:active {
    SECTIONS & CAROUSELS — Mobile
 ───────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .content-section { padding: 2px 12px 4px; }
+  .content-section { padding: 8px 12px 12px; }
 
   /* Titres de section */
   .section-title { font-size: 0.92rem; }
@@ -3879,10 +3878,9 @@ a:active {
   /* Carousel mobile : scroll libre et fluide */
   .carousel {
     -webkit-overflow-scrolling: touch;
-    /* pan-x supprimé — bloquait le scroll vertical sur les cards */
+    touch-action: pan-x;
     padding-bottom: 16px;
   }
-  .anime-card { touch-action: pan-y !important; }
 }
 
 @media (max-width: 480px) {
