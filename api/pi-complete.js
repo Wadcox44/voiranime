@@ -26,10 +26,7 @@ async function completeWithPi(paymentId, txid) {
 }
 
 async function activatePremium(piUserId, plan, paymentId, txid, piUsername) {
-  // Appel interne à api/premium.js
-  const baseUrl = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : 'https://voir-anime.vercel.app';
+  const baseUrl = 'https://voir-anime.vercel.app'; // URL fixe, pas VERCEL_URL
 
   const res = await fetch(`${baseUrl}/api/premium`, {
     method:  'POST',
@@ -43,6 +40,10 @@ async function activatePremium(piUserId, plan, paymentId, txid, piUsername) {
       piUsername,
     }),
   });
+
+  if (!res.ok) throw new Error(`Premium activation failed: ${res.status}`);
+  return res.json();
+}
 
   if (!res.ok) throw new Error(`Premium activation failed: ${res.status}`);
   return res.json();
