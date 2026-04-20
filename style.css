@@ -7329,3 +7329,18 @@ button.npg-cta-annual      { background: linear-gradient(135deg, #f59e0b, var(--
   padding: 1px 6px;
   border-radius: 99px;
 }
+
+/* ── Fix Pi Browser reflow navbar ── */
+@media (max-width: 768px) {
+  .nav-top {
+    position: relative;
+    min-height: 52px;
+  }
+  .nav-avatar-left {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    will-change: transform;
+  }
+}
