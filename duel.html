@@ -13,17 +13,17 @@
     .nav-logo{text-decoration:none;display:inline-flex;align-items:center}
     .logo-glitch{display:inline-block;font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:-.5px;transform:skewX(-6deg);position:relative;user-select:none}
     .logo-glitch::before,.logo-glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:0;pointer-events:none}
-    .logo-glitch::before{color:#ff2d78;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%)}
-    .logo-glitch::after{color:#2de4ff;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%)}
+    .logo-glitch::before{color:#22d3ee;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%)}
+    .logo-glitch::after{color:#a78bfa;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%)}
     /* Glitch permanent toutes les 5s */
     .logo-glitch::before{animation:va-gr-auto 5s steps(2) infinite;opacity:1}
     .logo-glitch::after{animation:va-gb-auto 5s steps(2) .06s infinite;opacity:1}
     @keyframes va-gr-auto{0%{transform:translate(-2px,1px);opacity:1}4%{transform:translate(2px,-1px);opacity:1}8%{transform:translate(-1px,2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
     @keyframes va-gb-auto{0%{transform:translate(2px,-1px);opacity:1}4%{transform:translate(-2px,1px);opacity:1}8%{transform:translate(1px,-2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
     .logo-voir{color:#fff;animation:va-gw 2.6s ease-in-out infinite}
-    .logo-anime{color:#ff4fd8;animation:va-gp 2.6s ease-in-out infinite .4s}
-    @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(255,79,216,.4),0 0 10px rgba(255,79,216,.2)}50%{text-shadow:0 0 8px rgba(255,79,216,.9),0 0 20px rgba(255,79,216,.5),0 0 36px rgba(124,77,255,.3)}}
-    @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(255,79,216,.6),0 0 14px rgba(124,77,255,.3)}50%{text-shadow:0 0 10px #ff4fd8,0 0 24px rgba(255,79,216,.7),0 0 40px rgba(124,77,255,.45)}}
+    .logo-anime{color:#22d3ee;animation:va-gp 2.6s ease-in-out infinite .4s}
+    @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(34,211,238,.4),0 0 10px rgba(34,211,238,.2)}50%{text-shadow:0 0 8px rgba(34,211,238,.9),0 0 20px rgba(34,211,238,.5),0 0 36px rgba(167,139,250,.3)}}
+    @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(34,211,238,.6),0 0 14px rgba(167,139,250,.3)}50%{text-shadow:0 0 10px #22d3ee,0 0 24px rgba(34,211,238,.7),0 0 40px rgba(167,139,250,.45)}}
     @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
   </style>
   <script src="i18n.js"></script>
