@@ -828,66 +828,113 @@
   }
 
 
-  // Lance le paiement Pi directement — même logique que les dons dans soutenir.html
+  // Lance le paiement Pi — logique identique à soutenir.html (qui fonctionne)
+  var _piReady = false;
+
+  // Init Pi SDK dès que possible (même logique que soutenir.html)
+  (function initPiSDK() {
+    if (typeof window.Pi === 'undefined') return; // pas dans Pi Browser — silencieux
+    try {
+      window.Pi.init({ version: '2.0', sandbox: true });
+      _piReady = true;
+    } catch(e) {
+      console.warn('[Pi init]', e);
+    }
+  })();
+
   function _launchSubscription(plan) {
-    const PLANS = { monthly: { amount: 1.99, label: 'Premium Mensuel' }, annual: { amount: 19.99, label: 'Premium Annuel' } };
-    const planDef = PLANS[plan];
+    var PLANS = {
+      monthly: { amount: 1.99,  label: 'Premium Mensuel' },
+      annual:  { amount: 19.99, label: 'Premium Annuel'  }
+    };
+    var planDef = PLANS[plan];
     if (!planDef) return;
 
-    if (typeof Pi === 'undefined') {
-      alert("Ouvre VoirAnime dans le Pi Browser pour t'abonner.");
-      return;
+    // Même logique de fallback que soutenir.html
+    if (!_piReady || typeof window.Pi === 'undefined') {
+      if (typeof window.Pi !== 'undefined') {
+        try { window.Pi.init({ version: '2.0', sandbox: true }); _piReady = true; } catch(e) {}
+      }
+      if (!_piReady) {
+        // Pas dans Pi Browser — afficher un message propre (pas un alert bloquant)
+        var card = el('profileSubscriptionCard');
+        if (card) {
+          var msg = card.querySelector('.sub-pi-error');
+          if (!msg) {
+            msg = document.createElement('div');
+            msg.className = 'sub-pi-error';
+            card.appendChild(msg);
+          }
+          msg.textContent = "⚠️ Ouvre VoirAnime dans le Pi Browser pour t'abonner.";
+          msg.style.cssText = 'color:#f59e0b;font-size:0.78rem;font-weight:600;padding:8px 0;text-align:center;';
+          setTimeout(function() { if (msg.parentNode) msg.parentNode.removeChild(msg); }, 5000);
+        }
+        return;
+      }
     }
 
-    const piUser = window.piAuth?.getUser?.() || (() => {
-      try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
+    var piUser = (window.piAuth && window.piAuth.getUser && window.piAuth.getUser()) || (function() {
+      try { return JSON.parse(localStorage.getItem('pi_user')); } catch(e) { return null; }
     })();
 
-    Pi.authenticate(['payments', 'username'], function onIncomplete(payment) {
-      if (!payment?.identifier) return;
+    // Paiement incomplet — même logique que soutenir.html
+    window.Pi.authenticate(['payments', 'username'], function onIncomplete(payment) {
+      if (!payment || !payment.identifier) return;
       fetch('https://voir-anime.vercel.app/api/pi-complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           paymentId: payment.identifier,
-          txid: payment.transaction?.txid,
-          piUserId: piUser?.uid,
-          plan,
-          piUsername: payment.user?.username,
+          txid: payment.transaction && payment.transaction.txid,
+          piUserId: piUser && piUser.uid,
+          plan: plan,
+          piUsername: payment.user && payment.user.username,
         }),
-      }).catch(() => {});
-    }).then(function(auth) {
-      Pi.createPayment(
-        { amount: planDef.amount, memo: `VoirAnime ${planDef.label}`, metadata: { app: 'voiranime', type: 'subscription', plan } },
+      }).catch(function() {});
+    })
+    .then(function(auth) {
+      window.Pi.createPayment(
+        {
+          amount:   planDef.amount,
+          memo:     'VoirAnime ' + planDef.label,
+          metadata: { app: 'voiranime', type: 'subscription', plan: plan },
+        },
         {
           onReadyForServerApproval: function(paymentId) {
             fetch('https://voir-anime.vercel.app/api/pi-approve', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ paymentId, plan }),
-            }).catch(() => {});
+              body: JSON.stringify({ paymentId: paymentId, plan: plan }),
+            }).catch(function() {});
           },
           onReadyForServerCompletion: function(paymentId, txid) {
             fetch('https://voir-anime.vercel.app/api/pi-complete', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ paymentId, txid, piUserId: piUser?.uid, plan, piUsername: auth.user?.username }),
+              body: JSON.stringify({
+                paymentId: paymentId,
+                txid: txid,
+                piUserId: piUser && piUser.uid,
+                plan: plan,
+                piUsername: auth.user && auth.user.username,
+              }),
             })
             .then(function(r) { return r.json(); })
             .then(function(data) {
-              if (data.premium?.isPremium) {
+              if (data.premium && data.premium.isPremium) {
                 window.VA_clearPremiumCache && window.VA_clearPremiumCache();
                 renderSubscriptionStatus();
-                alert('✅ Abonnement Premium activé ! Bienvenue 🎉');
+                alert('\u2705 Abonnement Premium activ\u00e9 ! Bienvenue \uD83C\uDF89');
               }
             })
-            .catch(function() { alert('Paiement reçu — activation en cours…'); });
+            .catch(function() { alert('Paiement re\u00e7u \u2014 activation en cours\u2026'); });
           },
           onCancel: function() {},
-          onError: function(e) { console.error('[sub]', e); },
+          onError:  function(e) { console.error('[sub]', e); },
         }
       );
-    }).catch(function(e) { console.error('[pi auth]', e); });
+    })
+    .catch(function(e) { console.error('[pi auth]', e); });
   }
 
   function _confirmCancel() {
