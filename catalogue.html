@@ -26,7 +26,7 @@
 
     /* ── Catalogue styles ── */
     .cat-header {
-      padding: calc(var(--nav-h) + 60px) 48px 28px;
+      padding: calc(var(--nav-h) + 20px) 48px 12px;
       max-width: 1600px;
       margin: 0 auto;
     }
@@ -39,16 +39,53 @@
     .cat-title span { color: var(--pink); }
     .cat-subtitle { font-size: 0.85rem; color: var(--muted); }
 
-    /* Barre de filtres */
-    .cat-filters {
+    /* ── Barre recherche principale ── */
+    .cat-search-bar {
       display: flex;
-      flex-wrap: wrap;
       gap: 8px;
-      align-items: flex-end;
-      padding: 0 48px 12px;
+      align-items: center;
+      padding: 0 48px 8px;
       max-width: 1600px;
       margin: 0 auto;
     }
+
+    /* ── Toggle filtres avancés ── */
+    .cat-adv-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text2);
+      padding: 6px 14px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--b2);
+      background: var(--ink3);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      font-family: var(--font);
+    }
+    .cat-adv-toggle:hover { border-color: var(--b3); color: var(--text); }
+    .cat-adv-toggle.open  { border-color: var(--b-violet); color: var(--violet); background: var(--violet-dim); }
+    .cat-adv-arrow { font-size: 0.65rem; transition: transform 0.2s; }
+    .cat-adv-toggle.open .cat-adv-arrow { transform: rotate(180deg); }
+
+    /* ── Panel filtres avancés ── */
+    .cat-filters {
+      display: none;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: flex-end;
+      padding: 0 48px 10px;
+      max-width: 1600px;
+      margin: 0 auto;
+      background: var(--ink3);
+      border-top: 1px solid var(--b1);
+      border-bottom: 1px solid var(--b1);
+      padding-top: 10px;
+    }
+    .cat-filters.open { display: flex; }
     .cat-filter-group { display: flex; flex-direction: column; gap: 5px; }
     .cat-label {
       font-size: 0.65rem;
@@ -228,14 +265,48 @@
     .cat-page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
     .cat-page-info { font-size: 0.78rem; color: var(--muted); padding: 0 8px; }
 
+    /* ── Favoris — cœur rouge très visible ── */
+    .card-fav-btn {
+      position: absolute;
+      top: 8px; right: 8px;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(8,7,15,0.72);
+      border: 2px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1 !important;   /* toujours visible sur catalogue */
+      transform: scale(1) !important;
+      transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+    .card-fav-btn svg { width: 14px; height: 14px; }
+    .card-fav-btn:hover {
+      background: rgba(220,38,38,0.25);
+      border-color: #ef4444;
+      color: #ef4444;
+      transform: scale(1.15) !important;
+    }
+    .card-fav-btn.active {
+      background: rgba(220,38,38,0.2);
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+    .card-fav-btn.active svg { fill: #ef4444; stroke: #ef4444; }
+
     @media (max-width: 768px) {
-      .cat-header { padding: calc(var(--nav-h) + 20px) 16px 20px; }
-      .cat-filters { padding: 0 16px 10px; gap: 6px; }
+      .cat-header { padding: calc(var(--nav-h) + 16px) 16px 14px; }
+      .cat-search-bar { padding: 0 16px 6px; gap: 6px; }
+      .cat-filters { padding: 6px 16px 10px; gap: 6px; }
       .cat-toolbar { padding: 0 16px 6px; }
       .cat-grid-wrap { padding: 0 16px; }
       .cat-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
       .cat-pagination { padding: 16px 16px 24px; }
       .cat-search-wrap { max-width: 100%; }
+      .cat-adv-toggle { font-size: 0.72rem; padding: 6px 10px; }
     }
   </style>
   <script src="i18n.js"></script>
@@ -282,20 +353,29 @@
   <p class="cat-subtitle" id="catSubtitle" data-i18n="cat.subtitle">Explore tous les animes — filtre, trie, découvre.</p>
 </div>
 
-<!-- FILTRES -->
-<div class="cat-filters">
-  <!-- Recherche texte -->
-  <div class="cat-filter-group" style="flex:1;min-width:200px">
-    <label class="cat-label">Recherche</label>
-    <div class="cat-search-wrap">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--muted);flex-shrink:0">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      <input type="text" id="catSearchInput" class="cat-search-input"
-             placeholder="Title…" data-i18n-placeholder="cat.search" autocomplete="off" spellcheck="false"/>
-    </div>
+<!-- BARRE RECHERCHE PRINCIPALE -->
+<div class="cat-search-bar">
+  <div class="cat-search-wrap" style="flex:1;max-width:100%">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--muted);flex-shrink:0">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" id="catSearchInput" class="cat-search-input"
+           placeholder="Rechercher un anime…" autocomplete="off" spellcheck="false"/>
   </div>
+  <button class="cat-btn-search" id="catBtnSearch">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    Rechercher
+  </button>
+  <button class="cat-adv-toggle" id="catAdvToggle">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+    Filtres
+    <span class="cat-adv-arrow">▼</span>
+  </button>
+  <button class="cat-btn-reset" id="catBtnReset">✕</button>
+</div>
 
+<!-- FILTRES AVANCÉS (masqués par défaut) -->
+<div class="cat-filters" id="catFilters">
   <div class="cat-filter-group">
     <label class="cat-label">Genre</label>
     <select id="catGenre" class="cat-select">
@@ -332,8 +412,8 @@
     <label class="cat-label">Statut</label>
     <select id="catStatus" class="cat-select">
       <option value="">Tous</option>
-      <option value="airing" data-i18n="status.airing">Airing</option>
-      <option value="complete" data-i18n="status.complete">Completed</option>
+      <option value="airing">En cours</option>
+      <option value="complete">Terminé</option>
       <option value="upcoming">À venir</option>
     </select>
   </div>
@@ -364,12 +444,6 @@
       <option value="2000">2000–2009</option>
     </select>
   </div>
-
-  <button class="cat-btn-search" id="catBtnSearch">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <span data-i18n="adv.search_btn">Search</span>
-  </button>
-  <button class="cat-btn-reset" id="catBtnReset">✕ Reset</button>
 </div>
 
 <!-- TOOLBAR -->
@@ -526,8 +600,9 @@ function buildCard(anime) {
       </div>
       ${type ? `<span class="card-type-badge">${esc(type)}</span>` : ''}
       <button class="card-fav-btn ${fav ? 'active' : ''}" data-fav-id="${id}" aria-label="Favori">
-        <svg width="12" height="12" viewBox="0 0 24 24"
-             fill="${fav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+        <svg width="14" height="14" viewBox="0 0 24 24"
+             fill="${fav ? '#ef4444' : 'none'}"
+             stroke="${fav ? '#ef4444' : 'currentColor'}" stroke-width="2">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
         </svg>
       </button>
@@ -547,7 +622,9 @@ function buildCard(anime) {
     const added = toggleFav(id, title, img);
     const btn   = e.currentTarget;
     btn.classList.toggle('active', added);
-    btn.querySelector('svg').setAttribute('fill', added ? 'currentColor' : 'none');
+    const svg = btn.querySelector('svg');
+    svg.setAttribute('fill',   added ? '#ef4444' : 'none');
+    svg.setAttribute('stroke', added ? '#ef4444' : 'currentColor');
   });
 
   return card;
@@ -718,8 +795,21 @@ async function loadPage(page = 1) {
   }
 }
 
+/* ── Toggle filtres avancés ── */
+el('catAdvToggle').addEventListener('click', () => {
+  const panel  = el('catFilters');
+  const toggle = el('catAdvToggle');
+  const isOpen = panel.classList.toggle('open');
+  toggle.classList.toggle('open', isOpen);
+});
+
 /* ── Events ── */
-el('catBtnSearch').addEventListener('click', () => loadPage(1));
+el('catBtnSearch').addEventListener('click', () => {
+  // Fermer les filtres avancés automatiquement
+  el('catFilters').classList.remove('open');
+  el('catAdvToggle').classList.remove('open');
+  loadPage(1);
+});
 el('catBtnReset').addEventListener('click', () => {
   el('catSearchInput').value = '';
   el('catGenre').value  = '';
