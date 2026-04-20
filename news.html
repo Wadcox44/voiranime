@@ -149,7 +149,10 @@
         Reçois des alertes quand tes animés favoris sortent de nouveaux épisodes,
         des annonces de saisons, et un calendrier des sorties à venir.
       </div>
-      <a href="soutenir.html" class="npg-cta">Passer Premium — 1.99 Pi/mois</a>
+      <div class="npg-plans">
+        <a href="soutenir.html" class="npg-cta">Mensuel — 1.99 Pi/mois</a>
+        <a href="soutenir.html" class="npg-cta npg-cta-annual">Annuel — 19.99 Pi/an <span class="npg-saving">2 mois offerts</span></a>
+      </div>
     </div>
     <div class="news-perso-content hidden" id="newsPersoContent">
       <div class="news-perso-section">
@@ -194,7 +197,12 @@
 
   // ── Chargement actu globale via Jikan News ──
   var currentSource = 'all';
-  var JIKAN_NEWS = 'https://api.jikan.moe/v4/news/anime?limit=20';
+  // Endpoints news avec fallback (Jikan /news peut 429)
+  var JIKAN_NEWS_ENDPOINTS = [
+    'https://api.jikan.moe/v4/news/anime?limit=20',
+    'https://api.jikan.moe/v4/top/anime?filter=airing&limit=20'
+  ];
+  var JIKAN_NEWS = JIKAN_NEWS_ENDPOINTS[0];
 
   function loadGlobalNews(source) {
     var feed = document.getElementById('newsFeedGlobal');
@@ -214,6 +222,12 @@
     fetch(JIKAN_NEWS, opts)
       .then(function(r) {
         if (timeoutId) clearTimeout(timeoutId);
+        // 429 = rate limit → retry dans 3s
+        if (r.status === 429) {
+          feed.innerHTML = '<div class="news-loading">Rate limit — nouvel essai dans 3s&#8230;</div>';
+          setTimeout(function() { loadGlobalNews(source); }, 3000);
+          throw new Error('429_SKIP');
+        }
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
       })
@@ -259,6 +273,7 @@
       })
       .catch(function(e) {
         if (timeoutId) clearTimeout(timeoutId);
+        if (e && e.message === '429_SKIP') return; // déjà géré
         var isAbort = e && e.name === 'AbortError';
         feed.innerHTML = '<div class="news-empty">'
           + (isAbort ? 'Délai dépassé.' : 'Erreur de chargement.')

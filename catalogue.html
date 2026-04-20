@@ -387,6 +387,9 @@
   </div>
 </div>
 
+<!-- PAGINATION HAUT -->
+<div class="cat-pagination cat-pagination-top" id="catPaginationTop"></div>
+
 <!-- GRILLE -->
 <div class="cat-grid-wrap">
   <div class="cat-grid" id="catGrid">
@@ -623,48 +626,51 @@ function renderGrid(animes) {
 
 /* ── Pagination ── */
 function renderPagination(currentPage, totalPages) {
-  const wrap = el('catPagination');
-  wrap.innerHTML = '';
-  if (totalPages <= 1) return;
+  const containers = [el('catPaginationTop'), el('catPagination')].filter(Boolean);
+  containers.forEach(function(wrap) {
+    wrap.innerHTML = '';
+    if (totalPages <= 1) return;
 
-  // Prev
-  const prev = document.createElement('button');
-  prev.className = 'cat-page-btn';
-  prev.textContent = '‹';
-  prev.disabled = currentPage <= 1;
-  prev.addEventListener('click', () => loadPage(currentPage - 1));
-  wrap.appendChild(prev);
+    // Prev
+    const prev = document.createElement('button');
+    prev.className = 'cat-page-btn';
+    prev.textContent = '\u2039';
+    prev.disabled = currentPage <= 1;
+    prev.addEventListener('click', () => loadPage(currentPage - 1));
+    wrap.appendChild(prev);
 
-  // Page numbers
-  const range = [];
-  for (let i = 1; i <= totalPages; i++) {
-    if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 2) range.push(i);
-    else if (range[range.length - 1] !== '…') range.push('…');
-  }
-
-  range.forEach(r => {
-    if (r === '…') {
-      const span = document.createElement('span');
-      span.className = 'cat-page-info';
-      span.textContent = '…';
-      wrap.appendChild(span);
-    } else {
-      const btn = document.createElement('button');
-      btn.className = `cat-page-btn${r === currentPage ? ' active' : ''}`;
-      btn.textContent = r;
-      btn.addEventListener('click', () => loadPage(r));
-      wrap.appendChild(btn);
+    // Page numbers
+    const range = [];
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 2) range.push(i);
+      else if (range[range.length - 1] !== '\u2026') range.push('\u2026');
     }
-  });
 
-  // Next
-  const next = document.createElement('button');
-  next.className = 'cat-page-btn';
-  next.textContent = '›';
-  next.disabled = currentPage >= totalPages;
-  next.addEventListener('click', () => loadPage(currentPage + 1));
-  wrap.appendChild(next);
+    range.forEach(r => {
+      if (r === '\u2026') {
+        const span = document.createElement('span');
+        span.className = 'cat-page-info';
+        span.textContent = '\u2026';
+        wrap.appendChild(span);
+      } else {
+        const btn = document.createElement('button');
+        btn.className = 'cat-page-btn' + (r === currentPage ? ' active' : '');
+        btn.textContent = r;
+        btn.addEventListener('click', () => loadPage(r));
+        wrap.appendChild(btn);
+      }
+    });
+
+    // Next
+    const next = document.createElement('button');
+    next.className = 'cat-page-btn';
+    next.textContent = '\u203a';
+    next.disabled = currentPage >= totalPages;
+    next.addEventListener('click', () => loadPage(currentPage + 1));
+    wrap.appendChild(next);
+  });
 }
+
 
 /* ── Load page ── */
 async function loadPage(page = 1) {
