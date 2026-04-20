@@ -41,13 +41,90 @@ function getFavs() {
 function saveFavs(f) { localStorage.setItem('VoirAnime_favs', JSON.stringify(f)); }
 function isFav(id) { return getFavs().some(f => f.id === id); }
 
-function toggleFav(id, title, img) {
-  const favs = getFavs();
-  const idx  = favs.findIndex(f => f.id === id);
-  if (idx > -1) { favs.splice(idx, 1); showToast(t('anime.fav_removed', title)); }
-  else           { favs.unshift({ id, title, img }); showToast(t('anime.fav_added', title)); }
+async function toggleFav(id, title, img) {
+  const favs   = getFavs();
+  const idx    = favs.findIndex(f => f.id === id);
+  const adding = idx === -1;
+  const piUser = window.piAuth?.getUser?.() || (() => {
+    try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
+  })();
+
+  // ── Suppression ──────────────────────────────────────────────────────────
+  if (!adding) {
+    favs.splice(idx, 1);
+    saveFavs(favs);
+    showToast(t('anime.fav_removed', title));
+    if (piUser?.uid) {
+      fetch('/api/favorites', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ action: 'remove', piUserId: piUser.uid, animeId: id }),
+      }).catch(() => {});
+    }
+    return false;
+  }
+
+  // ── Ajout : vérification serveur si connecté ─────────────────────────────
+  if (piUser?.uid) {
+    try {
+      const res  = await fetch('/api/favorites', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ action: 'add', piUserId: piUser.uid, animeId: id, title, img }),
+      });
+      const data = await res.json();
+
+      if (res.status === 403 && data.error === 'LIMIT_REACHED') {
+        showFavLimitModal(data.count, data.limit);
+        return false;
+      }
+      if (!res.ok) { showToast('⚠️ Server error'); return false; }
+
+    } catch {
+      if (favs.length >= 20) { showFavLimitModal(favs.length, 20); return false; }
+    }
+  } else {
+    if (favs.length >= 20) { showFavLimitModal(favs.length, 20); return false; }
+  }
+
+  favs.unshift({ id, title, img });
   saveFavs(favs);
-  return idx === -1;
+  showToast(t('anime.fav_added', title));
+  return true;
+}
+
+/* ── Modal limite favoris Free ──────────────────────────────────────────── */
+function showFavLimitModal(count, limit) {
+  document.getElementById('favLimitModal')?.remove();
+  const modal = document.createElement('div');
+  modal.id        = 'favLimitModal';
+  modal.className = 'fav-limit-modal';
+  modal.innerHTML = `
+    <div class="fav-limit-box">
+      <div class="fav-limit-icon">❤️</div>
+      <h3 class="fav-limit-title">Favorites limit reached</h3>
+      <p class="fav-limit-msg">
+        You have reached the limit of <strong>${limit} favorites</strong> on the free plan.
+      </p>
+      <div class="fav-limit-bar">
+        <div class="fav-limit-fill" style="width:100%"></div>
+      </div>
+      <p class="fav-limit-count">${count} / ${limit}</p>
+      <a href="soutenir.html" class="fav-limit-cta">
+        ⭐ Go Premium — Unlimited favorites
+        <span class="fav-limit-price">from 1.99 Pi/month</span>
+      </a>
+      <button class="fav-limit-close" id="favLimitClose">Maybe later</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  requestAnimationFrame(() => modal.classList.add('fav-limit-open'));
+  const close = () => {
+    modal.classList.remove('fav-limit-open');
+    setTimeout(() => modal.remove(), 300);
+  };
+  document.getElementById('favLimitClose').addEventListener('click', close);
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
 }
 
 /* ── History ── */
@@ -116,9 +193,9 @@ function buildFranchiseCard(anime, isCurrent = false, seasonNum = null) {
     window.location.href = `anime.html?id=${id}`;
   });
 
-  card.querySelector('.card-fav-btn').addEventListener('click', (e) => {
+  card.querySelector('.card-fav-btn').addEventListener('click', async (e) => {
     e.stopPropagation();
-    const added = toggleFav(id, title, img);
+    const added = await toggleFav(id, title, img);
     const btn = e.currentTarget;
     btn.classList.toggle('active', added);
     btn.querySelector('svg').setAttribute('fill', added ? 'currentColor' : 'none');
@@ -167,9 +244,9 @@ function buildRecoCard(anime, isCurrent = false) {
     window.location.href = `anime.html?id=${id}`;
   });
 
-  card.querySelector('.card-fav-btn').addEventListener('click', (e) => {
+  card.querySelector('.card-fav-btn').addEventListener('click', async (e) => {
     e.stopPropagation();
-    const added = toggleFav(id, title, img);
+    const added = await toggleFav(id, title, img);
     const btn = e.currentTarget;
     btn.classList.toggle('active', added);
     btn.querySelector('svg').setAttribute('fill', added ? 'currentColor' : 'none');
@@ -194,12 +271,18 @@ function ytCacheSet(key, value) {
 }
 
 async function findYouTubeId(title) {
+  if (!title) return null;
   const cacheKey = `search_${encodeURIComponent(title)}`;
   const cached   = ytCacheGet(cacheKey);
   if (cached !== null) return cached;
 
   try {
-    const res  = await fetch(`/api/youtube?title=${encodeURIComponent(title)}`);
+    const controller = new AbortController();
+    const timeout    = setTimeout(() => controller.abort(), 8000); // timeout 8s
+    const res  = await fetch(`/api/youtube?title=${encodeURIComponent(title)}`, {
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
     if (res.status === 404) { ytCacheSet(cacheKey, null); return null; }
     if (!res.ok) { console.warn('[YT] API error:', res.status); return null; }
 
@@ -208,6 +291,7 @@ async function findYouTubeId(title) {
     ytCacheSet(cacheKey, id);
     return id;
   } catch (e) {
+    // Timeout ou réseau — ne pas afficher "aucune vidéo" pour autant
     console.warn('[YT] Fetch error:', e.message);
     return null;
   }
@@ -242,7 +326,6 @@ function startTrailer(youtubeId) {
   const frame     = el('trailerFrame');
   const playBtn   = el('playTrailerBtn');
   const unmuteBtn = el('unmuteBtn');
-  const fsBtn     = el('fullscreenBtn');
 
   frame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&controls=0&modestbranding=1&rel=0&enablejsapi=1&playsinline=1`;
 
@@ -250,7 +333,6 @@ function startTrailer(youtubeId) {
   if (banner)    { banner.style.opacity = '0'; banner.style.transition = 'opacity 0.8s ease'; }
   if (playBtn)   playBtn.classList.add('hidden');
   if (unmuteBtn) unmuteBtn.classList.remove('hidden');
-  if (fsBtn)     fsBtn.classList.remove('hidden');
 
   trailerState.playing = true;
   trailerState.muted   = true;
@@ -260,25 +342,31 @@ function startTrailer(youtubeId) {
   if (muteIcon)  muteIcon.innerHTML    = mutedSVG();
 }
 
+/* Détection mobile/Pi Browser — utilisé pour adapter le comportement */
+const isMobileOrPi = /Android|iPhone|iPad|iPod|Pi Browser|PiBrowser/i.test(navigator.userAgent)
+  || ('ontouchstart' in window)
+  || (navigator.maxTouchPoints > 0);
+
 function toggleMute() {
   const frame = el('trailerFrame');
-  if (!frame) return;
+  if (!frame || !trailerState.youtubeId) return;
 
   trailerState.muted = !trailerState.muted;
 
-  // Utilise postMessage YouTube API — évite de recharger l'iframe
-  const command = trailerState.muted ? 'mute' : 'unMute';
-  try {
-    frame.contentWindow.postMessage(
-      JSON.stringify({ event: 'command', func: command, args: [] }),
-      'https://www.youtube.com'
-    );
-  } catch (e) {
-    // Fallback si postMessage échoue (rare) — reload minimal
-    const youtubeId = trailerState.youtubeId;
-    if (youtubeId) {
-      const muteParam = trailerState.muted ? 1 : 0;
-      frame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=${muteParam}&controls=0&modestbranding=1&rel=0&enablejsapi=1&playsinline=1`;
+  if (isMobileOrPi) {
+    // Sur mobile/Pi Browser : postMessage et reload src cassent tous les deux la vidéo
+    // Solution : passer en mode contrôles YouTube natifs (l'utilisateur contrôle le son lui-même)
+    activateNativeControls();
+  } else {
+    // Desktop : postMessage fonctionne sans interruption
+    try {
+      const command = trailerState.muted ? 'mute' : 'unMute';
+      frame.contentWindow.postMessage(
+        JSON.stringify({ event: 'command', func: command, args: [] }),
+        '*'
+      );
+    } catch(e) {
+      activateNativeControls();
     }
   }
 
@@ -286,6 +374,25 @@ function toggleMute() {
   const muteIcon  = el('muteIcon');
   if (muteLabel) muteLabel.textContent = trailerState.muted ? t('anime.sound_on') : t('anime.sound_off');
   if (muteIcon)  muteIcon.innerHTML    = trailerState.muted ? mutedSVG() : unmutedSVG();
+}
+
+/* Active les contrôles YouTube natifs dans l'iframe — sans recharger la vidéo */
+function activateNativeControls() {
+  const frame     = el('trailerFrame');
+  const youtubeId = trailerState.youtubeId;
+  if (!frame || !youtubeId || trailerState._nativeControls) return;
+  trailerState._nativeControls = true;
+
+  // Remplacer controls=0 par controls=1 en gardant la position de lecture
+  // YouTube reprend automatiquement là où il en était si enablejsapi=1
+  frame.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&enablejsapi=1&playsinline=1`;
+
+  // Masquer nos boutons custom — l'utilisateur utilise les contrôles YouTube
+  const unmuteBtn = el('unmuteBtn');
+  if (unmuteBtn) unmuteBtn.classList.add('hidden');
+
+  // Rendre l'iframe cliquable pour les contrôles natifs
+  if (frame) frame.style.pointerEvents = 'auto';
 }
 
 function mutedSVG() {
@@ -317,29 +424,6 @@ function showNoVideo() {
   if (banner) banner.style.filter = 'brightness(0.7)';
 }
 
-function initFullscreen() {
-  const btn       = el('fullscreenBtn');
-  const container = el('trailerContainer');
-  if (!btn || !container) return;
-
-  const iconExpand   = `<polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>`;
-  const iconCompress = `<polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/>`;
-
-  btn.addEventListener('click', () => {
-    if (!document.fullscreenElement) {
-      container.requestFullscreen?.();
-    } else {
-      document.exitFullscreen?.();
-    }
-  });
-
-  document.addEventListener('fullscreenchange', () => {
-    const isFS = !!document.fullscreenElement;
-    btn.querySelector('svg').innerHTML = isFS ? iconCompress : iconExpand;
-    btn.title = isFS ? t('anime.reduce') : t('anime.fullscreen');
-  });
-}
-
 /* ──────────────────────────────────────
    CAROUSEL NAV (recommendations)
 ────────────────────────────────────── */
@@ -349,8 +433,15 @@ function initCarouselButtons() {
       const id       = btn.dataset.carousel;
       const carousel = el(`carousel-${id}`);
       if (!carousel) return;
-      const step = carousel.clientWidth * 0.75;
+
+      carousel.style.scrollSnapType = 'none';
+      const firstCard = carousel.querySelector('.anime-card');
+      const cardWidth = firstCard ? (firstCard.offsetWidth + 14) : 172;
+      const step      = cardWidth * 3;
       carousel.scrollBy({ left: btn.classList.contains('prev') ? -step : step, behavior: 'smooth' });
+
+      clearTimeout(btn._snapTimer);
+      btn._snapTimer = setTimeout(() => { carousel.style.scrollSnapType = ''; }, 400);
     });
   });
 }
@@ -399,34 +490,36 @@ function renderDetail(anime) {
     embedTrailer(jikanTrailerId, true);
     const ratingEl = el('trailerRating');
     if (ratingEl) ratingEl.textContent = anime.rating ? anime.rating.split(' ')[0] : '';
-    initFullscreen();
   } else {
     // Pas d'ID Jikan → on cherche sur YouTube (consomme ~100 unités/recherche)
     const playBtn = el('playTrailerBtn');
-    if (playBtn) {
-      // État "recherche en cours" pendant la requête YT
-      playBtn.innerHTML = `
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             style="animation:spin 1s linear infinite">
-          <circle cx="12" cy="12" r="10" stroke-dasharray="30" stroke-dashoffset="10"/>
-        </svg>
-        Recherche vidéo…`;
-      playBtn.style.opacity = '0.7';
-      playBtn.disabled      = true;
-    }
 
-    // Recherche async — n'empêche pas le reste de la page de s'afficher
-    findYouTubeId(title).then(ytId => {
-      if (ytId) {
-        embedTrailer(ytId, true);
-        initFullscreen();
-        // Badge discret indiquant que la vidéo vient de YouTube
-        const ratingEl = el('trailerRating');
-        if (ratingEl) ratingEl.textContent = 'YouTube';
-      } else {
-        showNoVideo();
+    if (isMobileOrPi) {
+      // Sur mobile/Pi sans ID Jikan : masquer le bouton play (le lien est dans les stats)
+      if (playBtn) playBtn.classList.add('hidden');
+    } else {
+      // Desktop : appel API YouTube normal
+      if (playBtn) {
+        playBtn.innerHTML = `
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               style="animation:spin 1s linear infinite">
+            <circle cx="12" cy="12" r="10" stroke-dasharray="30" stroke-dashoffset="10"/>
+          </svg>
+          Recherche vidéo…`;
+        playBtn.style.opacity = '0.7';
+        playBtn.disabled      = true;
       }
-    });
+
+      findYouTubeId(title).then(ytId => {
+        if (ytId) {
+          embedTrailer(ytId, true);
+                const ratingEl = el('trailerRating');
+          if (ratingEl) ratingEl.textContent = 'YouTube';
+        } else {
+          showNoVideo();
+        }
+      });
+    }
   }
 
   // ── Badge épisode — uniquement si statut STRICTEMENT "Currently Airing" ──
@@ -494,16 +587,26 @@ function renderDetail(anime) {
 
   // Quick stats
   const stats = [
-    anime.episodes ? { val: anime.episodes, label: t('anime.episodes_label') }       : null,
-    anime.year     ? { val: anime.year, label: 'Année' }              : null,
+    anime.episodes ? { val: anime.episodes, label: t('anime.episodes_label') } : null,
+    anime.year     ? { val: anime.year, label: 'Année' }                        : null,
   ].filter(Boolean);
+
+  const ytSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(title + ' trailer anime')}`;
+
+  const ytBtnHtml = isMobileOrPi ? `
+    <a href="${ytSearchUrl}" target="_blank" rel="noopener" class="stat-yt-btn">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.1 2.8 12 2.8 12 2.8s-4.1 0-6.8.2c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.2.7 11.3v2c0 2.1.3 4.3.3 4.3s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.5 21.8 12 22 12 22s4.1 0 6.8-.4c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.2.3-4.3v-2C23.3 9.2 23 7 23 7zM9.7 15.5V8.4l8.1 3.6-8.1 3.5z"/>
+      </svg>
+      Voir bande annonce
+    </a>` : '';
 
   el('animeQuickStats').innerHTML = stats.map(s => `
     <div class="stat-item">
       <div class="stat-value">${s.val}</div>
       <div class="stat-label">${s.label}</div>
     </div>
-  `).join('');
+  `).join('') + ytBtnHtml;
 
   // Watch buttons
   const titleEnc   = encodeURIComponent(title);
@@ -515,8 +618,6 @@ function renderDetail(anime) {
     btn.href = url;
     btn.addEventListener('click', (e) => { e.preventDefault(); trackClick(platform, id); window.open(url, '_blank'); });
   }
-  bindStream('watchCrunchyBtn',  'crunchyroll', crunchyUrl);
-  bindStream('watchNetflixBtn',  'netflix',     netflixUrl);
   bindStream('streamCrunchyroll','crunchyroll', crunchyUrl);
   bindStream('streamNetflix',    'netflix',     netflixUrl);
   bindStream('streamADN',        'adn',         adnUrl);
@@ -531,8 +632,8 @@ function renderDetail(anime) {
     if (svg) { svg.setAttribute('fill', fav ? 'currentColor':'none'); svg.setAttribute('stroke', fav ? 'var(--pink)':'currentColor'); }
     const lbl = btn.querySelector('#favBtnLabel, .fav-btn-text');
     if (lbl) lbl.style.display = 'none';
-    btn.addEventListener('click', () => {
-      const added = toggleFav(id, title, img);
+    btn.addEventListener('click', async () => {
+      const added = await toggleFav(id, title, img);
       favBtns.forEach(b => {
         b.classList.toggle('active', added);
         const s = b.querySelector('svg');
