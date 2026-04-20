@@ -12,6 +12,43 @@
 import { trackView } from './firebase.js';
 
 /* ──────────────────────────────────────
+   SESSION TIME TRACKER
+   Suit le temps passé sur le site en secondes
+   Stocké dans VoirAnime_sessionTime (cumulatif)
+   Utilisé par les stats Premium dans profile.html
+────────────────────────────────────── */
+(function initSessionTracker() {
+  const KEY      = 'VoirAnime_sessionTime';
+  const TICK_MS  = 10000; // incrément toutes les 10s
+  let   active   = !document.hidden;
+  let   timer    = null;
+
+  function tick() {
+    if (!active) return;
+    try {
+      const current = parseInt(localStorage.getItem(KEY) || '0');
+      localStorage.setItem(KEY, String(current + 10));
+    } catch {}
+  }
+
+  function startTimer() {
+    if (timer) return;
+    timer = setInterval(tick, TICK_MS);
+  }
+  function stopTimer() {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    active = !document.hidden;
+    active ? startTimer() : stopTimer();
+  });
+
+  if (active) startTimer();
+})();
+
+/* ──────────────────────────────────────
    CONFIG & STATE
 ────────────────────────────────────── */
 const API           = 'https://api.jikan.moe/v4';
@@ -145,32 +182,169 @@ function isFav(id) {
   return getFavs().some(f => Number(f.id) === numId);
 }
 
-function toggleFav(id, title, img) {
-  const numId = Number(id);
-  const favs  = getFavs();
-  const idx   = favs.findIndex(f => Number(f.id) === numId);
+async function toggleFav(id, title, img) {
+  const numId   = Number(id);
+  const favs    = getFavs();
+  const idx     = favs.findIndex(f => Number(f.id) === numId);
+  const adding  = idx === -1;
+  const piUser  = window.piAuth?.getUser?.() || (() => {
+    try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
+  })();
 
-  if (idx > -1) {
+  // ── Suppression ──────────────────────────────────────────────────────────
+  if (!adding) {
     favs.splice(idx, 1);
-    showToast(`💔 ${title} retiré des favoris`);
-  } else {
-    favs.unshift({ id: numId, title, img });
-    showToast(`❤ ${title} ajouté aux favoris`);
+    saveFavs(favs);
+    showToast(t('fav.removed', title));
+    updateFavUI();
+    renderFavoritesSection();
+
+    // Sync serveur si connecté (non bloquant)
+    if (piUser?.uid) {
+      fetch('/api/favorites', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ action: 'remove', piUserId: piUser.uid, animeId: numId }),
+      }).catch(() => {});
+    }
+    return false;
   }
 
+  // ── Ajout : vérification serveur si connecté ─────────────────────────────
+  if (piUser?.uid) {
+    try {
+      const res  = await fetch('/api/favorites', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ action: 'add', piUserId: piUser.uid, animeId: numId, title, img }),
+      });
+      const data = await res.json();
+
+      if (res.status === 403 && data.error === 'LIMIT_REACHED') {
+        showFavLimitModal(data.count, data.limit);
+        return false;
+      }
+
+      if (!res.ok) {
+        showToast('⚠️ ' + (data.error || 'Server error'));
+        return false;
+      }
+
+    } catch (e) {
+      // Réseau indisponible → fallback localStorage avec vérification locale
+      console.warn('[fav] Server check failed, fallback to local limit');
+      if (favs.length >= 20) {
+        showFavLimitModal(favs.length, 20);
+        return false;
+      }
+    }
+  } else {
+    // Pas connecté à Pi → limite locale 20
+    if (favs.length >= 20) {
+      showFavLimitModal(favs.length, 20);
+      return false;
+    }
+  }
+
+  // ── Ajout local ──────────────────────────────────────────────────────────
+  favs.unshift({ id: numId, title, img });
   saveFavs(favs);
+  showToast(t('fav.added', title));
   updateFavUI();
   renderFavoritesSection();
-  return idx === -1;
+  return true;
+}
+
+/* ── Modal limite favoris Free ──────────────────────────────────────────── */
+function showFavLimitModal(count, limit) {
+  // Supprimer un éventuel modal existant
+  document.getElementById('favLimitModal')?.remove();
+
+  const modal = document.createElement('div');
+  modal.id        = 'favLimitModal';
+  modal.className = 'fav-limit-modal';
+  modal.innerHTML = `
+    <div class="fav-limit-box">
+      <div class="fav-limit-icon">❤️</div>
+      <h3 class="fav-limit-title">Favorites limit reached</h3>
+      <p class="fav-limit-msg">
+        You have reached the limit of <strong>${limit} favorites</strong> on the free plan.
+      </p>
+      <div class="fav-limit-bar">
+        <div class="fav-limit-fill" style="width:100%"></div>
+      </div>
+      <p class="fav-limit-count">${count} / ${limit}</p>
+      <a href="soutenir.html" class="fav-limit-cta">
+        ⭐ Go Premium — Unlimited favorites
+        <span class="fav-limit-price">from 1.99 Pi/month</span>
+      </a>
+      <button class="fav-limit-close" id="favLimitClose">Maybe later</button>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  requestAnimationFrame(() => modal.classList.add('fav-limit-open'));
+
+  const close = () => {
+    modal.classList.remove('fav-limit-open');
+    setTimeout(() => modal.remove(), 300);
+  };
+
+  document.getElementById('favLimitClose').addEventListener('click', close);
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
 }
 
 function updateFavUI() {
-  const favs  = getFavs();
-  const badge = el('navFavCount');
-  if (badge) badge.textContent = favs.length;
+  const favs      = getFavs();
+  const count     = favs.length;
+  const badge     = el('navFavCount');
+  const isPremium = window.VA_isPremium?.() || false;
+  const FREE_LIMIT = 20;
+
+  // Badge navbar : count + indicateur limite si Free proche du max
+  if (badge) {
+    badge.textContent = count;
+    // Alerte visuelle si Free et ≥ 16/20
+    if (!isPremium && count >= FREE_LIMIT * 0.8) {
+      badge.classList.add('fav-badge-warning');
+    } else {
+      badge.classList.remove('fav-badge-warning');
+    }
+  }
+
+  // Indicateur de progression sous le badge navbar (Free uniquement)
+  if (!isPremium) {
+    let progressEl = el('navFavProgress');
+    if (!progressEl) {
+      const favBtn = badge?.closest('a, button');
+      if (favBtn) {
+        progressEl = document.createElement('div');
+        progressEl.id        = 'navFavProgress';
+        progressEl.className = 'nav-fav-progress';
+        favBtn.appendChild(progressEl);
+      }
+    }
+    if (progressEl) {
+      const pct = Math.min((count / FREE_LIMIT) * 100, 100);
+      progressEl.innerHTML = `<div class="nav-fav-progress-fill" style="width:${pct}%"></div>`;
+      progressEl.title     = `${count} / ${FREE_LIMIT} favorites`;
+      progressEl.style.display = count > 0 ? 'block' : 'none';
+    }
+
+    // Tooltip sur les boutons ❤ si limite atteinte
+    document.querySelectorAll('[data-fav-id]').forEach(btn => {
+      if (count >= FREE_LIMIT && !isFav(Number(btn.dataset.favId))) {
+        btn.title = `Favorites limit reached (${FREE_LIMIT}). Go Premium for unlimited.`;
+        btn.classList.add('fav-btn-at-limit');
+      } else {
+        btn.title = '';
+        btn.classList.remove('fav-btn-at-limit');
+      }
+    });
+  }
 
   document.querySelectorAll('[data-fav-id]').forEach(btn => {
-    const id     = Number(btn.dataset.favId); // FIX : Number, pas parseInt
+    const id     = Number(btn.dataset.favId);
     const active = isFav(id);
     btn.classList.toggle('active', active);
     const svg = btn.querySelector('svg');
@@ -236,7 +410,7 @@ function buildCard(anime, opts = {}) {
         </div>
         ${score ? `<div class="card-score-badge">★ ${score.toFixed(1)}</div>` : ''}
       </div>
-      ${type ? `<span class="card-type-badge">${esc(type)}</span>` : ''}
+      ${type ? `<span class="card-type-badge">${esc(({TV:t('type.tv'),Movie:t('type.movie'),OVA:t('type.ova'),ONA:t('type.ona'),Special:t('type.special')})[type]||type)}</span>` : ''}
       ${rank ? `<span class="card-rank-badge">#${rank}</span>` : ''}
       <button class="card-fav-btn ${fav ? 'active' : ''}" data-fav-id="${id}" aria-label="Favori">
         <svg width="12" height="12" viewBox="0 0 24 24"
@@ -265,9 +439,9 @@ function buildCard(anime, opts = {}) {
     if (e.key === 'Enter') window.location.href = `anime.html?id=${id}`;
   });
 
-  card.querySelector('.card-fav-btn').addEventListener('click', (e) => {
+  card.querySelector('.card-fav-btn').addEventListener('click', async (e) => {
     e.stopPropagation();
-    const added = toggleFav(id, title, img);
+    const added = await toggleFav(id, title, img);
     const btn   = e.currentTarget;
     btn.classList.toggle('active', added);
     const svg = btn.querySelector('svg');
@@ -296,19 +470,53 @@ function renderCarousel(carouselId, animes, opts = {}) {
    CAROUSEL NAVIGATION
 ────────────────────────────────────── */
 function initCarouselButtons() {
-  document.querySelectorAll('.carousel-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id      = btn.dataset.carousel;
-      const carousel = el(`carousel-${id}`);
-      if (!carousel) return;
-      const step = carousel.clientWidth * 0.75;
-      carousel.scrollBy({
-        left: btn.classList.contains('prev') ? -step : step,
-        behavior: 'smooth',
-      });
-    });
+  // Event delegation — 1 seul listener global, jamais dupliqué même si appelé plusieurs fois
+  if (window._carouselBtnInit) return;
+  window._carouselBtnInit = true;
+
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.carousel-btn');
+    if (!btn) return;
+
+    const id       = btn.dataset.carousel;
+    const carousel = document.getElementById('carousel-' + id);
+    if (!carousel) return;
+
+    const firstCard = carousel.querySelector('.anime-card');
+    const gap       = parseFloat(getComputedStyle(carousel).gap) || 14;
+    // Largeur réelle de la carte CSS (calc() inclus) + gap
+    const cardWidth = firstCard ? firstCard.getBoundingClientRect().width + gap : 172;
+    const step      = cardWidth * 3;
+    const dir       = btn.classList.contains('prev') ? -1 : 1;
+    const target    = Math.max(0, carousel.scrollLeft + step * dir);
+
+    // Animation RAF — fiable sur Pi Browser et mobile
+    carousel.style.scrollSnapType = 'none';
+    carousel.style.scrollBehavior = 'auto';
+
+    const start_pos = carousel.scrollLeft;
+    const distance  = target - start_pos;
+    const duration  = 280;
+    let startTime   = null;
+
+    function ease(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+
+    function animate(ts) {
+      if (!startTime) startTime = ts;
+      const progress = Math.min((ts - startTime) / duration, 1);
+      carousel.scrollLeft = start_pos + distance * ease(progress);
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        carousel.style.scrollSnapType = '';
+        carousel.style.scrollBehavior = '';
+      }
+    }
+
+    requestAnimationFrame(animate);
   });
 }
+
 
 /* ──────────────────────────────────────
    HERO
@@ -361,8 +569,12 @@ function renderHero(anime) {
   // Badges
   const badges = [];
   if (anime.score) badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
-  if (anime.type)  badges.push(`<span class="badge badge-muted">${esc(anime.type)}</span>`);
-  if (anime.status === 'Currently Airing') badges.push(`<span class="badge badge-green">● EN COURS</span>`);
+  if (anime.type) {
+    const tMap = { TV:t('type.tv'), Movie:"Film d'anime", OVA:t('type.ova'), ONA:t('type.ona'), Special:t('type.special') };
+    badges.push(`<span class="badge badge-muted">${esc(tMap[anime.type]||anime.type)}</span>`);
+  }
+  if (anime.status === 'Currently Airing') badges.push(`<span class="badge badge-green">${t('anime.airing_badge')}</span>`);
+  if (anime.status === 'Not yet aired')    badges.push('<span class="badge badge-blue">À venir</span>');
   badgesEl.innerHTML = badges.join('');
 
   // Meta
@@ -385,8 +597,8 @@ function renderHero(anime) {
   favBtn.parentNode.replaceChild(newFavBtn, favBtn);
   newFavBtn.dataset.id = id;
   newFavBtn.classList.toggle('active', isFav(id));
-  newFavBtn.addEventListener('click', () => {
-    const added = toggleFav(id, title, img);
+  newFavBtn.addEventListener('click', async () => {
+    const added = await toggleFav(id, title, img);
     newFavBtn.classList.toggle('active', added);
   });
 
@@ -489,7 +701,7 @@ async function performSearch(query) {
   grid.innerHTML = '';
   empty.classList.remove('visible');
   loader.classList.add('visible');
-  label.textContent = `Recherche : « ${query} »`;
+  label.textContent = t('search.label', query);
 
   try {
     const data    = await jikanFetch(`/anime?q=${encodeURIComponent(query)}&limit=20&sfw=true`);
@@ -500,12 +712,12 @@ async function performSearch(query) {
       empty.classList.add('visible');
       return;
     }
-    label.textContent = `${results.length} résultat${results.length > 1 ? 's' : ''} pour « ${query} »`;
+    label.textContent = t('search.count', results.length, query);
     results.forEach(anime => grid.appendChild(buildCard(anime)));
 
   } catch (e) {
     loader.classList.remove('visible');
-    label.textContent = 'Erreur de connexion. Réessaie dans quelques secondes.';
+    label.textContent = t('search.error');
     console.error(e);
   }
 }
@@ -607,7 +819,7 @@ async function loadSection(endpointPath, carouselId, skeletonId, count = 8, opts
     renderCarousel(carouselId, animes, opts);
   } catch (e) {
     const c = el(`carousel-${carouselId}`);
-    if (c) c.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">Impossible de charger cette section.</p>`;
+    if (c) c.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">${t('section.error')}</p>`;
     console.error(`Section ${carouselId}:`, e);
   }
 }
@@ -628,7 +840,7 @@ async function loadHero() {
   } catch (e) {
     console.error('Hero load error:', e);
     const sk = el('heroSkeleton');
-    if (sk) sk.innerHTML = '<p style="color:var(--muted)">Impossible de charger le hero.</p>';
+    if (sk) sk.innerHTML = `<p style="color:var(--muted)">${t('adj.error')}</p>`;
   }
 }
 
@@ -636,14 +848,14 @@ async function loadHero() {
    MOOD PILLS — endpoints Jikan par ambiance
 ────────────────────────────────────── */
 const MOOD_CONFIG = {
-  all:           { label: 'Tout',          endpoint: null },
-  action:        { label: '⚡ Adrénaline', endpoint: '/anime?genres=1&order_by=score&sort=desc&limit=20&sfw=true' },
-  romance:       { label: '🌸 Romance',    endpoint: '/anime?genres=22&order_by=score&sort=desc&limit=20&sfw=true' },
-  dark:          { label: '🌑 Univers Sombre', endpoint: '/anime?genres=8&rating=r&order_by=score&sort=desc&limit=20&sfw=true' },
-  comedy:        { label: '😄 Bonne Humeur',   endpoint: '/anime?genres=4&order_by=score&sort=desc&limit=20&sfw=true' },
-  scifi:         { label: '🚀 Sci-fi & Mecha', endpoint: '/anime?genres=24&order_by=score&sort=desc&limit=20&sfw=true' },
-  psychological: { label: '🤯 Mind-bending',   endpoint: '/anime?genres=40&order_by=score&sort=desc&limit=20&sfw=true' },
-  slice:         { label: '🍃 Zen & Calme',    endpoint: '/anime?genres=36&order_by=score&sort=desc&limit=20&sfw=true' },
+  all:           { label: t('mood.all'),          endpoint: null },
+  action:        { label: t('mood.action'), endpoint: '/anime?genres=1&order_by=score&sort=desc&limit=20&sfw=true' },
+  romance:       { label: t('mood.romance'),    endpoint: '/anime?genres=22&order_by=score&sort=desc&limit=20&sfw=true' },
+  dark:          { label: t('mood.dark'), endpoint: '/anime?genres=8&rating=r&order_by=score&sort=desc&limit=20&sfw=true' },
+  comedy:        { label: t('mood.comedy'),   endpoint: '/anime?genres=4&order_by=score&sort=desc&limit=20&sfw=true' },
+  scifi:         { label: t('mood.scifi'), endpoint: '/anime?genres=24&order_by=score&sort=desc&limit=20&sfw=true' },
+  psychological: { label: t('mood.psychological'),   endpoint: '/anime?genres=40&order_by=score&sort=desc&limit=20&sfw=true' },
+  slice:         { label: t('mood.slice'),    endpoint: '/anime?genres=36&order_by=score&sort=desc&limit=20&sfw=true' },
 };
 
 function initMoodPills() {
@@ -684,7 +896,7 @@ function initMoodPills() {
       renderCarousel('mood', animes);
     } catch (e) {
       const c = el('carousel-mood');
-      if (c) c.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">Impossible de charger cette ambiance.</p>`;
+      if (c) c.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">${t('common.error_load')}</p>`;
     }
   });
 }
@@ -722,6 +934,7 @@ function initAdvancedSearch() {
 }
 
 async function runAdvancedSearch() {
+  const q      = el('searchInput')?.value.trim() || '';
   const genre  = el('advGenre')?.value  || '';
   const type   = el('advType')?.value   || '';
   const score  = el('advScore')?.value  || '';
@@ -730,26 +943,27 @@ async function runAdvancedSearch() {
 
   // Build endpoint
   let params = 'limit=20&sfw=true&order_by=score&sort=desc';
+  if (q)      params += `&q=${encodeURIComponent(q)}`;  // ← q seulement si non vide
   if (genre)  params += `&genres=${genre}`;
   if (type)   params += `&type=${type}`;
   if (score)  params += `&min_score=${score}`;
   if (status) params += `&status=${status}`;
   if (year)   params += `&start_date=${year}-01-01${year === '2010' ? '&end_date=2019-12-31' : year === '2000' ? '&end_date=2009-12-31' : ''}`;
 
-  const section = el('section-adv-results');
-  const titleEl = el('advResultsTitle');
+  const section  = el('section-adv-results');
+  const titleEl  = el('advResultsTitle');
   const carousel = el('carousel-adv-results');
 
   section.style.display = 'block';
 
-  // Label résumé
   const parts = [];
+  if (q)      parts.push(`« ${q} »`);
   if (genre)  parts.push(el('advGenre').options[el('advGenre').selectedIndex].text);
   if (type)   parts.push(el('advType').options[el('advType').selectedIndex].text);
   if (score)  parts.push(`Score ${score}+`);
   if (status) parts.push(el('advStatus').options[el('advStatus').selectedIndex].text);
   if (year)   parts.push(el('advYear').options[el('advYear').selectedIndex].text);
-  titleEl.innerHTML = `<span class="section-dot blue"></span>${parts.length ? parts.join(' · ') : 'Tous les animes'}`;
+  titleEl.innerHTML = `<span class="section-dot blue"></span>${parts.length ? parts.join(' · ') : t('adv.results', [])}`;
 
   buildSkeletons(carousel, 10);
   section.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -758,12 +972,12 @@ async function runAdvancedSearch() {
     const data   = await jikanFetch(`/anime?${params}`);
     const animes = data.data || [];
     if (animes.length === 0) {
-      carousel.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">Aucun résultat pour ces critères.</p>`;
+      carousel.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">${t('adv.no_results')}</p>`;
       return;
     }
     renderCarousel('adv-results', animes);
   } catch (e) {
-    carousel.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">Erreur de connexion.</p>`;
+    carousel.innerHTML = `<p style="color:var(--muted);padding:20px;font-size:0.85rem;">${t('adv.error')}</p>`;
     console.error('Advanced search:', e);
   }
 }
@@ -809,23 +1023,27 @@ async function loadTrending() {
 ────────────────────────────────────── */
 async function loadAnimeDuJour() {
   try {
-    // Seed basé sur le jour (YYYYMMDD) → même résultat toute la journée
-    const today    = new Date();
-    const seed     = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-    const page     = (seed % 4) + 1;  // pages 1-4
-    const offset   = seed % 25;       // position dans la page
+    const today  = new Date();
+    const seed   = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    const page   = (seed % 4) + 1;
+    const offset = seed % 25;
 
     const data   = await jikanFetch(`/top/anime?filter=bypopularity&limit=25&page=${page}`);
     const animes = (data.data || []).filter(a => a.images?.jpg?.large_image_url && a.synopsis);
     if (animes.length === 0) return;
 
-    const anime = animes[offset % animes.length];
+    const picked = animes[offset % animes.length];
+
+    // Fetch /full pour récupérer trailer.youtube_id
+    const fullData = await jikanFetch(`/anime/${picked.mal_id}/full`);
+    const anime    = fullData.data || picked;
+
     renderAnimeDuJour(anime);
 
-    // Bouton shuffle → anime aléatoire parmi la liste
-    el('adjShuffle')?.addEventListener('click', () => {
-      const random = animes[Math.floor(Math.random() * animes.length)];
-      renderAnimeDuJour(random, true);
+    el('adjShuffle')?.addEventListener('click', async () => {
+      const random   = animes[Math.floor(Math.random() * animes.length)];
+      const rFull    = await jikanFetch(`/anime/${random.mal_id}/full`);
+      renderAnimeDuJour(rFull.data || random, true);
     });
   } catch (e) {
     console.warn('Anime du jour:', e);
@@ -833,39 +1051,156 @@ async function loadAnimeDuJour() {
 }
 
 function renderAnimeDuJour(anime, shuffle = false) {
-  const section  = el('animeDuJour');
-  const imgEl    = el('adjImg');
-  const titleEl  = el('adjTitle');
-  const synEl    = el('adjSynopsis');
-  const badgesEl = el('adjBadges');
-  const linkEl   = el('adjLink');
+  const section     = el('animeDuJour');
+  const iframe      = el('adjIframe');
+  const imgFallback = el('adjImgFallback');
+  const titleEl     = el('adjTitle');
+  const synEl       = el('adjSynopsis');
+  const badgesEl    = el('adjBadges');
+  const linkEl      = el('adjLink');
 
   if (!section) return;
 
-  const title    = anime.title_english || anime.title;
-  const img      = anime.images?.jpg?.large_image_url || '';
-  const synopsis = (anime.synopsis || '').replace(/\[Written by MAL Rewrite\]/gi, '').trim();
+  const title     = anime.title_english || anime.title;
+  const img       = anime.images?.jpg?.large_image_url || '';
+  const synopsis  = (anime.synopsis || '').replace(/\[Written by MAL Rewrite\]/gi, '').trim();
+  const youtubeId = anime.trailer?.youtube_id || null;
 
-  // Animation de remplacement si shuffle
   if (shuffle) {
     section.style.opacity = '0';
     setTimeout(() => { section.style.opacity = '1'; }, 300);
   }
 
-  imgEl.src = img;
-  imgEl.alt = title;
   titleEl.textContent = title;
-  synEl.textContent   = synopsis.slice(0, 160) + (synopsis.length > 160 ? '…' : '');
+  synEl.textContent   = synopsis.slice(0, 180) + (synopsis.length > 180 ? '…' : '');
   linkEl.href         = `anime.html?id=${anime.mal_id}`;
+
+  if (youtubeId) {
+    // YouTube autoplay mute — on cache l'image
+    iframe.src = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${youtubeId}&modestbranding=1&rel=0&playsinline=1`;
+    iframe.style.display = 'block';
+    imgFallback.style.display = 'none';
+    // Si l'iframe échoue (bloqué), on affiche l'image
+    iframe.onerror = () => {
+      iframe.style.display = 'none';
+      imgFallback.src = img;
+      imgFallback.style.display = 'block';
+    };
+  } else {
+    // Pas de trailer → image de couverture en fond
+    iframe.style.display = 'none';
+    iframe.src = '';
+    imgFallback.src = img;
+    imgFallback.style.display = 'block';
+  }
 
   const badges = [];
   if (anime.score) badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
-  if (anime.type)  badges.push(`<span class="badge badge-muted">${esc(anime.type)}</span>`);
+  if (anime.type) {
+    const tMap = { TV:t('type.tv'), Movie:"Film d'anime", OVA:t('type.ova'), ONA:t('type.ona'), Special:t('type.special') };
+    badges.push(`<span class="badge badge-muted">${tMap[anime.type] || anime.type}</span>`);
+  }
   badgesEl.innerHTML = badges.join('');
 
   section.style.display = 'block';
-  section.style.transition = 'opacity 0.3s ease';
+  section.style.transition = 'opacity 0.4s ease';
 }
+/* ──────────────────────────────────────
+   POUR TOI — Recommandations basées sur l'historique
+────────────────────────────────────── */
+async function loadForYou() {
+  const section = el('section-for-you');
+  if (!section) return;
+
+  const history   = getHistory();
+  const favs      = getFavs();
+  try { var watchList = JSON.parse(localStorage.getItem('VoirAnime_watchStatus') || '{}'); }
+  catch { var watchList = {}; }
+  const watchArr  = Object.values(watchList);
+
+  // Déclencher dès qu'il y a 1 favori, 1 statut watchlist, ou 1 historique
+  const hasData = history.length > 0 || favs.length > 0 || watchArr.length > 0;
+  if (!hasData) return;
+
+  // ── Recommandations genres ──
+  const genreCount = {};
+
+  history.slice(0, 10).forEach(h => {
+    (h.genres || []).forEach(gid => {
+      genreCount[gid] = (genreCount[gid] || 0) + 1;
+    });
+  });
+
+  // Compléter avec les genres des favs si historique insuffisant
+  if (Object.keys(genreCount).length === 0) {
+    favs.slice(0, 10).forEach(f => {
+      (f.genres || []).forEach(gid => {
+        genreCount[gid] = (genreCount[gid] || 0) + 1;
+      });
+    });
+  }
+
+  // Si aucun genre trouvé → fallback top animes
+  let candidates = [];
+  let usedFallback = false;
+
+  if (Object.keys(genreCount).length === 0) {
+    usedFallback = true;
+    try {
+      const d = await jikanFetch(`/top/anime?order_by=score&sort=desc&limit=25&sfw=true`);
+      candidates = d.data || [];
+    } catch { return; }
+  } else {
+    // Top 2 genres les plus vus
+    const topGenres = Object.entries(genreCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2)
+      .map(([id]) => id);
+
+    const genreParam = topGenres.join(',');
+    try {
+      const d = await jikanFetch(`/anime?genres=${genreParam}&order_by=score&sort=desc&limit=25&sfw=true`);
+      candidates = d.data || [];
+    } catch { return; }
+  }
+
+  // Filtre les animes déjà vus
+  const seenIds  = new Set(history.map(h => String(h.id)));
+  const seenType = history.length > 0 ? history[0].type || null : null;
+
+  // Score de pertinence
+  function scoreAnime(anime) {
+    let score = 0;
+    // Genres en commun
+    (anime.genres || []).forEach(g => {
+      if (genreCount[g.mal_id]) score += genreCount[g.mal_id] * 3;
+    });
+    // Même type
+    if (seenType && anime.type === seenType) score += 2;
+    // Popularité (membres)
+    if (anime.members) score += Math.log10(anime.members);
+    return score;
+  }
+
+  const results = candidates
+    .filter(a => !seenIds.has(String(a.mal_id)))
+    .map(a => ({ ...a, _score: scoreAnime(a) }))
+    .sort((a, b) => b._score - a._score)
+    .slice(0, 12);
+
+  if (results.length === 0) return;
+
+  section.style.display = '';
+  const badge = el('forYouBadge');
+  if (badge) badge.textContent = usedFallback
+    ? t('alert.badge_fallback')
+    : t('alert.badge_based', Math.min(history.length + favs.length, 5));
+
+  const carousel = el('carousel-for-you');
+  carousel.innerHTML = '';
+  results.forEach(anime => carousel.appendChild(buildCard(anime)));
+}
+
 async function init() {
   initNavbar();
   initSearch();
@@ -874,15 +1209,19 @@ async function init() {
   initAdvancedSearch();
   updateFavUI();
   renderFavoritesSection();
-  renderContinueWatching();
+  // renderContinueWatching() — supprimé, géré dans le profil
 
-  await loadHero();
+  // Hero supprimé — remplacé par Anime du jour
   loadAnimeDuJour();
+  loadForYou();
 
   await loadSection('/top/anime?filter=bypopularity&limit=20', 'popular', 'skel-popular', 10, { showRank: true });
   await loadSection('/top/anime?limit=20',                     'top',     'skel-top',     10);
   await loadSection('/top/anime?filter=airing&limit=20',       'airing',  'skel-airing',  10);
   await loadSection('/top/anime?type=movie&limit=20',          'movies',  'skel-movies',  10);
+  await loadSection('/top/anime?type=tv&limit=20',             'series',  'skel-series',  10);
+  await loadSection('/top/anime?type=ova&limit=20',            'ova',     'skel-ova',     10);
+  await loadSection('/top/anime?type=ona&limit=20',            'ona',     'skel-ona',     10);
 
   // Trending Firebase — chargé en dernier, non bloquant
   loadTrending();
