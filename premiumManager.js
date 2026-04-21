@@ -54,6 +54,13 @@
     return _premiumData || {};
   };
 
+  window.VA_clearPremiumCache = function() {
+    try { sessionStorage.removeItem(CACHE_KEY); } catch(e) {}
+    _premiumData = null;
+    _ready       = false;
+    _callbacks   = [];
+  };
+
   window.VA_onPremiumReady = function(cb) {
     if (_ready) { try { cb(_premiumData); } catch(e) {} }
     else _callbacks.push(cb);
@@ -180,13 +187,25 @@
     _fetchStatus(piUserId, false);
   };
 
+  window.VA_refreshPremium = function(piUserId) {
+    window.VA_clearPremiumCache();
+    _fetchStatus(piUserId, false);
+  };
+
   function _fetchStatus(piUserId, background) {
     fetch(BASE_URL + '/api/premium?piUserId=' + encodeURIComponent(piUserId))
       .then(function(r) { return r.json(); })
       .then(function(data) {
+        var wasReady   = _ready;
+        var wasPremium = _premiumData && _premiumData.isPremium;
         _premiumData = data;
         _saveCache(data);
-        if (!background) _resolve();
+        if (!background) {
+          _resolve();
+        } else if (wasReady && data.isPremium !== wasPremium) {
+          // Statut changé en arrière-plan → notifier les callbacks déjà enregistrés
+          _callbacks.forEach(function(cb) { try { cb(data); } catch(e) {} });
+        }
         if (VA_isPremium()) { _injectPremiumBadge(); _applyGuards(); }
       })
       .catch(function() {
