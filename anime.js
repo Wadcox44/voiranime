@@ -13,16 +13,57 @@ const API = '/api/jikan';
 function el(id) { return document.getElementById(id); }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+const JIKAN_MIN_INTERVAL = 400; // ms minimum entre deux requêtes (~2.5 req/s)
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes de cache
+
+let _lastRequestTime = 0;
+let _queue = Promise.resolve();
+
 async function jikanFetch(endpoint, retries = 3) {
+  const cacheKey = `jikan_cache_${endpoint}`;
+  try {
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      const { data, ts } = JSON.parse(cached);
+      if (Date.now() - ts < CACHE_TTL_MS) return data;
+      sessionStorage.removeItem(cacheKey);
+    }
+  } catch (_) {}
+
+  const result = await (_queue = _queue.then(() => _executeRequest(endpoint, retries, cacheKey)));
+  return result;
+}
+
+async function _executeRequest(endpoint, retries, cacheKey) {
+  const now = Date.now();
+  const elapsed = now - _lastRequestTime;
+  if (elapsed < JIKAN_MIN_INTERVAL) await sleep(JIKAN_MIN_INTERVAL - elapsed);
+
   for (let i = 0; i < retries; i++) {
     try {
+      _lastRequestTime = Date.now();
       const res = await fetch(`${API}?path=${encodeURIComponent(endpoint)}`);
-      if (res.status === 429) { await sleep(1200 * (i + 1)); continue; }
+      
+      if (res.status === 429) {
+        await res.text().catch(() => {});
+        const wait = 2000 * (i + 1);
+        console.warn(`[Jikan] 429 sur ${endpoint} — retry dans ${wait}ms`);
+        await sleep(wait);
+        _lastRequestTime = Date.now();
+        continue;
+      }
+      
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
+      const data = await res.json();
+      
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify({ data, ts: Date.now() }));
+      } catch (_) {}
+      
+      return data;
     } catch (e) {
       if (i === retries - 1) throw e;
-      await sleep(600);
+      await sleep(800 * (i + 1));
     }
   }
 }
