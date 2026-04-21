@@ -42,7 +42,8 @@ async function _executeRequest(endpoint, retries, cacheKey) {
   for (let i = 0; i < retries; i++) {
     try {
       _lastRequestTime = Date.now();
-      const res = await fetch(`${API}?path=${encodeURIComponent(endpoint)}`);
+      const targetPath = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+      const res = await fetch(`${API}${targetPath}`);
       
       if (res.status === 429) {
         await res.text().catch(() => {});
