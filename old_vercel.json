@@ -25,6 +25,10 @@
     {
       "path": "/api/notifications",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/pi-repair",
+      "schedule": "*/15 * * * *"
     }
   ]
 }
