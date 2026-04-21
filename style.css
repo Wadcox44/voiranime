@@ -3797,7 +3797,7 @@ a:active {
   }
   .nav-left  { justify-content: center; }
   .nav-right { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
-  .nav-avatar-left { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); z-index: 10; }
+  .nav-avatar-left { position: absolute; left: 12px; top: 10px; transform: none !important; z-index: 10; }
   .logo-glitch { font-size: 1.25rem; }
   .search-toggle-label { display: none; }
 
@@ -3876,13 +3876,11 @@ a:active {
   .carousel-btn { display: flex !important; opacity: 1 !important; pointer-events: all !important; width: 28px; height: 56px; font-size: 1rem; }
 
   /* Carousel mobile : scroll libre et fluide */
-  /* pan-x supprimé — bloquait le scroll vertical quand le doigt partait d'une card */
   .carousel {
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
     padding-bottom: 16px;
   }
-  /* Force pan-y sur les cards : écrase toute règle parente */
-  .anime-card { touch-action: pan-y !important; }
 }
 
 @media (max-width: 480px) {

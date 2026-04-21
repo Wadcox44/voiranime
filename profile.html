@@ -97,12 +97,29 @@
     }
 
 
-    /* Stats : grille 3 colonnes, 3 lignes */
+    /* Stats : 2×3 + ligne 3 centrée */
     .profile-stats-compact {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
+    /* Ligne 3 : 2 cases centrées sur 3 colonnes */
+    .stat-compact-half {
+      grid-column: auto;
+    }
+    .stat-compact-half:first-of-type {
+      grid-column: 1;
+    }
+    /* Centrer la dernière ligne via sous-grille */
+    .profile-stats-compact::after {
+      content: '';
+    }
+    @supports (grid-template-columns: subgrid) {
+      .stat-compact-half { grid-column: auto; }
+    }
+    /* Fallback simple : 7e et 8e items décalés */
+    .stat-compact:nth-child(7) { grid-column: 1; }
+    .stat-compact:nth-child(8) { grid-column: 2; }
     .stat-compact {
       background: var(--ink3);
       border: 1px solid var(--b1);
@@ -250,10 +267,6 @@
         gap: 16px;
       }
       .profile-section { padding: 0 16px; }
-      /* Fix Pi Browser reflow : avatar + logo ne bougent pas */
-      .nav-avatar-left { top: 10px !important; transform: none !important; }
-      .nav-top { position: relative; min-height: 52px; }
-      .nav-logo-wrap { position: relative; }
     }
     @media (max-width: 480px) {
       .profile-stats-compact { grid-template-columns: repeat(3, 1fr); gap: 6px; }
@@ -295,13 +308,7 @@
       <div class="nav-avatar-fallback" id="navAvatarFallback_profile">👤</div>
     </a>
     <div class="nav-right">
-      <button id="footerContactBtn" title="Nous contacter"
-        style="background:none;border:1px solid rgba(34,211,238,0.3);color:#22d3ee;border-radius:8px;padding:5px 10px;display:flex;align-items:center;gap:5px;cursor:pointer;font-size:0.78rem;font-family:var(--font);transition:background 0.2s;white-space:nowrap"
-        onmouseover="this.style.background='rgba(34,211,238,0.1)'" onmouseout="this.style.background='none'">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
-        Contact
-      </button>
-    </div>
+      </div>
   </div>
   <ul class="nav-links">
     <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
@@ -330,18 +337,23 @@
 
       <div class="profile-identity-info">
         <h1 class="profile-name" data-i18n="profile.title">Mon Profil</h1>
-        <p class="profile-since" id="profileSince">Membre depuis aujourd'hui</p>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <p class="profile-since" id="profileSince" style="margin-bottom:0">Membre depuis aujourd'hui</p>
+          <button id="footerContactBtn" title="Nous contacter"
+            style="background:none;border:1px solid rgba(34,211,238,0.3);color:#22d3ee;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 0.2s;padding:0">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+          </button>
+        </div>
       </div>
     </div>
     <!-- Carte abonnement -->
     <div id="profileSubscriptionCard"></div>
   </div>
 
-  <!-- Stats : 3 lignes de 3 avec ligne 1 centrée -->
+  <!-- Stats : 2×3 + 1×2 centré ─ Free + Premium fusionnés -->
   <div class="profile-stats-compact" id="profileStats">
 
-    <!-- Ligne 1 : Visités + Favoris centrés -->
-    <div class="stat-compact stat-row1-spacer" style="visibility:hidden;pointer-events:none"></div>
+    <!-- Ligne 1 -->
     <a href="history.html" class="stat-compact stat-compact-link">
       <div class="stat-compact-num" id="statHistCount" style="color:var(--violet)">0</div>
       <div class="stat-compact-label">Visités</div>
@@ -350,12 +362,12 @@
       <div class="stat-compact-num" id="statFavCount" style="color:var(--pink)">0</div>
       <div class="stat-compact-label">Favoris</div>
     </a>
-
-    <!-- Ligne 2 : À voir / En cours / Terminés -->
     <div class="stat-compact">
       <div class="stat-compact-num" id="statPlanCount" style="color:#f59e0b">0</div>
       <div class="stat-compact-label">À voir</div>
     </div>
+
+    <!-- Ligne 2 -->
     <div class="stat-compact">
       <div class="stat-compact-num" id="statWatchingCount" style="color:#60a5fa">0</div>
       <div class="stat-compact-label">En cours</div>
@@ -364,17 +376,17 @@
       <div class="stat-compact-num" id="statCompletedCount" style="color:#4ade80">0</div>
       <div class="stat-compact-label">Terminés</div>
     </div>
-
-    <!-- Ligne 3 : Jours actifs / Heures / Progression -->
-    <div class="stat-compact">
-      <div class="stat-compact-num" id="statActiveDaysCount" style="color:#22d3ee">—</div>
-      <div class="stat-compact-label">Jours actifs</div>
-    </div>
     <div class="stat-compact">
       <div class="stat-compact-num" id="statHoursCount" style="color:#a78bfa">—</div>
       <div class="stat-compact-label">Heures</div>
     </div>
-    <div class="stat-compact">
+
+    <!-- Ligne 3 : 2 centré -->
+    <div class="stat-compact stat-compact-half">
+      <div class="stat-compact-num" id="statActiveDaysCount" style="color:#22d3ee">—</div>
+      <div class="stat-compact-label">Jours actifs</div>
+    </div>
+    <div class="stat-compact stat-compact-half">
       <div class="stat-compact-num" id="statProgressCount" style="color:#f59e0b">—</div>
       <div class="stat-compact-label">Progression</div>
     </div>
