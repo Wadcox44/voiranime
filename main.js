@@ -51,7 +51,7 @@ import { trackView } from './firebase.js';
 /* ──────────────────────────────────────
    CONFIG & STATE
 ────────────────────────────────────── */
-const API           = 'https://api.jikan.moe/v4';
+const API           = '/api/jikan'; // proxy Vercel — évite les 429 direct Jikan
 const HERO_INTERVAL = 7000;
 
 const state = {
@@ -111,7 +111,7 @@ async function _executeRequest(endpoint, retries, cacheKey) {
   for (let i = 0; i < retries; i++) {
     try {
       _lastRequestTime = Date.now();
-      const res = await fetch(`${API}${endpoint}`);
+      const res = await fetch(`${API}?path=${encodeURIComponent(endpoint)}`);
 
       if (res.status === 429) {
         // Vide le body pour libérer la connexion HTTP/2
