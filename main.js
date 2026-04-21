@@ -51,7 +51,7 @@ import { trackView } from './firebase.js';
 /* ──────────────────────────────────────
    CONFIG & STATE
 ────────────────────────────────────── */
-const API           = '/api/jikan'; // proxy Vercel — évite les 429 direct Jikan
+const API = 'https://api.jikan.moe/v4';
 const HERO_INTERVAL = 7000;
 
 const state = {
