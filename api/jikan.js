@@ -1,13 +1,11 @@
 const CACHE = new Map();
-const CACHE_TTL = 60 * 60 * 1000; // 1 heure
+const CACHE_TTL = 60 * 60 * 1000;
 
 export default async function handler(req, res) {
   const path = req.query.path;
   if (!path) return res.status(400).json({ error: 'Missing path' });
 
-  // On nettoie pour éviter une URL du type: https://api.jikan.moe/v4//anime/...
   const cleanPath = path.startsWith('/') ? path.substring(1) : path;
-
   if (!/^[\w\/\-\?\=\&\.]+$/.test(cleanPath)) {
     return res.status(400).json({ error: 'Invalid path' });
   }
@@ -23,29 +21,25 @@ export default async function handler(req, res) {
   try {
     const response = await fetch(`https://api.jikan.moe/v4/${cleanPath}`);
     
-    // Relais miroir instantané de la saturation — Le frontend s'occupera d'attendre
-    if (response.status === 429) {
-       return res.status(429).json({ error: "Too Many Requests" });
+    // On extrait la vraie erreur de Jikan sans jamais faire de "throw" qui crashe en 502 !
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      data = { error: "Unparseable response from Jikan" };
     }
-
-    if (!response.ok) {
-       throw new Error(`Jikan API HTTP ${response.status}`);
-    }
-
-    const data = await response.json();
     
-    // Mise en cache
-    CACHE.set(cleanPath, { data, ts: Date.now() });
-    if (CACHE.size > 500) {
-      const oldest = [...CACHE.entries()].sort((a, b) => a[1].ts - b[1].ts)[0][0];
-      CACHE.delete(oldest);
+    if (response.ok) {
+      CACHE.set(cleanPath, { data, ts: Date.now() });
+      if (CACHE.size > 500) CACHE.delete(CACHE.keys().next().value);
     }
     
     res.setHeader('X-Cache', 'MISS');
-    return res.status(200).json(data);
+    // On relaie le vrai statut HTTP (200, 429, 403...) direct au Frontend
+    return res.status(response.status).json(data);
 
   } catch (e) {
-    // Si l'API Jikan est totalement injoignable (ex: réseau coupé)
-    return res.status(502).json({ error: e.message });
+    // Si Jikan est VRAIMENT injoignable (DNS down...) on renvoie 500 et non 502
+    return res.status(500).json({ error: e.message });
   }
 }
