@@ -5,7 +5,7 @@
 import { trackView, trackClick } from './firebase.js';
 import { buildFranchise } from './animeFranchise.js';
 
-const API = 'https://api.jikan.moe/v4';
+const API = '/api/jikan';
 
 /* ──────────────────────────────────────
    UTILS
@@ -16,7 +16,7 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 async function jikanFetch(endpoint, retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
-      const res = await fetch(`${API}${endpoint}`);
+      const res = await fetch(`${API}?path=${encodeURIComponent(endpoint)}`);
       if (res.status === 429) { await sleep(1200 * (i + 1)); continue; }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return await res.json();
