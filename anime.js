@@ -5,7 +5,7 @@
 import { trackView, trackClick } from './firebase.js';
 import { buildFranchise } from './animeFranchise.js';
 
-const API = '/api/jikan';
+const API = 'https://api.jikan.moe/v4';
 
 /* ──────────────────────────────────────
    UTILS
