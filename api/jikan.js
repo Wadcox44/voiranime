@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   if (!/^[\w\/\-\?\=\&\.]+$/.test(cleanPath)) {
     return res.status(400).json({ error: 'Invalid path' });
   }
-
+ 
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   const cached = CACHE.get(cleanPath);
