@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>VoirAnime Admin</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a12;color:#e2e8f0;min-height:100vh}
+  #loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh}
+  .login-box{background:#111827;border:1px solid #1e293b;border-radius:16px;padding:40px;width:340px;text-align:center}
+  .login-box h1{font-size:1.4rem;font-weight:800;margin-bottom:6px}
+  .login-box p{color:#64748b;font-size:0.83rem;margin-bottom:24px}
+  input{width:100%;background:#0f172a;border:1px solid #1e293b;color:#e2e8f0;padding:10px 14px;border-radius:8px;font-size:0.9rem;outline:none;margin-bottom:12px}
+  input:focus{border-color:#7c4dff}
+  button{background:#7c4dff;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:0.88rem;font-weight:600;width:100%;transition:opacity .2s}
+  button:hover{opacity:.85}
+  button.danger{background:#ef4444}
+  button.success{background:#22c55e}
+  button.ghost{background:transparent;border:1px solid #1e293b;color:#94a3b8;width:auto}
+  button.ghost:hover{border-color:#7c4dff;color:#a78bfa}
+  #app{display:none;padding:24px;max-width:1200px;margin:0 auto}
+  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #1e293b}
+  .header h1{font-size:1.2rem;font-weight:800}
+  .tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+  .tab{padding:7px 16px;border-radius:8px;border:1px solid #1e293b;background:transparent;color:#94a3b8;cursor:pointer;font-size:0.82rem;font-weight:600}
+  .tab.active{background:#7c4dff;border-color:#7c4dff;color:#fff}
+  .panel{display:none}
+  .panel.active{display:block}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:24px}
+  .stat-card{background:#111827;border:1px solid #1e293b;border-radius:12px;padding:16px}
+  .stat-card .val{font-size:1.8rem;font-weight:900;color:#a78bfa}
+  .stat-card .lbl{font-size:0.72rem;color:#64748b;text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
+  .stat-card .sub{font-size:0.75rem;color:#475569;margin-top:2px}
+  table{width:100%;border-collapse:collapse;font-size:0.82rem}
+  th{text-align:left;padding:8px 12px;color:#475569;font-weight:600;border-bottom:1px solid #1e293b;font-size:0.72rem;text-transform:uppercase}
+  td{padding:9px 12px;border-bottom:1px solid #0f172a;color:#94a3b8}
+  tr:hover td{background:#111827}
+  .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700}
+  .badge.green{background:rgba(34,197,94,.15);color:#22c55e}
+  .badge.red{background:rgba(239,68,68,.15);color:#ef4444}
+  .badge.yellow{background:rgba(245,158,11,.15);color:#f59e0b}
+  .badge.gray{background:#1e293b;color:#64748b}
+  .form-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .form-row input{margin-bottom:0;flex:1;min-width:160px}
+  .form-row select{background:#0f172a;border:1px solid #1e293b;color:#e2e8f0;padding:10px 14px;border-radius:8px;font-size:0.9rem;flex:1;min-width:140px}
+  .result-box{background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:14px;margin-top:12px;font-size:0.78rem;color:#22d3ee;white-space:pre-wrap;max-height:300px;overflow:auto;display:none}
+  .range-btns{display:flex;gap:6px;margin-bottom:16px}
+  .range-btn{padding:5px 12px;border-radius:6px;border:1px solid #1e293b;background:transparent;color:#94a3b8;cursor:pointer;font-size:0.78rem}
+  .range-btn.active{background:#1e293b;color:#e2e8f0}
+  .error-msg{color:#ef4444;font-size:0.8rem;margin-top:8px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h1>⚙ VoirAnime Admin</h1>
+    <p>Accès restreint — administrateurs uniquement</p>
+    <input type="password" id="secretInput" placeholder="Secret admin" onkeydown="if(event.key==='Enter')login()"/>
+    <button onclick="login()">Connexion</button>
+    <p class="error-msg" id="loginError"></p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="header">
+    <h1>⚙ VoirAnime Admin</h1>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span id="headerRange" style="font-size:0.75rem;color:#475569"></span>
+      <button class="ghost" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('stats')">📊 Stats</button>
+    <button class="tab" onclick="switchTab('users')">👥 Users</button>
+    <button class="tab" onclick="switchTab('payments')">💰 Paiements</button>
+    <button class="tab" onclick="switchTab('logs')">📋 Logs</button>
+    <button class="tab" onclick="switchTab('actions')">⚡ Actions</button>
+  </div>
+
+  <!-- STATS -->
+  <div class="panel active" id="panel-stats">
+    <div class="range-btns">
+      <button class="range-btn active" onclick="setRange('7d',this)">7 jours</button>
+      <button class="range-btn" onclick="setRange('30d',this)">30 jours</button>
+      <button class="range-btn" onclick="setRange('all',this)">Tout</button>
+    </div>
+    <div class="stats-grid" id="statsGrid">
+      <div style="color:#475569;font-size:0.82rem">Chargement…</div>
+    </div>
+    <h3 style="font-size:0.85rem;font-weight:700;color:#475569;margin-bottom:12px;text-transform:uppercase;letter-spacing:.1em">Paiements récents</h3>
+    <div id="statsPaymentsTable"></div>
+  </div>
+
+  <!-- USERS -->
+  <div class="panel" id="panel-users">
+    <div class="form-row">
+      <input id="userSearch" placeholder="piUserId ou username…"/>
+      <button onclick="searchUser()">Rechercher</button>
+      <button class="ghost" onclick="loadUsers('all')">Tous</button>
+      <button class="ghost" onclick="loadUsers('premium')">Premium</button>
+      <button class="ghost" onclick="loadUsers('blocked')">Bloqués</button>
+    </div>
+    <div id="usersTable"></div>
+    <div class="result-box" id="userResult"></div>
+  </div>
+
+  <!-- PAIEMENTS -->
+  <div class="panel" id="panel-payments">
+    <div class="form-row">
+      <select id="payFilter" onchange="loadPayments()">
+        <option value="">Tous les statuts</option>
+        <option value="activated">Activés</option>
+        <option value="paid_not_activated">Non activés</option>
+        <option value="failed_permanently">Échec permanent</option>
+        <option value="refunded">Remboursés</option>
+      </select>
+      <button onclick="loadPayments()">Filtrer</button>
+      <button class="success" onclick="repairAll()">🔧 Réparer non-activés</button>
+    </div>
+    <div id="paymentsTable"></div>
+    <div class="result-box" id="payResult"></div>
+  </div>
+
+  <!-- LOGS -->
+  <div class="panel" id="panel-logs">
+    <div id="logsTable"></div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="panel" id="panel-actions">
+    <h3 style="font-size:0.9rem;font-weight:700;margin-bottom:16px">Actions manuelles</h3>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+      <div style="background:#111827;border:1px solid #1e293b;border-radius:12px;padding:16px">
+        <div style="font-size:0.82rem;font-weight:700;margin-bottom:12px;color:#a78bfa">👤 Gestion User</div>
+        <div class="form-row"><input id="actUserId" placeholder="piUserId"/></div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button onclick="userAction('block')">🔒 Bloquer</button>
+          <button class="success" onclick="userAction('unblock')">🔓 Débloquer</button>
+          <button class="success" onclick="userAction('premium_on')">⭐ Activer Premium (30j)</button>
+          <button class="danger" onclick="userAction('premium_off')">⭐ Désactiver Premium</button>
+          <button onclick="userAction('reset')">🗑 Reset stats</button>
+          <button onclick="userAction('test_premium')">🧪 Test Premium (1j)</button>
+        </div>
+        <div class="result-box" id="actResult"></div>
+      </div>
+
+      <div style="background:#111827;border:1px solid #1e293b;border-radius:12px;padding:16px">
+        <div style="font-size:0.82rem;font-weight:700;margin-bottom:12px;color:#f59e0b">💰 Remboursement</div>
+        <div class="form-row"><input id="refPaymentId" placeholder="paymentId"/></div>
+        <div class="form-row"><input id="refUserId" placeholder="piUserId (optionnel)"/></div>
+        <div class="form-row"><input id="refReason" placeholder="Raison"/></div>
+        <button class="danger" onclick="logRefund()">Enregistrer remboursement</button>
+        <div style="font-size:0.72rem;color:#475569;margin-top:8px">⚠ Pi Network n'a pas d'API de remboursement — opération manuelle uniquement.</div>
+        <div class="result-box" id="refResult"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE = 'https://voir-anime.vercel.app';
+let SECRET = '';
+let currentRange = '7d';
+let statsData = null;
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+async function login() {
+  const s = document.getElementById('secretInput').value.trim();
+  if (!s) return;
+  // Test rapide avec un appel stats
+  const r = await api('admin-stats', null, 'GET', `?secret=${encodeURIComponent(s)}&range=7d`);
+  if (r.ok) {
+    SECRET = s;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    statsData = r;
+    renderStats(r);
+    loadPayments();
+  } else {
+    document.getElementById('loginError').textContent = 'Secret incorrect ou erreur serveur.';
+  }
+}
+function logout() {
+  SECRET = ''; location.reload();
+}
+
+// ── API helper ────────────────────────────────────────────────────────────────
+async function api(endpoint, body, method = 'POST', qs = '') {
+  try {
+    const opts = method === 'GET'
+      ? { method: 'GET' }
+      : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ secret: SECRET, ...body }) };
+    const r = await fetch(`${BASE}/api/${endpoint}${qs}`, opts);
+    return r.json();
+  } catch(e) { return { error: e.message }; }
+}
+
+// ── Tabs ─────────────────────────────────────────────────────────────────────
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', t.textContent.includes(
+    {stats:'Stats',users:'Users',payments:'Paiements',logs:'Logs',actions:'Actions'}[id]
+  )));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if (id === 'users')    loadUsers('all');
+  if (id === 'logs')     loadLogs();
+}
+
+// ── Range ────────────────────────────────────────────────────────────────────
+async function setRange(range, btn) {
+  document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentRange = range;
+  const r = await api('admin-stats', null, 'GET', `?secret=${encodeURIComponent(SECRET)}&range=${range}`);
+  if (r.ok) renderStats(r);
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+function renderStats(d) {
+  const g = document.getElementById('statsGrid');
+  g.innerHTML = [
+    card('👥 Total users',   d.users.total,          d.users.newInRange + ' nouveaux'),
+    card('⭐ Premium',       d.users.premium,         'Conversion : ' + d.users.conversionRate),
+    card('🔒 Bloqués',       d.users.blocked,         ''),
+    card('💰 Revenus',       d.business.revenue,      'ARPU : ' + d.business.arpu),
+    card('📦 Mensuel',       d.business.monthly,      ''),
+    card('📦 Annuel',        d.business.annual,       '2 mois offerts'),
+    card('✅ Paiements OK',  d.payments.activated,    'Taux : ' + d.payments.successRate),
+    card('⚠ Non activés',   d.payments.failedActivation, 'À réparer'),
+    card('❌ Échec perm.',   d.payments.permanentFail,'Manuel requis'),
+    card('👁 Vues totales',  d.engagement.totalViews, ''),
+    card('🖱 Clics',         d.engagement.totalClicks,''),
+    card('🐛 Erreurs logs',  d.logs.errors,           d.logs.adminActions + ' actions admin'),
+  ].join('');
+
+  // Logs récents dans stats
+  const tbl = document.getElementById('statsPaymentsTable');
+  tbl.innerHTML = d.logs.recent.length
+    ? '<table><tr><th>Type</th><th>Action</th><th>Date</th></tr>'
+      + d.logs.recent.map(l => `<tr><td>${l.type||'—'}</td><td>${l.action||l.message||'—'}</td><td>${fmtDate(l.timestamp)}</td></tr>`).join('')
+      + '</table>'
+    : '<div style="color:#475569;font-size:0.82rem">Aucun log récent.</div>';
+}
+function card(lbl, val, sub) {
+  return `<div class="stat-card"><div class="val">${val??'—'}</div><div class="lbl">${lbl}</div><div class="sub">${sub}</div></div>`;
+}
+
+// ── Users ─────────────────────────────────────────────────────────────────────
+async function loadUsers(filter) {
+  const body = filter === 'premium' ? { action:'user_list', onlyPremium:true }
+             : filter === 'blocked' ? { action:'user_list', onlyBlocked:true }
+             : { action:'user_list' };
+  const r = await api('admin', body);
+  renderUsers(r.result || []);
+}
+async function searchUser() {
+  const q = document.getElementById('userSearch').value.trim();
+  if (!q) return;
+  const r = await api('admin', { action:'user_get', piUserId: q });
+  show('userResult', r);
+  if (r.result?.user) renderUsers([{ id: q, ...r.result.user }]);
+}
+function renderUsers(list) {
+  const t = document.getElementById('usersTable');
+  if (!list.length) { t.innerHTML = '<div style="color:#475569;font-size:0.82rem;padding:16px">Aucun résultat.</div>'; return; }
+  t.innerHTML = '<table><tr><th>piUserId</th><th>Username</th><th>Statut</th><th>Plan</th><th>Expiration</th><th>Actions</th></tr>'
+    + list.map(u => `<tr>
+      <td style="font-size:0.72rem;color:#7c4dff">${u.id||'—'}</td>
+      <td>${u.piUsername||'—'}</td>
+      <td>${u.blocked ? badge('Bloqué','red') : u.isPremium ? badge('Premium','green') : badge('Gratuit','gray')}</td>
+      <td>${u.plan||'—'}</td>
+      <td>${u.expiresAt ? fmtDate(u.expiresAt) : '—'}</td>
+      <td style="display:flex;gap:4px">
+        <button class="ghost" style="padding:4px 8px;font-size:0.72rem" onclick="quickAction('user_block','${u.id}')">Bloquer</button>
+        <button class="ghost" style="padding:4px 8px;font-size:0.72rem" onclick="quickAction('user_premium_set','${u.id}',true)">+Premium</button>
+      </td>
+    </tr>`).join('') + '</table>';
+}
+
+// ── Payments ──────────────────────────────────────────────────────────────────
+async function loadPayments() {
+  const status = document.getElementById('payFilter')?.value || '';
+  const r = await api('admin', { action:'payment_list', status: status||undefined });
+  const list = r.result || [];
+  const t = document.getElementById('paymentsTable');
+  if (!list.length) { t.innerHTML = '<div style="color:#475569;font-size:0.82rem;padding:16px">Aucun paiement.</div>'; return; }
+  t.innerHTML = '<table><tr><th>paymentId</th><th>piUserId</th><th>Plan</th><th>Statut</th><th>Tentatives</th><th>Date</th><th></th></tr>'
+    + list.map(tx => `<tr>
+      <td style="font-size:0.7rem;color:#7c4dff">${tx.id}</td>
+      <td style="font-size:0.72rem">${tx.piUserId||'—'}</td>
+      <td>${tx.plan||'don'}</td>
+      <td>${statusBadge(tx.status)}</td>
+      <td>${tx.attempts||0}</td>
+      <td>${fmtDate(tx.createdAt)}</td>
+      <td>${tx.status==='paid_not_activated'
+        ? `<button class="ghost" style="padding:4px 8px;font-size:0.72rem" onclick="repairOne('${tx.id}')">Réparer</button>`
+        : ''}</td>
+    </tr>`).join('') + '</table>';
+}
+async function repairAll() {
+  const r = await api('admin', { action:'payment_repair' });
+  show('payResult', r);
+  loadPayments();
+}
+async function repairOne(paymentId) {
+  const r = await api('admin', { action:'payment_repair', paymentId });
+  show('payResult', r);
+  loadPayments();
+}
+
+// ── Logs ──────────────────────────────────────────────────────────────────────
+async function loadLogs() {
+  const r = await api('admin-stats', null, 'GET', `?secret=${encodeURIComponent(SECRET)}&range=${currentRange}`);
+  const logs = r.logs?.recent || [];
+  document.getElementById('logsTable').innerHTML = logs.length
+    ? '<table><tr><th>Type</th><th>Action / Message</th><th>Params</th><th>Date</th></tr>'
+      + logs.map(l => `<tr>
+        <td>${l.type||'—'}</td>
+        <td>${l.action||l.message||'—'}</td>
+        <td style="font-size:0.7rem;color:#475569;max-width:200px;overflow:hidden;text-overflow:ellipsis">${l.params||''}</td>
+        <td>${fmtDate(l.timestamp)}</td>
+      </tr>`).join('') + '</table>'
+    : '<div style="color:#475569;padding:16px;font-size:0.82rem">Aucun log.</div>';
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+async function userAction(type) {
+  const uid = document.getElementById('actUserId').value.trim();
+  if (!uid) { alert('Saisis un piUserId'); return; }
+  let r;
+  if (type === 'block')       r = await api('admin', { action:'user_block', piUserId:uid });
+  else if (type === 'unblock')r = await api('admin', { action:'user_unblock', piUserId:uid });
+  else if (type === 'premium_on') r = await api('admin', { action:'user_premium_set', piUserId:uid, enable:true });
+  else if (type === 'premium_off')r = await api('admin', { action:'user_premium_set', piUserId:uid, enable:false });
+  else if (type === 'reset')  r = await api('admin', { action:'user_reset_stats', piUserId:uid });
+  else if (type === 'test_premium') r = await api('admin', { action:'test_premium', piUserId:uid });
+  show('actResult', r);
+}
+async function quickAction(action, piUserId, enable) {
+  const r = await api('admin', { action, piUserId, enable });
+  alert(r.ok ? '✅ OK' : '❌ ' + (r.error||'Erreur'));
+  loadUsers('all');
+}
+async function logRefund() {
+  const r = await api('admin', {
+    action:'payment_refund_log',
+    paymentId: document.getElementById('refPaymentId').value.trim(),
+    piUserId:  document.getElementById('refUserId').value.trim() || undefined,
+    reason:    document.getElementById('refReason').value.trim(),
+  });
+  show('refResult', r);
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function show(id, data) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = 'block';
+  el.textContent = JSON.stringify(data, null, 2);
+}
+function badge(t, c) { return `<span class="badge ${c}">${t}</span>`; }
+function statusBadge(s) {
+  const m = {activated:'green',pi_completed:'yellow',paid_not_activated:'red',failed_permanently:'red',pending:'gray',refunded:'yellow'};
+  return badge(s||'—', m[s]||'gray');
+}
+function fmtDate(v) {
+  if (!v) return '—';
+  const ms = v?.seconds ? v.seconds*1000 : (typeof v === 'number' ? v : Date.parse(v));
+  if (!ms) return '—';
+  return new Date(ms).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' });
+}
+</script>
+</body>
+</html>
