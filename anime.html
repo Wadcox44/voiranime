@@ -45,6 +45,9 @@
     }
     .watch-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
     .watch-filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* Fix anti débordement horizontal */
+    html, body { max-width: 100vw; overflow-x: hidden; }
   </style>
   <!-- Pi Network SDK -->
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
