@@ -200,10 +200,8 @@
   var _newsRetryCount = 0;
   var _newsMaxRetry   = 3;
 
-  // Plusieurs endpoints par ordre de fiabilité
+  // Un seul endpoint stable pour les 'News' (Jikan V4 n'a pas de global news)
   var NEWS_SOURCES = [
-    { url: 'https://api.jikan.moe/v4/news/anime?limit=20', type: 'news' },
-    { url: 'https://api.jikan.moe/v4/news/anime?page=1',   type: 'news' },
     { url: 'https://api.jikan.moe/v4/top/anime?filter=airing&limit=20', type: 'anime' },
   ];
   var _currentSourceIdx = 0;
