@@ -195,102 +195,62 @@
     });
   });
 
-  // ── Chargement actu globale via Jikan News ──
   var currentSource = 'all';
-  var _newsRetryCount = 0;
-  var _newsMaxRetry   = 3;
-
-  // Un seul endpoint stable pour les 'News' (Jikan V4 n'a pas de global news)
-  var NEWS_SOURCES = [
-    { url: 'https://api.jikan.moe/v4/top/anime?filter=airing&limit=20', type: 'anime' },
-  ];
-  var _currentSourceIdx = 0;
 
   function loadGlobalNews(source) {
     var feed = document.getElementById('newsFeedGlobal');
     if (!feed) return;
     feed.innerHTML = '<div class="news-loading">Chargement des articles&#8230;</div>';
 
-    // Timeout de 8s pour éviter le blocage indéfini
-    var controller = null;
-    var timeoutId  = null;
-    if (window.AbortController) {
-      controller = new AbortController();
-      timeoutId  = setTimeout(function() { controller.abort(); }, 8000);
-    }
+    var RSS_FEEDS = {
+      'all': 'https://myanimelist.net/rss/news.xml',
+      'crunchyroll': 'https://www.nautiljon.com/actualite/rss.php', // CR RSS bloqué -> Nautiljon.com (Référence FR)
+      'animenewsnetwork': 'https://www.animenewsnetwork.com/news/rss.xml',
+      'otakunews': 'https://www.otakuusamagazine.com/feed/'
+    };
 
-    var opts = controller ? { signal: controller.signal } : {};
-    var endpoint = NEWS_SOURCES[_currentSourceIdx] || NEWS_SOURCES[0];
+    var rssUrl = RSS_FEEDS[source] || RSS_FEEDS['all'];
+    var endpoint = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl);
 
-    fetch(endpoint.url, opts)
+    fetch(endpoint)
       .then(function(r) {
-        if (timeoutId) clearTimeout(timeoutId);
-        // 429 = rate limit → retry avec délai croissant
-        if (r.status === 429) {
-          _newsRetryCount++;
-          var delay = Math.min(2000 * _newsRetryCount, 8000);
-          feed.innerHTML = '<div class="news-loading">Chargement&#8230; (' + _newsRetryCount + '/3)</div>';
-          setTimeout(function() { loadGlobalNews(source); }, delay);
-          throw new Error('429_SKIP');
-        }
-        if (!r.ok) {
-          // Essayer l'endpoint suivant
-          _currentSourceIdx = (_currentSourceIdx + 1) % NEWS_SOURCES.length;
-          throw new Error('HTTP ' + r.status);
-        }
-        _newsRetryCount = 0;
+        if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
       })
       .then(function(data) {
-        var articles = data.data || [];
+        var articles = data.items || [];
 
         if (!articles.length) {
           feed.innerHTML = '<div class="news-empty">Aucun article disponible pour le moment.</div>';
           return;
         }
 
-        // Filtrer par source
-        var filtered = articles;
-        if (source && source !== 'all') {
-          filtered = articles.filter(function(a) {
-            return (a.forum_url || '').toLowerCase().indexOf(source) !== -1 ||
-                   (a.title || '').toLowerCase().indexOf(source) !== -1;
-          });
-          if (!filtered.length) filtered = articles; // fallback : tout afficher
-        }
+        var source_name = source === 'all' ? 'MyAnimeList' : (source === 'animenewsnetwork' ? 'ANN' : (source === 'otakunews' ? 'Otaku USA' : 'Nautiljon (FR)'));
 
         var html = '';
-        var isAnimeType = endpoint && endpoint.type === 'anime';
+        articles.forEach(function(a) {
+          var date = a.pubDate ? new Date(a.pubDate).toLocaleDateString('fr-FR', {day:'numeric',month:'short',year:'numeric'}) : '';
+          
+          // Chercher une image dans le flux
+          var imgSrc = a.thumbnail || (a.enclosure && a.enclosure.link) || '';
+          if (!imgSrc && a.description) {
+            var imgMatch = a.description.match(/src=["']([^"']+)["']/);
+            if (imgMatch) imgSrc = imgMatch[1];
+          }
 
-        filtered.forEach(function(a) {
-          var date   = '';
-          try {
-            var dateStr = a.date || a.aired && a.aired.from;
-            if (dateStr) date = new Date(dateStr).toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric'});
-          } catch(e){}
+          var link = a.link || '#';
+          var title = a.title || '';
+          
+          // Purger le html pour obtenir un pur texte
+          var excerpt = (a.description || a.content || '').replace(/(<([^>]+)>)/gi, "").trim();
+          var decoder = document.createElement("textarea");
+          decoder.innerHTML = excerpt;
+          excerpt = decoder.value; // Decode HTML entities like &#8217;
+          if (excerpt.length > 120) excerpt = excerpt.substring(0, 120) + '…';
 
-          // Image : news a images.jpg, anime top a images.jpg aussi
-          var imgSrc = '';
-          try {
-            imgSrc = a.images && a.images.jpg
-              ? (a.images.jpg.small_image_url || a.images.jpg.image_url || '')
-              : '';
-          } catch(e){}
-
-          var imgHtml = imgSrc
-            ? '<img class="news-article-img" src="' + imgSrc + '" alt="" loading="lazy" onerror="this.style.display='none'"/>'
-            : '<div class="news-article-img news-article-img-placeholder"></div>';
-
-          var source_name = isAnimeType ? 'MyAnimeList Top Airing' : 'MyAnimeList';
-          try { if (a.forum_url) source_name = new URL(a.forum_url).hostname.replace('www.',''); } catch(e) {}
-
-          // Lien : news → a.url, anime → page MAL
-          var link = a.url || (a.mal_id ? 'https://myanimelist.net/anime/' + a.mal_id : '#');
-
-          // Titre et description
-          var title = a.title || a.title_english || '';
-          var excerpt = a.excerpt || a.synopsis || '';
-          if (excerpt && excerpt.length > 100) excerpt = excerpt.substring(0, 100) + '…';
+          var imgHtml = imgSrc 
+             ? '<img class="news-article-img" src="' + imgSrc + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"/>' 
+             : '<div class="news-article-img news-article-img-placeholder"></div>';
 
           html += '<a href="' + link + '" target="_blank" rel="noopener" class="news-article-card">'
             + imgHtml
@@ -302,15 +262,12 @@
             + '</div>'
             + '</a>';
         });
-        feed.innerHTML = html || '<div class="news-empty">Aucun article disponible.</div>';
+        feed.innerHTML = html;
       })
       .catch(function(e) {
-        if (timeoutId) clearTimeout(timeoutId);
-        if (e && e.message === '429_SKIP') return; // déjà géré
-        var isAbort = e && e.name === 'AbortError';
-        feed.innerHTML = '<div class="news-empty">'
-          + (isAbort ? 'Délai dépassé.' : 'Erreur de chargement.')
-          + ' <button onclick="loadGlobalNews(currentSource)" style="background:none;border:1px solid var(--b2);color:var(--pink);padding:4px 12px;border-radius:20px;cursor:pointer;font-family:inherit">Réessayer</button>'
+        feed.innerHTML = '<div class="news-empty">Erreur de chargement des flux RSS.<br><br> <button onclick="loadGlobalNews(\''+source+'\')" style="background:none;border:1px solid var(--b2);color:var(--pink);padding:4px 12px;border-radius:20px;cursor:pointer;font-family:inherit">Réessayer</button></div>';
+      });
+  }oadGlobalNews(currentSource)" style="background:none;border:1px solid var(--b2);color:var(--pink);padding:4px 12px;border-radius:20px;cursor:pointer;font-family:inherit">Réessayer</button>'
           + '</div>';
       });
   }
