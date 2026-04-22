@@ -69,7 +69,7 @@ const state = {
    Solution : queue FIFO strictement séquentielle + cache sessionStorage.
 ────────────────────────────────────── */
 
-const JIKAN_MIN_INTERVAL = 400; // ms minimum entre deux requêtes (~2.5 req/s, sous la limite de 3)
+const JIKAN_MIN_INTERVAL = 800; // ms minimum entre deux requêtes (ralenti pour éviter les 429)
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes de cache sessionStorage
 
 let _lastRequestTime = 0;  // timestamp de la dernière requête partie

@@ -13,7 +13,7 @@ const API = 'https://api.jikan.moe/v4';
 function el(id) { return document.getElementById(id); }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-const JIKAN_MIN_INTERVAL = 400; // ms minimum entre deux requêtes (~2.5 req/s)
+const JIKAN_MIN_INTERVAL = 800; // ms minimum entre deux requêtes (ralenti)
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes de cache
 
 let _lastRequestTime = 0;
