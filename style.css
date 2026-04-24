@@ -4780,7 +4780,7 @@ a:active {
 
 /* Mobile */
 @media (max-width: 768px) {
-  .anime-du-jour { height: 420px; }
+  .anime-du-jour { height: 300px; }
   .adj-inner { padding: 24px 18px; }
   .adj-title { font-size: 1.4rem; }
   .adj-synopsis { display: none; }
