@@ -3792,12 +3792,12 @@ a:active {
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
+    position: relative !important;
     padding: 10px 16px;
   }
   .nav-left  { justify-content: center; }
-  .nav-right { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
-  .nav-avatar-left { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); z-index: 10; }
+  .nav-right { position: absolute !important; right: 16px; top: 50%; transform: translateY(-50%); }
+  .nav-avatar-left { position: absolute !important; left: 12px; top: 10px; transform: none !important; z-index: 10; }
   .logo-glitch { font-size: 1.25rem; }
   .search-toggle-label { display: none; }
 
@@ -4780,7 +4780,7 @@ a:active {
 
 /* Mobile */
 @media (max-width: 768px) {
-  .anime-du-jour { height: 420px; }
+  .anime-du-jour { height: 300px; }
   .adj-inner { padding: 24px 18px; }
   .adj-title { font-size: 1.4rem; }
   .adj-synopsis { display: none; }
@@ -6450,13 +6450,15 @@ a.stat-compact.stat-compact-link:hover::after {
   display: flex !important;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
   border-radius: 50%;
   text-decoration: none;
   flex-shrink: 0;
   transition: transform 0.2s, box-shadow 0.2s;
 }
+.nav-avatar-btn * { max-width: 100% !important; max-height: 100% !important; }
 .nav-avatar-btn:hover {
   transform: scale(1.08);
   box-shadow: 0 0 12px rgba(34,211,238,0.5);
