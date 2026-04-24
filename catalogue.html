@@ -599,6 +599,7 @@ function buildCard(anime) {
 
   const card = document.createElement('article');
   card.className = 'anime-card';
+  card.style.touchAction = 'pan-y';
 
   card.innerHTML = `
     <div class="card-thumb">
