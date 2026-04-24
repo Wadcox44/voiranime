@@ -123,9 +123,9 @@
       'font-size:0.65rem', 'line-height:1',
       'background:linear-gradient(135deg,#a78bfa,#818cf8)',
       'border-radius:50%', 'width:16px', 'height:16px',
-      'display:flex', 'align-items:center', 'justify-content:center'
+      'display:flex', 'align-items:center', 'justify-content:center',
+      'z-index:20'
     ].join(';');
-    avatar.style.position = 'relative';
     avatar.appendChild(badge);
   }
 
