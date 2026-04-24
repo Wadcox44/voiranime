@@ -1,91 +1,105 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>VoirAnime — News</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VoirAnime — Ton portail anime</title>
 
-<link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
 
-<style>
-.hidden{display:none}
+  <script src="i18n.js"></script>
+  <script src="featuresManager.js"></script>
+  <script src="premiumManager.js"></script>
 
-/* NAVBAR FIX */
-.navbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px 20px;
-  position:sticky;
-  top:0;
-  z-index:9999;
-  background:#0b0b14;
-}
+  <style>
+    .hidden{display:none}
+    .news-loading,.news-empty{padding:20px;text-align:center;opacity:.7}
 
-/* NEWS */
-.news-tabs{display:flex;gap:10px;padding:10px}
-.news-tab{padding:6px 12px;border-radius:20px;background:#222;cursor:pointer}
-.news-tab.active{background:#444}
+    .news-article-card{
+      display:flex;gap:12px;
+      padding:10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      text-decoration:none;
+      color:white;
+    }
 
-.news-panel{padding:10px}
+    .news-article-img{
+      width:80px;height:80px;
+      object-fit:cover;
+      border-radius:8px;
+    }
 
-.news-loading,.news-empty{text-align:center;padding:20px;opacity:.7}
+    .news-article-img-placeholder{
+      width:80px;height:80px;
+      border-radius:8px;
+      background:#222;
+    }
 
-.news-article-card{
-  display:flex;
-  gap:12px;
-  padding:10px;
-  border-bottom:1px solid rgba(255,255,255,.08);
-  text-decoration:none;
-  color:white;
-}
+    .news-article-title{font-weight:600}
+    .news-article-excerpt{font-size:.85rem;opacity:.7}
 
-.news-article-img{
-  width:80px;
-  height:80px;
-  border-radius:8px;
-  object-fit:cover;
-}
-
-.news-article-img-placeholder{
-  width:80px;
-  height:80px;
-  border-radius:8px;
-  background:#222;
-}
-
-.news-article-title{font-weight:600}
-.news-article-excerpt{font-size:.85rem;opacity:.7}
-</style>
+    .news-tabs{display:flex;gap:10px;padding:10px}
+    .news-tab{padding:6px 12px;border-radius:20px;background:#222;cursor:pointer}
+    .news-tab.active{background:#444}
+  </style>
 </head>
 
 <body>
 
-<!-- NAVBAR (RESTOREE) -->
-<nav class="navbar">
-  <div><strong>VoirAnime</strong></div>
-  <div>
-    <a href="index.html">Accueil</a> |
-    <a href="catalogue.html">Catalogue</a> |
-    <a href="news.html">News</a>
+<!-- ════════════════════════════════
+     NAVBAR ORIGINALE (RESTOREE)
+════════════════════════════════ -->
+
+<nav class="navbar" id="navbar">
+  <div class="nav-top">
+    <div class="nav-left">
+      <div class="nav-logo-wrap">
+        <a href="index.html" class="nav-logo" aria-label="VoirAnime">
+          <span class="logo-glitch" data-text="VoirAnime">
+            <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
+          </span>
+        </a>
+        <span class="logo-tagline">Découvre autrement.</span>
+      </div>
+    </div>
+
+    <a href="profile.html" class="nav-avatar-btn nav-avatar-left">
+      <div class="nav-avatar-fallback">👤</div>
+    </a>
+
+    <div class="nav-right">
+      <div class="search-container">
+        <button class="search-toggle">Recherche</button>
+      </div>
+    </div>
   </div>
+
+  <ul class="nav-links">
+    <li><a href="index.html" class="nav-link">Accueil</a></li>
+    <li><a href="catalogue.html" class="nav-link">Catalogue</a></li>
+    <li><a href="duel.html" class="nav-link">⚔ Duels</a></li>
+    <li><a href="news.html" class="nav-link active">📰 News</a></li>
+    <li><a href="soutenir.html" class="nav-link">💜 Faire un don</a></li>
+  </ul>
 </nav>
 
-<!-- TABS -->
+<!-- ════════════════════════════════
+     NEWS UI
+════════════════════════════════ -->
+
 <div class="news-tabs">
   <div class="news-tab active" data-tab="global">🌍 Actu globale</div>
   <div class="news-tab" data-tab="perso">⭐ Mes alertes</div>
 </div>
 
-<!-- GLOBAL -->
 <div class="news-panel" id="newsTabGlobal">
-
   <div id="newsFeedGlobal">
     <div class="news-loading">Chargement...</div>
   </div>
 </div>
 
-<!-- PERSO -->
 <div class="news-panel hidden" id="newsTabPerso">
   <div id="newsFavAlerts"></div>
 </div>
@@ -102,7 +116,7 @@ const RSS={
   otakunews:"https://www.otakuusamagazine.com/feed/"
 };
 
-// ───────── NEWS LOAD ─────────
+// ───────── LOAD NEWS ─────────
 function loadGlobalNews(source){
 
 const feed=document.getElementById("newsFeedGlobal");
@@ -125,7 +139,7 @@ let html="";
 
 items.forEach(a=>{
 
-// 🔥 FIX IMAGES ANN + OTAKU + ALL SOURCES
+// 🔥 FIX IMAGES ANN / OTAKU / RSS
 let img=a.thumbnail||"";
 
 if(!img&&a.enclosure&&a.enclosure.link){
@@ -137,7 +151,7 @@ img=a["media:content"].url;
 }
 
 if(!img&&a.description){
-const m=a.description.match(/src=['"]([^'"]+)['"]/);
+const m=a.description.match(/src=["']([^"']+)["']/);
 if(m)img=m[1];
 }
 
