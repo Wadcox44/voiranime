@@ -4632,7 +4632,6 @@ a:active {
   height: 360px;
   overflow: hidden;
   margin-bottom: 8px;
-  /* Empêche la navbar fixe de recouvrir le contenu */
   padding-top: var(--nav-h);
   box-sizing: border-box;
 }
@@ -4684,8 +4683,8 @@ a:active {
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 28px 52px;
+  justify-content: flex-start;
+  padding: 16px 52px 20px;
   max-width: 680px;
   box-sizing: border-box;
 }
@@ -4785,15 +4784,15 @@ a:active {
 /* Mobile */
 @media (max-width: 768px) {
   .anime-du-jour { height: 280px; }
-  .adj-inner { padding: 16px 18px; }
+  .adj-inner { padding: 12px 18px 16px; }
   .adj-title { font-size: 1.1rem; }
   .adj-synopsis { display: none; }
   .adj-overlay {
     background: linear-gradient(
-      to top,
-      rgba(8,7,15,0.95) 0%,
-      rgba(8,7,15,0.4) 60%,
-      transparent 100%
+      to bottom,
+      rgba(8,7,15,0.55) 0%,
+      rgba(8,7,15,0.2) 50%,
+      rgba(8,7,15,0.85) 100%
     );
   }
 }
