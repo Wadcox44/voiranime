@@ -48,6 +48,16 @@
 
     /* Fix anti débordement horizontal */
     html, body { max-width: 100vw; overflow-x: hidden; }
+
+    /* Rating stars — étoiles toujours visibles */
+    .rating-star { position: relative; background: none; border: none; padding: 2px 1px; cursor: pointer; font-size: 1.5rem; line-height: 1; transition: transform .15s; }
+    .rating-star:hover { transform: scale(1.15); }
+    .rating-star .star-empty  { color: rgba(255,255,255,0.3); display: inline; }
+    .rating-star .star-filled { color: #facc15; display: none; position: absolute; left: 1px; top: 2px; }
+    .rating-star.active .star-empty  { display: none; }
+    .rating-star.active .star-filled { display: inline; }
+    .rating-star.hovered .star-empty  { display: none; }
+    .rating-star.hovered .star-filled { display: inline; color: #fde68a; }
   </style>
   <!-- Pi Network SDK -->
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
@@ -196,16 +206,16 @@
       <div class="rating-widget" id="ratingWidget">
         <div class="rating-label" data-i18n="anime.my_rating">Ma note</div>
         <div class="rating-stars" id="ratingStars">
-          <button class="rating-star" data-v="1">★</button>
-          <button class="rating-star" data-v="2">★</button>
-          <button class="rating-star" data-v="3">★</button>
-          <button class="rating-star" data-v="4">★</button>
-          <button class="rating-star" data-v="5">★</button>
-          <button class="rating-star" data-v="6">★</button>
-          <button class="rating-star" data-v="7">★</button>
-          <button class="rating-star" data-v="8">★</button>
-          <button class="rating-star" data-v="9">★</button>
-          <button class="rating-star" data-v="10">★</button>
+          <button class="rating-star" data-v="1"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="2"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="3"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="4"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="5"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="6"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="7"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="8"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="9"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="10"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
         </div>
         <span class="rating-value" id="ratingValue">—</span>
         <button class="rating-clear hidden" id="ratingClear" title="Effacer">✕</button>
