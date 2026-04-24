@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VoirAnime — Ton portail anime</title>
+  <title>VoirAnime — News</title>
 
   <link rel="stylesheet" href="style.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,49 +14,63 @@
   <script src="premiumManager.js"></script>
 
   <style>
-    .hidden{display:none}
-    .news-loading,.news-empty{padding:20px;text-align:center;opacity:.7}
+    /* ===== NAVBAR IDENTIQUE catalogue ===== */
+    .nav-logo{text-decoration:none;display:inline-flex;align-items:center}
+    .logo-glitch{display:inline-block;font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:-.5px;transform:skewX(-6deg);position:relative;user-select:none}
+    .logo-glitch::before,.logo-glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;pointer-events:none}
+    .logo-glitch::before{color:#22d3ee;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%);animation:va-gr-auto 5s steps(2) infinite;opacity:1}
+    .logo-glitch::after{color:#a78bfa;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%);animation:va-gb-auto 5s steps(2) .06s infinite;opacity:1}
 
-    .news-article-card{
-      display:flex;gap:12px;
-      padding:10px;
-      border-bottom:1px solid rgba(255,255,255,.08);
-      text-decoration:none;
-      color:white;
+    @keyframes va-gr-auto{
+      0%{transform:translate(-2px,1px);opacity:1}
+      8%{transform:translate(1px,-2px);opacity:1}
+      8.1%,100%{transform:translate(0,0);opacity:0}
+    }
+    @keyframes va-gb-auto{
+      0%{transform:translate(2px,-1px);opacity:1}
+      8%{transform:translate(-2px,1px);opacity:1}
+      8.1%,100%{transform:translate(0,0);opacity:0}
     }
 
-    .news-article-img{
-      width:80px;height:80px;
-      object-fit:cover;
-      border-radius:8px;
+    .logo-voir{color:#fff}
+    .logo-anime{color:#22d3ee}
+
+    /* ===== PAGE NEWS ===== */
+    .news-container{
+      max-width:1100px;
+      margin:0 auto;
+      padding:120px 20px 40px;
     }
 
-    .news-article-img-placeholder{
-      width:80px;height:80px;
-      border-radius:8px;
-      background:#222;
+    .news-title{
+      font-size:2.2rem;
+      font-weight:900;
+      margin-bottom:10px;
     }
 
-    .news-article-title{font-weight:600}
-    .news-article-excerpt{font-size:.85rem;opacity:.7}
+    .news-sub{
+      color:#aaa;
+      margin-bottom:30px;
+    }
 
-    .news-tabs{display:flex;gap:10px;padding:10px}
-    .news-tab{padding:6px 12px;border-radius:20px;background:#222;cursor:pointer}
-    .news-tab.active{background:#444}
+    .news-card{
+      background:#14131f;
+      border:1px solid #222;
+      border-radius:12px;
+      padding:16px;
+      margin-bottom:12px;
+    }
   </style>
 </head>
 
 <body>
 
-<!-- ════════════════════════════════
-     NAVBAR ORIGINALE (RESTOREE)
-════════════════════════════════ -->
-
-<nav class="navbar" id="navbar">
+<!-- NAVBAR (copiée catalogue.html) -->
+<nav class="navbar scrolled" id="navbar">
   <div class="nav-top">
     <div class="nav-left">
       <div class="nav-logo-wrap">
-        <a href="index.html" class="nav-logo" aria-label="VoirAnime">
+        <a href="index.html" class="nav-logo">
           <span class="logo-glitch" data-text="VoirAnime">
             <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
           </span>
@@ -66,146 +80,37 @@
     </div>
 
     <a href="profile.html" class="nav-avatar-btn nav-avatar-left">
+      <img class="nav-avatar-img" id="navAvatarImg" src="" alt="Profil"
+           onerror="this.style.display='none'"/>
       <div class="nav-avatar-fallback">👤</div>
     </a>
-
-    <div class="nav-right">
-      <div class="search-container">
-        <button class="search-toggle">Recherche</button>
-      </div>
-    </div>
   </div>
 
   <ul class="nav-links">
     <li><a href="index.html" class="nav-link">Accueil</a></li>
     <li><a href="catalogue.html" class="nav-link">Catalogue</a></li>
     <li><a href="duel.html" class="nav-link">⚔ Duels</a></li>
-    <li><a href="news.html" class="nav-link active">📰 News</a></li>
-    <li><a href="soutenir.html" class="nav-link">💜 Faire un don</a></li>
+    <li><a href="news.html" class="nav-link">📰 News</a></li>
+    <li><a href="soutenir.html" class="nav-link nav-link-support">💜 Faire un don</a></li>
   </ul>
 </nav>
 
-<!-- ════════════════════════════════
-     NEWS UI
-════════════════════════════════ -->
+<!-- CONTENU NEWS -->
+<div class="news-container">
+  <h1 class="news-title">📰 News Anime</h1>
+  <p class="news-sub">Dernières actualités du monde de l’animation</p>
 
-<div class="news-tabs">
-  <div class="news-tab active" data-tab="global">🌍 Actu globale</div>
-  <div class="news-tab" data-tab="perso">⭐ Mes alertes</div>
-</div>
-
-<div class="news-panel" id="newsTabGlobal">
-  <div id="newsFeedGlobal">
-    <div class="news-loading">Chargement...</div>
-  </div>
-</div>
-
-<div class="news-panel hidden" id="newsTabPerso">
-  <div id="newsFavAlerts"></div>
+  <div class="news-card">Chargement des news...</div>
 </div>
 
 <script>
-(function(){
-
-let currentSource="all";
-
-const RSS={
-  all:"https://myanimelist.net/rss/news.xml",
-  crunchyroll:"https://www.nautiljon.com/actualite/rss.php",
-  animenewsnetwork:"https://www.animenewsnetwork.com/news/rss.xml",
-  otakunews:"https://www.otakuusamagazine.com/feed/"
-};
-
-// ───────── LOAD NEWS ─────────
-function loadGlobalNews(source){
-
-const feed=document.getElementById("newsFeedGlobal");
-feed.innerHTML="<div class='news-loading'>Chargement...</div>";
-
-const url="https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(RSS[source]||RSS.all);
-
-fetch(url)
-.then(r=>r.json())
-.then(data=>{
-
-const items=data.items||[];
-
-if(!items.length){
-feed.innerHTML="<div class='news-empty'>Aucune news</div>";
-return;
-}
-
-let html="";
-
-items.forEach(a=>{
-
-// 🔥 FIX IMAGES ANN / OTAKU / RSS
-let img=a.thumbnail||"";
-
-if(!img&&a.enclosure&&a.enclosure.link){
-img=a.enclosure.link;
-}
-
-if(!img&&a["media:content"]&&a["media:content"].url){
-img=a["media:content"].url;
-}
-
-if(!img&&a.description){
-const m=a.description.match(/src=["']([^"']+)["']/);
-if(m)img=m[1];
-}
-
-let text=(a.description||"").replace(/(<([^>]+)>)/gi,"").slice(0,120);
-
-html+=`
-<a class="news-article-card" href="${a.link}" target="_blank">
-
-${img
-?`<img class="news-article-img" src="${img}"/>`
-:`<div class="news-article-img-placeholder"></div>`}
-
-<div>
-<div class="news-article-title">${a.title}</div>
-<div class="news-article-excerpt">${text}</div>
-</div>
-
-</a>
-`;
-
+/* Active link menu */
+document.addEventListener('DOMContentLoaded', function(){
+  const page = location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.nav-link').forEach(l=>{
+    l.classList.toggle('active', l.getAttribute('href') === page);
+  });
 });
-
-feed.innerHTML=html;
-
-})
-.catch(err=>{
-console.error(err);
-feed.innerHTML="<div class='news-empty'>Erreur chargement</div>";
-});
-
-}
-
-window.loadGlobalNews=loadGlobalNews;
-
-// ───────── TABS ─────────
-document.querySelectorAll(".news-tab").forEach(tab=>{
-tab.addEventListener("click",()=>{
-
-document.querySelectorAll(".news-tab").forEach(t=>t.classList.remove("active"));
-document.querySelectorAll(".news-panel").forEach(p=>p.classList.add("hidden"));
-
-tab.classList.add("active");
-
-const target=tab.dataset.tab;
-document.getElementById("newsTab"+target.charAt(0).toUpperCase()+target.slice(1))
-.classList.remove("hidden");
-
-});
-});
-
-// ───────── INIT ─────────
-loadGlobalNews("all");
-
-})();
 </script>
 
 </body>
