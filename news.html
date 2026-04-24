@@ -1,37 +1,75 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VoirAnime — News</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VoirAnime — News</title>
 
-  <link rel="stylesheet" href="style.css"/>
+<link rel="stylesheet" href="style.css"/>
 
-  <style>
-    .hidden{display:none}
-    .news-loading{padding:20px;text-align:center;opacity:.7}
-    .news-empty{padding:20px;text-align:center;opacity:.7}
-    .news-article-card{display:flex;gap:12px;padding:10px;border-bottom:1px solid rgba(255,255,255,.08);text-decoration:none;color:white}
-    .news-article-img{width:80px;height:80px;object-fit:cover;border-radius:8px}
-    .news-article-img-placeholder{background:#222}
-    .news-article-title{font-weight:600;margin-bottom:4px}
-    .news-article-excerpt{font-size:.85rem;opacity:.7}
-    .news-article-date{font-size:.75rem;opacity:.5;margin-top:4px}
-    .news-tabs{display:flex;gap:10px;padding:10px}
-    .news-tab{cursor:pointer;padding:6px 12px;border-radius:20px;background:#222}
-    .news-tab.active{background:#444}
-    .news-panel{padding:10px}
-    .news-source-tag{cursor:pointer;margin-right:10px;opacity:.6}
-    .news-source-tag.active{opacity:1;font-weight:bold}
-  </style>
+<style>
+.hidden{display:none}
+
+/* NAVBAR FIX */
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 20px;
+  position:sticky;
+  top:0;
+  z-index:9999;
+  background:#0b0b14;
+}
+
+/* NEWS */
+.news-tabs{display:flex;gap:10px;padding:10px}
+.news-tab{padding:6px 12px;border-radius:20px;background:#222;cursor:pointer}
+.news-tab.active{background:#444}
+
+.news-panel{padding:10px}
+
+.news-loading,.news-empty{text-align:center;padding:20px;opacity:.7}
+
+.news-article-card{
+  display:flex;
+  gap:12px;
+  padding:10px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  text-decoration:none;
+  color:white;
+}
+
+.news-article-img{
+  width:80px;
+  height:80px;
+  border-radius:8px;
+  object-fit:cover;
+}
+
+.news-article-img-placeholder{
+  width:80px;
+  height:80px;
+  border-radius:8px;
+  background:#222;
+}
+
+.news-article-title{font-weight:600}
+.news-article-excerpt{font-size:.85rem;opacity:.7}
+</style>
 </head>
 
 <body>
 
-<!-- HEADER SIMPLE -->
-<div class="news-header">
-  <h1>📰 News anime</h1>
-</div>
+<!-- NAVBAR (RESTOREE) -->
+<nav class="navbar">
+  <div><strong>VoirAnime</strong></div>
+  <div>
+    <a href="index.html">Accueil</a> |
+    <a href="catalogue.html">Catalogue</a> |
+    <a href="news.html">News</a>
+  </div>
+</nav>
 
 <!-- TABS -->
 <div class="news-tabs">
@@ -42,14 +80,7 @@
 <!-- GLOBAL -->
 <div class="news-panel" id="newsTabGlobal">
 
-  <div class="news-sources-bar">
-    <span class="news-source-tag active" data-source="all">Tous</span>
-    <span class="news-source-tag" data-source="crunchyroll">Crunchyroll</span>
-    <span class="news-source-tag" data-source="animenewsnetwork">ANN</span>
-    <span class="news-source-tag" data-source="otakunews">Otaku</span>
-  </div>
-
-  <div id="newsFeedGlobal" class="news-feed">
+  <div id="newsFeedGlobal">
     <div class="news-loading">Chargement...</div>
   </div>
 </div>
@@ -60,130 +91,105 @@
 </div>
 
 <script>
-(function() {
+(function(){
 
-  // ─────────────── TABS ───────────────
-  var tabs = document.querySelectorAll('.news-tab');
-  var panels = document.querySelectorAll('.news-panel');
+let currentSource="all";
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', function() {
+const RSS={
+  all:"https://myanimelist.net/rss/news.xml",
+  crunchyroll:"https://www.nautiljon.com/actualite/rss.php",
+  animenewsnetwork:"https://www.animenewsnetwork.com/news/rss.xml",
+  otakunews:"https://www.otakuusamagazine.com/feed/"
+};
 
-      tabs.forEach(t => t.classList.remove('active'));
-      panels.forEach(p => p.classList.add('hidden'));
+// ───────── NEWS LOAD ─────────
+function loadGlobalNews(source){
 
-      tab.classList.add('active');
+const feed=document.getElementById("newsFeedGlobal");
+feed.innerHTML="<div class='news-loading'>Chargement...</div>";
 
-      var target = tab.dataset.tab;
-      document.getElementById('newsTab' + target.charAt(0).toUpperCase() + target.slice(1))
-        .classList.remove('hidden');
+const url="https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(RSS[source]||RSS.all);
 
-      if (target === 'perso') loadPersoNews();
-    });
-  });
+fetch(url)
+.then(r=>r.json())
+.then(data=>{
 
-  var currentSource = 'all';
+const items=data.items||[];
 
-  // ─────────────── NEWS GLOBAL ───────────────
-  function loadGlobalNews(source) {
-    var feed = document.getElementById('newsFeedGlobal');
+if(!items.length){
+feed.innerHTML="<div class='news-empty'>Aucune news</div>";
+return;
+}
 
-    feed.innerHTML = '<div class="news-loading">Chargement...</div>';
+let html="";
 
-    var RSS = {
-      all: 'https://myanimelist.net/rss/news.xml',
-      crunchyroll: 'https://www.nautiljon.com/actualite/rss.php',
-      animenewsnetwork: 'https://www.animenewsnetwork.com/news/rss.xml',
-      otakunews: 'https://www.otakuusamagazine.com/feed/'
-    };
+items.forEach(a=>{
 
-    var url = RSS[source] || RSS.all;
-    var api = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(url);
+// 🔥 FIX IMAGES ANN + OTAKU + ALL SOURCES
+let img=a.thumbnail||"";
 
-    fetch(api)
-      .then(r => r.json())
-      .then(data => {
+if(!img&&a.enclosure&&a.enclosure.link){
+img=a.enclosure.link;
+}
 
-        var items = data.items || [];
+if(!img&&a["media:content"]&&a["media:content"].url){
+img=a["media:content"].url;
+}
 
-        if (!items.length) {
-          feed.innerHTML = '<div class="news-empty">Aucune news</div>';
-          return;
-        }
+if(!img&&a.description){
+const m=a.description.match(/src=['"]([^'"]+)['"]/);
+if(m)img=m[1];
+}
 
-        var html = '';
+let text=(a.description||"").replace(/(<([^>]+)>)/gi,"").slice(0,120);
 
-        items.forEach(a => {
+html+=`
+<a class="news-article-card" href="${a.link}" target="_blank">
 
-          var img = a.thumbnail || '';
-          if (!img && a.description) {
-            var m = a.description.match(/src=["']([^"']+)["']/);
-            if (m) img = m[1];
-          }
+${img
+?`<img class="news-article-img" src="${img}"/>`
+:`<div class="news-article-img-placeholder"></div>`}
 
-          var text = (a.description || '')
-            .replace(/(<([^>]+)>)/gi,'')
-            .slice(0,120);
+<div>
+<div class="news-article-title">${a.title}</div>
+<div class="news-article-excerpt">${text}</div>
+</div>
 
-          html += `
-            <a class="news-article-card" href="${a.link}" target="_blank">
-              ${img
-                ? `<img class="news-article-img" src="${img}"/>`
-                : `<div class="news-article-img news-article-img-placeholder"></div>`}
+</a>
+`;
 
-              <div>
-                <div class="news-article-title">${a.title}</div>
-                <div class="news-article-excerpt">${text}</div>
-              </div>
-            </a>
-          `;
-        });
+});
 
-        feed.innerHTML = html;
-      })
-      .catch(err => {
-        console.error(err);
-        feed.innerHTML =
-          '<div class="news-empty">Erreur chargement<br><button onclick="loadGlobalNews(\''+source+'\')">Retry</button></div>';
-      });
-  }
+feed.innerHTML=html;
 
-  window.loadGlobalNews = loadGlobalNews;
+})
+.catch(err=>{
+console.error(err);
+feed.innerHTML="<div class='news-empty'>Erreur chargement</div>";
+});
 
-  // ─────────────── FILTERS ───────────────
-  document.querySelectorAll('.news-source-tag').forEach(tag => {
-    tag.addEventListener('click', function() {
-      document.querySelectorAll('.news-source-tag').forEach(t => t.classList.remove('active'));
-      tag.classList.add('active');
+}
 
-      currentSource = tag.dataset.source;
-      loadGlobalNews(currentSource);
-    });
-  });
+window.loadGlobalNews=loadGlobalNews;
 
-  // ─────────────── PERSO ───────────────
-  function loadPersoNews() {
-    var el = document.getElementById('newsFavAlerts');
-    var favs = [];
+// ───────── TABS ─────────
+document.querySelectorAll(".news-tab").forEach(tab=>{
+tab.addEventListener("click",()=>{
 
-    try {
-      favs = JSON.parse(localStorage.getItem('VoirAnime_favs') || '[]');
-    } catch {}
+document.querySelectorAll(".news-tab").forEach(t=>t.classList.remove("active"));
+document.querySelectorAll(".news-panel").forEach(p=>p.classList.add("hidden"));
 
-    if (!favs.length) {
-      el.innerHTML = '<div class="news-empty">Aucun favori</div>';
-      return;
-    }
+tab.classList.add("active");
 
-    el.innerHTML = favs.map(f => `
-      <div>
-        🔔 ${f.title}
-      </div>
-    `).join('');
-  }
+const target=tab.dataset.tab;
+document.getElementById("newsTab"+target.charAt(0).toUpperCase()+target.slice(1))
+.classList.remove("hidden");
 
-  // ─────────────── INIT ───────────────
-  loadGlobalNews('all');
+});
+});
+
+// ───────── INIT ─────────
+loadGlobalNews("all");
 
 })();
 </script>
