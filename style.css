@@ -4629,8 +4629,9 @@ a:active {
 .anime-du-jour {
   position: relative;
   width: 100%;
-  height: 520px;
+  height: 360px;
   overflow: hidden;
+  margin-top: var(--nav-h);
   margin-bottom: 8px;
 }
 
@@ -4780,9 +4781,9 @@ a:active {
 
 /* Mobile */
 @media (max-width: 768px) {
-  .anime-du-jour { height: 300px; }
-  .adj-inner { padding: 24px 18px; }
-  .adj-title { font-size: 1.4rem; }
+  .anime-du-jour { height: 220px; }
+  .adj-inner { padding: 18px 16px; }
+  .adj-title { font-size: 1.15rem; }
   .adj-synopsis { display: none; }
   .adj-overlay {
     background: linear-gradient(
