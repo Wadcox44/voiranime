@@ -71,19 +71,16 @@
       .section-header{margin-bottom:6px !important}
       .carousel{padding:6px 2px 10px !important}
     }
-    /* 🔥 FIX SCROLL MOBILE HOME */
+   /* 🔥 FIX SCROLL MOBILE HOME */
+
+/* autorise scroll vertical même dans les cartes */
 .anime-card {
   touch-action: pan-y;
 }
 
-/* Empêche les éléments internes de bloquer le scroll */
-.anime-card * {
-  pointer-events: none;
-}
-
-/* Garde le clic sur la carte elle-même */
-.anime-card {
-  pointer-events: auto;
+/* autorise scroll vertical dans les carousels */
+.carousel {
+  touch-action: pan-y;
 }
   </style>
   <script src="i18n.js"></script>
