@@ -891,8 +891,8 @@ function initMoodPills() {
     const carousel = el('carousel-mood');
     buildSkeletons(carousel, 10);
 
-    // Scroll smooth vers la section
-    setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    // Scroll smooth vers la section (Désactivé suite à demande utilisateur)
+    // setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
 
     try {
       const data   = await jikanFetch(config.endpoint);
