@@ -1,96 +1,73 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>VoirAnime — News</title>
-<link rel="stylesheet" href="style.css"/>
-<style>
-.hidden { display: none }
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VoirAnime — Ton portail anime</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+  <style>
+    /* Logo néon */
+    .nav-logo{text-decoration:none;display:inline-flex;align-items:center}
+    .logo-glitch{display:inline-block;font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:-.5px;transform:skewX(-6deg);position:relative;user-select:none}
+    .logo-glitch::before,.logo-glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:0;pointer-events:none}
+    .logo-glitch::before{color:#22d3ee;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%)}
+    .logo-glitch::after{color:#a78bfa;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%)}
+    /* Glitch permanent — déclenché automatiquement toutes les 5s */
+    .logo-glitch::before{animation:va-gr-auto 5s steps(2) infinite;opacity:1}
+    .logo-glitch::after{animation:va-gb-auto 5s steps(2) .06s infinite;opacity:1}
+    /* Glitch actif = les 0.4s au début de chaque cycle (8% de 5s) */
+    @keyframes va-gr-auto{
+      0%{transform:translate(-2px,1px);opacity:1}
+      4%{transform:translate(2px,-1px);opacity:1}
+      8%{transform:translate(-1px,2px);opacity:1}
+      8.1%,100%{transform:translate(0,0);opacity:0}
+    }
+    @keyframes va-gb-auto{
+      0%{transform:translate(2px,-1px);opacity:1}
+      4%{transform:translate(-2px,1px);opacity:1}
+      8%{transform:translate(1px,-2px);opacity:1}
+      8.1%,100%{transform:translate(0,0);opacity:0}
+    }
+    /* Glow pulsant permanent sur les deux mots */
+    .logo-voir{color:#fff;animation:va-gw 2.6s ease-in-out infinite}
+    .logo-anime{color:#22d3ee;animation:va-gp 2.6s ease-in-out infinite .4s}
+    @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(34,211,238,.4),0 0 10px rgba(34,211,238,.2)}50%{text-shadow:0 0 8px rgba(34,211,238,.9),0 0 20px rgba(34,211,238,.5),0 0 36px rgba(167,139,250,.3)}}
+    @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(34,211,238,.6),0 0 14px rgba(167,139,250,.3)}50%{text-shadow:0 0 10px #22d3ee,0 0 24px rgba(34,211,238,.7),0 0 40px rgba(167,139,250,.45)}}
+    /* Boost glow au hover */
+    .nav-logo:hover .logo-voir{text-shadow:0 0 10px #fff,0 0 20px #ff4fd8,0 0 40px rgba(124,77,255,.6)}
+    .nav-logo:hover .logo-anime{text-shadow:0 0 12px #ff4fd8,0 0 28px #ff4fd8,0 0 50px rgba(124,77,255,.7)}
+    @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
 
-/* NEWS */
-.news-page-wrap {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: calc(var(--nav-h) + 20px) 16px 40px;
-}
+    /* Séparateur néon */
+    .section-divider{height:1px;background:linear-gradient(to right,transparent,rgba(124,77,255,.18) 30%,rgba(255,79,216,.18) 70%,transparent);margin:4px 48px}
 
-.news-tabs {
-  display: flex;
-  gap: 10px;
-  padding: 0 0 16px;
-  flex-wrap: wrap;
-}
+    /* Mood pills */
+    .mood-section{padding:12px 48px 24px;max-width:1600px;margin:0 auto;width:100%}
+    .mood-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+    .mood-row::-webkit-scrollbar{display:none}
+    .mood-pill{flex-shrink:0;display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:24px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.04);cursor:pointer;transition:all .22s;white-space:nowrap;font-family:'Outfit',sans-serif}
+    .mood-pill:hover{background:rgba(124,77,255,.12);border-color:rgba(124,77,255,.3);transform:translateY(-2px)}
+    .mood-pill.active{background:rgba(255,79,216,.14);border-color:rgba(255,79,216,.4)}
+    .mood-pill-icon{font-size:15px;line-height:1}
+    .mood-pill-label{font-size:.78rem;font-weight:600;color:#a8a6c4}
+    .mood-pill:hover .mood-pill-label,.mood-pill.active .mood-pill-label{color:#eceaf8}
 
-.news-tab {
-  padding: 7px 16px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.1);
-  cursor: pointer;
-  font-size: .9rem;
-  color: var(--text);
-  transition: background .2s;
-}
-.news-tab.active,
-.news-tab:hover {
-  background: rgba(167,139,250,0.18);
-  border-color: rgba(167,139,250,0.4);
-  color: #fff;
-}
-
-.news-panel { padding: 0; }
-
-.news-loading,
-.news-empty {
-  text-align: center;
-  padding: 40px 20px;
-  opacity: .6;
-}
-
-.news-article-card {
-  display: flex;
-  gap: 14px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(255,255,255,.07);
-  text-decoration: none;
-  color: var(--text);
-  transition: opacity .2s;
-}
-.news-article-card:hover { opacity: .8; }
-
-.news-article-img {
-  width: 84px;
-  height: 84px;
-  border-radius: 10px;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-.news-article-img-placeholder {
-  width: 84px;
-  height: 84px;
-  border-radius: 10px;
-  background: rgba(255,255,255,.06);
-  flex-shrink: 0;
-}
-
-.news-article-title {
-  font-weight: 600;
-  font-size: .95rem;
-  margin-bottom: 6px;
-  line-height: 1.35;
-}
-.news-article-excerpt {
-  font-size: .82rem;
-  opacity: .6;
-  line-height: 1.45;
-}
-</style>
+    @media(max-width:768px){
+      .mood-section{padding:10px 16px 20px}
+      .section-divider{margin:4px 16px}
+    }
+  </style>
+  <script src="i18n.js"></script>
+  <script src="featuresManager.js"></script>
+  <script src="premiumManager.js"></script>
 </head>
-
 <body>
 
-<!-- ════ NAVBAR ════ -->
+<!-- ════════════════════════════════
+     NAVBAR
+════════════════════════════════ -->
 <nav class="navbar" id="navbar">
   <div class="nav-top">
     <div class="nav-left">
@@ -124,124 +101,678 @@
     </div>
   </div>
   <ul class="nav-links">
-    <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="index.html"     class="nav-link active" data-i18n="nav.home">Accueil</a></li>
     <li><a href="catalogue.html" class="nav-link" data-i18n="nav.catalogue">Catalogue</a></li>
     <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
-    <li><a href="news.html"      class="nav-link active">📰 News</a></li>
-    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Faire un don</a></li>
+    <li><a href="news.html" class="nav-link">📰 News</a></li>
+
+    <li><a href="soutenir.html" class="nav-link nav-link-support" data-i18n="nav.support">💜 Faire un don</a></li>
   </ul>
 </nav>
 
-<!-- ════ SEARCH OVERLAY ════ -->
-<div class="search-overlay" id="searchOverlay">
-  <div class="search-overlay-inner">
-    <div class="search-overlay-header">
-      <p class="search-overlay-label" id="searchLabel" data-i18n="search.results">Résultats de recherche</p>
-      <button class="search-overlay-close" id="searchOverlayClose" data-i18n="search.close">✕ Fermer</button>
-    </div>
-    <div class="search-results-grid" id="searchResultsGrid"></div>
-    <div class="search-loader" id="searchLoader">
-      <div class="sk-dots"><span></span><span></span><span></span></div>
-    </div>
-    <div class="search-empty" id="searchEmpty">
-      <p class="empty-kaomoji">（；￣д￣）</p>
-      <p data-i18n="search.empty">Aucun résultat. Essaie un autre titre.</p>
-    </div>
+<!-- NEWS PAGE -->
+<div class="news-page">
+
+  <div class="news-header">
+    <h1 class="news-title">📰 News anime</h1>
+    <p class="news-subtitle">Actualités du monde de l'anime — sources sélectionnées</p>
   </div>
-</div>
 
-<!-- Toast notifications -->
-<div class="toast" id="toast"></div>
-
-<!-- ════ CONTENU NEWS ════ -->
-<div class="news-page-wrap">
-
+  <!-- Onglets Free / Premium -->
   <div class="news-tabs">
-    <div class="news-tab active" data-tab="Global">🌍 Actu globale</div>
-    <div class="news-tab"        data-tab="Perso">⭐ Mes alertes</div>
+    <button class="news-tab active" data-tab="global">🌍 Actu globale</button>
+    <button class="news-tab news-tab-premium" data-tab="perso">
+      ⭐ Mes alertes
+      <span class="news-premium-lock" id="newsPremiumLock">🔒</span>
+    </button>
   </div>
 
+  <!-- Onglet 1 : Actu globale (Free) -->
   <div class="news-panel" id="newsTabGlobal">
-    <div id="newsFeedGlobal">
-      <div class="news-loading">Chargement…</div>
+    <div class="news-sources-bar">
+      <span class="news-source-tag active" data-source="all">Tous</span>
+      <span class="news-source-tag" data-source="crunchyroll">Crunchyroll</span>
+      <span class="news-source-tag" data-source="animenewsnetwork">ANN</span>
+      <span class="news-source-tag" data-source="otakunews">Otaku News</span>
+    </div>
+    <div class="news-feed" id="newsFeedGlobal">
+      <div class="news-loading">Chargement des articles…</div>
     </div>
   </div>
 
+  <!-- Onglet 2 : Alertes perso (Premium) -->
   <div class="news-panel hidden" id="newsTabPerso">
-    <div id="newsFavAlerts"></div>
+    <div class="news-premium-gate" id="newsPersoGate">
+      <div class="npg-icon">⭐</div>
+      <div class="npg-title">News personnalisées — Premium</div>
+      <div class="npg-desc">
+        Reçois des alertes quand tes animés favoris sortent de nouveaux épisodes,
+        des annonces de saisons, et un calendrier des sorties à venir.
+      </div>
+      <div class="npg-plans">
+        <button class="npg-cta" id="npgMonthly">Mensuel — 1.99 Pi/mois</button>
+        <button class="npg-cta npg-cta-annual" id="npgAnnual">Annuel — 19.99 Pi/an <span class="npg-saving">2 mois offerts</span></button>
+      </div>
+    </div>
+    <div class="news-perso-content hidden" id="newsPersoContent">
+      <div class="news-perso-section">
+        <div class="news-perso-title">🔔 Alertes favoris</div>
+        <div id="newsFavAlerts" class="news-perso-list"></div>
+      </div>
+      <div class="news-perso-section">
+        <div class="news-perso-title">📅 Calendrier des sorties</div>
+        <div id="newsCalendar" class="news-calendar-grid"></div>
+      </div>
+    </div>
   </div>
 
 </div>
 
-<script type="module" src="main.js"></script>
 <script>
-(function () {
+(function() {
+  // ── Onglets ──
+  var tabs   = document.querySelectorAll('.news-tab');
+  var panels = document.querySelectorAll('.news-panel');
 
-  const RSS = {
-    all:              'https://myanimelist.net/rss/news.xml',
-    crunchyroll:      'https://www.nautiljon.com/actualite/rss.php',
-    animenewsnetwork: 'https://www.animenewsnetwork.com/news/rss.xml',
-    otakunews:        'https://www.otakuusamagazine.com/feed/'
-  };
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      var target = tab.dataset.tab;
 
-  function loadGlobalNews(source) {
-    const feed = document.getElementById('newsFeedGlobal');
-    feed.innerHTML = "<div class='news-loading'>Chargement…</div>";
-
-    const url = 'https://api.rss2json.com/v1/api.json?rss_url=' +
-      encodeURIComponent(RSS[source] || RSS.all);
-
-    fetch(url)
-      .then(r => r.json())
-      .then(data => {
-        const items = data.items || [];
-        if (!items.length) {
-          feed.innerHTML = "<div class='news-empty'>Aucune news disponible.</div>";
-          return;
+      // Bloquer l'onglet perso si Free
+      if (target === 'perso') {
+        var isPremium = window.VA_isPremium && window.VA_isPremium();
+        if (isPremium) {
+          document.getElementById('newsPersoGate').classList.add('hidden');
+          document.getElementById('newsPersoContent').classList.remove('hidden');
+          loadPersoNews();
         }
+      }
 
-        let html = '';
-        items.forEach(a => {
-          let img = a.thumbnail || '';
-          if (!img && a.enclosure && a.enclosure.link)               img = a.enclosure.link;
-          if (!img && a['media:content'] && a['media:content'].url)  img = a['media:content'].url;
-          if (!img && a.description) {
-            const m = a.description.match(/src=['"]([^'"]+)['"]/);
-            if (m) img = m[1];
-          }
-          const text = (a.description || '').replace(/(<([^>]+)>)/gi, '').slice(0, 120);
-
-          html += `
-            <a class="news-article-card" href="${a.link}" target="_blank" rel="noopener">
-              ${img
-                ? `<img class="news-article-img" src="${img}" alt="" loading="lazy"/>`
-                : `<div class="news-article-img-placeholder"></div>`}
-              <div>
-                <div class="news-article-title">${a.title}</div>
-                <div class="news-article-excerpt">${text}</div>
-              </div>
-            </a>`;
-        });
-        feed.innerHTML = html;
-      })
-      .catch(() => {
-        feed.innerHTML = "<div class='news-empty'>Erreur lors du chargement des news.</div>";
-      });
-  }
-
-  // Tabs
-  document.querySelectorAll('.news-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.news-tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.news-panel').forEach(p => p.classList.add('hidden'));
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      panels.forEach(function(p) { p.classList.add('hidden'); });
       tab.classList.add('active');
-      document.getElementById('newsTab' + tab.dataset.tab).classList.remove('hidden');
+      document.getElementById('newsTab' + target.charAt(0).toUpperCase() + target.slice(1)).classList.remove('hidden');
     });
   });
 
-  // Init
+  var currentSource = 'all';
+
+  function loadGlobalNews(source) {
+    var feed = document.getElementById('newsFeedGlobal');
+    if (!feed) return;
+    feed.innerHTML = '<div class="news-loading">Chargement des articles&#8230;</div>';
+
+    var RSS_FEEDS = {
+      'all': 'https://myanimelist.net/rss/news.xml',
+      'crunchyroll': 'https://www.nautiljon.com/actualite/rss.php', // CR RSS bloqué -> Nautiljon.com (Référence FR)
+      'animenewsnetwork': 'https://www.animenewsnetwork.com/news/rss.xml',
+      'otakunews': 'https://www.otakuusamagazine.com/feed/'
+    };
+
+    var rssUrl = RSS_FEEDS[source] || RSS_FEEDS['all'];
+    var endpoint = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl);
+
+    fetch(endpoint)
+      .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(data) {
+        var articles = data.items || [];
+
+        if (!articles.length) {
+          feed.innerHTML = '<div class="news-empty">Aucun article disponible pour le moment.</div>';
+          return;
+        }
+
+        var source_name = source === 'all' ? 'MyAnimeList' : (source === 'animenewsnetwork' ? 'ANN' : (source === 'otakunews' ? 'Otaku USA' : 'Nautiljon (FR)'));
+
+        var html = '';
+        articles.forEach(function(a) {
+          var date = a.pubDate ? new Date(a.pubDate).toLocaleDateString('fr-FR', {day:'numeric',month:'short',year:'numeric'}) : '';
+          
+          // Chercher une image dans le flux
+          var imgSrc = a.thumbnail || (a.enclosure && a.enclosure.link) || '';
+          if (!imgSrc && a.description) {
+            var imgMatch = a.description.match(/src=["']([^"']+)["']/);
+            if (imgMatch) imgSrc = imgMatch[1];
+          }
+
+          var link = a.link || '#';
+          var title = a.title || '';
+          
+          // Purger le html pour obtenir un pur texte
+          var excerpt = (a.description || a.content || '').replace(/(<([^>]+)>)/gi, "").trim();
+          var decoder = document.createElement("textarea");
+          decoder.innerHTML = excerpt;
+          excerpt = decoder.value; // Decode HTML entities like &#8217;
+          if (excerpt.length > 120) excerpt = excerpt.substring(0, 120) + '…';
+
+          var imgHtml = imgSrc 
+             ? '<img class="news-article-img" src="' + imgSrc + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"/>' 
+             : '<div class="news-article-img news-article-img-placeholder"></div>';
+
+          html += '<a href="' + link + '" target="_blank" rel="noopener" class="news-article-card">'
+            + imgHtml
+            + '<div class="news-article-body">'
+            + '<div class="news-article-source">' + source_name + '</div>'
+            + '<div class="news-article-title">' + title + '</div>'
+            + (excerpt ? '<div class="news-article-excerpt">' + excerpt + '</div>' : '')
+            + '<div class="news-article-date">' + date + '</div>'
+            + '</div>'
+            + '</a>';
+        });
+        feed.innerHTML = html;
+      })
+      .catch(function(e) {
+        feed.innerHTML = '<div class="news-empty">Erreur de chargement des flux RSS.<br><br> <button onclick="loadGlobalNews(\''+source+'\')" style="background:none;border:1px solid var(--b2);color:var(--pink);padding:4px 12px;border-radius:20px;cursor:pointer;font-family:inherit">Réessayer</button></div>';
+      });
+  }
+
+  // Filtres source
+  document.querySelectorAll('.news-source-tag').forEach(function(tag) {
+    tag.addEventListener('click', function() {
+      document.querySelectorAll('.news-source-tag').forEach(function(t) { t.classList.remove('active'); });
+      tag.classList.add('active');
+      currentSource = tag.dataset.source;
+      loadGlobalNews(currentSource);
+    });
+  });
+
+  // ── News perso Premium ──
+  function loadPersoNews() {
+    var favs = [];
+    try { favs = JSON.parse(localStorage.getItem('VoirAnime_favs') || '[]'); } catch {}
+
+    var alertsEl = document.getElementById('newsFavAlerts');
+    if (!favs.length) {
+      alertsEl.innerHTML = '<div class="news-empty">Ajoute des favoris pour recevoir des alertes.</div>';
+    } else {
+      alertsEl.innerHTML = favs.slice(0,5).map(function(f) {
+        return '<div class="news-fav-alert">' +
+          '<img src="' + (f.img||'') + '" class="news-fav-img"/>' +
+          '<div class="news-fav-info"><div class="news-fav-title">' + f.title + '</div>' +
+          '<div class="news-fav-sub">Alertes activées</div></div>' +
+          '<span class="news-fav-badge">🔔</span>' +
+          '</div>';
+      }).join('');
+    }
+  }
+
+  // ── Boutons Premium dans le gate ──
+  function _launchSubscriptionNews(plan) {
+    // Utilise premiumManager si disponible
+    if (window.VA_showSubscriptionModal) {
+      window.VA_showSubscriptionModal({ defaultPlan: plan });
+      return;
+    }
+    // Fallback : paiement Pi direct
+    var PLANS = {
+      monthly: { amount: 1.99, label: 'Premium Mensuel' },
+      annual:  { amount: 19.99, label: 'Premium Annuel' }
+    };
+    var planDef = PLANS[plan];
+    if (!planDef) return;
+    if (typeof Pi === 'undefined') {
+      alert('Ouvre VoirAnime dans le Pi Browser pour t'abonner.');
+      return;
+    }
+    var piUser = null;
+    try { piUser = JSON.parse(localStorage.getItem('pi_user')); } catch(e) {}
+    Pi.authenticate(['payments', 'username'], function() {})
+      .then(function(auth) {
+        Pi.createPayment(
+          { amount: planDef.amount, memo: 'VoirAnime ' + planDef.label, metadata: { app: 'voiranime', type: 'subscription', plan: plan } },
+          {
+            onReadyForServerApproval: function(paymentId) {
+              fetch('https://voir-anime.vercel.app/api/pi-approve', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paymentId: paymentId, plan: plan })
+              }).catch(function(){});
+            },
+            onReadyForServerCompletion: function(paymentId, txid) {
+              fetch('https://voir-anime.vercel.app/api/pi-complete', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paymentId: paymentId, txid: txid, piUserId: piUser && piUser.uid, plan: plan, piUsername: auth.user && auth.user.username })
+              }).then(function(r) { return r.json(); })
+                .then(function(data) {
+                  if (data.premium && data.premium.isPremium) {
+                    document.getElementById('newsPersoGate').classList.add('hidden');
+                    document.getElementById('newsPersoContent').classList.remove('hidden');
+                    loadPersoNews();
+                    alert('✅ Premium activé ! Bienvenue 🎉');
+                  }
+                }).catch(function() { alert('Paiement reçu — activation en cours…'); });
+            },
+            onCancel: function() {},
+            onError: function(e) { console.error('[news sub]', e); }
+          }
+        );
+      }).catch(function(e) { console.error('[news pi auth]', e); });
+  }
+
+  var npgMonthly = document.getElementById('npgMonthly');
+  var npgAnnual  = document.getElementById('npgAnnual');
+  if (npgMonthly) npgMonthly.addEventListener('click', function() { _launchSubscriptionNews('monthly'); });
+  if (npgAnnual)  npgAnnual.addEventListener('click',  function() { _launchSubscriptionNews('annual'); });
+
+  // ── Init ──
   loadGlobalNews('all');
 
+  // Déverrouiller onglet Premium si applicable
+  function checkPremiumTab() {
+    if (window.VA_isPremium && window.VA_isPremium()) {
+      var lock = document.getElementById('newsPremiumLock');
+      if (lock) lock.style.display = 'none';
+    }
+  }
+  checkPremiumTab();
+  setTimeout(checkPremiumTab, 2000);
+})();
+</script>
+
+<footer class="site-footer">
+  <div class="footer-logo">Voir<span>Anime</span></div>
+  <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
+</footer>
+
+
+<script>
+/* Transition cinématique entre pages */
+(function(){
+  var overlay = document.createElement("div");
+  overlay.className = "page-transition-overlay in";
+  document.body.appendChild(overlay);
+  setTimeout(function(){ overlay.remove(); }, 450);
+
+  document.addEventListener("click", function(e){
+    var link = e.target.closest("a[href]");
+    if (!link) return;
+    var href = link.getAttribute("href");
+    if (!href || href.startsWith("#") || href.startsWith("http") ||
+        href.startsWith("mailto") || link.target === "_blank") return;
+    e.preventDefault();
+    var ov = document.createElement("div");
+    ov.className = "page-transition-overlay out";
+    document.body.appendChild(ov);
+    setTimeout(function(){ window.location.href = href; }, 340);
+  });
+})();
+</script>
+
+<script>
+/* ════════════════════════════════════════
+   DESIGN SYSTEM BRIDGE
+   Scroll reveal · Token sync · Focus polish
+   ════════════════════════════════════════ */
+(function(){
+
+  /* ── 1. Scroll Progress Bar ── */
+  const bar = document.createElement('div');
+  bar.className = 'scroll-progress';
+  document.body.prepend(bar);
+
+  window.addEventListener('scroll', () => {
+    const h   = document.documentElement;
+    const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    bar.style.width = Math.min(pct, 100) + '%';
+  }, { passive: true });
+
+  /* ── 2. Cursor Glow (desktop seulement) ── */
+  if (window.matchMedia('(hover: hover)').matches) {
+    const glow = document.createElement('div');
+    glow.className = 'cursor-glow';
+    document.body.appendChild(glow);
+
+    let glowX = 0, glowY = 0;
+    let raf = null;
+    document.addEventListener('mousemove', e => {
+      glowX = e.clientX;
+      glowY = e.clientY;
+      if (!raf) raf = requestAnimationFrame(() => {
+        glow.style.left = glowX + 'px';
+        glow.style.top  = glowY + 'px';
+        raf = null;
+      });
+    }, { passive: true });
+
+    document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
+    document.addEventListener('mouseenter', () => { glow.style.opacity = '1'; });
+  }
+
+  /* ── 3. Scroll Reveal ── */
+  const revealEls = document.querySelectorAll(
+    '.content-section, .anime-du-jour, .zone-separator, .personal-zone, .adv-search-section, .mood-section'
+  );
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('revealed');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
+
+    revealEls.forEach((el, i) => {
+      el.classList.add('reveal-on-scroll');
+      el.style.transitionDelay = Math.min(i * 0.03, 0.18) + 's';
+      io.observe(el);
+    });
+  } else {
+    revealEls.forEach(el => el.classList.add('revealed'));
+  }
+
+  /* ── 4. Card Stagger — anime d'entrée au chargement des carousels ── */
+  function staggerCards(container) {
+    if (!container) return;
+    const cards = container.querySelectorAll('.anime-card');
+    cards.forEach((card, i) => {
+      card.style.animationDelay = Math.min(i * 0.045, 0.35) + 's';
+      card.classList.add('card-entering');
+    });
+  }
+
+  // Observer chaque carousel — stagger quand il entre dans la vue
+  document.querySelectorAll('.carousel').forEach(carousel => {
+    if (!('IntersectionObserver' in window)) return;
+    const ioC = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        staggerCards(carousel);
+        ioC.disconnect();
+      }
+    }, { threshold: 0.1 });
+    ioC.observe(carousel);
+  });
+
+  // MutationObserver — stagger les nouvelles cards ajoutées dynamiquement
+  const mutObs = new MutationObserver(mutations => {
+    mutations.forEach(m => {
+      m.addedNodes.forEach(node => {
+        if (node.nodeType !== 1) return;
+        if (node.classList?.contains('anime-card')) {
+          const siblings = node.parentElement?.querySelectorAll('.anime-card');
+          const idx      = Array.from(siblings || []).indexOf(node);
+          node.style.animationDelay = Math.min(idx * 0.04, 0.3) + 's';
+          node.classList.add('card-entering');
+        }
+      });
+    });
+  });
+  document.querySelectorAll('.carousel, .cat-grid, .search-results-grid').forEach(el => {
+    mutObs.observe(el, { childList: true });
+  });
+
+  /* ── 5. Mood Overlay — teinte de fond selon l'ambiance active ── */
+  const moodOverlay = document.createElement('div');
+  moodOverlay.className = 'page-mood-overlay';
+  document.body.insertBefore(moodOverlay, document.body.firstChild);
+
+  const MOOD_TINTS = {
+    action:        'radial-gradient(ellipse 80% 60% at 80% 20%, rgba(230,57,70,0.04) 0%, transparent 60%)',
+    romance:       'radial-gradient(ellipse 80% 60% at 20% 80%, rgba(255,79,216,0.05) 0%, transparent 60%)',
+    dark:          'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(40,0,80,0.08) 0%, transparent 70%)',
+    comedy:        'radial-gradient(ellipse 80% 60% at 50% 0%,  rgba(255,209,102,0.04) 0%, transparent 60%)',
+    scifi:         'radial-gradient(ellipse 80% 60% at 80% 80%, rgba(76,201,240,0.04) 0%, transparent 60%)',
+    psychological: 'radial-gradient(ellipse 80% 60% at 20% 20%, rgba(124,77,255,0.06) 0%, transparent 60%)',
+    slice:         'radial-gradient(ellipse 80% 60% at 50% 100%,rgba(6,214,160,0.03) 0%, transparent 60%)',
+    all:           '',
+  };
+
+  document.getElementById('moodRow')?.addEventListener('click', e => {
+    const pill = e.target.closest('.mood-pill');
+    if (!pill) return;
+    const mood = pill.dataset.mood || 'all';
+    const tint = MOOD_TINTS[mood] || '';
+    if (tint) {
+      moodOverlay.style.background = tint;
+      moodOverlay.classList.add('mood-active');
+    } else {
+      moodOverlay.classList.remove('mood-active');
+    }
+  });
+
+  /* ── 6. Tilt 3D cards — desktop uniquement ── */
+  const isTouch = window.matchMedia('(hover: none)').matches;
+  var lastCard = null;
+  if (!isTouch) {
+  document.addEventListener('mousemove', function(e){
+    var card = e.target.closest('.anime-card');
+    if(!card){
+      if(lastCard){ lastCard.style.transform=''; lastCard=null; }
+      return;
+    }
+    var r  = card.getBoundingClientRect();
+    var dx = (e.clientX - r.left - r.width/2)  / (r.width/2);
+    var dy = (e.clientY - r.top  - r.height/2) / (r.height/2);
+    card.style.transform = `translateY(-10px) scale(1.06) rotateY(${dx*7}deg) rotateX(${-dy*4}deg)`;
+    lastCard = card;
+  });
+  document.addEventListener('mouseleave', function(e){
+    if (!e.target || typeof e.target.closest !== 'function') return;
+    var card = e.target.closest('.anime-card');
+    if(card) card.style.transform = '';
+  }, true);
+  } // end !isTouch
+
+  /* ── 7. Navbar active link + Section tracking ── */
+  const navLinks = document.querySelectorAll('.nav-link');
+  const path     = location.pathname.split('/').pop() || 'index.html';
+  navLinks.forEach(l => {
+    const href = l.getAttribute('href');
+    l.classList.toggle('active', href === path || (path === '' && href === 'index.html'));
+  });
+
+  // Track section visible → met le nav-link correspondant en section-active
+  const sections = document.querySelectorAll('section[id]');
+  if ('IntersectionObserver' in window && sections.length) {
+    const sectionIO = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const id   = entry.target.id;
+        const link = document.querySelector(`.nav-link[href="#${id}"]`);
+        document.querySelectorAll('.nav-link.section-active').forEach(l => l.classList.remove('section-active'));
+        if (link) link.classList.add('section-active');
+      });
+    }, { threshold: 0.35 });
+    sections.forEach(s => sectionIO.observe(s));
+  }
+
+})();
+</script>
+
+<script>
+/* ════════════════════════════════════════
+   HERO PORTAL ENGINE
+   Particules · Parallax souris · Aura · Surprise
+   ════════════════════════════════════════ */
+(function(){
+  /* ── Canvas particules ── */
+  const canvas = document.getElementById('heroParticles');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize(){
+    W = canvas.width  = canvas.offsetWidth  || window.innerWidth;
+    H = canvas.height = canvas.offsetHeight || window.innerHeight * 0.92;
+  }
+  window.addEventListener('resize', resize, {passive:true});
+  resize();
+
+  function spawnParticles(){
+    particles = [];
+    const n = Math.min(90, Math.floor(W * H / 14000));
+    for(let i = 0; i < n; i++){
+      particles.push({
+        x:  Math.random() * W,
+        y:  Math.random() * H,
+        r:  0.4 + Math.random() * 1.6,
+        vx: (Math.random() - 0.5) * 0.15,
+        vy: -0.04 - Math.random() * 0.2,
+        o:  0.08 + Math.random() * 0.42,
+        h:  [280, 315, 200, 260][Math.floor(Math.random() * 4)],
+      });
+    }
+  }
+  spawnParticles();
+  window.addEventListener('resize', spawnParticles, {passive:true});
+
+  let mx = 0.5, my = 0.5;
+  document.getElementById('hero')?.addEventListener('mousemove', e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    mx = (e.clientX - r.left) / r.width;
+    my = (e.clientY - r.top)  / r.height;
+  }, {passive:true});
+
+  (function tick(){
+    ctx.clearRect(0, 0, W, H);
+    for(const p of particles){
+      p.x += p.vx + (mx - 0.5) * 0.1;
+      p.y += p.vy + (my - 0.5) * 0.05;
+      if(p.y < -4) p.y = H + 4;
+      if(p.x < -4) p.x = W + 4;
+      if(p.x > W + 4) p.x = -4;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.h},75%,70%,${p.o})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(tick);
+  })();
+
+  /* ── Parallax souris ── */
+  const heroBg     = document.getElementById('heroBg');
+  const posterWrap = document.getElementById('heroPosterWrap');
+  const heroAura   = document.getElementById('heroAura');
+
+  const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  
+  // Parallax uniquement desktop — désactivé sur touch ET sur écrans < 1025px
+  const isDesktop = !isTouch && window.innerWidth > 1024;
+
+  if (isDesktop) {
+  document.getElementById('hero')?.addEventListener('mousemove', e => {
+    const r  = e.currentTarget.getBoundingClientRect();
+    const dx = (e.clientX - r.left  - r.width  / 2) / r.width;
+    const dy = (e.clientY - r.top   - r.height / 2) / r.height;
+    if(heroBg)     heroBg.style.transform     = `translate(${dx*-16}px,${dy*-9}px) scale(1.07)`;
+    if(posterWrap) posterWrap.style.transform = `translateY(-50%) translate(${dx*14}px,${dy*8}px) rotateY(${dx*6}deg) rotateX(${-dy*3}deg)`;
+    if(heroAura)   heroAura.style.transform   = `translate(${dx*22}px,${dy*14}px)`;
+  }, {passive:true});
+
+  document.getElementById('hero')?.addEventListener('mouseleave', () => {
+    if(heroBg)     heroBg.style.transform     = 'translate(0,0) scale(1.07)';
+    if(posterWrap) posterWrap.style.transform = 'translateY(-50%)';
+    if(heroAura)   heroAura.style.transform   = 'translate(0,0)';
+  }, {passive:true});
+  } // end isDesktop
+
+  /* ── Découverte aléatoire ── */
+  document.getElementById('heroSurpriseBtn')?.addEventListener('click', () => {
+    const pool = window._heroAnimesPool;
+    if(!pool || pool.length < 2) return;
+    let idx;
+    do { idx = Math.floor(Math.random() * pool.length); }
+    while(idx === (window._heroCurrentIndex || 0));
+    window._heroCurrentIndex = idx;
+    if(window._renderHero) window._renderHero(pool[idx]);
+    if(window._updateHeroDots) window._updateHeroDots();
+    // Flash visuel
+    const flash = document.createElement('div');
+    flash.style.cssText = 'position:fixed;inset:0;z-index:9000;background:#020617;opacity:.4;pointer-events:none;transition:opacity .4s';
+    document.body.appendChild(flash);
+    requestAnimationFrame(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 420); });
+  });
+
+})();
+  /* ── Carousel : flèches + swipe ── */
+(function () {
+  const SCROLL_AMOUNT = 900; // px scrollés par clic
+
+  // --- Flèches ---
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.carousel-btn');
+    if (!btn) return;
+    const id = btn.dataset.carousel;
+    const track = document.getElementById('carousel-' + id);
+    if (!track) return;
+    const dir = btn.classList.contains('prev') ? -1 : 1;
+    track.scrollBy({ left: dir * SCROLL_AMOUNT, behavior: 'smooth' });
+  });
+
+  // --- Swipe tactile ---
+  document.querySelectorAll('.carousel').forEach(function (track) {
+    let startX = 0, startScroll = 0, dragging = false;
+
+    track.addEventListener('touchstart', function (e) {
+      startX = e.touches[0].clientX;
+      startScroll = track.scrollLeft;
+      dragging = true;
+    }, { passive: true });
+
+    track.addEventListener('touchmove', function (e) {
+      if (!dragging) return;
+      const dx = startX - e.touches[0].clientX;
+      track.scrollLeft = startScroll + dx;
+    }, { passive: true });
+
+    track.addEventListener('touchend', function () { dragging = false; });
+
+    // --- Drag souris (desktop) ---
+    track.addEventListener('mousedown', function (e) {
+      startX = e.pageX;
+      startScroll = track.scrollLeft;
+      dragging = true;
+      track.style.cursor = 'grabbing';
+      track.style.userSelect = 'none';
+    });
+    window.addEventListener('mousemove', function (e) {
+      if (!dragging) return;
+      track.scrollLeft = startScroll - (e.pageX - startX);
+    });
+    window.addEventListener('mouseup', function () {
+      dragging = false;
+      track.style.cursor = '';
+      track.style.userSelect = '';
+    });
+  });
+})();
+</script>
+<script>
+(function() {
+  // Init notifications — lit piUserId depuis localStorage (pi-auth absent sur cette page)
+  function tryInitNotifs() {
+    var raw = localStorage.getItem('pi_user');
+    if (!raw) return;
+    try {
+      var user = JSON.parse(raw);
+      if (user && user.uid && window.VA_initNotifications) {
+if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
+        if (window.VA_initPremium) window.VA_initPremium(user.uid);
+      }
+    } catch (_) {}
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tryInitNotifs);
+  } else {
+    tryInitNotifs();
+  }
+})();
+</script>
+<script>
+/* Chargement avatar navbar */
+(function() {
+  try {
+    var saved = JSON.parse(localStorage.getItem('VoirAnime_avatar') || 'null');
+    if (saved && saved.img) {
+      var imgs = document.querySelectorAll('.nav-avatar-img');
+      var fallbacks = document.querySelectorAll('.nav-avatar-fallback');
+      imgs.forEach(function(img) { img.src = saved.img; img.style.display = 'block'; });
+      fallbacks.forEach(function(f) { f.style.display = 'none'; });
+    }
+  } catch(e) {}
 })();
 </script>
 
