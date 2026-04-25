@@ -84,6 +84,7 @@ body {
   font-family: var(--font);
   font-size: 15px;
   line-height: 1.65;
+  padding: 0.1px 0;
   /* overflow-x géré sur html — ne pas le mettre ici, ça bloque le scroll tactile des carousels */
   /* Grain subtil — texture anime */
   background-image:
@@ -1704,8 +1705,8 @@ ul, ol { list-style: none; }
    ═══════════════════════════════════════════════ */
 .anime-du-jour {
   max-width: 1600px;
-  margin: var(--nav-h) auto 0;
-  padding: 16px 48px 8px;
+  margin: 0 auto;
+  padding: calc(var(--nav-h) + 16px) 48px 8px;
 }
 
 .adj-inner {
@@ -3847,7 +3848,7 @@ a:active {
    ANIME DU JOUR — Mobile
 ───────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .anime-du-jour { padding: 8px 12px; }
+  .anime-du-jour { padding: calc(var(--nav-h) + 8px) 12px 8px; }
   .adj-inner { padding: 16px 16px; }
   .adj-content { grid-template-columns: 80px 1fr; gap: 12px; }
   .adj-img { width: 80px; }
@@ -4630,14 +4631,14 @@ a:active {
 .anime-du-jour {
   position: relative;
   width: 100%;
-  height: 520px;
+  height: calc(520px + var(--nav-h));
   overflow: hidden;
   margin-bottom: 8px;
 }
 
 .adj-video-bg {
   position: absolute;
-  inset: 0;
+  top: var(--nav-h); left: 0; right: 0; bottom: 0;
   z-index: 0;
 }
 
@@ -4781,7 +4782,7 @@ a:active {
 
 /* Mobile */
 @media (max-width: 768px) {
-  .anime-du-jour { height: 300px; }
+  .anime-du-jour { height: calc(300px + var(--nav-h)); }
   .adj-inner { padding: 24px 18px; }
   .adj-title { font-size: 1.4rem; }
   .adj-synopsis { display: none; }
@@ -6936,6 +6937,7 @@ a.stat-compact.stat-compact-link:hover::after {
 body {
   background-color: #020617;
   color: #e2e8f0;
+  padding: 0.1px 0;
 }
 
 /* ── Navbar ── */
