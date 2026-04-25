@@ -4631,7 +4631,7 @@ a:active {
 .anime-du-jour {
   position: relative;
   width: 100%;
-  height: calc(520px + var(--nav-h));
+  height: calc(400px + var(--nav-h));
   overflow: hidden;
   margin-bottom: 8px;
 }
@@ -4686,7 +4686,7 @@ a:active {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 40px 52px;
+  padding: 32px 52px 40px;
   max-width: 680px;
 }
 
@@ -4784,11 +4784,29 @@ a:active {
 
 /* Mobile */
 @media (max-width: 768px) {
-  .anime-du-jour { height: calc(300px + var(--nav-h)); }
-  .adj-video-bg { top: calc(var(--nav-h) + 8px); left: 12px; right: 12px; bottom: 8px; }
-  .adj-inner { padding: 12px 18px; }
-  .adj-title { font-size: 1.4rem; }
-  .adj-synopsis { display: none; }
+  .anime-du-jour {
+    height: calc(230px + var(--nav-h));
+  }
+
+  .adj-video-bg {
+    top: calc(var(--nav-h) + 12px);
+    left: 16px;
+    right: 16px;
+    bottom: 8px;
+  }
+
+  .adj-inner {
+    padding: 4px 18px 18px;
+  }
+
+  .adj-title {
+    font-size: 1.4rem;
+  }
+
+  .adj-synopsis {
+    display: none;
+  }
+
   .adj-overlay {
     background: linear-gradient(
       to top,
