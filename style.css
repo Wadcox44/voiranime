@@ -1704,7 +1704,7 @@ ul, ol { list-style: none; }
    ═══════════════════════════════════════════════ */
 .anime-du-jour {
   max-width: 1600px;
-  margin: 0 auto;
+  margin: var(--nav-h) auto 0;
   padding: 16px 48px 8px;
 }
 
