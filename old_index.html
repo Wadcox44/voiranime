@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>VoirAnime — Ton portail anime</title>
   <link rel="stylesheet" href="style.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -71,6 +71,17 @@
       .section-header{margin-bottom:6px !important}
       .carousel{padding:6px 2px 10px !important}
     }
+   /* 🔥 FIX SCROLL MOBILE HOME */
+
+/* autorise scroll vertical même dans les cartes */
+.anime-card {
+  touch-action: pan-y;
+}
+
+/* autorise scroll vertical dans les carousels */
+.carousel {
+  touch-action: pan-y;
+}
   </style>
   <script src="i18n.js"></script>
   <script src="featuresManager.js"></script>
@@ -784,25 +795,10 @@
     track.scrollBy({ left: dir * SCROLL_AMOUNT, behavior: 'smooth' });
   });
 
-  // --- Swipe tactile ---
+  // --- Drag souris (desktop uniquement) ---
   document.querySelectorAll('.carousel').forEach(function (track) {
     let startX = 0, startScroll = 0, dragging = false;
 
-    track.addEventListener('touchstart', function (e) {
-      startX = e.touches[0].clientX;
-      startScroll = track.scrollLeft;
-      dragging = true;
-    }, { passive: true });
-
-    track.addEventListener('touchmove', function (e) {
-      if (!dragging) return;
-      const dx = startX - e.touches[0].clientX;
-      track.scrollLeft = startScroll + dx;
-    }, { passive: true });
-
-    track.addEventListener('touchend', function () { dragging = false; });
-
-    // --- Drag souris (desktop) ---
     track.addEventListener('mousedown', function (e) {
       startX = e.pageX;
       startScroll = track.scrollLeft;
