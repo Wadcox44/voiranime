@@ -2301,7 +2301,7 @@ body {
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--pink);
-  opacity: 0.7;
+  opacity: 1;
 }
 
 .zone-separator-title {
