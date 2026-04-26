@@ -238,11 +238,26 @@
           var date = a.pubDate ? new Date(a.pubDate).toLocaleDateString('fr-FR', {day:'numeric',month:'short',year:'numeric'}) : '';
           
           // Chercher une image dans le flux
-          var imgSrc = a.thumbnail || (a.enclosure && a.enclosure.link) || '';
-          if (!imgSrc && a.description) {
-            var imgMatch = a.description.match(/src=["']([^"']+)["']/);
-            if (imgMatch) imgSrc = imgMatch[1];
-          }
+         var imgSrc = '';
+
+if (a.thumbnail) {
+  imgSrc = a.thumbnail;
+}
+else if (a.enclosure && typeof a.enclosure === 'object') {
+  imgSrc = a.enclosure.link || a.enclosure.url || '';
+}
+else if (a.description) {
+  var imgMatch = a.description.match(/<img[^>]+src=["']([^"']+)["']/);
+  if (imgMatch) imgSrc = imgMatch[1];
+}
+else if (a.content) {
+  var imgMatch2 = a.content.match(/<img[^>]+src=["']([^"']+)["']/);
+  if (imgMatch2) imgSrc = imgMatch2[1];
+}
+
+if (!imgSrc) {
+  imgSrc = 'https://via.placeholder.com/300x200?text=No+Image';
+}
 
           var link = a.link || '#';
           var title = a.title || '';
