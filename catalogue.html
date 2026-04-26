@@ -322,9 +322,9 @@
 <body>
 
 <!-- NAVBAR -->
-<!-- NAVBAR -->
 <nav class="navbar scrolled" id="navbar">
   <div class="nav-top">
+
     <div class="nav-left">
       <div class="nav-logo-wrap">
         <a href="index.html" class="nav-logo" aria-label="VoirAnime">
@@ -333,8 +333,9 @@
           </span>
         </a>
 
-        <!-- tagline EN ONLY -->
-        <span class="logo-tagline">Discover differently.</span>
+        <span class="logo-tagline" data-i18n="nav.tagline">
+          Discover differently.
+        </span>
       </div>
     </div>
 
@@ -346,13 +347,19 @@
       <div class="nav-avatar-fallback" id="navAvatarFallback_catalogue">👤</div>
     </a>
 
-    <!-- LANGUAGE SWITCH (NEW) -->
-    <div style="display:flex;gap:6px;align-items:center;margin-left:auto;margin-right:10px">
-      <button onclick="setLang('en')" class="cat-btn-reset">EN</button>
-      <button onclick="setLang('fr')" class="cat-btn-reset">FR</button>
-    </div>
+    <div class="nav-right">
 
-    <div class="nav-right"></div>
+      <!-- LANGUAGE DROPDOWN -->
+      <div class="lang-dropdown" id="langDropdown">
+        <button class="lang-btn" id="langBtn">🌐</button>
+
+        <div class="lang-menu">
+          <button onclick="setLang('en')">🇬🇧 English</button>
+          <button onclick="setLang('fr')">🇫🇷 Français</button>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <ul class="nav-links">
