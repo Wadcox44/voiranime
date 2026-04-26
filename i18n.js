@@ -89,8 +89,15 @@ function VA_applyDOM() {
 
 function VA_setLang(lang) {
   if (!VA_SUPPORTED.includes(lang)) return;
+
   localStorage.setItem('VoirAnime_lang', lang);
-  location.reload();
+  VA_LANG = lang;
+  window.VA_LANG = lang;
+
+  VA_loadTranslations(lang).then(dict => {
+    VA_DICT = dict;
+    VA_applyDOM();
+  });
 }
 
 function VA_onReady(cb) {
