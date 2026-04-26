@@ -2271,7 +2271,7 @@ body {
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 40px 48px 32px;
+  padding: 16px 48px 20px;
   max-width: 1600px;
   margin: 0 auto;
 }
@@ -2429,7 +2429,7 @@ body {
 }
 
 @media (max-width: 768px) {
-  .zone-separator { padding: 28px 16px 20px; gap: 12px; }
+  .zone-separator { padding: 10px 16px 14px; gap: 12px; }
   .zone-separator-sub { display: none; }
   .zone-separator-title { font-size: 0.8rem; }
   .personal-zone-inner { margin: 0 16px; }
@@ -3896,7 +3896,7 @@ a:active {
    MOOD PILLS — Scroll horizontal mobile
 ───────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .mood-section { padding: 12px 0 16px; }
+  .mood-section { padding: 8px 0 10px; }
   .mood-section-header { padding: 0 16px 8px; }
   .mood-row {
     padding: 4px 16px 12px;
