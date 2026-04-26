@@ -65,10 +65,12 @@
 </head>
 <body>
 
-<nav class="navbar scrolled" id="navbar">
+<!-- ════════════════════════════════
+     NAVBAR
+════════════════════════════════ -->
+<nav class="navbar" id="navbar">
   <div class="nav-top">
 
-    <!-- LEFT -->
     <div class="nav-left">
       <div class="nav-logo-wrap">
         <a href="index.html" class="nav-logo" aria-label="VoirAnime">
@@ -76,41 +78,30 @@
             <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
           </span>
         </a>
-        <span class="logo-tagline" data-i18n="nav.tagline">
-          Découvre autrement.
-        </span>
+        <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
       </div>
     </div>
 
-    <!-- RIGHT -->
+    <!-- Avatar -->
+    <a href="profile.html" class="nav-avatar-btn nav-avatar-left" id="navAvatarBtn" title="Mon profil">
+      <img class="nav-avatar-img" id="navAvatarImg" src="" alt="Profil"
+           onerror="this.style.display='none';document.getElementById('navAvatarFallback_news').style.display='flex'"/>
+      <div class="nav-avatar-fallback" id="navAvatarFallback_news">👤</div>
+    </a>
+
+    <!-- RIGHT SIDE -->
     <div class="nav-right">
 
-      <!-- LANGUAGE DROPDOWN -->
-      <div class="lang-switch" id="langSwitch">
-        <button class="lang-btn" onclick="toggleLangMenu()">
-          🌐
+      <!-- LANGUAGE SWITCH -->
+      <div style="display:flex;gap:6px;align-items:center;margin-right:10px;">
+        <button onclick="setLang('en')" style="padding:4px 10px;font-size:0.75rem;border:1px solid var(--b1);background:var(--ink3);color:var(--text2);border-radius:8px;">
+          EN
         </button>
-
-        <div class="lang-menu" id="langMenu">
-          <button onclick="setLang('en')">
-            🇬🇧 English
-          </button>
-          <button onclick="setLang('fr')">
-            🇫🇷 Français
-          </button>
-        </div>
+        <button onclick="setLang('fr')" style="padding:4px 10px;font-size:0.75rem;border:1px solid var(--b1);background:var(--ink3);color:var(--text2);border-radius:8px;">
+          FR
+        </button>
       </div>
 
-      <!-- AVATAR -->
-      <a href="profile.html" class="nav-avatar-btn" id="navAvatarBtn">
-        <img class="nav-avatar-img" id="navAvatarImg" src="" alt="Profil">
-        <div class="nav-avatar-fallback">👤</div>
-      </a>
-
-    </div>
-
-  </div>
-</nav>
       <!-- SEARCH -->
       <div class="search-container" id="searchContainer">
         <button class="search-toggle" id="searchToggle" aria-label="Rechercher">
