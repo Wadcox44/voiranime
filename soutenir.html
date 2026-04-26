@@ -77,13 +77,15 @@
             <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
           </span>
         </a>
-        <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
+        <span class="logo-tagline" data-i18n="nav.tagline">
+          Discover differently.
+        </span>
       </div>
     </div>
 
     <!-- AVATAR -->
-    <a href="profile.html" class="nav-avatar-btn nav-avatar-left" id="navAvatarBtn" title="Mon profil">
-      <img class="nav-avatar-img" id="navAvatarImg" src="" alt="Profil"
+    <a href="profile.html" class="nav-avatar-btn nav-avatar-left" id="navAvatarBtn" title="My profile">
+      <img class="nav-avatar-img" id="navAvatarImg" src="" alt="Profile"
            onerror="this.style.display='none';document.getElementById('navAvatarFallback_soutenir').style.display='flex'"/>
       <div class="nav-avatar-fallback" id="navAvatarFallback_soutenir">👤</div>
     </a>
@@ -91,23 +93,30 @@
     <!-- RIGHT SIDE -->
     <div class="nav-right">
 
-      <!-- LANGUAGE SWITCH -->
-      <div style="display:flex;gap:6px;align-items:center;margin-right:10px;">
-        <button onclick="setLang('en')"
-                style="padding:4px 10px;font-size:0.75rem;border:1px solid var(--b1);background:var(--ink3);color:var(--text2);border-radius:8px;">
-          EN
-        </button>
+      <!-- LANGUAGE DROPDOWN (clean version) -->
+      <div class="lang-dropdown" id="langDropdown">
 
-        <button onclick="setLang('fr')"
-                style="padding:4px 10px;font-size:0.75rem;border:1px solid var(--b1);background:var(--ink3);color:var(--text2);border-radius:8px;">
-          FR
-        </button>
+        <button class="lang-btn" id="langBtn">🌐</button>
+
+        <div class="lang-menu">
+          <button onclick="setLang('en')">🇬🇧 English</button>
+          <button onclick="setLang('fr')">🇫🇷 Français</button>
+        </div>
+
       </div>
 
     </div>
 
   </div>
 
+  <ul class="nav-links">
+    <li><a href="index.html" class="nav-link">Home</a></li>
+    <li><a href="catalogue.html" class="nav-link">Catalogue</a></li>
+    <li><a href="duel.html" class="nav-link">⚔ Duels</a></li>
+    <li><a href="news.html" class="nav-link">📰 News</a></li>
+    <li><a href="soutenir.html" class="nav-link nav-link-support">💜 Support</a></li>
+  </ul>
+</nav>
   <!-- NAV LINKS -->
   <ul class="nav-links">
     <li><a href="index.html" class="nav-link" data-i18n="nav.home">Accueil</a></li>
