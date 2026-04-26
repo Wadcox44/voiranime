@@ -217,13 +217,19 @@
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
       })
-      .then(function(data) {
-        var articles = data.items || [];
+   .then(function(data) {
 
-        if (!articles.length) {
-          feed.innerHTML = '<div class="news-empty">Aucun article disponible pour le moment.</div>';
-          return;
-        }
+  if (!data || data.status !== "ok") {
+    feed.innerHTML = '<div class="news-empty">Flux RSS indisponible</div>';
+    return;
+  }
+
+  var articles = data.items || [];
+
+  if (!articles.length) {
+    feed.innerHTML = '<div class="news-empty">Aucun article disponible pour le moment.</div>';
+    return;
+  }
 
         var source_name = source === 'all' ? 'MyAnimeList' : (source === 'animenewsnetwork' ? 'ANN' : (source === 'otakunews' ? 'Otaku USA' : 'Nautiljon (FR)'));
 
