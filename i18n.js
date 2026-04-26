@@ -134,3 +134,7 @@ window.VA_LANG      = VA_LANG;
 window.VA_setLang   = VA_setLang;
 window.VA_onReady   = VA_onReady;
 window.VA_SUPPORTED = VA_SUPPORTED;
+
+window.VA_retranslate = function () {
+  VA_applyDOM();
+};
