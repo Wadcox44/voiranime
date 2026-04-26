@@ -2271,7 +2271,7 @@ body {
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 40px 48px 32px;
+  padding: 20px 48px 32px;
   max-width: 1600px;
   margin: 0 auto;
 }
@@ -2429,7 +2429,7 @@ body {
 }
 
 @media (max-width: 768px) {
-  .zone-separator { padding: 28px 16px 20px; gap: 12px; }
+  .zone-separator { padding: 14px 16px 20px; gap: 12px; }
   .zone-separator-sub { display: none; }
   .zone-separator-title { font-size: 0.8rem; }
   .personal-zone-inner { margin: 0 16px; }
@@ -4745,17 +4745,14 @@ a:active {
 }
 
 .adj-inner {
-  position: absolute;
+  position: relative;
   z-index: 2;
-  top: calc(var(--nav-h) + 16px);
-  left: 48px;
-  right: 48px;
-  bottom: 8px;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 20px 28px;
-  max-width: 640px;
+  justify-content: flex-end;
+  padding: 32px 52px 40px;
+  max-width: 680px;
 }
 
 .adj-label {
@@ -4801,11 +4798,10 @@ a:active {
 
 .adj-synopsis {
   font-size: 0.88rem;
-  color: rgba(226,232,240,0.92);
+  color: var(--text2);
   line-height: 1.65;
   margin: 0 0 24px;
   max-width: 520px;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.9), 0 2px 16px rgba(0,0,0,0.7);
 }
 
 .adj-actions {
@@ -4865,40 +4861,23 @@ a:active {
   }
 
   .adj-inner {
-    top: calc(var(--nav-h) + 10px);
-    left: 14px;
-    right: 14px;
-    bottom: 6px;
-    padding: 12px 16px;
-    justify-content: center;
+    padding: 4px 18px 18px;
   }
 
-  .adj-label   { font-size: 0.62rem; margin-bottom: 4px; }
-  .adj-dot     { width: 5px; height: 5px; }
-  .adj-badges  { gap: 5px; margin-bottom: 4px; }
-  .adj-title   { font-size: 1rem; margin-bottom: 4px; }
-  .adj-actions { gap: 7px; }
-  .adj-btn-primary { font-size: 0.78rem; padding: 7px 14px; }
-  .adj-btn-shuffle  { font-size: 0.74rem; padding: 6px 11px; }
+  .adj-title {
+    font-size: 1.4rem;
+  }
 
   .adj-synopsis {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    font-size: 0.74rem;
-    line-height: 1.45;
-    margin-bottom: 8px;
-    color: rgba(226,232,240,0.92);
-    text-shadow: 0 1px 8px rgba(0,0,0,0.9);
+    display: none;
   }
 
   .adj-overlay {
     background: linear-gradient(
-      to right,
-      rgba(8,7,15,0.96) 0%,
-      rgba(8,7,15,0.72) 50%,
-      rgba(8,7,15,0.2) 100%
+      to top,
+      rgba(8,7,15,0.95) 0%,
+      rgba(8,7,15,0.4) 60%,
+      transparent 100%
     );
   }
 }
