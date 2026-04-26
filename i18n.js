@@ -74,11 +74,13 @@ function t(key, vars) {
   return val;
 }
 
-function VA_applyDOM() {
-  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+function VA_applyDOM(root = document) {
+  root.querySelectorAll('[data-i18n]').forEach(function(el) {
     var key = el.getAttribute('data-i18n');
     var val = t(key);
+
     if (val === key) return;
+
     if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
       el.placeholder = val;
     } else {
