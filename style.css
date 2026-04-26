@@ -4732,27 +4732,30 @@ a:active {
   inset: 0;
   background: linear-gradient(
     to right,
-    rgba(8,7,15,0.96) 0%,
-    rgba(8,7,15,0.72) 45%,
-    rgba(8,7,15,0.15) 100%
+    rgba(8,7,15,0.92) 0%,
+    rgba(8,7,15,0.55) 50%,
+    rgba(8,7,15,0.1) 100%
   ),
   linear-gradient(
     to top,
-    rgba(8,7,15,0.85) 0%,
-    transparent 45%
+    rgba(8,7,15,0.8) 0%,
+    transparent 40%
   );
   z-index: 1;
 }
 
 .adj-inner {
-  position: relative;
+  position: absolute;
   z-index: 2;
-  height: 100%;
+  top: calc(var(--nav-h) + 16px);
+  left: 48px;
+  right: 48px;
+  bottom: 8px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 32px 52px 40px;
-  max-width: 680px;
+  justify-content: center;
+  padding: 20px 28px;
+  max-width: 640px;
 }
 
 .adj-label {
@@ -4862,12 +4865,21 @@ a:active {
   }
 
   .adj-inner {
-    padding: 4px 18px 18px;
+    top: calc(var(--nav-h) + 10px);
+    left: 14px;
+    right: 14px;
+    bottom: 6px;
+    padding: 14px 16px;
+    justify-content: center;
   }
 
-  .adj-title {
-    font-size: 1.4rem;
-  }
+  .adj-label   { font-size: 0.62rem; margin-bottom: 5px; }
+  .adj-dot     { width: 5px; height: 5px; }
+  .adj-badges  { gap: 5px; margin-bottom: 5px; }
+  .adj-title   { font-size: 1.05rem; margin-bottom: 5px; }
+  .adj-actions { gap: 7px; }
+  .adj-btn-primary { font-size: 0.78rem; padding: 7px 14px; }
+  .adj-btn-shuffle  { font-size: 0.74rem; padding: 6px 11px; }
 
   .adj-synopsis {
     display: none;
