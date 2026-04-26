@@ -54,6 +54,7 @@
 ════════════════════════════════ -->
 <nav class="navbar scrolled" id="navbar">
   <div class="nav-top">
+
     <div class="nav-left">
       <div class="nav-logo-wrap">
         <a href="index.html" class="nav-logo" aria-label="VoirAnime">
@@ -61,39 +62,43 @@
             <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
           </span>
         </a>
-        <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
+        <span class="logo-tagline" data-i18n="nav.tagline">
+          Discover differently.
+        </span>
       </div>
     </div>
-    <!-- Avatar profil en haut à gauche -->
-    <a href="profile.html" class="nav-avatar-btn nav-avatar-left" id="navAvatarBtn" title="Mon profil">
+
+    <!-- Avatar -->
+    <a href="profile.html" class="nav-avatar-btn nav-avatar-left" id="navAvatarBtn" title="My profile">
       <img class="nav-avatar-img" id="navAvatarImg"
-           src="" alt="Profil"
+           src="" alt="Profile"
            onerror="this.style.display='none';document.getElementById('navAvatarFallback_duel').style.display='flex'"/>
       <div class="nav-avatar-fallback" id="navAvatarFallback_duel">👤</div>
     </a>
+
     <div class="nav-right">
 
-  <!-- LANGUAGE SWITCH -->
-  <div style="display:flex;gap:6px;align-items:center;margin-right:10px;">
-    <button onclick="setLang('en')" class="cat-btn-reset" style="padding:4px 10px;font-size:0.75rem;">
-      EN
-    </button>
-    <button onclick="setLang('fr')" class="cat-btn-reset" style="padding:4px 10px;font-size:0.75rem;">
-      FR
-    </button>
+      <!-- LANGUAGE DROPDOWN -->
+      <div class="lang-dropdown" id="langDropdown">
+        <button class="lang-btn" id="langBtn">🌐</button>
+
+        <div class="lang-menu">
+          <button onclick="setLang('en')">🇬🇧 English</button>
+          <button onclick="setLang('fr')">🇫🇷 Français</button>
+        </div>
+      </div>
+
+    </div>
   </div>
 
-</div>
-  </div>
   <ul class="nav-links">
-    <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
-    <li><a href="catalogue.html" class="nav-link" data-i18n="nav.catalogue">Catalogue</a></li>
-    <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
+    <li><a href="index.html" class="nav-link">Home</a></li>
+    <li><a href="catalogue.html" class="nav-link">Catalogue</a></li>
+    <li><a href="duel.html" class="nav-link">⚔ Duels</a></li>
     <li><a href="news.html" class="nav-link">📰 News</a></li>
-    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Faire un don</a></li>
+    <li><a href="soutenir.html" class="nav-link nav-link-support">💜 Support</a></li>
   </ul>
 </nav>
-
 <!-- ════════════════════════════════
      HEADER DUEL
 ════════════════════════════════ -->
