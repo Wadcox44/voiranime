@@ -152,3 +152,8 @@ window.VA_SUPPORTED = VA_SUPPORTED;
 
 window.VA_retranslate = () => VA_applyDOM();
 window.VA_applyDOM = VA_applyDOM;
+
+window.VA_render = function (el, html) {
+  el.innerHTML = html;
+  VA_applyDOM(el);
+};
