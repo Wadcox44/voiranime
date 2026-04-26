@@ -7524,3 +7524,7 @@ button.npg-cta-annual      { background: linear-gradient(135deg, #f59e0b, var(--
   padding: 1px 6px;
   border-radius: 99px;
 }
+/* HIDE SEARCH ON HOME */
+#searchContainer {
+  display: none !important;
+}
