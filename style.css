@@ -4745,14 +4745,17 @@ a:active {
 }
 
 .adj-inner {
-  position: relative;
+  position: absolute;
   z-index: 2;
-  height: 100%;
+  top: calc(var(--nav-h) + 12px);
+  left: 48px;
+  right: 48px;
+  bottom: 8px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 32px 52px 40px;
-  max-width: 680px;
+  justify-content: center;
+  padding: 20px 28px;
+  max-width: 640px;
 }
 
 .adj-label {
@@ -4861,23 +4864,29 @@ a:active {
   }
 
   .adj-inner {
-    justify-content: flex-start;
-    padding: calc(var(--nav-h) + 10px) 20px 12px;
+    top: calc(var(--nav-h) + 10px);
+    left: 14px;
+    right: 14px;
+    bottom: 6px;
+    padding: 14px 16px;
+    justify-content: center;
   }
 
-  .adj-label { font-size: 0.62rem; margin-bottom: 5px; }
-  .adj-dot   { width: 5px; height: 5px; }
-  .adj-badges { gap: 5px; margin-bottom: 5px; }
-
-  .adj-title {
-    font-size: 1rem;
-    margin-bottom: 6px;
+  .adj-label   { font-size: 0.62rem; margin-bottom: 5px; }
+  .adj-dot     { width: 5px; height: 5px; }
+  .adj-badges  { gap: 5px; margin-bottom: 5px; }
+  .adj-title   { font-size: 1.05rem; margin-bottom: 5px; }
+  .adj-synopsis {
+    display: block;
+    font-size: 0.74rem;
+    line-height: 1.45;
+    margin-bottom: 10px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
-
-  .adj-synopsis { display: none; }
-
-  .adj-actions { gap: 8px; }
-
+  .adj-actions { gap: 7px; }
   .adj-btn-primary { font-size: 0.78rem; padding: 7px 14px; }
   .adj-btn-shuffle  { font-size: 0.74rem; padding: 6px 11px; }
 
@@ -4885,7 +4894,7 @@ a:active {
     background: linear-gradient(
       to bottom,
       rgba(8,7,15,0.45) 0%,
-      rgba(8,7,15,0.1)  50%,
+      rgba(8,7,15,0.1)  45%,
       rgba(8,7,15,0.75) 100%
     );
   }
