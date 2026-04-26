@@ -7528,3 +7528,15 @@ button.npg-cta-annual      { background: linear-gradient(135deg, #f59e0b, var(--
 #searchContainer {
   display: none !important;
 }
+.lang-menu {
+  position: absolute;
+  z-index: 9999;
+}
+
+.lang-dropdown.open::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 9998;
+}
