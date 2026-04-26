@@ -139,10 +139,33 @@ ul, ol { list-style: none; }
     transparent 100%);
 }
 
-.nav-left, .nav-right, .nav-top {
+.nav-top {
   display: flex;
   align-items: center;
-  gap: 24px;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* IMPORTANT : empêche le logo de bouger */
+.nav-logo-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 180px;
 }
 
 /* Logo */
