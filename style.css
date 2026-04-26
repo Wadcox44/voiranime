@@ -4750,25 +4750,25 @@ a:active {
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  padding: calc(var(--nav-h) + 16px) 52px 24px;
+  justify-content: flex-end;
+  padding: 32px 52px 40px;
   max-width: 680px;
 }
 
 .adj-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.68rem;
+  gap: 8px;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--pink);
-  margin-bottom: 8px;
+  margin-bottom: 14px;
 }
 
 .adj-dot {
-  width: 6px; height: 6px;
+  width: 7px; height: 7px;
   border-radius: 50%;
   background: var(--pink);
   box-shadow: 0 0 8px var(--pink);
@@ -4782,31 +4782,31 @@ a:active {
 
 .adj-badges {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 
 .adj-title {
-  font-size: 1.7rem;
+  font-size: 2rem;
   font-weight: 800;
   line-height: 1.15;
   color: #fff;
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   text-shadow: 0 2px 12px rgba(0,0,0,0.6);
 }
 
 .adj-synopsis {
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   color: var(--text2);
-  line-height: 1.55;
-  margin: 0 0 14px;
+  line-height: 1.65;
+  margin: 0 0 24px;
   max-width: 520px;
 }
 
 .adj-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
   flex-wrap: wrap;
 }
@@ -4814,12 +4814,12 @@ a:active {
 .adj-btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 9px 20px;
+  gap: 8px;
+  padding: 11px 24px;
   background: var(--pink);
   color: #fff;
   font-weight: 700;
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   border-radius: var(--r-sm);
   text-decoration: none;
   transition: background 0.2s, transform 0.2s;
@@ -4832,12 +4832,12 @@ a:active {
 .adj-btn-shuffle {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 15px;
+  gap: 8px;
+  padding: 10px 18px;
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.18);
   color: var(--text2);
-  font-size: 0.8rem;
+  font-size: 0.84rem;
   border-radius: var(--r-sm);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
@@ -4854,33 +4854,39 @@ a:active {
   }
 
   .adj-video-bg {
-    top: calc(var(--nav-h) + 12px);
-    left: 16px;
-    right: 16px;
-    bottom: 8px;
+    top: calc(var(--nav-h) + 10px);
+    left: 14px;
+    right: 14px;
+    bottom: 6px;
   }
 
   .adj-inner {
-    padding: calc(var(--nav-h) + 10px) 18px 14px;
+    justify-content: flex-start;
+    padding: calc(var(--nav-h) + 10px) 20px 12px;
   }
+
+  .adj-label { font-size: 0.62rem; margin-bottom: 5px; }
+  .adj-dot   { width: 5px; height: 5px; }
+  .adj-badges { gap: 5px; margin-bottom: 5px; }
 
   .adj-title {
-    font-size: 1.1rem;
+    font-size: 1rem;
+    margin-bottom: 6px;
   }
 
-  .adj-label { margin-bottom: 4px; }
-  .adj-badges { margin-bottom: 4px; }
+  .adj-synopsis { display: none; }
 
-  .adj-synopsis {
-    display: none;
-  }
+  .adj-actions { gap: 8px; }
+
+  .adj-btn-primary { font-size: 0.78rem; padding: 7px 14px; }
+  .adj-btn-shuffle  { font-size: 0.74rem; padding: 6px 11px; }
 
   .adj-overlay {
     background: linear-gradient(
-      to top,
-      rgba(8,7,15,0.95) 0%,
-      rgba(8,7,15,0.4) 60%,
-      transparent 100%
+      to bottom,
+      rgba(8,7,15,0.45) 0%,
+      rgba(8,7,15,0.1)  50%,
+      rgba(8,7,15,0.75) 100%
     );
   }
 }
