@@ -36,3 +36,29 @@ function t(key) {
 }
 
 window.t = t;
+
+/* ═══════════════════════════════
+   LANGUAGE DROPDOWN SYSTEM
+   ═══════════════════════════════ */
+
+window.changeLang = function(lang) {
+  setLang(lang);
+};
+
+window.toggleLangMenu = function(event) {
+  event.stopPropagation();
+  document.getElementById("langMenu")?.classList.toggle("open");
+};
+
+document.addEventListener("click", () => {
+  document.getElementById("langMenu")?.classList.remove("open");
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  const flag = document.getElementById("currentLangFlag");
+  if (!flag) return;
+
+  flag.textContent = window.VA_LANG === "fr"
+    ? "🇫🇷"
+    : "🇬🇧";
+});
