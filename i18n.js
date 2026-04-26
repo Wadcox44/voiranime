@@ -145,15 +145,27 @@ if (document.readyState === 'loading') {
 }
 
 window.t = t;
-window.VA_LANG = VA_LANG;
+
+Object.defineProperty(window, 'VA_LANG', {
+  get: () => VA_LANG,
+  set: (v) => { VA_LANG = v; }
+});
+
 window.VA_setLang = VA_setLang;
 window.VA_onReady = VA_onReady;
 window.VA_SUPPORTED = VA_SUPPORTED;
 
-window.VA_retranslate = () => VA_applyDOM();
+window.VA_retranslate = () => {
+  if (window.VA_applyDOM) VA_applyDOM();
+};
+
 window.VA_applyDOM = VA_applyDOM;
 
 window.VA_render = function (el, html) {
+  if (!el) return;
   el.innerHTML = html;
-  VA_applyDOM(el);
+
+  if (window.VA_applyDOM) {
+    VA_applyDOM(el);
+  }
 };
