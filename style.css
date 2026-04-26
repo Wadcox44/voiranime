@@ -2310,6 +2310,7 @@ body {
   color: var(--text2);
   letter-spacing: 0.02em;
   white-space: nowrap;
+  text-align: center;  /* ← ajouter */
 }
 
 .zone-separator-sub {
