@@ -7137,7 +7137,7 @@ body {
 .mood-pill.active,
 .mood-pill:hover {
   background: rgba(34,211,238,0.12);
-  border-color: rgba(34,211,238,0.40);
+  border-color: rgba(34,211,238,0.85);
   color: #22d3ee;
   box-shadow: 0 0 10px rgba(34,211,238,0.20);
 }
@@ -7150,7 +7150,7 @@ body {
   background-clip: text;
 }
 .zone-separator-num {
-  color: rgba(34,211,238,0.40);
+  color: rgba(34,211,238,0.85);
 }
 
 /* ── Catalogue ── */
@@ -7161,7 +7161,7 @@ body {
   border-radius: 8px;
 }
 .cat-select:focus {
-  border-color: rgba(34,211,238,0.40);
+  border-color: rgba(34,211,238,0.85);
   box-shadow: 0 0 0 3px rgba(34,211,238,0.08);
 }
 .cat-page-btn {
@@ -7292,7 +7292,7 @@ input, select, textarea {
   border-radius: 8px;
 }
 input:focus, select:focus, textarea:focus {
-  border-color: rgba(34,211,238,0.40);
+  border-color: rgba(34,211,238,0.85);
   outline: none;
   box-shadow: 0 0 0 3px rgba(34,211,238,0.08);
 }
@@ -7344,7 +7344,7 @@ input:focus, select:focus, textarea:focus {
 .news-tab.active { background: rgba(34,211,238,0.08); border-color: rgba(34,211,238,0.35); color: #22d3ee; }
 .news-tab-premium.active { border-color: rgba(167,139,250,0.45); color: #a78bfa; }
 .news-source-tag.active,
-.news-source-tag:hover { border-color: rgba(34,211,238,0.40); color: #22d3ee; background: rgba(34,211,238,0.06); }
+.news-source-tag:hover { border-color: rgba(34,211,238,0.85); color: #22d3ee; background: rgba(34,211,238,0.06); }
 .npg-cta { background: linear-gradient(135deg, #22d3ee, #38bdf8); color: #020617; }
 .npg-cta-annual { background: linear-gradient(135deg, #a78bfa, #818cf8); color: #fff; }
 
