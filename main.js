@@ -51,8 +51,6 @@ import { trackView } from './firebase.js';
 /* ──────────────────────────────────────
    CONFIG & STATE
 ────────────────────────────────────── */
-const API = 'https://api.jikan.moe/v4';
-const HERO_INTERVAL = 7000;
 
 const state = {
   heroAnimes:  [],
@@ -60,6 +58,14 @@ const state = {
   heroTimer:   null,
   searchTimer: null,
 };
+
+const heroHandlers = {
+  more: null,
+  fav: null,
+};
+
+const API = 'https://api.jikan.moe/v4';
+const HERO_INTERVAL = 7000;
 
 /* ──────────────────────────────────────
    JIKAN QUEUE + CACHE
@@ -97,8 +103,9 @@ async function jikanFetch(endpoint, retries = 3) {
 
   // 2. Ajoute la requête à la queue séquentielle
   // Chaque appel attend que le précédent soit terminé
-  const result = await (_queue = _queue.then(() => _executeRequest(endpoint, retries, cacheKey)));
-  return result;
+  const task = () => _executeRequest(endpoint, retries, cacheKey);
+_queue = _queue.then(task, task);
+return _queue;
 }
 
 async function _executeRequest(endpoint, retries, cacheKey) {
@@ -145,7 +152,15 @@ async function _executeRequest(endpoint, retries, cacheKey) {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 function el(id)    { return document.getElementById(id); }
-
+function getAnimeImage(anime) {
+  return (
+    anime?.images?.jpg?.large_image_url ||
+    anime?.images?.jpg?.image_url ||
+    anime?.images?.webp?.large_image_url ||
+    anime?.images?.webp?.image_url ||
+    'https://placehold.co/160x230/111118/555?text=No+Image'
+  );
+}
 /** FIX Bug 7 : échappe les caractères dangereux pour éviter XSS dans innerHTML */
 function esc(str) {
   if (!str) return '';
@@ -392,7 +407,12 @@ function buildCard(anime, opts = {}) {
 
   const id    = Number(anime.mal_id);
   const title = anime.title_english || anime.title || 'Titre inconnu';
-  const img   = anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url || '';
+ const img =
+  anime.images?.jpg?.large_image_url ||
+  anime.images?.jpg?.image_url ||
+  anime.images?.webp?.large_image_url ||
+  anime.images?.webp?.image_url ||
+  'https://placehold.co/160x230/111118/555?text=No+Image';
   const score = anime.score;
   const type  = anime.type || '';
   const fav   = isFav(id);
@@ -407,7 +427,7 @@ function buildCard(anime, opts = {}) {
 
   card.innerHTML = `
     <div class="card-thumb">
-      <img src="${esc(img)}" alt="${esc(title)}" loading="lazy"
+      <img src="${esc(img)}"> alt="${esc(title)}" loading="lazy"
            onerror="this.src='https://placehold.co/160x230/111118/555?text=No+Image'"/>
       <div class="card-thumb-overlay">
         <div class="card-play-icon">
@@ -545,7 +565,12 @@ function renderHero(anime) {
 
   const id       = Number(anime.mal_id);
   const title    = anime.title_english || anime.title;
-  const img      = anime.images?.jpg?.large_image_url || '';
+  const img =
+  anime.images?.jpg?.large_image_url ||
+  anime.images?.jpg?.image_url ||
+  anime.images?.webp?.large_image_url ||
+  anime.images?.webp?.image_url ||
+  'https://placehold.co/160x230/111118/555?text=No+Image';
   const synopsis = (anime.synopsis || '').replace(/\[Written by MAL Rewrite\]/gi, '').trim();
 
   // Image transition
@@ -604,12 +629,6 @@ if (anime.type) {
   ].filter(Boolean);
   metaEl.innerHTML = meta.map(m => `<span class="hero-meta-item">${esc(m)}</span>`).join('');
 
-  // FIX Bug 2 : remplace moreBtn par un clone pour vider les anciens listeners
-  const moreBtn    = el('heroMoreBtn');
-  const newMoreBtn = moreBtn.cloneNode(true);
-  moreBtn.parentNode.replaceChild(newMoreBtn, moreBtn);
-  newMoreBtn.addEventListener('click', () => { window.location.href = `anime.html?id=${id}`; });
-
   // FIX Bug 3 : idem pour favBtn
   const favBtn    = el('heroFavBtn');
   const newFavBtn = favBtn.cloneNode(true);
@@ -630,28 +649,32 @@ if (anime.type) {
 
 function updateHeroDots() {
   const dotsEl = el('heroDots');
+
   dotsEl.innerHTML = state.heroAnimes
     .map((_, i) => `<div class="hero-dot ${i === state.heroIndex ? 'active' : ''}" data-i="${i}"></div>`)
     .join('');
 
-  // FIX : délégation sur le conteneur (un seul listener, pas N)
-  // + cloneNode pour éviter les doubles listeners sur le conteneur lui-même
-  const newDotsEl = dotsEl.cloneNode(true);
-  dotsEl.parentNode.replaceChild(newDotsEl, dotsEl);
+  if (!dotsEl.dataset.bound) {
+    dotsEl.dataset.bound = "1";
 
-  newDotsEl.addEventListener('click', (e) => {
-    const dot = e.target.closest('.hero-dot');
-    if (!dot) return;
-    clearInterval(state.heroTimer);
-    state.heroIndex = parseInt(dot.dataset.i, 10);
-    renderHero(state.heroAnimes[state.heroIndex]);
-    updateHeroDots();
-    startHeroRotation();
-  });
-}
+    dotsEl.addEventListener('click', (e) => {
+      const dot = e.target.closest('.hero-dot');
+      if (!dot) return;
+
+      clearInterval(state.heroTimer);
+      state.heroIndex = Number(dot.dataset.i);
+      renderHero(state.heroAnimes[state.heroIndex]);
+      updateHeroDots();
+      startHeroRotation();
+    });
+  }
+}  // 👈 C’EST CETTE ACCOLADE QUI MANQUE OU EST MAL PLACÉE
 
 function startHeroRotation() {
+  if (!state.heroAnimes.length) return;
+
   clearInterval(state.heroTimer);
+
   state.heroTimer = setInterval(() => {
     state.heroIndex = (state.heroIndex + 1) % state.heroAnimes.length;
     renderHero(state.heroAnimes[state.heroIndex]);
@@ -846,7 +869,12 @@ async function loadSection(endpointPath, carouselId, skeletonId, count = 8, opts
 async function loadHero() {
   try {
     const data = await jikanFetch('/top/anime?filter=airing&limit=10');
-    state.heroAnimes = (data.data || []).filter(a => a.images?.jpg?.large_image_url);
+    state.heroAnimes = (data.data || []).filter(a =>
+  a.images?.jpg?.large_image_url ||
+  a.images?.jpg?.image_url ||
+  a.images?.webp?.large_image_url ||
+  a.images?.webp?.image_url
+);
     if (state.heroAnimes.length === 0) return;
     // Expose pour le bouton Surprise-moi
     window._heroAnimesPool    = state.heroAnimes;
@@ -1048,7 +1076,14 @@ async function loadAnimeDuJour() {
     const offset = seed % 25;
 
     const data   = await jikanFetch(`/top/anime?filter=bypopularity&limit=25&page=${page}`);
-    const animes = (data.data || []).filter(a => a.images?.jpg?.large_image_url && a.synopsis);
+const animes = (data.data || []).filter(a =>
+  (
+    a.images?.jpg?.large_image_url ||
+    a.images?.jpg?.image_url ||
+    a.images?.webp?.large_image_url ||
+    a.images?.webp?.image_url
+  ) && a.synopsis
+);
     if (animes.length === 0) return;
 
     const picked = animes[offset % animes.length];
@@ -1059,11 +1094,17 @@ async function loadAnimeDuJour() {
 
     renderAnimeDuJour(anime);
 
-    el('adjShuffle')?.addEventListener('click', async () => {
-      const random   = animes[Math.floor(Math.random() * animes.length)];
-      const rFull    = await jikanFetch(`/anime/${random.mal_id}/full`);
-      renderAnimeDuJour(rFull.data || random, true);
-    });
+    const btn = el('adjShuffle');
+
+if (btn && !btn.dataset.bound) {
+  btn.dataset.bound = "1";
+
+  btn.addEventListener('click', async () => {
+    const random = animes[Math.floor(Math.random() * animes.length)];
+    const rFull = await jikanFetch(`/anime/${random.mal_id}/full`);
+    renderAnimeDuJour(rFull.data || random, true);
+  });
+}
   } catch (e) {
     console.warn('Anime du jour:', e);
   }
@@ -1081,7 +1122,7 @@ function renderAnimeDuJour(anime, shuffle = false) {
   if (!section) return;
 
   const title     = anime.title_english || anime.title;
-  const img       = anime.images?.jpg?.large_image_url || '';
+ const img = getAnimeImage(anime);
   const synopsis  = (anime.synopsis || '').replace(/\[Written by MAL Rewrite\]/gi, '').trim();
   const youtubeId = anime.trailer?.youtube_id || null;
 
@@ -1256,31 +1297,6 @@ async function init() {
 }
 // autre code de ton main.js ...
 
-// ===============================
-// Language Dropdown
-// ===============================
-const langBtn = document.getElementById("langBtn");
-const dropdown = document.getElementById("langDropdown");
-const overlay = document.getElementById("langOverlay");
-
-if (!langBtn || !dropdown || !overlay) {
-  // évite crash sur pages sans langue
-} else {
-
-if (langBtn && dropdown && overlay) {
-  langBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-
-    const isOpen = dropdown.classList.toggle("open");
-    overlay.style.display = isOpen ? "block" : "none";
-  });
-
-    overlay.addEventListener("click", () => {
-    dropdown.classList.remove("open");
-    overlay.style.display = "none";
-  });
-
-}
 let _initDone = false;
 
 function safeInit() {
