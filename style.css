@@ -7560,6 +7560,9 @@ button.npg-cta-annual      { background: linear-gradient(135deg, #f59e0b, var(--
   backdrop-filter: blur(10px);
   z-index: 10000;
 }
+.footer-contact-modal.open {
+  display: flex;
+}
 
 .footer-contact-box {
   width: 100%;
