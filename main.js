@@ -1235,36 +1235,8 @@ async function init() {
 
   if (lang) lang.value = navigator.language;
   if (url) url.value = window.location.href;
-
-  // ===============================
-  // CONTACT MODAL (AJOUT PROPRE)
-  // ===============================
-  const footerContactModal = document.getElementById("footerContactModal");
-  const footerContactClose = document.getElementById("footerContactClose");
-  const contactBtn = document.querySelector(".footer-contact-btn, #footerContactBtn");
-
-  if (contactBtn && footerContactModal) {
-    contactBtn.addEventListener("click", () => {
-      footerContactModal.classList.add("open");
-    });
-  }
-
-  if (footerContactClose && footerContactModal) {
-    footerContactClose.addEventListener("click", () => {
-      footerContactModal.classList.remove("open");
-    });
-  }
-
-  if (footerContactModal) {
-    footerContactModal.addEventListener("click", (e) => {
-      if (e.target === footerContactModal) {
-        footerContactModal.classList.remove("open");
-      }
-    });
-  }
-
 }
-
+initContactModal();
 
 // ===============================
 // Language Dropdown (RESTE ICI)
@@ -1290,3 +1262,28 @@ if (langBtn && dropdown && overlay) {
 
 // IMPORTANT : une seule entrée init
 document.addEventListener('DOMContentLoaded', init);
+function initContactModal() {
+  const footerContactModal = document.getElementById("footerContactModal");
+  const footerContactClose = document.getElementById("footerContactClose");
+  const contactBtn = document.getElementById("footerContactBtn");
+
+  if (!footerContactModal) return;
+
+  if (contactBtn) {
+    contactBtn.addEventListener("click", () => {
+      footerContactModal.classList.add("open");
+    });
+  }
+
+  if (footerContactClose) {
+    footerContactClose.addEventListener("click", () => {
+      footerContactModal.classList.remove("open");
+    });
+  }
+
+  footerContactModal.addEventListener("click", (e) => {
+    if (e.target === footerContactModal) {
+      footerContactModal.classList.remove("open");
+    }
+  });
+}
