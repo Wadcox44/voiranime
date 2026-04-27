@@ -198,13 +198,12 @@ ul, ol { list-style: none; }
   flex-direction: column;
   gap: 4px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-  z-index: 999;
+  z-index: 9999;
 }
 
-.lang-dropdown:hover .lang-menu {
+.lang-dropdown.open .lang-menu {
   display: flex;
 }
-
 .lang-menu button {
   background: transparent;
   border: none;
@@ -7538,5 +7537,12 @@ button.npg-cta-annual      { background: linear-gradient(135deg, #f59e0b, var(--
   position: fixed;
   inset: 0;
   background: transparent;
+  z-index: 9998;
+}
+#langOverlay {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  display: none;
   z-index: 9998;
 }
