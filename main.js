@@ -1240,29 +1240,27 @@ async function init() {
   // CONTACT MODAL (AJOUT PROPRE)
   // ===============================
   const footerContactModal = document.getElementById("footerContactModal");
-  const footerContactClose = document.getElementById("footerContactClose");
-  const contactBtn = document.querySelector(".footer-contact-btn, #footerContactBtn");
+const footerContactClose = document.getElementById("footerContactClose");
+const contactBtn = document.getElementById("footerContactBtn");
 
-  if (contactBtn && footerContactModal) {
-    contactBtn.addEventListener("click", () => {
-      footerContactModal.classList.add("open");
-    });
-  }
+if (contactBtn && footerContactModal) {
+  contactBtn.addEventListener("click", () => {
+    footerContactModal.classList.add("open");
+  });
+}
 
-  if (footerContactClose && footerContactModal) {
-    footerContactClose.addEventListener("click", () => {
+if (footerContactClose && footerContactModal) {
+  footerContactClose.addEventListener("click", () => {
+    footerContactModal.classList.remove("open");
+  });
+}
+
+if (footerContactModal) {
+  footerContactModal.addEventListener("click", (e) => {
+    if (e.target === footerContactModal) {
       footerContactModal.classList.remove("open");
-    });
-  }
-
-  if (footerContactModal) {
-    footerContactModal.addEventListener("click", (e) => {
-      if (e.target === footerContactModal) {
-        footerContactModal.classList.remove("open");
-      }
-    });
-  }
-
+    }
+  });
 }
 
 
