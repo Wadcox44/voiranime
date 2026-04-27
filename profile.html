@@ -453,64 +453,23 @@
       <button class="footer-contact-close" id="footerContactClose">✕</button>
     </div>
     <form class="footer-contact-form" id="footerContactForm"
-      action="https://formspree.io/f/myklpggz"
-      method="POST">
-
-  <!-- TYPE DE DEMANDE -->
-  <div class="fcf-field">
-    <label class="fcf-label">Type de demande</label>
-    <select class="fcf-input" name="type" required>
-      <option value="">Choisir...</option>
-      <option value="bug">🐞 Bug / erreur</option>
-      <option value="suggestion">💡 Suggestion</option>
-      <option value="collaboration">🤝 Collaboration</option>
-      <option value="anime">🎬 Contenu anime</option>
-      <option value="other">❓ Autre</option>
-    </select>
-  </div>
-
-  <!-- PAGE CONCERNEE -->
-  <div class="fcf-field">
-    <label class="fcf-label">Page concernée</label>
-    <select class="fcf-input" name="page">
-      <option value="">Optionnel</option>
-      <option value="home">Accueil</option>
-      <option value="catalogue">Catalogue</option>
-      <option value="news">News</option>
-      <option value="anime">Anime</option>
-      <option value="profile">Profil</option>
-    </select>
-  </div>
-
-  <!-- NOM -->
-  <div class="fcf-field">
-    <label class="fcf-label" for="fcf_name">Nom</label>
-    <input class="fcf-input" type="text" id="fcf_name" name="name" required/>
-  </div>
-
-  <!-- EMAIL -->
-  <div class="fcf-field">
-    <label class="fcf-label" for="fcf_email">Email</label>
-    <input class="fcf-input" type="email" id="fcf_email" name="email" required/>
-  </div>
-
-  <!-- MESSAGE -->
-  <div class="fcf-field">
-    <label class="fcf-label" for="fcf_msg">Message</label>
-    <textarea class="fcf-input fcf-textarea" id="fcf_msg" name="message" rows="4" required></textarea>
-  </div>
-
-  <!-- INFOS AUTO (IMPORTANT) -->
-  <input type="hidden" name="lang" id="fcf_lang">
-  <input type="hidden" name="url" id="fcf_url">
-
-  <button class="fcf-submit" type="submit">Envoyer ✉</button>
-
-  <div class="fcf-success" id="fcfSuccess" style="display:none">
-    ✅ Message envoyé !
-  </div>
-
-</form>
+          action="https://formspree.io/f/myklpggz"
+          method="POST">
+      <div class="fcf-field">
+        <label class="fcf-label" for="fcf_name">Nom</label>
+        <input class="fcf-input" type="text" id="fcf_name" name="name" placeholder="Votre nom" required/>
+      </div>
+      <div class="fcf-field">
+        <label class="fcf-label" for="fcf_email">Email</label>
+        <input class="fcf-input" type="email" id="fcf_email" name="email" placeholder="votre@email.com" required/>
+      </div>
+      <div class="fcf-field">
+        <label class="fcf-label" for="fcf_msg">Message</label>
+        <textarea class="fcf-input fcf-textarea" id="fcf_msg" name="message" placeholder="Votre message..." rows="4" required></textarea>
+      </div>
+      <button class="fcf-submit" type="submit">Envoyer ✉</button>
+      <div class="fcf-success" id="fcfSuccess" style="display:none">✅ Message envoyé !</div>
+    </form>
   </div>
 </div>
 
