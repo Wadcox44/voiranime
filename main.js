@@ -1220,17 +1220,26 @@ async function init() {
   loadForYou();
 
   await loadSection('/top/anime?filter=bypopularity&limit=20', 'popular', 'skel-popular', 10, { showRank: true });
-  await loadSection('/top/anime?limit=20',                     'top',     'skel-top',     10);
-  await loadSection('/top/anime?filter=airing&limit=20',       'airing',  'skel-airing',  10);
-  await loadSection('/top/anime?type=movie&limit=20',          'movies',  'skel-movies',  10);
-  await loadSection('/top/anime?type=tv&limit=20',             'series',  'skel-series',  10);
-  await loadSection('/top/anime?type=ova&limit=20',            'ova',     'skel-ova',     10);
-  await loadSection('/top/anime?type=ona&limit=20',            'ona',     'skel-ona',     10);
+  await loadSection('/top/anime?limit=20', 'top', 'skel-top', 10);
+  await loadSection('/top/anime?filter=airing&limit=20', 'airing', 'skel-airing', 10);
+  await loadSection('/top/anime?type=movie&limit=20', 'movies', 'skel-movies', 10);
+  await loadSection('/top/anime?type=tv&limit=20', 'series', 'skel-series', 10);
+  await loadSection('/top/anime?type=ova&limit=20', 'ova', 'skel-ova', 10);
+  await loadSection('/top/anime?type=ona&limit=20', 'ona', 'skel-ona', 10);
 
   // Trending Firebase — chargé en dernier, non bloquant
   loadTrending();
+
+  // ===============================
+  // FORM CONTACT (IMPORTANT FIX)
+  // ===============================
+  const lang = document.getElementById("fcf_lang");
+  const url = document.getElementById("fcf_url");
+
+  if (lang) lang.value = navigator.language;
+  if (url) url.value = window.location.href;
 }
-// autre code de ton main.js ...
+
 
 // ===============================
 // Language Dropdown
@@ -1252,5 +1261,7 @@ if (langBtn && dropdown && overlay) {
     overlay.style.display = "none";
   });
 }
-document.addEventListener('DOMContentLoaded', init);
 
+
+// IMPORTANT : une seule entrée init
+document.addEventListener('DOMContentLoaded', init);
