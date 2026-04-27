@@ -1112,7 +1112,7 @@ function renderAnimeDuJour(anime, shuffle = false) {
     imgFallback.style.display = 'block';
   }
 
-  const badges = [];
+ const badges = [];
 
 if (anime.score) {
   badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
@@ -1131,14 +1131,6 @@ if (anime.type) {
 }
 
 badgesEl.innerHTML = badges.join('');
-
-badgesEl.innerHTML = badges.join('');), Movie:"Film d'anime", OVA:t('type.ova'), ONA:t('type.ona'), Special:t('type.special') };
-    badges.push(`<span class="badge badge-muted">${tMap[anime.type] || anime.type}</span>`);
-  }
-  badgesEl.innerHTML = badges.join('');
-
-  section.style.display = 'block';
-  section.style.transition = 'opacity 0.4s ease';
 }
 /* ──────────────────────────────────────
    POUR TOI — Recommandations basées sur l'historique
