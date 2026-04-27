@@ -51,7 +51,7 @@ import { trackView } from './firebase.js';
 /* ──────────────────────────────────────
    CONFIG & STATE
 ────────────────────────────────────── */
-const API           = '/api/jikan'; // proxy Vercel — évite les 429 direct Jikan
+const API = 'https://api.jikan.moe/v4';
 const HERO_INTERVAL = 7000;
 
 const state = {
@@ -69,7 +69,7 @@ const state = {
    Solution : queue FIFO strictement séquentielle + cache sessionStorage.
 ────────────────────────────────────── */
 
-const JIKAN_MIN_INTERVAL = 400; // ms minimum entre deux requêtes (~2.5 req/s, sous la limite de 3)
+const JIKAN_MIN_INTERVAL = 800; // ms minimum entre deux requêtes (ralenti pour éviter les 429)
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes de cache sessionStorage
 
 let _lastRequestTime = 0;  // timestamp de la dernière requête partie
@@ -111,7 +111,8 @@ async function _executeRequest(endpoint, retries, cacheKey) {
   for (let i = 0; i < retries; i++) {
     try {
       _lastRequestTime = Date.now();
-      const res = await fetch(`${API}?path=${encodeURIComponent(endpoint)}`);
+      const targetPath = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+      const res = await fetch(`${API}${targetPath}`);
 
       if (res.status === 429) {
         // Vide le body pour libérer la connexion HTTP/2
@@ -890,8 +891,8 @@ function initMoodPills() {
     const carousel = el('carousel-mood');
     buildSkeletons(carousel, 10);
 
-    // Scroll smooth vers la section
-    setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    // Scroll smooth vers la section (Désactivé suite à demande utilisateur)
+    // setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
 
     try {
       const data   = await jikanFetch(config.endpoint);
@@ -1229,5 +1230,26 @@ async function init() {
   // Trending Firebase — chargé en dernier, non bloquant
   loadTrending();
 }
+// autre code de ton main.js ...
 
+// ===============================
+// Language Dropdown
+// ===============================
+const langBtn = document.getElementById("langBtn");
+const dropdown = document.getElementById("langDropdown");
+const overlay = document.getElementById("langOverlay");
+
+if (langBtn && dropdown && overlay) {
+  langBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+
+    const isOpen = dropdown.classList.toggle("open");
+    overlay.style.display = isOpen ? "block" : "none";
+  });
+
+  overlay.addEventListener("click", () => {
+    dropdown.classList.remove("open");
+    overlay.style.display = "none";
+  });
+}
 document.addEventListener('DOMContentLoaded', init);
