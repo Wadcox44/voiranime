@@ -414,7 +414,13 @@ function buildCard(anime, opts = {}) {
         </div>
         ${score ? `<div class="card-score-badge">★ ${score.toFixed(1)}</div>` : ''}
       </div>
-      ${type ? `<span class="card-type-badge">${esc(({TV:t('type.tv'),Movie:t('type.movie'),OVA:t('type.ova'),ONA:t('type.ona'),Special:t('type.special')})[type]||type)}</span>` : ''}
+      ${type ? `<span class="card-type-badge">${esc(({
+  TV: "TV",
+  Movie: "Film",
+  OVA: "OVA",
+  ONA: "ONA",
+  Special: "Spécial"
+}[type] || type))}</span>` : ''}
       ${rank ? `<span class="card-rank-badge">#${rank}</span>` : ''}
       <button class="card-fav-btn ${fav ? 'active' : ''}" data-fav-id="${id}" aria-label="Favori">
         <svg width="12" height="12" viewBox="0 0 24 24"
@@ -570,13 +576,21 @@ function renderHero(anime) {
   titleEl.textContent = title;
   synEl.textContent   = synopsis.slice(0, 200) + (synopsis.length > 200 ? '…' : '');
 
-  // Badges
-  const badges = [];
-  if (anime.score) badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
-  if (anime.type) {
-    const tMap = { TV:t('type.tv'), Movie:"Film d'anime", OVA:t('type.ova'), ONA:t('type.ona'), Special:t('type.special') };
-    badges.push(`<span class="badge badge-muted">${esc(tMap[anime.type]||anime.type)}</span>`);
-  }
+ // Badges
+const badges = [];
+if (anime.score) badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
+
+if (anime.type) {
+  const tMap = {
+    TV: "TV",
+    Movie: "Film d'animation",
+    OVA: "OVA",
+    ONA: "ONA",
+    Special: "Spécial"
+  };
+
+  badges.push(`<span class="badge badge-muted">${esc(tMap[anime.type] || anime.type)}</span>`);
+}
   if (anime.status === 'Currently Airing') badges.push(`<span class="badge badge-green">${t('anime.airing_badge')}</span>`);
   if (anime.status === 'Not yet aired')    badges.push('<span class="badge badge-blue">À venir</span>');
   badgesEl.innerHTML = badges.join('');
@@ -1101,7 +1115,25 @@ function renderAnimeDuJour(anime, shuffle = false) {
   const badges = [];
   if (anime.score) badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
   if (anime.type) {
-    const tMap = { TV:t('type.tv'), Movie:"Film d'anime", OVA:t('type.ova'), ONA:t('type.ona'), Special:t('type.special') };
+    const tMap = { TV:t(const badges = [];
+
+if (anime.score) {
+  badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
+}
+
+if (anime.type) {
+  const tMap = {
+    TV: "TV",
+    Movie: "Film d'anime",
+    OVA: "OVA",
+    ONA: "ONA",
+    Special: "Spécial"
+  };
+
+  badges.push(`<span class="badge badge-muted">${esc(tMap[anime.type] || anime.type)}</span>`);
+}
+
+badgesEl.innerHTML = badges.join('');), Movie:"Film d'anime", OVA:t('type.ova'), ONA:t('type.ona'), Special:t('type.special') };
     badges.push(`<span class="badge badge-muted">${tMap[anime.type] || anime.type}</span>`);
   }
   badgesEl.innerHTML = badges.join('');
