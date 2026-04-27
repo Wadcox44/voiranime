@@ -7546,3 +7546,58 @@ button.npg-cta-annual      { background: linear-gradient(135deg, #f59e0b, var(--
   display: none;
   z-index: 9998;
 }
+/* ===============================
+   CONTACT MODAL - CENTERED DESIGN
+================================= */
+
+.footer-contact-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+  z-index: 10000;
+}
+
+.footer-contact-box {
+  width: 100%;
+  max-width: 520px;
+  background: #0f0f1a;
+  border: 1px solid #222;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  animation: modalPop 0.2s ease;
+}
+
+@keyframes modalPop {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.footer-contact-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.contact-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.footer-contact-form {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
