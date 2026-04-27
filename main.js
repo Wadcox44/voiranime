@@ -1230,6 +1230,27 @@ async function init() {
   // Trending Firebase — chargé en dernier, non bloquant
   loadTrending();
 }
+// autre code de ton main.js ...
 
+// ===============================
+// Language Dropdown
+// ===============================
+const langBtn = document.getElementById("langBtn");
+const dropdown = document.getElementById("langDropdown");
+const overlay = document.getElementById("langOverlay");
+
+if (langBtn && dropdown && overlay) {
+  langBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+
+    const isOpen = dropdown.classList.toggle("open");
+    overlay.style.display = isOpen ? "block" : "none";
+  });
+
+  overlay.addEventListener("click", () => {
+    dropdown.classList.remove("open");
+    overlay.style.display = "none";
+  });
+}
 document.addEventListener('DOMContentLoaded', init);
 
