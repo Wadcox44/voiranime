@@ -51,7 +51,7 @@ import { trackView } from './firebase.js';
 /* ──────────────────────────────────────
    CONFIG & STATE
 ────────────────────────────────────── */
-const API = 'https://api.jikan.moe/v4';
+const API           = '/api/jikan'; // proxy Vercel — évite les 429 direct Jikan
 const HERO_INTERVAL = 7000;
 
 const state = {
@@ -69,7 +69,7 @@ const state = {
    Solution : queue FIFO strictement séquentielle + cache sessionStorage.
 ────────────────────────────────────── */
 
-const JIKAN_MIN_INTERVAL = 800; // ms minimum entre deux requêtes (ralenti pour éviter les 429)
+const JIKAN_MIN_INTERVAL = 400; // ms minimum entre deux requêtes (~2.5 req/s, sous la limite de 3)
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes de cache sessionStorage
 
 let _lastRequestTime = 0;  // timestamp de la dernière requête partie
@@ -111,8 +111,7 @@ async function _executeRequest(endpoint, retries, cacheKey) {
   for (let i = 0; i < retries; i++) {
     try {
       _lastRequestTime = Date.now();
-      const targetPath = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
-      const res = await fetch(`${API}${targetPath}`);
+      const res = await fetch(`${API}?path=${encodeURIComponent(endpoint)}`);
 
       if (res.status === 429) {
         // Vide le body pour libérer la connexion HTTP/2
@@ -891,8 +890,8 @@ function initMoodPills() {
     const carousel = el('carousel-mood');
     buildSkeletons(carousel, 10);
 
-    // Scroll smooth vers la section (Désactivé suite à demande utilisateur)
-    // setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    // Scroll smooth vers la section
+    setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
 
     try {
       const data   = await jikanFetch(config.endpoint);
@@ -1213,77 +1212,22 @@ async function init() {
   initAdvancedSearch();
   updateFavUI();
   renderFavoritesSection();
+  // renderContinueWatching() — supprimé, géré dans le profil
 
+  // Hero supprimé — remplacé par Anime du jour
   loadAnimeDuJour();
   loadForYou();
 
   await loadSection('/top/anime?filter=bypopularity&limit=20', 'popular', 'skel-popular', 10, { showRank: true });
-  await loadSection('/top/anime?limit=20', 'top', 'skel-top', 10);
-  await loadSection('/top/anime?filter=airing&limit=20', 'airing', 'skel-airing', 10);
-  await loadSection('/top/anime?type=movie&limit=20', 'movies', 'skel-movies', 10);
-  await loadSection('/top/anime?type=tv&limit=20', 'series', 'skel-series', 10);
-  await loadSection('/top/anime?type=ova&limit=20', 'ova', 'skel-ova', 10);
-  await loadSection('/top/anime?type=ona&limit=20', 'ona', 'skel-ona', 10);
+  await loadSection('/top/anime?limit=20',                     'top',     'skel-top',     10);
+  await loadSection('/top/anime?filter=airing&limit=20',       'airing',  'skel-airing',  10);
+  await loadSection('/top/anime?type=movie&limit=20',          'movies',  'skel-movies',  10);
+  await loadSection('/top/anime?type=tv&limit=20',             'series',  'skel-series',  10);
+  await loadSection('/top/anime?type=ova&limit=20',            'ova',     'skel-ova',     10);
+  await loadSection('/top/anime?type=ona&limit=20',            'ona',     'skel-ona',     10);
 
+  // Trending Firebase — chargé en dernier, non bloquant
   loadTrending();
-
-  // ===============================
-  // FORM CONTACT
-  // ===============================
-  const lang = document.getElementById("fcf_lang");
-  const url = document.getElementById("fcf_url");
-
-  if (lang) lang.value = navigator.language;
-  if (url) url.value = window.location.href;
-}
-initContactModal();
-
-// ===============================
-// Language Dropdown (RESTE ICI)
-// ===============================
-const langBtn = document.getElementById("langBtn");
-const dropdown = document.getElementById("langDropdown");
-const overlay = document.getElementById("langOverlay");
-
-if (langBtn && dropdown && overlay) {
-  langBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-
-    const isOpen = dropdown.classList.toggle("open");
-    overlay.style.display = isOpen ? "block" : "none";
-  });
-
-  overlay.addEventListener("click", () => {
-    dropdown.classList.remove("open");
-    overlay.style.display = "none";
-  });
 }
 
-
-// IMPORTANT : une seule entrée init
 document.addEventListener('DOMContentLoaded', init);
-function initContactModal() {
-  const footerContactModal = document.getElementById("footerContactModal");
-  const footerContactClose = document.getElementById("footerContactClose");
-  const contactBtn = document.getElementById("footerContactBtn");
-
-  if (!footerContactModal) return;
-
-  if (contactBtn) {
-    contactBtn.addEventListener("click", () => {
-      footerContactModal.classList.add("open");
-    });
-  }
-
-  if (footerContactClose) {
-    footerContactClose.addEventListener("click", () => {
-      footerContactModal.classList.remove("open");
-    });
-  }
-
-  footerContactModal.addEventListener("click", (e) => {
-    if (e.target === footerContactModal) {
-      footerContactModal.classList.remove("open");
-    }
-  });
-}
