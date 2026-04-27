@@ -1275,4 +1275,8 @@ if (langBtn && dropdown && overlay) {
     overlay.style.display = "none";
   });
 }
-document.addEventListener('DOMContentLoaded', init);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
