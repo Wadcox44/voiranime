@@ -73,7 +73,8 @@ const JIKAN_MIN_INTERVAL = 800; // ms minimum entre deux requêtes (ralenti pour
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes de cache sessionStorage
 
 let _lastRequestTime = 0;  // timestamp de la dernière requête partie
-let _queue = Promise.resolve(); // chaîne de promesses séquentielles
+let _queue = Promise.resolve();
+const _inFlight = new Map(); // chaîne de promesses séquentielles
 
 /**
  * jikanFetch — queue séquentielle + cache sessionStorage + retry 429
@@ -1262,6 +1263,10 @@ const langBtn = document.getElementById("langBtn");
 const dropdown = document.getElementById("langDropdown");
 const overlay = document.getElementById("langOverlay");
 
+if (!langBtn || !dropdown || !overlay) {
+  // évite crash sur pages sans langue
+} else {
+
 if (langBtn && dropdown && overlay) {
   langBtn.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -1270,13 +1275,22 @@ if (langBtn && dropdown && overlay) {
     overlay.style.display = isOpen ? "block" : "none";
   });
 
-  overlay.addEventListener("click", () => {
+    overlay.addEventListener("click", () => {
     dropdown.classList.remove("open");
     overlay.style.display = "none";
   });
+
 }
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
+let _initDone = false;
+
+function safeInit() {
+  if (_initDone) return;
+  _initDone = true;
   init();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', safeInit);
+} else {
+  safeInit();
 }
