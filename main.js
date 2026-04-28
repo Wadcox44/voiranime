@@ -1278,10 +1278,8 @@ async function init() {
   initAdvancedSearch();
   updateFavUI();
   renderFavoritesSection();
-  // renderContinueWatching() — supprimé, géré dans le profil
 
-  // Hero supprimé — remplacé par Anime du jour
- document.addEventListener('DOMContentLoaded', loadAnimeDuJour);
+  loadAnimeDuJour();
   loadForYou();
 
   await loadSection('/top/anime?filter=bypopularity&limit=20', 'popular', 'skel-popular', 10, { showRank: true });
@@ -1292,7 +1290,6 @@ async function init() {
   await loadSection('/top/anime?type=ova&limit=20',            'ova',     'skel-ova',     10);
   await loadSection('/top/anime?type=ona&limit=20',            'ona',     'skel-ona',     10);
 
-  // Trending Firebase — chargé en dernier, non bloquant
   loadTrending();
 }
 // autre code de ton main.js ...
