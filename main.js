@@ -1119,7 +1119,10 @@ function renderAnimeDuJour(anime, shuffle = false) {
   const badgesEl    = el('adjBadges');
   const linkEl      = el('adjLink');
 
-  if (!section) return;
+  if (!section || !iframe || !imgFallback || !titleEl || !synEl || !badgesEl || !linkEl) {
+    console.warn('Anime du jour: éléments HTML manquants');
+    return;
+  }
 
   const title     = anime.title_english || anime.title;
  const img = getAnimeImage(anime);
