@@ -1,1 +1,8 @@
-
+{
+  "profile.title": "Mi perfil",
+  "profile.favs": "Favoritos",
+  "profile.no_favs": "Sin favoritos",
+  "watch.watching": "▶ Viendo",
+  "watch.completed": "✓ Terminado",
+  "watch.plan": "🔖 Por ver"
+}
