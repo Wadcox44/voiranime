@@ -4,11 +4,29 @@ import path from "path";
 const __dirname = path.resolve();
 
 const EN_PATH = path.join(__dirname, "locales/en");
-const SRC_FOLDERS = ["./"]; // tu peux limiter à /js si besoin
+const SRC_FOLDERS = ["./"];
 
-// regex pour détecter t("key")
+// ❌ fichiers / dossiers à ignorer (old*, legacy*, etc.)
+const IGNORE_PATTERNS = ["old"];
+
 const REGEX = /t\(["'`]([\w.-]+)["'`]\)/g;
 
+/* =========================
+   UTIL : ignore filter
+========================= */
+function isIgnored(name) {
+  return IGNORE_PATTERNS.some(p =>
+    name.startsWith(p + "/") ||   // dossier old/
+    name.includes("/" + p) ||     // sous-dossier
+    name.startsWith(p + "_") ||   // old_file.js
+    name.startsWith(p + "-") ||   // old-file.js
+    name === p                    // exact match
+  );
+}
+
+/* =========================
+   SCAN FILE
+========================= */
 function scanFile(filePath) {
   const content = fs.readFileSync(filePath, "utf-8");
   const keys = [];
@@ -21,6 +39,9 @@ function scanFile(filePath) {
   return keys;
 }
 
+/* =========================
+   SCAN FOLDER (FILTERED)
+========================= */
 function scanFolder(folder) {
   let results = [];
 
@@ -29,9 +50,18 @@ function scanFolder(folder) {
   for (const file of files) {
     const fullPath = path.join(folder, file);
 
-    if (fs.statSync(fullPath).isDirectory()) {
+    // 🔥 ignore old*
+    if (isIgnored(file)) {
+      console.log(`⏭ Ignored: ${file}`);
+      continue;
+    }
+
+    const stat = fs.statSync(fullPath);
+
+    if (stat.isDirectory()) {
       results = results.concat(scanFolder(fullPath));
-    } else if (file.endsWith(".js") || file.endsWith(".html")) {
+    } 
+    else if (file.endsWith(".js") || file.endsWith(".html")) {
       results = results.concat(scanFile(fullPath));
     }
   }
@@ -39,6 +69,9 @@ function scanFolder(folder) {
   return results;
 }
 
+/* =========================
+   LOAD EN KEYS
+========================= */
 function loadEN() {
   const files = fs.readdirSync(EN_PATH);
 
@@ -54,6 +87,9 @@ function loadEN() {
   return Object.keys(en);
 }
 
+/* =========================
+   RUN AUDIT
+========================= */
 function run() {
   console.log("\n🔎 i18n COVERAGE SCANNER\n");
 
@@ -63,10 +99,7 @@ function run() {
   const usedSet = new Set(usedKeys);
   const enSet = new Set(enKeys);
 
-  // ❌ used but not in EN (CRITICAL)
   const missingInEN = [...usedSet].filter(k => !enSet.has(k));
-
-  // ⚠️ in EN but never used
   const unusedInEN = [...enSet].filter(k => !usedSet.has(k));
 
   console.log("📊 STATS");
@@ -81,11 +114,7 @@ function run() {
 
   fs.writeFileSync(
     path.join(__dirname, "i18n-coverage-report.json"),
-    JSON.stringify(
-      { missingInEN, unusedInEN },
-      null,
-      2
-    )
+    JSON.stringify({ missingInEN, unusedInEN }, null, 2)
   );
 
   console.log("\n✔ Report saved: i18n-coverage-report.json");
