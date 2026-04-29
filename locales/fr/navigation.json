@@ -1,1 +1,37 @@
+{
+  "nav.home": "Accueil",
+  "nav.catalogue": "Catalogue",
+  "nav.duels": "⚔ Duels",
+  "nav.profile": "Profil",
+  "nav.support": "💜 Soutenir",
+  "nav.tagline": "Découvrir autrement.",
+  "nav.search": "Recherche",
 
+  "footer.no_video": "Aucune vidéo n'est hébergée sur ce site.",
+  "footer.copy": "© 2025 VoirAnime — Projet open source",
+  "footer.data": "Données fournies par",
+
+  "mood.eyebrow": "Quel est ton mood ce soir ?",
+  "mood.all": "Tout explorer",
+  "mood.action": "Adrénaline",
+  "mood.romance": "Romance",
+  "mood.dark": "Univers sombre",
+  "mood.comedy": "Good vibes",
+  "mood.scifi": "Sci-fi & Mecha",
+  "mood.psychological": "Psychologique",
+  "mood.slice": "Zen & Calme",
+
+  "zone1.title": "Ce qui vit maintenant",
+  "zone1.sub": "En cours · Tendances · Nouveaux films",
+  "zone2.title": "Les incontournables",
+  "zone2.sub": "Chefs-d’œuvre · Cultes",
+  "zone3.title": "Ton univers",
+  "zone3.sub": "Favoris · Historique · Explorations",
+
+  "section.popular": "🔥 Populaire",
+  "section.top": "⭐ Mieux notés",
+  "section.airing": "📡 En cours",
+  "section.movies": "🎬 Films",
+  "section.trending": "📈 Tendance",
+  "section.for_you": "✨ Pour toi"
+}
