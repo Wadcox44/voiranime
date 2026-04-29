@@ -1,1 +1,43 @@
+{
+  "search.placeholder": "Titre, genre, personnage…",
+  "search.results": "Résultats de recherche",
+  "search.close": "✕ Fermer",
+  "search.empty": "Aucun résultat. Essaie un autre titre.",
+  "search.error": "Erreur de connexion. Réessaie.",
 
+  "adv.title": "Recherche avancée",
+  "adv.genre": "Genre",
+  "adv.type": "Type",
+  "adv.score": "Score minimum",
+  "adv.status": "Statut",
+  "adv.year": "Année",
+  "adv.search_btn": "Rechercher",
+  "adv.clear": "✕ Réinitialiser",
+  "adv.all": "Tous",
+  "adv.no_results": "Aucun résultat pour ces critères.",
+  "adv.error": "Erreur de connexion.",
+
+  "type.tv": "Série",
+  "type.movie": "Film",
+  "type.ova": "OVA",
+  "type.ona": "ONA",
+  "type.special": "Spécial",
+  "type.streaming": "Streaming",
+
+  "status.airing": "En cours",
+  "status.complete": "Terminé",
+  "status.upcoming": "À venir",
+
+  "sort.score": "Score",
+  "sort.date": "Date de sortie",
+  "sort.title": "Titre",
+  "sort.label": "Trier par",
+
+  "section.results": "Résultats",
+  "section.error": "Impossible de charger cette section.",
+  "common.error_load": "Impossible de charger cette section.",
+  "common.no_video": "Aucune vidéo disponible",
+
+  "search.label": "Résultats pour \"{0}\"",
+  "search.count": "{0} résultats pour \"{1}\""
+}
