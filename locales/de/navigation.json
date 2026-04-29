@@ -1,1 +1,8 @@
-
+{
+  "nav.home": "Startseite",
+  "nav.catalogue": "Katalog",
+  "nav.duels": "⚔ Duelle",
+  "nav.profile": "Profil",
+  "nav.support": "💜 Unterstützen",
+  "nav.tagline": "Anders entdecken."
+}
