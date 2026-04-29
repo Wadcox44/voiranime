@@ -1,1 +1,37 @@
+{
+  "adj.label": "Anime du jour",
+  "adj.shuffle": "Autre suggestion",
+  "adj.watch": "Voir l’anime →",
+  "adj.error": "Impossible de charger l’anime du jour.",
 
+  "anime.synopsis": "Synopsis",
+  "anime.read_more": "Lire plus ▼",
+  "anime.read_less": "Réduire ▲",
+  "anime.genres": "Genres & thèmes",
+  "anime.score": "Score MAL",
+  "anime.where": "Où regarder",
+  "anime.voices": "Voix des personnages",
+  "anime.music": "Musique",
+  "anime.no_info": "Aucune information disponible",
+
+  "anime.my_rating": "Ma note",
+  "anime.my_tracking": "Mon suivi",
+
+  "anime.sound_on": "Activer le son",
+  "anime.sound_off": "Couper le son",
+
+  "anime.translate_fr": "🇫🇷 Version française",
+  "anime.translate_orig": "↩ Version originale",
+  "anime.translate_ing": "⏳ Traduction…",
+  "anime.translate_err": "Traduction indisponible.",
+
+  "anime.no_synopsis": "Aucun synopsis disponible.",
+  "anime.unknown_title": "Titre inconnu",
+  "anime.no_reco": "Aucune recommandation.",
+  "anime.reco_error": "Erreur de chargement.",
+  "anime.reco_loading": "Chargement…",
+
+  "anime.status_airing": "En cours",
+  "anime.status_finished": "Terminé",
+  "anime.status_upcoming": "À venir"
+}
