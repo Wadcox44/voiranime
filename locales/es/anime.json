@@ -1,1 +1,9 @@
-
+{
+  "anime.synopsis": "Sinopsis",
+  "anime.read_more": "Leer más ▼",
+  "anime.read_less": "Reducir ▲",
+  "anime.no_info": "Sin información",
+  "anime.my_rating": "Mi nota",
+  "anime.sound_on": "Activar sonido",
+  "anime.sound_off": "Silenciar"
+}
