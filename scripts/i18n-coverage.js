@@ -4,23 +4,38 @@ import path from "path";
 const __dirname = path.resolve();
 
 const EN_PATH = path.join(__dirname, "locales/en");
-const SRC_FOLDERS = ["./"];
 
-// ❌ fichiers / dossiers à ignorer (old*, legacy*, etc.)
+// ❌ ignore old*, legacy*, etc.
 const IGNORE_PATTERNS = ["old"];
 
-const REGEX = /t\(["'`]([\w.-]+)["'`]\)/g;
+/* =========================
+   REGEX I18N (FIXED)
+   support: t("key") / i18n.t("key") / I18N.t("key")
+========================= */
+const REGEX = /(?:t|i18n\.t|I18N\.t)\(["'`]([\w.-]+)["'`]\)/g;
 
 /* =========================
-   UTIL : ignore filter
+   VALIDATION DES KEYS
+========================= */
+function isValidKey(key) {
+  return (
+    typeof key === "string" &&
+    key.includes(".") &&                 // important: nav.home, anime.title etc.
+    /^[a-zA-Z0-9._-]+$/.test(key) &&     // caractères valides uniquement
+    key.length > 2
+  );
+}
+
+/* =========================
+   IGNORE FILTER
 ========================= */
 function isIgnored(name) {
   return IGNORE_PATTERNS.some(p =>
-    name.startsWith(p + "/") ||   // dossier old/
-    name.includes("/" + p) ||     // sous-dossier
-    name.startsWith(p + "_") ||   // old_file.js
-    name.startsWith(p + "-") ||   // old-file.js
-    name === p                    // exact match
+    name.startsWith(p + "/") ||
+    name.includes("/" + p) ||
+    name.startsWith(p + "_") ||
+    name.startsWith(p + "-") ||
+    name === p
   );
 }
 
@@ -33,14 +48,18 @@ function scanFile(filePath) {
 
   let match;
   while ((match = REGEX.exec(content)) !== null) {
-    keys.push(match[1]);
+    const key = match[1];
+
+    if (isValidKey(key)) {
+      keys.push(key);
+    }
   }
 
   return keys;
 }
 
 /* =========================
-   SCAN FOLDER (FILTERED)
+   SCAN FOLDER
 ========================= */
 function scanFolder(folder) {
   let results = [];
@@ -50,7 +69,6 @@ function scanFolder(folder) {
   for (const file of files) {
     const fullPath = path.join(folder, file);
 
-    // 🔥 ignore old*
     if (isIgnored(file)) {
       console.log(`⏭ Ignored: ${file}`);
       continue;
@@ -88,10 +106,10 @@ function loadEN() {
 }
 
 /* =========================
-   RUN AUDIT
+   RUN
 ========================= */
 function run() {
-  console.log("\n🔎 i18n COVERAGE SCANNER\n");
+  console.log("\n🔎 i18n COVERAGE SCANNER (FIXED)\n");
 
   const usedKeys = scanFolder("./");
   const enKeys = loadEN();
