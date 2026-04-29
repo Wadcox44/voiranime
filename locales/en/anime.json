@@ -1,1 +1,67 @@
+{
+  "adj.label": "Anime of the day",
+  "adj.shuffle": "Another pick",
+  "adj.watch": "View anime →",
+  "adj.error": "Unable to load featured anime.",
 
+  "anime.synopsis": "Synopsis",
+  "anime.read_more": "Read more ▼",
+  "anime.read_less": "Read less ▲",
+  "anime.genres": "Genres & Themes",
+  "anime.score": "MAL Score",
+  "anime.where": "Where to watch",
+  "anime.voices": "Character voices",
+  "anime.music": "Music",
+  "anime.no_info": "No information available",
+
+  "anime.my_rating": "My rating",
+  "anime.my_tracking": "My tracking",
+
+  "anime.sound_on": "Enable sound",
+  "anime.sound_off": "Mute",
+
+  "anime.translate_fr": "🇫🇷 View in French",
+  "anime.translate_orig": "↩ Original version",
+  "anime.translate_ing": "⏳ Translating…",
+  "anime.translate_err": "Translation unavailable at the moment.",
+
+  "anime.no_synopsis": "No synopsis available.",
+  "anime.unknown_title": "Unknown title",
+  "anime.no_reco": "No recommendations available.",
+  "anime.reco_error": "Unable to load recommendations.",
+  "anime.reco_loading": "Loading…",
+  "anime.not_found": "No anime specified.",
+  "anime.load_error": "Unable to load this anime.",
+
+  "anime.votes": "{n} votes",
+  "anime.rank": "Rank #{r}",
+
+  "anime.info_title_jp": "JP Title",
+  "anime.info_type": "Type",
+  "anime.info_episodes": "Episodes",
+  "anime.info_duration": "Duration",
+  "anime.info_status": "Status",
+  "anime.info_aired": "Aired",
+  "anime.info_studio": "Studio",
+  "anime.info_source": "Source",
+  "anime.info_season": "Season",
+  "anime.info_popularity": "Popularity",
+
+  "anime.status_airing": "Airing",
+  "anime.status_finished": "Finished",
+  "anime.status_upcoming": "Upcoming",
+
+  "anime.franchise": "📺 Franchise",
+  "anime.franchise_loading": "Loading franchise…",
+  "anime.franchise_seasons": "Seasons",
+  "anime.franchise_movies": "Movies",
+  "anime.franchise_ova": "OVA",
+  "anime.franchise_special": "Specials",
+  "anime.franchise_spinoff": "Spin-offs",
+
+  "anime.no_video_avail": "No video available",
+  "anime.fullscreen": "Full screen",
+  "anime.reduce": "Reduce",
+  "anime.airing_badge": "● Airing",
+  "anime.episodes_label": "Episodes"
+}
