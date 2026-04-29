@@ -1,1 +1,37 @@
+{
+  "nav.home": "Home",
+  "nav.catalogue": "Catalogue",
+  "nav.duels": "⚔ Duels",
+  "nav.profile": "Profile",
+  "nav.support": "💜 Support",
+  "nav.tagline": "Discover differently.",
+  "nav.search": "Search",
 
+  "footer.no_video": "No video is hosted on this site.",
+  "footer.copy": "© 2025 VoirAnime — Open source project",
+  "footer.data": "Data provided by",
+
+  "mood.eyebrow": "What mood are you in tonight?",
+  "mood.all": "Explore all",
+  "mood.action": "Adrenaline",
+  "mood.romance": "Romance",
+  "mood.dark": "Dark Universe",
+  "mood.comedy": "Good Vibes",
+  "mood.scifi": "Sci-fi & Mecha",
+  "mood.psychological": "Mind-bending",
+  "mood.slice": "Zen & Calm",
+
+  "zone1.title": "What's alive right now",
+  "zone1.sub": "Currently airing · Trending · Recent films",
+  "zone2.title": "What stood the test of time",
+  "zone2.sub": "Masterpieces · Must-watches · Cult films",
+  "zone3.title": "Your universe",
+  "zone3.sub": "Your favorites · Your history · Your explorations",
+
+  "section.popular": "🔥 Most popular",
+  "section.top": "⭐ Top rated",
+  "section.airing": "📡 Currently airing",
+  "section.movies": "🎬 Anime films",
+  "section.trending": "📈 Trending on VoirAnime",
+  "section.for_you": "✨ For you"
+}
