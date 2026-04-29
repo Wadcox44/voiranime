@@ -1,153 +1,69 @@
-'use strict';
+const I18N = {
+  lang: "en",
+  cache: {},      // cache global par langue
+  dict: {},       // dictionnaire actif
+  fallback: "en",
 
-/* ═══════════════════════════════════════
-   VoirAnime i18n v3 — Async JSON Loader
-═══════════════════════════════════════ */
+  files: [
+    "common.json",
+    "navigation.json",
+    "anime.json",
+    "user.json"
+  ],
 
-const VA_LANG_KEY = 'VoirAnime_lang';
-const VA_SUPPORTED = ['en', 'fr', 'es', 'de'];
+  async init(lang = "en") {
+    this.lang = lang;
 
-let VA_LANG = 'en';
-let VA_DICT = {};
+    // charge langue demandée
+    this.dict = await this.loadLang(lang);
 
-/* ─────────────────────────────
-   Detection langue
-───────────────────────────── */
-function getPiLang() {
-  try {
-    const locale =
-      window.Pi?.userInfo?.locale ||
-      window.Pi?.currentUser?.locale ||
-      null;
+    // charge fallback EN si différent
+    if (lang !== this.fallback) {
+      this.fallbackDict = await this.loadLang(this.fallback);
+    }
 
-    if (!locale) return null;
+    console.log("[i18n] loaded:", lang);
+  },
 
-    const lang = locale.split('-')[0].toLowerCase();
-    return VA_SUPPORTED.includes(lang) ? lang : null;
-  } catch {
-    return null;
-  }
-}
+  async loadLang(lang) {
+    if (this.cache[lang]) return this.cache[lang];
 
-function detectLang() {
-  const saved = localStorage.getItem(VA_LANG_KEY);
-  if (saved && VA_SUPPORTED.includes(saved)) return saved;
-
-  const piLang = getPiLang();
-  if (piLang) return piLang;
-
-  const navLang = navigator.language?.split('-')[0].toLowerCase();
-  if (VA_SUPPORTED.includes(navLang)) return navLang;
-
-  return 'en';
-}
-
-/* ─────────────────────────────
-   Chargement JSON
-───────────────────────────── */
-async function loadLang(lang) {
-  try {
-    const res = await fetch(`/locales/${lang}.json`);
-    if (!res.ok) throw new Error('Missing locale');
-
-    VA_DICT = await res.json();
-    VA_LANG = lang;
-
-    localStorage.setItem(VA_LANG_KEY, lang);
-
-    applyTranslations();
-    updateLangUI();
-
-    document.dispatchEvent(
-      new CustomEvent('va:langchange', {
-        detail: { lang }
-      })
+    const data = await Promise.all(
+      this.files.map(file =>
+        fetch(`/locales/${lang}/${file}`).then(r => r.json())
+      )
     );
 
-  } catch (err) {
-    console.error('[i18n] Load failed:', err);
-  }
-}
+    const merged = Object.assign({}, ...data);
 
-/* ─────────────────────────────
-   Traduction
-───────────────────────────── */
-function t(key, params = {}) {
-  let str = VA_DICT[key] || key;
+    this.cache[lang] = merged;
+    return merged;
+  },
 
-  for (const [k, v] of Object.entries(params)) {
-    str = str.replaceAll(`{${k}}`, v);
-  }
+  t(key, params = null) {
+    let value =
+      this.dict[key] ??
+      this.fallbackDict?.[key] ??
+      key;
 
-  return str;
-}
+    // interpolation {0}, {1}, {n}, {title}...
+    if (params) {
+      Object.keys(params).forEach(k => {
+        value = value.replaceAll(`{${k}}`, params[k]);
+      });
 
-/* ─────────────────────────────
-   Application DOM
-───────────────────────────── */
-function applyTranslations() {
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const val = t(el.dataset.i18n);
-
-    if (val.includes('<')) {
-      el.innerHTML = val;
-    } else {
-      el.textContent = val;
+      // support {0}, {1}
+      if (Array.isArray(params)) {
+        params.forEach((v, i) => {
+          value = value.replaceAll(`{${i}}`, v);
+        });
+      }
     }
-  });
 
-  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-    el.placeholder = t(el.dataset.i18nPlaceholder);
-  });
+    return value;
+  },
 
-  document.querySelectorAll('[data-i18n-title]').forEach(el => {
-    el.title = t(el.dataset.i18nTitle);
-  });
-
-  document.querySelectorAll('[data-i18n-aria]').forEach(el => {
-    el.setAttribute('aria-label', t(el.dataset.i18nAria));
-  });
-
-  document.documentElement.lang = VA_LANG;
-}
-
-/* ─────────────────────────────
-   UI
-───────────────────────────── */
-function updateLangUI() {
-  const btn = document.getElementById('langBtn');
-  if (btn) {
-    btn.textContent = VA_LANG === 'fr' ? '🇫🇷' : '🇬🇧';
+  setLang(lang) {
+    return this.init(lang);
   }
-}
-
-/* ─────────────────────────────
-   Public API
-───────────────────────────── */
-window.setLang = lang => {
-  if (!VA_SUPPORTED.includes(lang)) return;
-  loadLang(lang);
 };
-
-window.getLang = () => VA_LANG;
-window.t = t;
-window.applyTranslations = applyTranslations;
-
-/* ─────────────────────────────
-   Dropdown
-───────────────────────────── */
-window.toggleLangMenu = e => {
-  e?.stopPropagation();
-  document.getElementById('langMenu')?.classList.toggle('open');
-};
-
-document.addEventListener('click', () => {
-  document.getElementById('langMenu')?.classList.remove('open');
-});
-
-/* ─────────────────────────────
-   Init
-───────────────────────────── */
-document.addEventListener('DOMContentLoaded', async () => {
-  await loadLang(detectLang());
-});
