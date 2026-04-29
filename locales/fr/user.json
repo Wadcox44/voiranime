@@ -1,1 +1,18 @@
+{
+  "profile.title": "Mon profil",
+  "profile.since": "Membre depuis aujourd’hui",
+  "profile.favs": "Favoris",
+  "profile.visited": "Animes vus",
+  "profile.rated": "Notés",
+  "profile.duels": "Duels joués",
+  "profile.streak": "Série 🔥",
 
+  "profile.no_tracking": "Aucun suivi.",
+  "profile.no_favs": "Aucun favori.",
+  "profile.no_history": "Historique vide.",
+  "profile.no_ratings": "Aucune note.",
+
+  "watch.watching": "▶ En cours",
+  "watch.completed": "✓ Terminé",
+  "watch.plan": "🔖 À voir"
+}
