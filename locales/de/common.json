@@ -1,1 +1,26 @@
+{
+  "search.placeholder": "Titel, Genre, Charakter…",
+  "search.results": "Suchergebnisse",
+  "search.close": "✕ Schließen",
+  "search.empty": "Keine Ergebnisse.",
+  "search.error": "Verbindungsfehler.",
 
+  "adv.title": "Erweiterte Suche",
+  "adv.genre": "Genre",
+  "adv.type": "Typ",
+  "adv.score": "Mindestwertung",
+  "adv.status": "Status",
+  "adv.year": "Jahr",
+  "adv.search_btn": "Suchen",
+  "adv.clear": "✕ Zurücksetzen",
+
+  "type.tv": "Serie",
+  "type.movie": "Film",
+  "type.ova": "OVA",
+  "type.ona": "ONA",
+  "type.special": "Special",
+
+  "status.airing": "Laufend",
+  "status.complete": "Abgeschlossen",
+  "status.upcoming": "Bald"
+}
