@@ -5,7 +5,7 @@
 ═══════════════════════════════════════ */
 
 const VA_LANG_KEY = 'VoirAnime_lang';
-const VA_SUPPORTED = ['en', 'fr'];
+const VA_SUPPORTED = ['en', 'fr', 'es', 'de'];
 
 let VA_LANG = 'en';
 let VA_DICT = {};
