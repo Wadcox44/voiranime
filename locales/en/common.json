@@ -1,1 +1,44 @@
 
+{
+  "search.placeholder": "Title, genre, character…",
+  "search.results": "Search results",
+  "search.close": "✕ Close",
+  "search.empty": "No results. Try another title.",
+  "search.error": "Connection error. Please try again.",
+
+  "adv.title": "Advanced search",
+  "adv.genre": "Genre",
+  "adv.type": "Type",
+  "adv.score": "Minimum score",
+  "adv.status": "Status",
+  "adv.year": "Year",
+  "adv.search_btn": "Search",
+  "adv.clear": "✕ Clear",
+  "adv.all": "All",
+  "adv.no_results": "No results for these criteria.",
+  "adv.error": "Connection error.",
+
+  "type.tv": "Series",
+  "type.movie": "Movie",
+  "type.ova": "OVA",
+  "type.ona": "ONA",
+  "type.special": "Special",
+  "type.streaming": "Streaming",
+
+  "status.airing": "Airing",
+  "status.complete": "Completed",
+  "status.upcoming": "Upcoming",
+
+  "sort.score": "Score",
+  "sort.date": "Release date",
+  "sort.title": "Title",
+  "sort.label": "Sort by",
+
+  "section.results": "Results",
+  "section.error": "Unable to load this section.",
+  "common.error_load": "Unable to load this section.",
+  "common.no_video": "No video available",
+
+  "search.label": "Results for \"{0}\"",
+  "search.count": "{0} results for \"{1}\""
+}
