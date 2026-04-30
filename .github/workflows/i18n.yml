@@ -1,0 +1,41 @@
+name: i18n-auto-pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  i18n:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run i18n Coverage V2
+        run: node scripts/i18n-coverage-v2.js
+
+      - name: Run AI Sync V2
+        env:
+          DEEPL_API_KEY: ${{ secrets.DEEPL_API_KEY }}
+        run: node scripts/i18n-ai-sync-v2.js
+
+      - name: Commit updated locales (if any)
+        run: |
+          git config user.name "i18n-bot"
+          git config user.email "i18n-bot@github.com"
+
+          git add locales
+
+          git diff --staged --quiet || git commit -m "chore(i18n): auto sync translations"
+
+          git push || echo "No changes to push"
