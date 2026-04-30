@@ -1940,20 +1940,42 @@ ul, ol { list-style: none; }
 .rating-star {
   font-size: 1.2rem;
   line-height: 1;
-  color: rgba(255, 255, 255, 0.25); /* Rendu plus clair pour qu'on puisse voir les étoiles non cliquées */
   cursor: pointer;
   padding: 0 1px;
-  transition: color 0.12s, transform 0.12s;
   background: none;
   border: none;
   font-family: inherit;
-}
-.rating-star:hover,
-.rating-star.hovered { color: var(--gold); transform: scale(1.2); }
-.rating-star.active {
-  color: #facc15 !important;
+  transition: transform 0.12s;
 }
 
+/* état normal */
+.rating-star .star-empty {
+  display: inline;
+  color: rgba(255,255,255,0.25);
+}
+
+.rating-star .star-filled {
+  display: none;
+  color: #facc15;
+}
+
+/* hover */
+.rating-star:hover {
+  transform: scale(1.2);
+}
+
+.rating-star:hover .star-empty {
+  color: #facc15;
+}
+
+/* actif (note sélectionnée) */
+.rating-star.active .star-empty {
+  display: none;
+}
+
+.rating-star.active .star-filled {
+  display: inline;
+}
 .rating-value {
   font-size: 0.85rem;
   font-weight: 700;
