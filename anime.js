@@ -1027,11 +1027,13 @@ function initRating(animeId) {
 
     stars.querySelectorAll('.rating-star').forEach(btn => {
       const v = Number(btn.dataset.v);
-      btn.classList.toggle('active', v <= val);
+
+      // ⭐ IMPORTANT : on reset tout
+      btn.style.color = v <= val ? '#facc15' : 'rgba(255,255,255,0.3)';
     });
 
     valueEl.textContent = val ? `${val}/10` : '—';
-    clearBtn?.classList.toggle('hidden', current === 0);
+    if (clearBtn) clearBtn.classList.toggle('hidden', current === 0);
   }
 
   render();
@@ -1049,6 +1051,13 @@ function initRating(animeId) {
       showToast(current ? 'Note enregistrée' : 'Note supprimée');
     });
   });
+
+  clearBtn?.addEventListener('click', () => {
+    current = 0;
+    saveRating(animeId, null);
+    render();
+  });
+}
 
   clearBtn?.addEventListener('click', () => {
     current = 0;
