@@ -1040,7 +1040,7 @@ function initRating(animeId) {
     const v = Number(btn.dataset.v);
 
     btn.addEventListener('mouseenter', () => render(v));
-    btn.addEventListener('mouseleave', () => render());
+btn.addEventListener('mouseleave', () => render());
 
     btn.addEventListener('click', () => {
       current = (current === v) ? 0 : v;
