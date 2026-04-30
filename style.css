@@ -1950,7 +1950,9 @@ ul, ol { list-style: none; }
 }
 .rating-star:hover,
 .rating-star.hovered { color: var(--gold); transform: scale(1.2); }
-.rating-star.active  { color: var(--gold); }
+.rating-star.active {
+  color: #facc15 !important;
+}
 
 .rating-value {
   font-size: 0.85rem;
