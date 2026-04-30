@@ -79,7 +79,7 @@ function scanJS(pattern) {
   for (const file of files) {
     const content = fs.readFileSync(`./js/${file}`, "utf-8");
     if (content.includes(pattern)) {
-      results.push(file);
+    results.push(`./js/${file}`);
     }
   }
 
