@@ -63,7 +63,4 @@ const I18N = {
     return value;
   },
 
-  setLang(lang) {
-    return this.init(lang);
-  }
-};
+  };
