@@ -1,7 +1,5 @@
 import fs from "fs";
-import path from "path";
 
-// 📁 CONFIG
 const HTML_FILES = [
   "anime.html",
   "catalogue.html",
@@ -15,50 +13,80 @@ const HTML_FILES = [
   "soutenir.html"
 ];
 
-// 📦 charge i18n
-const i18nRaw = fs.readFileSync("./js/i18n.js", "utf-8");
+const LANGS = ["en", "fr", "es", "de"];
+const FILES = ["common.json", "navigation.json", "anime.json", "user.json"];
 
-// 🔍 extrait clés depuis i18n.js
-function extractKeys(text) {
-  const matches = [...text.matchAll(/["'`]([\w.-]+)["'`]\s*:/g)];
-  return [...new Set(matches.map(m => m[1]))];
-}
-
-const i18nKeys = extractKeys(i18nRaw);
-
-// 🔍 extrait data-i18n dans HTML
-function extractFromHTML(file) {
+// 🔍 HTML KEYS
+function extractHTML(file) {
   const content = fs.readFileSync(file, "utf-8");
   const matches = [...content.matchAll(/data-i18n=["'`]([^"'`]+)["'`]/g)];
   return matches.map(m => m[1]);
 }
 
-// 📊 collect HTML keys
-let htmlKeys = [];
-
-for (const file of HTML_FILES) {
-  if (!fs.existsSync(file)) continue;
-  htmlKeys = htmlKeys.concat(extractFromHTML(file));
+// 🔍 JSON KEYS (flat)
+function flatten(obj, prefix = "") {
+  let keys = [];
+  for (const k in obj) {
+    const path = prefix ? `${prefix}.${k}` : k;
+    if (typeof obj[k] === "object") {
+      keys = keys.concat(flatten(obj[k], path));
+    } else {
+      keys.push(path);
+    }
+  }
+  return keys;
 }
 
+// 🔍 LOAD LANG FILES
+function loadLang(lang) {
+  let merged = {};
+
+  for (const file of FILES) {
+    const path = `./locales/${lang}/${file}`;
+    if (!fs.existsSync(path)) continue;
+
+    const data = JSON.parse(fs.readFileSync(path, "utf-8"));
+    merged = { ...merged, ...data };
+  }
+
+  return flatten(merged);
+}
+
+// 📦 HTML KEYS
+let htmlKeys = [];
+for (const file of HTML_FILES) {
+  if (!fs.existsSync(file)) continue;
+  htmlKeys = htmlKeys.concat(extractHTML(file));
+}
 htmlKeys = [...new Set(htmlKeys)];
 
+// 📦 LANG KEYS
+const langKeys = {};
+for (const lang of LANGS) {
+  langKeys[lang] = loadLang(lang);
+}
+
 // 🔥 DIFF
-const missingInI18n = htmlKeys.filter(k => !i18nKeys.includes(k));
-const unusedInHTML = i18nKeys.filter(k => !htmlKeys.includes(k));
+function diff(a, b) {
+  return a.filter(x => !b.includes(x));
+}
 
 // 📊 REPORT
 console.log("\n==============================");
-console.log("🔍 I18N FULL PROJECT SCANNER");
+console.log("🔍 I18N FULL AUDIT (FIXED)");
 console.log("==============================\n");
 
-console.log("📌 Clés utilisées dans HTML :", htmlKeys.length);
-console.log("📌 Clés dans i18n.js :", i18nKeys.length);
+console.log("📌 HTML keys:", htmlKeys.length);
 
-console.log("\n❌ MANQUANTES dans i18n.js :");
-console.log(missingInI18n.length ? missingInI18n : "✔ aucune");
+for (const lang of LANGS) {
+  console.log(`\n🌍 ${lang.toUpperCase()}`);
 
-console.log("\n⚠️ NON UTILISÉES dans HTML :");
-console.log(unusedInHTML.length ? unusedInHTML : "✔ aucune");
+  const missing = diff(htmlKeys, langKeys[lang]);
 
-console.log("\n==============================\n");
+  if (missing.length === 0) {
+    console.log("✔ OK");
+  } else {
+    console.log("❌ manquants :");
+    missing.forEach(k => console.log(" - " + k));
+  }
+}
