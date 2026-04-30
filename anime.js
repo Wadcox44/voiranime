@@ -1012,49 +1012,49 @@ function initWatchStatus(animeId, animeData) {
 }
 
 function initRating(animeId) {
-  const widget    = el('ratingWidget');
-  const stars     = el('ratingStars');
-  const valueEl   = el('ratingValue');
-  const clearBtn  = el('ratingClear');
+  const widget  = document.getElementById('ratingWidget');
+  const stars   = document.getElementById('ratingStars');
+  const valueEl = document.getElementById('ratingValue');
+  const clearBtn = document.getElementById('ratingClear');
+
   if (!widget || !stars) return;
 
-  const ratings  = getRatings();
-  let current    = ratings[String(animeId)] || 0;
+  const ratings = getRatings();
+  let current = ratings[String(animeId)] || 0;
 
-  function renderStars(hovered = 0) {
-    const active = hovered || current;
-    stars.querySelectorAll('.rating-star').forEach(s => {
-      const v = Number(s.dataset.v);
-      s.classList.toggle('active',  v <= active);
-      s.classList.toggle('hovered', hovered > 0 && v <= hovered);
+  function render(hover = 0) {
+    const val = hover || current;
+
+    stars.querySelectorAll('.rating-star').forEach(btn => {
+      const v = Number(btn.dataset.v);
+      btn.classList.toggle('active', v <= val);
     });
-    valueEl.textContent = hovered ? `${hovered}/10` : (current ? `${current}/10` : '—');
-    if (clearBtn) clearBtn.classList.toggle('hidden', current === 0);
+
+    valueEl.textContent = val ? `${val}/10` : '—';
+    clearBtn?.classList.toggle('hidden', current === 0);
   }
 
-  renderStars();
+  render();
 
-  // Hover
-  stars.querySelectorAll('.rating-star').forEach(s => {
-    s.addEventListener('mouseenter', () => renderStars(Number(s.dataset.v)));
-    s.addEventListener('mouseleave', () => renderStars(0));
-    s.addEventListener('click', () => {
-      const v = Number(s.dataset.v);
-      current = (current === v) ? 0 : v; // toggle si même note
+  stars.querySelectorAll('.rating-star').forEach(btn => {
+    const v = Number(btn.dataset.v);
+
+    btn.addEventListener('mouseenter', () => render(v));
+    btn.addEventListener('mouseleave', () => render(0));
+
+    btn.addEventListener('click', () => {
+      current = (current === v) ? 0 : v;
       saveRating(animeId, current || null);
-      renderStars(0);
-      showToast(current ? t('rating.saved', current) : t('rating.deleted'));
+      render();
+      showToast(current ? 'Note enregistrée' : 'Note supprimée');
     });
   });
 
-  if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      current = 0;
-      saveRating(animeId, null);
-      renderStars(0);
-      showToast(t('rating.deleted'));
-    });
-  }
+  clearBtn?.addEventListener('click', () => {
+    current = 0;
+    saveRating(animeId, null);
+    render();
+  });
 }
 
 /* ──────────────────────────────────────
