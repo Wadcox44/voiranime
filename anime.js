@@ -1023,16 +1023,16 @@ function initRating(animeId) {
   let current = ratings[String(animeId)] || 0;
 
   function render(hover = null) {
-    const val = hover ?? current;
+  const val = hover ?? current;
 
-    stars.querySelectorAll('.rating-star').forEach(btn => {
-      const v = Number(btn.dataset.v);
-      btn.style.color = v <= val ? '#facc15' : 'rgba(255,255,255,0.3)';
-    });
+  stars.querySelectorAll('.rating-star').forEach(btn => {
+    const v = Number(btn.dataset.v);
+    btn.classList.toggle('active', v <= val);
+  });
 
-    valueEl.textContent = current ? `${current}/10` : '—';
-    if (clearBtn) clearBtn.classList.toggle('hidden', current === 0);
-  }
+  valueEl.textContent = current ? `${current}/10` : '—';
+  if (clearBtn) clearBtn.classList.toggle('hidden', current === 0);
+}
 
   render();
 
