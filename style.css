@@ -1948,33 +1948,24 @@ ul, ol { list-style: none; }
   transition: transform 0.12s;
 }
 
-/* état normal */
-.rating-star .star-empty {
-  display: inline;
+.rating-star {
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0 1px;
+  background: none;
+  border: none;
   color: rgba(255,255,255,0.25);
+  transition: transform 0.12s, color 0.12s;
 }
 
-.rating-star .star-filled {
-  display: none;
-  color: #facc15;
-}
-
-/* hover */
 .rating-star:hover {
   transform: scale(1.2);
-}
-
-.rating-star:hover .star-empty {
   color: #facc15;
 }
 
-/* actif (note sélectionnée) */
-.rating-star.active .star-empty {
-  display: none;
-}
-
-.rating-star.active .star-filled {
-  display: inline;
+/* étoiles remplies (important) */
+.rating-star.active {
+  color: #facc15;
 }
 .rating-value {
   font-size: 0.85rem;
