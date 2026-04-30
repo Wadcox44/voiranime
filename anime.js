@@ -1023,16 +1023,19 @@ function initRating(animeId) {
   let current = ratings[String(animeId)] || 0;
 
   function render(hover = null) {
-  const val = hover ?? current;
+    const val = hover ?? current;
 
-  stars.querySelectorAll('.rating-star').forEach(btn => {
-    const v = Number(btn.dataset.v);
-    btn.classList.toggle('active', v <= val);
-  });
+    stars.querySelectorAll('.rating-star').forEach(btn => {
+      const v = Number(btn.dataset.v);
+      btn.classList.toggle('active', v <= val);
+    });
 
-  valueEl.textContent = current ? `${current}/10` : '—';
-  if (clearBtn) clearBtn.classList.toggle('hidden', current === 0);
-}
+    valueEl.textContent = current ? `${current}/10` : '—';
+
+    if (clearBtn) {
+      clearBtn.style.display = current === 0 ? 'none' : 'inline-block';
+    }
+  }
 
   render();
 
@@ -1040,7 +1043,7 @@ function initRating(animeId) {
     const v = Number(btn.dataset.v);
 
     btn.addEventListener('mouseenter', () => render(v));
-btn.addEventListener('mouseleave', () => render());
+    btn.addEventListener('mouseleave', () => render());
 
     btn.addEventListener('click', () => {
       current = (current === v) ? 0 : v;
