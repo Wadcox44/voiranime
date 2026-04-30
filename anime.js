@@ -1084,6 +1084,7 @@ async function init() {
     renderDetail(data.data);
      console.log('INIT RATING OK');
     setTimeout(() => initRating(animeId), 0);
+     console.log(document.getElementById('ratingStars'));
     initWatchStatus(animeId, {
       title:    data.data.title_english || data.data.title,
       img:      data.data.images?.jpg?.large_image_url || '',
