@@ -1012,9 +1012,9 @@ function initWatchStatus(animeId, animeData) {
 }
 
 function initRating(animeId) {
-  const widget  = document.getElementById('ratingWidget');
-  const stars   = document.getElementById('ratingStars');
-  const valueEl = document.getElementById('ratingValue');
+  const widget   = document.getElementById('ratingWidget');
+  const stars    = document.getElementById('ratingStars');
+  const valueEl  = document.getElementById('ratingValue');
   const clearBtn = document.getElementById('ratingClear');
 
   if (!widget || !stars) return;
@@ -1022,17 +1022,15 @@ function initRating(animeId) {
   const ratings = getRatings();
   let current = ratings[String(animeId)] || 0;
 
-  function render(hover = 0) {
-    const val = hover || current;
+  function render(hover = null) {
+    const val = hover ?? current;
 
     stars.querySelectorAll('.rating-star').forEach(btn => {
       const v = Number(btn.dataset.v);
-
-      // ⭐ IMPORTANT : on reset tout
       btn.style.color = v <= val ? '#facc15' : 'rgba(255,255,255,0.3)';
     });
 
-    valueEl.textContent = val ? `${val}/10` : '—';
+    valueEl.textContent = current ? `${current}/10` : '—';
     if (clearBtn) clearBtn.classList.toggle('hidden', current === 0);
   }
 
@@ -1042,7 +1040,7 @@ function initRating(animeId) {
     const v = Number(btn.dataset.v);
 
     btn.addEventListener('mouseenter', () => render(v));
-    btn.addEventListener('mouseleave', () => render(0));
+    btn.addEventListener('mouseleave', () => render());
 
     btn.addEventListener('click', () => {
       current = (current === v) ? 0 : v;
@@ -1058,14 +1056,6 @@ function initRating(animeId) {
     render();
   });
 }
-
-  clearBtn?.addEventListener('click', () => {
-    current = 0;
-    saveRating(animeId, null);
-    render();
-  });
-}
-
 /* ──────────────────────────────────────
    INIT
 ────────────────────────────────────── */
@@ -1093,7 +1083,6 @@ async function init() {
     renderDetail(data.data);
      console.log('INIT RATING OK');
     setTimeout(() => initRating(animeId), 0);
-     console.log(document.getElementById('ratingStars'));
     initWatchStatus(animeId, {
       title:    data.data.title_english || data.data.title,
       img:      data.data.images?.jpg?.large_image_url || '',
