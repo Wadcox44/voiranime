@@ -8,24 +8,104 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
   <style>
-    /* (inchangé volontairement) */
-  </style>
+    /* Logo néon */
+    .nav-logo{text-decoration:none;display:inline-flex;align-items:center}
+    .logo-glitch{display:inline-block;font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:-.5px;transform:skewX(-6deg);position:relative;user-select:none}
+    .logo-glitch::before,.logo-glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:0;pointer-events:none}
+    .logo-glitch::before{color:#22d3ee;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%)}
+    .logo-glitch::after{color:#a78bfa;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%)}
+    /* Glitch permanent toutes les 5s */
+    .logo-glitch::before{animation:va-gr-auto 5s steps(2) infinite;opacity:1}
+    .logo-glitch::after{animation:va-gb-auto 5s steps(2) .06s infinite;opacity:1}
+    @keyframes va-gr-auto{0%{transform:translate(-2px,1px);opacity:1}4%{transform:translate(2px,-1px);opacity:1}8%{transform:translate(-1px,2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
+    @keyframes va-gb-auto{0%{transform:translate(2px,-1px);opacity:1}4%{transform:translate(-2px,1px);opacity:1}8%{transform:translate(1px,-2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
+    .logo-voir{color:#fff;animation:va-gw 2.6s ease-in-out infinite}
+    .logo-anime{color:#22d3ee;animation:va-gp 2.6s ease-in-out infinite .4s}
+    @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(34,211,238,.4),0 0 10px rgba(34,211,238,.2)}50%{text-shadow:0 0 8px rgba(34,211,238,.9),0 0 20px rgba(34,211,238,.5),0 0 36px rgba(167,139,250,.3)}}
+    @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(34,211,238,.6),0 0 14px rgba(167,139,250,.3)}50%{text-shadow:0 0 10px #22d3ee,0 0 24px rgba(34,211,238,.7),0 0 40px rgba(167,139,250,.45)}}
+    @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
 
+    /* Watch status widget */
+    .watch-status-widget { margin: 14px 0; }
+    .watch-status-label { font-size:0.7rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+    .watch-status-btns { display:flex; gap:8px; flex-wrap:wrap; }
+    .watch-status-btn {
+      padding: 7px 14px; border-radius: 20px; border: 1px solid var(--b2);
+      background: transparent; color: var(--text2); font-size: 0.8rem;
+      cursor: pointer; transition: all .2s;
+    }
+    .watch-status-btn:hover { border-color: var(--pink); color: var(--pink); }
+    .watch-status-btn.active { background: var(--pink); border-color: var(--pink); color: #fff; font-weight:600; }
+
+    /* Watch filter buttons (profile) */
+    .watch-filter-btn {
+      padding: 6px 14px; border-radius: 20px; border: 1px solid var(--b2);
+      background: transparent; color: var(--text2); font-size: 0.78rem;
+      cursor: pointer; transition: all .2s;
+    }
+    .watch-filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .watch-filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* Fix anti débordement horizontal */
+    html, body { max-width: 100vw; overflow-x: hidden; }
+
+    /* Rating stars — étoiles toujours visibles */
+    .rating-star { position: relative; background: none; border: none; padding: 2px 1px; cursor: pointer; font-size: 1.5rem; line-height: 1; transition: transform .15s; }
+    .rating-star:hover { transform: scale(1.15); }
+    .rating-star .star-empty  { color: rgba(255,255,255,0.3); display: inline; }
+    .rating-star .star-filled { color: #facc15; display: none; position: absolute; left: 1px; top: 2px; }
+    .rating-star.active .star-empty  { display: none; }
+    .rating-star.active .star-filled { display: inline; }
+    .rating-star.hovered .star-empty  { display: none; }
+    .rating-star.hovered .star-filled { display: inline; color: #fde68a; }
+    /* 🔥 FIX luminosité page anime (comme Anime du jour) */
+
+.anime-banner img {
+  filter: brightness(1.1) contrast(1.05);
+}
+
+/* overlay beaucoup plus léger */
+.banner-vignette {
+  background: linear-gradient(
+    to bottom,
+    rgba(2,6,23,0.15),
+    rgba(2,6,23,0.35)
+  ) !important;
+}
+
+/* fondu bas plus léger */
+.hero-bottom-fade {
+  background: linear-gradient(
+    to bottom,
+    rgba(2,6,23,0) 0%,
+    rgba(2,6,23,0.5) 100%
+  ) !important;
+}
+  </style>
+  <!-- Pi Network SDK -->
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <script src="pi-auth.js" defer></script>
   <script src="js/i18n.js"></script>
   <script src="featuresManager.js"></script>
   <script src="premiumManager.js"></script>
 </head>
-
 <body class="page-anime">
 
-<!-- NAV -->
+<!-- ════════════════════════════════
+     PAGE LOADER
+════════════════════════════════ -->
+<div class="page-loader" id="pageLoader">
+  <div class="sk-dots large"><span></span><span></span><span></span></div>
+</div>
+
+<!-- ════════════════════════════════
+     NAVBAR
+════════════════════════════════ -->
 <nav class="navbar scrolled" id="navbar">
   <div class="nav-top">
     <div class="nav-left">
       <div class="nav-logo-wrap">
-        <a href="index.html" class="nav-logo">
+        <a href="index.html" class="nav-logo" aria-label="VoirAnime">
           <span class="logo-glitch" data-text="VoirAnime">
             <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
           </span>
@@ -33,129 +113,318 @@
         <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
       </div>
     </div>
-
-    <a href="profile.html" class="nav-avatar-btn nav-avatar-left" id="navAvatarBtn">
-      <img class="nav-avatar-img" id="navAvatarImg" src="" alt="Profil"/>
+    <!-- Avatar profil en haut à gauche -->
+    <a href="profile.html" class="nav-avatar-btn nav-avatar-left" id="navAvatarBtn" title="Mon profil">
+      <img class="nav-avatar-img" id="navAvatarImg"
+           src="" alt="Profil"
+           onerror="this.style.display='none';document.getElementById('navAvatarFallback_anime').style.display='flex'"/>
       <div class="nav-avatar-fallback" id="navAvatarFallback_anime">👤</div>
     </a>
+    <div class="nav-right">
+      </div>
   </div>
-
   <ul class="nav-links">
-    <li><a href="index.html" data-i18n="nav.home">Accueil</a></li>
-    <li><a href="catalogue.html" data-i18n="nav.catalogue">Catalogue</a></li>
-    <li><a href="duel.html" data-i18n="nav.duels">⚔ Duels</a></li>
-    <li><a href="news.html" data-i18n="nav.news">📰 News</a></li>
-    <li><a href="soutenir.html" data-i18n="nav.support">💜 Faire un don</a></li>
+    <li><a href="index.html"     class="nav-link" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="catalogue.html" class="nav-link" data-i18n="nav.catalogue">Catalogue</a></li>
+    <li><a href="duel.html"      class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
+    <li><a href="news.html" class="nav-link">📰 News</a></li>
+    <li><a href="soutenir.html"  class="nav-link nav-link-support" data-i18n="nav.support">💜 Faire un don</a></li>
   </ul>
 </nav>
 
-<!-- HERO -->
+<!-- ════════════════════════════════
+     HERO — Trailer / Banner
+════════════════════════════════ -->
 <section class="anime-hero" id="animeHero">
 
+  <!-- iframe YouTube (caché jusqu'au clic play) -->
   <div class="trailer-container" id="trailerContainer">
-    <iframe id="trailerFrame" src="" title="Bande-annonce"></iframe>
+    <iframe id="trailerFrame" src="" title="Bande-annonce"
+            frameborder="0" allow="autoplay; encrypted-media"
+            allowfullscreen></iframe>
   </div>
 
+  <!-- Image bannière (fallback) -->
   <div class="anime-banner" id="animeBanner">
     <img id="bannerImg" src="" alt=""/>
     <div class="banner-vignette"></div>
   </div>
 
+  <!-- Contrôles superposés -->
   <div class="trailer-controls" id="trailerControls">
     <div class="trailer-left">
-
       <button class="trailer-btn play-btn" id="playTrailerBtn">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
           <polygon points="5,3 19,12 5,21"/>
         </svg>
-        <span data-i18n="anime.trailer">Trailer</span>
+        Bande-annonce
       </button>
-
       <button class="trailer-btn unmute-btn hidden" id="unmuteBtn">
-        <span data-i18n="anime.sound_off">Son actif</span>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" id="muteIcon">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        </svg>
+        <span id="muteLabel" data-i18n="anime.sound_off">Son actif</span>
       </button>
-
     </div>
-
     <div class="trailer-rating" id="trailerRating"></div>
   </div>
 
+  <!-- Fondu bas vers le contenu -->
+  <div class="hero-bottom-fade"></div>
 </section>
 
-<div class="hero-bottom-fade"></div>
-
-<!-- CONTENT -->
+<!-- ════════════════════════════════
+     CONTENU PRINCIPAL
+════════════════════════════════ -->
 <main class="anime-content" id="animeContent">
 
+  <!-- ── Colonne principale ── -->
   <div class="anime-main-col">
 
+    <!-- Skeleton de chargement -->
+    <div class="detail-skeleton" id="detailSkeleton">
+      <div class="sk-block sk-title-lg"></div>
+      <div class="sk-block sk-text"></div>
+      <div class="sk-block sk-text short"></div>
+      <div class="sk-block sk-text"></div>
+    </div>
+
+    <!-- Header anime -->
     <div class="anime-header">
-
       <div class="anime-badges" id="animeBadges"></div>
+      <!-- Badge épisode dynamique -->
+      <span class="episode-badge" id="episodeBadge" style="display:none"></span>
 
+      <!-- Titre + favori côte à côte -->
       <div class="anime-title-row">
         <h1 class="anime-title" id="animeTitle">—</h1>
+        <button class="btn-fav" id="animeFavBtn" data-id="" aria-label="Ajouter aux favoris">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06
+                     a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78
+                     1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </button>
       </div>
+      <p class="anime-title-jp" id="animeTitleJp"></p>
 
+      <!-- Stats rapides -->
       <div class="anime-quick-stats" id="animeQuickStats"></div>
 
-      <div class="watch-status-widget">
+      <!-- Suivi de visionnage -->
+      <div class="watch-status-widget" id="watchStatusWidget">
         <div class="watch-status-label" data-i18n="anime.my_tracking">Mon suivi</div>
+        <div class="watch-status-btns">
+          <button class="watch-status-btn" data-status="watching">▶ En cours</button>
+          <button class="watch-status-btn" data-status="completed">✓ Terminé</button>
+          <button class="watch-status-btn" data-status="planToWatch">🔖 À regarder</button>
+        </div>
       </div>
 
-      <div class="rating-widget">
+      <!-- Notation personnelle -->
+      <div class="rating-widget" id="ratingWidget">
         <div class="rating-label" data-i18n="anime.my_rating">Ma note</div>
+        <div class="rating-stars" id="ratingStars">
+          <button class="rating-star" data-v="1"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="2"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="3"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="4"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="5"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="6"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="7"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="8"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="9"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+          <button class="rating-star" data-v="10"><span class="star-empty">☆</span><span class="star-filled">★</span></button>
+        </div>
+        <span class="rating-value" id="ratingValue">—</span>
+        <button class="rating-clear hidden" id="ratingClear" title="Effacer">✕</button>
       </div>
-
     </div>
 
+    <!-- Synopsis -->
     <div class="anime-synopsis-block">
       <h2 class="block-title" data-i18n="anime.synopsis">Synopsis</h2>
-      <button data-i18n="anime.read_more">Lire plus ▼</button>
+      <p class="anime-synopsis" id="animeSynopsis"></p>
+      <div class="synopsis-actions">
+        <button class="synopsis-toggle" id="synopsisToggle" data-i18n="anime.read_more">Lire plus ▼</button>
+        <button class="synopsis-translate" id="synopsisTranslate">🇫🇷 Voir en français</button>
+      </div>
     </div>
 
+    <!-- Genres & Thèmes -->
     <div class="anime-genres-block">
       <h2 class="block-title" data-i18n="anime.genres">Genres &amp; Thèmes</h2>
+      <div class="tags-list" id="animeGenres"></div>
     </div>
 
   </div>
 
-  <aside class="anime-aside-col">
+  <!-- ── Colonne aside ── -->
+  <aside class="anime-aside-col" id="animeAside">
 
-    <div class="score-widget">
-      <div data-i18n="anime.score">Score MAL</div>
+    <!-- Score -->
+    <div class="score-widget" id="scoreWidget">
+      <div class="score-circle">
+        <div class="score-value" id="scoreValue">—</div>
+        <div class="score-max">/10</div>
+      </div>
+      <div class="score-info">
+        <div class="score-label" data-i18n="anime.score">Score MAL</div>
+        <div class="score-voters" id="scoreVoters"></div>
+        <div class="score-rank"   id="scoreRank"></div>
+      </div>
     </div>
 
+    <!-- Tableau d'infos -->
+    <div class="info-table" id="infoTable"></div>
+
+    <!-- Liens streaming -->
     <div class="streaming-block">
-      <h3 data-i18n="anime.where">Où regarder</h3>
+      <h3 class="block-title small" data-i18n="anime.where">Où regarder</h3>
+      <div class="stream-links">
+        <a href="#" id="streamCrunchyroll" class="stream-link crunchyroll-link" target="_blank" rel="noopener">
+          <span class="stream-icon">🟠</span> Crunchyroll
+        </a>
+        <a href="#" id="streamNetflix" class="stream-link netflix-link" target="_blank" rel="noopener">
+          <span class="stream-icon">🔴</span> Netflix
+        </a>
+        <a href="#" id="streamADN" class="stream-link adn-link" target="_blank" rel="noopener">
+          <span class="stream-icon">🔵</span> ADN
+        </a>
+      </div>
     </div>
 
   </aside>
-
 </main>
 
-<!-- EXTRA -->
-<section class="anime-extra" style="display:none">
 
-  <div class="accordion">
-    <button class="accordion-header">
-      <span data-i18n="anime.voices">Voix des personnages</span>
+<!-- ════════════════════════════════
+     VOIX & MUSIQUES
+════════════════════════════════ -->
+<section class="anime-extra" id="animeExtra" style="display:none">
+
+  <!-- Accordion Voix -->
+  <div class="accordion" id="accordionVoix">
+    <button class="accordion-header" aria-expanded="false" aria-controls="contentVoix">
+      <span class="accordion-icon">🎙️</span>
+      <span class="accordion-label" data-i18n="anime.voices">Voix des personnages</span>
+      <span class="accordion-arrow">▼</span>
     </button>
-    <div>
-      <div data-i18n="anime.no_info">Aucune information disponible</div>
+    <div class="accordion-content" id="contentVoix" role="region">
+      <div class="voice-list" id="voiceList">
+        <div class="extra-empty" data-i18n="anime.no_info">Aucune information disponible</div>
+      </div>
     </div>
   </div>
 
-  <div class="accordion">
-    <button class="accordion-header">
-      <span data-i18n="anime.music">Musiques</span>
+  <!-- Accordion Musiques -->
+  <div class="accordion" id="accordionMusiques">
+    <button class="accordion-header" aria-expanded="false" aria-controls="contentMusiques">
+      <span class="accordion-icon">🎵</span>
+      <span class="accordion-label" data-i18n="anime.music">Musiques</span>
+      <span class="accordion-arrow">▼</span>
     </button>
-    <div>
-      <div data-i18n="anime.no_info">Aucune information disponible</div>
+    <div class="accordion-content" id="contentMusiques" role="region">
+      <div class="music-list" id="musicList">
+        <div class="extra-empty">Aucune information disponible</div>
+      </div>
     </div>
   </div>
 
 </section>
 
+<!-- ════════════════════════════════
+     FRANCHISE
+════════════════════════════════ -->
+<section id="franchiseSection" style="display:none">
+  <div id="franchiseContainer"></div>
+</section>
+
+<!-- ════════════════════════════════
+     RECOMMANDATIONS
+════════════════════════════════ -->
+<section class="recommendations-section" id="recommendationsSection">
+  <div class="content-section">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="section-dot violet"></span>
+        Animes similaires
+      </h2>
+    </div>
+    <div class="carousel-wrapper">
+      <button class="carousel-btn prev" data-carousel="reco">‹</button>
+      <div class="carousel" id="carousel-reco"></div>
+      <button class="carousel-btn next" data-carousel="reco">›</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════
+     FOOTER
+════════════════════════════════ -->
+<footer class="site-footer">
+  <div class="footer-logo">Voir<span>Anime</span></div>
+  <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
+</footer>
+
+
+<div class="toast" id="toast"></div>
+
+<!-- ════════════════════════════════
+     SCRIPT
+════════════════════════════════ -->
+<script type="module" src="anime.js"></script>
+
+<script>
+/* Transition cinématique entre pages */
+(function(){
+  var overlay = document.createElement("div");
+  overlay.className = "page-transition-overlay in";
+  document.body.appendChild(overlay);
+  setTimeout(function(){ overlay.remove(); }, 450);
+
+  document.addEventListener("click", function(e){
+    var link = e.target.closest("a[href]");
+    if (!link) return;
+    var href = link.getAttribute("href");
+    if (!href || href.startsWith("#") || href.startsWith("http") ||
+        href.startsWith("mailto") || link.target === "_blank") return;
+    e.preventDefault();
+    var ov = document.createElement("div");
+    ov.className = "page-transition-overlay out";
+    document.body.appendChild(ov);
+    setTimeout(function(){ window.location.href = href; }, 340);
+  });
+})();
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  var raw  = location.pathname.split('/').pop() || 'index';
+  var path = raw.endsWith('.html') ? raw : (raw === '' ? 'index.html' : raw + '.html');
+  document.querySelectorAll('.nav-link').forEach(function(l){
+    var href = l.getAttribute('href');
+    l.classList.toggle('active', href === path);
+  });
+});
+</script>
+
+<script>
+/* Chargement avatar navbar */
+(function() {
+  try {
+    var saved = JSON.parse(localStorage.getItem('VoirAnime_avatar') || 'null');
+    if (saved && saved.img) {
+      var imgs = document.querySelectorAll('.nav-avatar-img');
+      var fallbacks = document.querySelectorAll('.nav-avatar-fallback');
+      imgs.forEach(function(img) { img.src = saved.img; img.style.display = 'block'; });
+      fallbacks.forEach(function(f) { f.style.display = 'none'; });
+    }
+  } catch(e) {}
+})();
+</script>
 </body>
 </html>
