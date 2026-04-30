@@ -1082,7 +1082,7 @@ async function init() {
   try {
     const data = await jikanFetch(`/anime/${animeId}/full`);
     renderDetail(data.data);
-    initRating(animeId);
+    requestAnimationFrame(() => initRating(animeId));
     initWatchStatus(animeId, {
       title:    data.data.title_english || data.data.title,
       img:      data.data.images?.jpg?.large_image_url || '',
