@@ -7,6 +7,9 @@
   <link rel="stylesheet" href="style.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+  <style>
+    /* (inchangé volontairement) */
+  </style>
 
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <script src="pi-auth.js" defer></script>
@@ -17,14 +20,9 @@
 
 <body class="page-anime">
 
-<div class="page-loader" id="pageLoader">
-  <div class="sk-dots large"><span></span><span></span><span></span></div>
-</div>
-
 <!-- NAV -->
 <nav class="navbar scrolled" id="navbar">
   <div class="nav-top">
-
     <div class="nav-left">
       <div class="nav-logo-wrap">
         <a href="index.html" class="nav-logo">
@@ -32,23 +30,22 @@
             <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
           </span>
         </a>
-        <span class="logo-tagline" data-i18n="nav.tagline"></span>
+        <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
       </div>
     </div>
 
     <a href="profile.html" class="nav-avatar-btn nav-avatar-left" id="navAvatarBtn">
-      <img class="nav-avatar-img" id="navAvatarImg"/>
+      <img class="nav-avatar-img" id="navAvatarImg" src="" alt="Profil"/>
       <div class="nav-avatar-fallback" id="navAvatarFallback_anime">👤</div>
     </a>
-
   </div>
 
   <ul class="nav-links">
-    <li><a href="index.html" class="nav-link" data-i18n="nav.home">Accueil</a></li>
-    <li><a href="catalogue.html" class="nav-link" data-i18n="nav.catalogue">Catalogue</a></li>
-    <li><a href="duel.html" class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
-    <li><a href="news.html" class="nav-link" data-i18n="nav.news">📰 News</a></li>
-    <li><a href="soutenir.html" class="nav-link nav-link-support" data-i18n="nav.support">💜 Support</a></li>
+    <li><a href="index.html" data-i18n="nav.home">Accueil</a></li>
+    <li><a href="catalogue.html" data-i18n="nav.catalogue">Catalogue</a></li>
+    <li><a href="duel.html" data-i18n="nav.duels">⚔ Duels</a></li>
+    <li><a href="news.html" data-i18n="nav.news">📰 News</a></li>
+    <li><a href="soutenir.html" data-i18n="nav.support">💜 Faire un don</a></li>
   </ul>
 </nav>
 
@@ -56,36 +53,31 @@
 <section class="anime-hero" id="animeHero">
 
   <div class="trailer-container" id="trailerContainer">
-    <iframe id="trailerFrame" title="Trailer" allowfullscreen></iframe>
+    <iframe id="trailerFrame" src="" title="Bande-annonce"></iframe>
   </div>
 
   <div class="anime-banner" id="animeBanner">
-    <img id="bannerImg" alt=""/>
+    <img id="bannerImg" src="" alt=""/>
     <div class="banner-vignette"></div>
   </div>
 
-  <div class="trailer-controls">
-
+  <div class="trailer-controls" id="trailerControls">
     <div class="trailer-left">
 
       <button class="trailer-btn play-btn" id="playTrailerBtn">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
           <polygon points="5,3 19,12 5,21"/>
         </svg>
-        <span data-i18n="anime.trailer"></span>
+        <span data-i18n="anime.trailer">Trailer</span>
       </button>
 
       <button class="trailer-btn unmute-btn hidden" id="unmuteBtn">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-        </svg>
-        <span id="muteLabel" data-i18n="anime.sound_off"></span>
+        <span data-i18n="anime.sound_off">Son actif</span>
       </button>
 
     </div>
 
+    <div class="trailer-rating" id="trailerRating"></div>
   </div>
 
 </section>
@@ -93,41 +85,37 @@
 <div class="hero-bottom-fade"></div>
 
 <!-- CONTENT -->
-<main class="anime-content">
+<main class="anime-content" id="animeContent">
 
   <div class="anime-main-col">
 
     <div class="anime-header">
 
-      <h1 id="animeTitle">—</h1>
+      <div class="anime-badges" id="animeBadges"></div>
+
+      <div class="anime-title-row">
+        <h1 class="anime-title" id="animeTitle">—</h1>
+      </div>
+
+      <div class="anime-quick-stats" id="animeQuickStats"></div>
 
       <div class="watch-status-widget">
-        <div class="watch-status-label" data-i18n="anime.my_tracking"></div>
-        <div class="watch-status-btns">
-          <button class="watch-status-btn">▶ En cours</button>
-          <button class="watch-status-btn">✓ Terminé</button>
-          <button class="watch-status-btn">🔖 À regarder</button>
-        </div>
+        <div class="watch-status-label" data-i18n="anime.my_tracking">Mon suivi</div>
       </div>
 
       <div class="rating-widget">
-        <div class="rating-label" data-i18n="anime.my_rating"></div>
+        <div class="rating-label" data-i18n="anime.my_rating">Ma note</div>
       </div>
 
     </div>
 
     <div class="anime-synopsis-block">
-      <h2 data-i18n="anime.synopsis"></h2>
-
-      <div class="synopsis-actions">
-        <button data-i18n="anime.read_more"></button>
-        <button data-i18n="anime.translate_fr"></button>
-      </div>
-
+      <h2 class="block-title" data-i18n="anime.synopsis">Synopsis</h2>
+      <button data-i18n="anime.read_more">Lire plus ▼</button>
     </div>
 
     <div class="anime-genres-block">
-      <h2 data-i18n="anime.genres"></h2>
+      <h2 class="block-title" data-i18n="anime.genres">Genres &amp; Thèmes</h2>
     </div>
 
   </div>
@@ -135,45 +123,39 @@
   <aside class="anime-aside-col">
 
     <div class="score-widget">
-      <div class="score-label" data-i18n="anime.score"></div>
+      <div data-i18n="anime.score">Score MAL</div>
     </div>
 
-    <h3 data-i18n="anime.where"></h3>
+    <div class="streaming-block">
+      <h3 data-i18n="anime.where">Où regarder</h3>
+    </div>
 
   </aside>
 
 </main>
 
 <!-- EXTRA -->
-<section class="anime-extra">
+<section class="anime-extra" style="display:none">
 
   <div class="accordion">
-    <button>
-      🎙️ <span data-i18n="anime.voices"></span>
+    <button class="accordion-header">
+      <span data-i18n="anime.voices">Voix des personnages</span>
     </button>
     <div>
-      <div data-i18n="anime.no_info"></div>
+      <div data-i18n="anime.no_info">Aucune information disponible</div>
     </div>
   </div>
 
   <div class="accordion">
-    <button>
-      🎵 <span data-i18n="anime.music"></span>
+    <button class="accordion-header">
+      <span data-i18n="anime.music">Musiques</span>
     </button>
     <div>
-      <div data-i18n="anime.no_info"></div>
+      <div data-i18n="anime.no_info">Aucune information disponible</div>
     </div>
   </div>
 
 </section>
-
-<!-- FOOTER -->
-<footer class="site-footer">
-  <div>Voir<span>Anime</span></div>
-  <p data-i18n="footer.no_video"></p>
-</footer>
-
-<script type="module" src="anime.js"></script>
 
 </body>
 </html>
