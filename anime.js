@@ -530,8 +530,6 @@ function renderDetail(anime) {
   if (jikanTrailerId) {
     // Jikan a un ID → on l'utilise directement, zéro quota YT consommé
     embedTrailer(jikanTrailerId, true);
-    const ratingEl = el('trailerRating');
-    if (ratingEl) ratingEl.textContent = anime.rating ? anime.rating.split(' ')[0] : '';
   } else {
     // Pas d'ID Jikan → on cherche sur YouTube (consomme ~100 unités/recherche)
     const playBtn = el('playTrailerBtn');
@@ -555,8 +553,6 @@ function renderDetail(anime) {
       findYouTubeId(title).then(ytId => {
         if (ytId) {
           embedTrailer(ytId, true);
-                const ratingEl = el('trailerRating');
-          if (ratingEl) ratingEl.textContent = 'YouTube';
         } else {
           showNoVideo();
         }
