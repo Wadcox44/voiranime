@@ -1254,11 +1254,15 @@ async function loadForYou() {
     return score;
   }
 
+  // Premium : plus de résultats, masque le teaser overlay
+  const isPremium = window.VA_isPremium?.() || false;
+  const maxResults = isPremium ? 20 : 6; // gratuit : 6 cartes (partiellement masquées)
+
   const results = candidates
     .filter(a => !seenIds.has(String(a.mal_id)))
     .map(a => ({ ...a, _score: scoreAnime(a) }))
     .sort((a, b) => b._score - a._score)
-    .slice(0, 12);
+    .slice(0, maxResults);
 
   if (results.length === 0) return;
 
@@ -1271,6 +1275,12 @@ async function loadForYou() {
   const carousel = el('carousel-for-you');
   carousel.innerHTML = '';
   results.forEach(anime => carousel.appendChild(buildCard(anime)));
+
+  // Activer/désactiver le teaser overlay premium
+  const overlay = document.getElementById('forYouPremiumOverlay');
+  const premiumBadge = document.getElementById('forYouPremiumBadge');
+  if (overlay) overlay.style.display = isPremium ? 'none' : 'flex';
+  if (premiumBadge) premiumBadge.style.display = isPremium ? 'none' : 'inline-flex';
 }
 
 async function init() {
