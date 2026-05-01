@@ -1703,6 +1703,34 @@ main { flex: 1; }
   max-width: 1600px;
   margin: 0 auto;
   padding: calc(var(--nav-h) + 16px) 48px 8px;
+  position: relative;
+}
+
+.adj-video-bg {
+  position: absolute;
+  inset: calc(var(--nav-h) + 16px) 48px 8px 48px;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  z-index: 0;
+}
+
+.adj-video-bg iframe,
+.adj-video-bg img,
+.adj-img-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.adj-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(2,6,23,0.82) 0%,
+    rgba(2,6,23,0.55) 45%,
+    rgba(2,6,23,0.35) 100%
+  );
 }
 
 .adj-inner {
@@ -1715,12 +1743,16 @@ main { flex: 1; }
   padding: 16px 28px;
   position: relative;
   overflow: hidden;
+  z-index: 1;
 }
+
 .adj-inner::before {
   content: '';
   position: absolute;
-  top: -60px; right: -60px;
-  width: 200px; height: 200px;
+  top: -60px;
+  right: -60px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(167,139,250,0.15), transparent 70%);
   pointer-events: none;
@@ -1737,16 +1769,19 @@ main { flex: 1; }
   color: var(--violet);
   margin-bottom: 16px;
 }
+
 .adj-dot {
-  width: 7px; height: 7px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--violet);
   box-shadow: 0 0 8px var(--violet-glow);
   animation: adjPulse 2s ease-in-out infinite;
 }
+
 @keyframes adjPulse {
   0%,100% { opacity: 1; transform: scale(1); }
-  50%     { opacity: 0.5; transform: scale(0.8); }
+  50% { opacity: 0.5; transform: scale(0.8); }
 }
 
 .adj-content {
@@ -1765,10 +1800,19 @@ main { flex: 1; }
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
   transition: transform 0.3s var(--ease-spring);
 }
-.adj-img:hover { transform: scale(1.04) rotate(-1deg); }
+
+.adj-img:hover {
+  transform: scale(1.04) rotate(-1deg);
+}
 
 .adj-info {}
-.adj-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+
+.adj-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
 
 .adj-title {
   font-size: clamp(1rem, 2.5vw, 1.5rem);
@@ -1790,7 +1834,12 @@ main { flex: 1; }
   overflow: hidden;
 }
 
-.adj-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.adj-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 
 .adj-btn-primary {
   display: inline-flex;
@@ -1805,6 +1854,7 @@ main { flex: 1; }
   transition: all 0.2s;
   box-shadow: 0 4px 16px rgba(167,139,250,0.3);
 }
+
 .adj-btn-primary:hover {
   background: #6a3de8;
   transform: translateY(-2px);
@@ -1826,6 +1876,7 @@ main { flex: 1; }
   font-family: var(--font);
   transition: all 0.2s;
 }
+
 .adj-btn-shuffle:hover {
   color: var(--text);
   border-color: var(--b2);
@@ -1836,6 +1887,11 @@ main { flex: 1; }
 @media (max-width: 768px) {
   .anime-du-jour {
     padding: 10px 14px 6px;
+  }
+
+  .adj-video-bg {
+    inset: 10px 14px 6px 14px;
+    border-radius: var(--r-lg);
   }
 
   .adj-inner {
@@ -1903,7 +1959,6 @@ main { flex: 1; }
     padding: 7px 12px;
   }
 }
-
 /* ═══════════════════════════════════════════════
    NOTATION PERSONNELLE
    ═══════════════════════════════════════════════ */
