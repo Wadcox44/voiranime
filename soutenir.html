@@ -23,10 +23,12 @@
     .support-page{
       padding:calc(var(--nav-h) + 40px) 24px 60px;
       max-width:600px;
+      width:100%;
       margin:0 auto;
       display:flex;
       flex-direction:column;
       gap:32px;
+      box-sizing:border-box;
     }
 
     /* ══ HERO ══ */
@@ -188,10 +190,6 @@
 
   <!-- ── HERO ── -->
   <div class="support-hero">
-    <div class="support-hero-eyebrow">
-      <span class="support-hero-dot"></span>
-      Projet indépendant
-    </div>
     <h1 class="support-title">Soutenir VoirAnime</h1>
     <p class="support-pitch">
       Tu apprécies VoirAnime ? Ton soutien permet de continuer à améliorer le site,
@@ -248,7 +246,7 @@
         </svg>
         <span id="payBtnLabel">Envoyer 2 Pi via Pi Wallet</span>
       </button>
-      <p class="support-btn-note">Paiement sécurisé via Pi Browser · Annulable avant signature</p>
+      <p class="support-btn-note">Paiement sécurisé via Pi Browser</p>
 
       <div class="pay-status hidden" id="payStatus">
         <div class="pay-status-icon" id="payStatusIcon">⏳</div>
