@@ -67,42 +67,73 @@
   };
 
   /* ── CTA Upgrade ── */
-  window.VA_showUpgradePrompt = function(msg) {
+  /* Features listées dans le popup — contextualisées selon la page */
+  var _PREMIUM_FEATURES = [
+    '📊 Stats avancées & genres préférés',
+    '🔥 Recommandations personnalisées',
+    '❤️ Favoris illimités',
+    '⚡ Accès anticipé aux nouveautés',
+    '↕️ Réorganisation de ta liste',
+  ];
+
+  window.VA_showUpgradePrompt = function(msg, features) {
     var existing = document.getElementById('va-upgrade-prompt');
     if (existing) existing.remove();
+
+    var featureList = (features || _PREMIUM_FEATURES).slice(0, 4);
+    var featuresHtml = featureList.map(function(f) {
+      return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;' +
+             'font-size:0.82rem;color:var(--text2);text-align:left">' +
+             '<span style="color:#a78bfa;font-size:0.75rem">✓</span>' + f + '</div>';
+    }).join('');
 
     var overlay = document.createElement('div');
     overlay.id = 'va-upgrade-prompt';
     overlay.style.cssText = [
       'position:fixed', 'inset:0', 'z-index:9999',
-      'background:rgba(8,7,15,0.85)', 'backdrop-filter:blur(8px)',
+      'background:rgba(8,7,15,0.88)', 'backdrop-filter:blur(12px)',
       'display:flex', 'align-items:center', 'justify-content:center',
       'padding:24px'
     ].join(';');
 
-    overlay.innerHTML = [
-      '<div style="background:var(--ink3);border:1px solid rgba(167,139,250,0.4);border-radius:20px;',
-      'padding:32px 28px;max-width:420px;width:100%;text-align:center;position:relative">',
-      '<button onclick="document.getElementById(\'va-upgrade-prompt\').remove()" ',
-      'style="position:absolute;top:12px;right:16px;background:none;border:none;',
-      'color:var(--muted);font-size:1.2rem;cursor:pointer;font-family:var(--font)">✕</button>',
-      '<div style="font-size:2rem;margin-bottom:12px">⭐</div>',
-      '<div style="font-size:1.15rem;font-weight:800;color:var(--text);margin-bottom:8px">',
-      'Fonctionnalité Premium</div>',
-      '<p style="font-size:0.88rem;color:var(--text2);line-height:1.6;margin-bottom:20px">',
-      (msg || 'Cette fonctionnalité est réservée aux abonnés Premium.'), '</p>',
-      '<a href="soutenir.html?tab=premium" ',
-      'style="display:inline-flex;align-items:center;gap:8px;',
-      'background:linear-gradient(135deg,#a78bfa,#818cf8);color:#fff;',
-      'font-family:var(--font);font-weight:700;font-size:0.95rem;',
-      'padding:11px 24px;border-radius:12px;text-decoration:none;',
-      'transition:opacity 0.2s" onmouseover="this.style.opacity=\'0.88\'" ',
-      'onmouseout="this.style.opacity=\'1\'">',
-      'Découvrir Premium →</a>',
-      '<p style="font-size:0.75rem;color:var(--muted);margin-top:12px">',
-      'À partir de 1.99 Pi/mois</p>',
-      '</div>'
-    ].join('');
+    overlay.innerHTML =
+      '<div style="background:var(--ink2);border:1px solid rgba(167,139,250,0.35);border-radius:24px;' +
+      'padding:32px 28px;max-width:400px;width:100%;text-align:center;position:relative;' +
+      'box-shadow:0 24px 64px rgba(0,0,0,0.6)">' +
+
+      '<button onclick="document.getElementById('va-upgrade-prompt').remove()" ' +
+      'style="position:absolute;top:14px;right:16px;background:none;border:none;' +
+      'color:var(--muted);font-size:1.1rem;cursor:pointer;font-family:var(--font);' +
+      'width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;' +
+      'transition:background 0.2s" onmouseover="this.style.background='rgba(255,255,255,0.06)'" ' +
+      'onmouseout="this.style.background='none'">✕</button>' +
+
+      '<div style="display:inline-flex;align-items:center;justify-content:center;' +
+      'width:52px;height:52px;border-radius:16px;' +
+      'background:linear-gradient(135deg,rgba(167,139,250,0.2),rgba(129,140,248,0.15));' +
+      'border:1px solid rgba(167,139,250,0.3);font-size:1.5rem;margin-bottom:16px">⭐</div>' +
+
+      '<div style="font-size:1.15rem;font-weight:800;color:var(--text);margin-bottom:6px">' +
+      'Passe à Premium</div>' +
+
+      '<p style="font-size:0.82rem;color:var(--text2);line-height:1.55;margin-bottom:18px">' +
+      (msg || 'Débloque une expérience anime complète et personnalisée.') + '</p>' +
+
+      '<div style="background:var(--ink3);border-radius:14px;padding:14px 16px;margin-bottom:20px;text-align:left">' +
+      featuresHtml + '</div>' +
+
+      '<a href="soutenir.html" ' +
+      'style="display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;' +
+      'background:linear-gradient(135deg,#a78bfa,#818cf8);color:#fff;' +
+      'font-family:var(--font);font-weight:700;font-size:0.95rem;' +
+      'padding:13px 24px;border-radius:14px;text-decoration:none;' +
+      'box-shadow:0 4px 20px rgba(167,139,250,0.35);' +
+      'transition:opacity 0.2s,transform 0.2s" ' +
+      'onmouseover="this.style.opacity='0.9';this.style.transform='translateY(-1px)'" ' +
+      'onmouseout="this.style.opacity='1';this.style.transform=''">Soutenir VoirAnime →</a>' +
+
+      '<p style="font-size:0.72rem;color:var(--muted);margin-top:10px">À partir de 1.99 Pi/mois</p>' +
+      '</div>';
 
     overlay.addEventListener('click', function(e) {
       if (e.target === overlay) overlay.remove();
