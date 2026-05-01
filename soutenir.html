@@ -52,11 +52,31 @@
     .support-merci{background:rgba(6,214,160,0.08);border:1px solid rgba(6,214,160,0.3);border-radius:var(--r);padding:14px 20px;text-align:center;width:100%}
     .support-merci-text{font-size:1rem;font-weight:700;color:#06d6a0;margin-bottom:6px}
     .support-merci-close{background:transparent;border:1px solid rgba(6,214,160,0.35);color:#06d6a0;border-radius:20px;padding:5px 16px;font-size:0.8rem;font-family:var(--font);cursor:pointer}
-    .support-thanks{margin-top:10px}
-    .support-thanks-title{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:7px;text-align:center}
-    .thanks-grid{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
-    .thanks-name{display:inline-flex;align-items:center;gap:5px;background:var(--ink3);border:1px solid var(--b1);border-radius:20px;padding:4px 11px;font-size:0.76rem;color:var(--text2)}
-    .thanks-name-star{color:var(--gold);font-size:0.66rem}
+    .support-thanks{
+      margin-top:24px;
+      padding:20px;
+      background:linear-gradient(135deg,rgba(167,139,250,0.06),rgba(34,211,238,0.04));
+      border:1px solid rgba(167,139,250,0.15);
+      border-radius:var(--r);
+    }
+    .support-thanks-header{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px}
+    .support-thanks-title{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.16em;color:var(--text2)}
+    .support-thanks-line{flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(167,139,250,0.2),transparent)}
+    .thanks-grid{display:flex;flex-wrap:wrap;gap:7px;justify-content:center}
+    .thanks-name{
+      display:inline-flex;align-items:center;gap:6px;
+      background:var(--ink3);
+      border:1px solid rgba(167,139,250,0.2);
+      border-radius:20px;
+      padding:5px 13px;
+      font-size:0.78rem;
+      font-weight:600;
+      color:var(--text2);
+      transition:border-color 0.2s,color 0.2s;
+    }
+    .thanks-name:hover{border-color:rgba(167,139,250,0.45);color:var(--text)}
+    .thanks-name-star{font-size:0.7rem;animation:twinkle 2.5s ease-in-out infinite}
+    @keyframes twinkle{0%,100%{opacity:1}50%{opacity:0.45}}
     @media(max-width:480px){.support-page{padding:calc(var(--nav-h) + 8px) 16px 8px}.support-amounts{gap:6px}.amount-value{font-size:0.95rem}}
   </style>
   <script src="https://sdk.minepi.com/pi-sdk.js"></script>
@@ -154,7 +174,11 @@
   </div>
 
   <div class="support-thanks" id="thanksSection" style="display:none">
-    <p class="support-thanks-title">Nos Pioneers — Merci à vous 💜</p>
+    <div class="support-thanks-header">
+      <div class="support-thanks-line"></div>
+      <p class="support-thanks-title">💜 Nos Pioneers</p>
+      <div class="support-thanks-line"></div>
+    </div>
     <div class="thanks-grid" id="thanksGrid"></div>
   </div>
 
@@ -241,6 +265,19 @@ function initiatePiPayment() {
 
 function done() {
   log('💜 Don reçu. Merci !', 'success');
+  /* Sauvegarder le pseudo Pi du donateur */
+  try {
+    var piUser = JSON.parse(localStorage.getItem('pi_user') || '{}');
+    var pseudo  = piUser.username || piUser.uid;
+    if (pseudo) {
+      var donors = JSON.parse(localStorage.getItem('VoirAnime_donors') || '[]');
+      if (!donors.includes(pseudo) && !donors.includes('@' + pseudo)) {
+        donors.unshift(pseudo);
+        localStorage.setItem('VoirAnime_donors', JSON.stringify(donors));
+        chargerDonateurs(donors);
+      }
+    }
+  } catch(e) {}
   var m = document.getElementById('supportMerci');
   if (m) { m.style.display = 'block'; setTimeout(function() { m.style.display = 'none'; }, 6000); }
   reset();
@@ -270,6 +307,29 @@ function chargerDonateurs(pseudos) {
   });
   s.style.display='block';
 }
+
+/* Auto-init : charge les donateurs depuis localStorage ou données serveur */
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    /* 1. Essayer depuis localStorage (pseudos sauvegardés après paiement) */
+    try {
+      var stored = JSON.parse(localStorage.getItem('VoirAnime_donors') || '[]');
+      if (stored && stored.length) { chargerDonateurs(stored); return; }
+    } catch(e) {}
+
+    /* 2. Fallback : fetch depuis l'API serveur */
+    fetch(BASE_URL + '/api/donors')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) {
+        if (data && data.pseudos && data.pseudos.length) {
+          chargerDonateurs(data.pseudos);
+          /* Met en cache pour les prochaines visites */
+          try { localStorage.setItem('VoirAnime_donors', JSON.stringify(data.pseudos)); } catch(e) {}
+        }
+      })
+      .catch(function() {});
+  });
+})();
 </script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
