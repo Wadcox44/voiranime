@@ -1736,15 +1736,6 @@ main { flex: 1; }
   background: none;
   border: none;
   font-family: inherit;
-  transition: transform 0.12s;
-}
-
-.rating-star {
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0 1px;
-  background: none;
-  border: none;
   color: rgba(255,255,255,0.25);
   transition: transform 0.12s, color 0.12s;
 }
