@@ -51,8 +51,6 @@ import { trackView } from './firebase.js';
 /* ──────────────────────────────────────
    CONFIG & STATE
 ────────────────────────────────────── */
-const API           = '/api/jikan'; // proxy Vercel — évite les 429 direct Jikan
-const HERO_INTERVAL = 7000;
 
 const state = {
   heroAnimes:  [],
@@ -60,6 +58,14 @@ const state = {
   heroTimer:   null,
   searchTimer: null,
 };
+
+const heroHandlers = {
+  more: null,
+  fav: null,
+};
+
+const API = 'https://api.jikan.moe/v4';
+const HERO_INTERVAL = 7000;
 
 /* ──────────────────────────────────────
    JIKAN QUEUE + CACHE
@@ -69,11 +75,12 @@ const state = {
    Solution : queue FIFO strictement séquentielle + cache sessionStorage.
 ────────────────────────────────────── */
 
-const JIKAN_MIN_INTERVAL = 400; // ms minimum entre deux requêtes (~2.5 req/s, sous la limite de 3)
+const JIKAN_MIN_INTERVAL = 800; // ms minimum entre deux requêtes (ralenti pour éviter les 429)
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes de cache sessionStorage
 
 let _lastRequestTime = 0;  // timestamp de la dernière requête partie
-let _queue = Promise.resolve(); // chaîne de promesses séquentielles
+let _queue = Promise.resolve();
+const _inFlight = new Map(); // chaîne de promesses séquentielles
 
 /**
  * jikanFetch — queue séquentielle + cache sessionStorage + retry 429
@@ -96,8 +103,9 @@ async function jikanFetch(endpoint, retries = 3) {
 
   // 2. Ajoute la requête à la queue séquentielle
   // Chaque appel attend que le précédent soit terminé
-  const result = await (_queue = _queue.then(() => _executeRequest(endpoint, retries, cacheKey)));
-  return result;
+  const task = () => _executeRequest(endpoint, retries, cacheKey);
+_queue = _queue.then(task, task);
+return _queue;
 }
 
 async function _executeRequest(endpoint, retries, cacheKey) {
@@ -111,7 +119,8 @@ async function _executeRequest(endpoint, retries, cacheKey) {
   for (let i = 0; i < retries; i++) {
     try {
       _lastRequestTime = Date.now();
-      const res = await fetch(`${API}?path=${encodeURIComponent(endpoint)}`);
+      const targetPath = endpoint.startsWith('/') ? endpoint : '/' + endpoint;
+      const res = await fetch(`${API}${targetPath}`);
 
       if (res.status === 429) {
         // Vide le body pour libérer la connexion HTTP/2
@@ -143,7 +152,15 @@ async function _executeRequest(endpoint, retries, cacheKey) {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 function el(id)    { return document.getElementById(id); }
-
+function getAnimeImage(anime) {
+  return (
+    anime?.images?.jpg?.large_image_url ||
+    anime?.images?.jpg?.image_url ||
+    anime?.images?.webp?.large_image_url ||
+    anime?.images?.webp?.image_url ||
+    'https://placehold.co/160x230/111118/555?text=No+Image'
+  );
+}
 /** FIX Bug 7 : échappe les caractères dangereux pour éviter XSS dans innerHTML */
 function esc(str) {
   if (!str) return '';
@@ -390,7 +407,12 @@ function buildCard(anime, opts = {}) {
 
   const id    = Number(anime.mal_id);
   const title = anime.title_english || anime.title || 'Titre inconnu';
-  const img   = anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url || '';
+ const img =
+  anime.images?.jpg?.large_image_url ||
+  anime.images?.jpg?.image_url ||
+  anime.images?.webp?.large_image_url ||
+  anime.images?.webp?.image_url ||
+  'https://placehold.co/160x230/111118/555?text=No+Image';
   const score = anime.score;
   const type  = anime.type || '';
   const fav   = isFav(id);
@@ -405,7 +427,7 @@ function buildCard(anime, opts = {}) {
 
   card.innerHTML = `
     <div class="card-thumb">
-      <img src="${esc(img)}" alt="${esc(title)}" loading="lazy"
+      <img src="${esc(img)}"> alt="${esc(title)}" loading="lazy"
            onerror="this.src='https://placehold.co/160x230/111118/555?text=No+Image'"/>
       <div class="card-thumb-overlay">
         <div class="card-play-icon">
@@ -413,7 +435,13 @@ function buildCard(anime, opts = {}) {
         </div>
         ${score ? `<div class="card-score-badge">★ ${score.toFixed(1)}</div>` : ''}
       </div>
-      ${type ? `<span class="card-type-badge">${esc(({TV:t('type.tv'),Movie:t('type.movie'),OVA:t('type.ova'),ONA:t('type.ona'),Special:t('type.special')})[type]||type)}</span>` : ''}
+      ${type ? `<span class="card-type-badge">${esc(({
+  TV: "TV",
+  Movie: "Film",
+  OVA: "OVA",
+  ONA: "ONA",
+  Special: "Spécial"
+}[type] || type))}</span>` : ''}
       ${rank ? `<span class="card-rank-badge">#${rank}</span>` : ''}
       <button class="card-fav-btn ${fav ? 'active' : ''}" data-fav-id="${id}" aria-label="Favori">
         <svg width="12" height="12" viewBox="0 0 24 24"
@@ -537,7 +565,12 @@ function renderHero(anime) {
 
   const id       = Number(anime.mal_id);
   const title    = anime.title_english || anime.title;
-  const img      = anime.images?.jpg?.large_image_url || '';
+  const img =
+  anime.images?.jpg?.large_image_url ||
+  anime.images?.jpg?.image_url ||
+  anime.images?.webp?.large_image_url ||
+  anime.images?.webp?.image_url ||
+  'https://placehold.co/160x230/111118/555?text=No+Image';
   const synopsis = (anime.synopsis || '').replace(/\[Written by MAL Rewrite\]/gi, '').trim();
 
   // Image transition
@@ -569,13 +602,21 @@ function renderHero(anime) {
   titleEl.textContent = title;
   synEl.textContent   = synopsis.slice(0, 200) + (synopsis.length > 200 ? '…' : '');
 
-  // Badges
-  const badges = [];
-  if (anime.score) badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
-  if (anime.type) {
-    const tMap = { TV:t('type.tv'), Movie:"Film d'anime", OVA:t('type.ova'), ONA:t('type.ona'), Special:t('type.special') };
-    badges.push(`<span class="badge badge-muted">${esc(tMap[anime.type]||anime.type)}</span>`);
-  }
+ // Badges
+const badges = [];
+if (anime.score) badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
+
+if (anime.type) {
+  const tMap = {
+    TV: "TV",
+    Movie: "Film d'animation",
+    OVA: "OVA",
+    ONA: "ONA",
+    Special: "Spécial"
+  };
+
+  badges.push(`<span class="badge badge-muted">${esc(tMap[anime.type] || anime.type)}</span>`);
+}
   if (anime.status === 'Currently Airing') badges.push(`<span class="badge badge-green">${t('anime.airing_badge')}</span>`);
   if (anime.status === 'Not yet aired')    badges.push('<span class="badge badge-blue">À venir</span>');
   badgesEl.innerHTML = badges.join('');
@@ -587,12 +628,6 @@ function renderHero(anime) {
     anime.rating   ? anime.rating.split(' ')[0]  : null,
   ].filter(Boolean);
   metaEl.innerHTML = meta.map(m => `<span class="hero-meta-item">${esc(m)}</span>`).join('');
-
-  // FIX Bug 2 : remplace moreBtn par un clone pour vider les anciens listeners
-  const moreBtn    = el('heroMoreBtn');
-  const newMoreBtn = moreBtn.cloneNode(true);
-  moreBtn.parentNode.replaceChild(newMoreBtn, moreBtn);
-  newMoreBtn.addEventListener('click', () => { window.location.href = `anime.html?id=${id}`; });
 
   // FIX Bug 3 : idem pour favBtn
   const favBtn    = el('heroFavBtn');
@@ -614,28 +649,32 @@ function renderHero(anime) {
 
 function updateHeroDots() {
   const dotsEl = el('heroDots');
+
   dotsEl.innerHTML = state.heroAnimes
     .map((_, i) => `<div class="hero-dot ${i === state.heroIndex ? 'active' : ''}" data-i="${i}"></div>`)
     .join('');
 
-  // FIX : délégation sur le conteneur (un seul listener, pas N)
-  // + cloneNode pour éviter les doubles listeners sur le conteneur lui-même
-  const newDotsEl = dotsEl.cloneNode(true);
-  dotsEl.parentNode.replaceChild(newDotsEl, dotsEl);
+  if (!dotsEl.dataset.bound) {
+    dotsEl.dataset.bound = "1";
 
-  newDotsEl.addEventListener('click', (e) => {
-    const dot = e.target.closest('.hero-dot');
-    if (!dot) return;
-    clearInterval(state.heroTimer);
-    state.heroIndex = parseInt(dot.dataset.i, 10);
-    renderHero(state.heroAnimes[state.heroIndex]);
-    updateHeroDots();
-    startHeroRotation();
-  });
-}
+    dotsEl.addEventListener('click', (e) => {
+      const dot = e.target.closest('.hero-dot');
+      if (!dot) return;
+
+      clearInterval(state.heroTimer);
+      state.heroIndex = Number(dot.dataset.i);
+      renderHero(state.heroAnimes[state.heroIndex]);
+      updateHeroDots();
+      startHeroRotation();
+    });
+  }
+}  // 👈 C’EST CETTE ACCOLADE QUI MANQUE OU EST MAL PLACÉE
 
 function startHeroRotation() {
+  if (!state.heroAnimes.length) return;
+
   clearInterval(state.heroTimer);
+
   state.heroTimer = setInterval(() => {
     state.heroIndex = (state.heroIndex + 1) % state.heroAnimes.length;
     renderHero(state.heroAnimes[state.heroIndex]);
@@ -830,7 +869,12 @@ async function loadSection(endpointPath, carouselId, skeletonId, count = 8, opts
 async function loadHero() {
   try {
     const data = await jikanFetch('/top/anime?filter=airing&limit=10');
-    state.heroAnimes = (data.data || []).filter(a => a.images?.jpg?.large_image_url);
+    state.heroAnimes = (data.data || []).filter(a =>
+  a.images?.jpg?.large_image_url ||
+  a.images?.jpg?.image_url ||
+  a.images?.webp?.large_image_url ||
+  a.images?.webp?.image_url
+);
     if (state.heroAnimes.length === 0) return;
     // Expose pour le bouton Surprise-moi
     window._heroAnimesPool    = state.heroAnimes;
@@ -890,8 +934,8 @@ function initMoodPills() {
     const carousel = el('carousel-mood');
     buildSkeletons(carousel, 10);
 
-    // Scroll smooth vers la section
-    setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    // Scroll smooth vers la section (Désactivé suite à demande utilisateur)
+    // setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
 
     try {
       const data   = await jikanFetch(config.endpoint);
@@ -1032,7 +1076,14 @@ async function loadAnimeDuJour() {
     const offset = seed % 25;
 
     const data   = await jikanFetch(`/top/anime?filter=bypopularity&limit=25&page=${page}`);
-    const animes = (data.data || []).filter(a => a.images?.jpg?.large_image_url && a.synopsis);
+const animes = (data.data || []).filter(a =>
+  (
+    a.images?.jpg?.large_image_url ||
+    a.images?.jpg?.image_url ||
+    a.images?.webp?.large_image_url ||
+    a.images?.webp?.image_url
+  ) && a.synopsis
+);
     if (animes.length === 0) return;
 
     const picked = animes[offset % animes.length];
@@ -1043,11 +1094,17 @@ async function loadAnimeDuJour() {
 
     renderAnimeDuJour(anime);
 
-    el('adjShuffle')?.addEventListener('click', async () => {
-      const random   = animes[Math.floor(Math.random() * animes.length)];
-      const rFull    = await jikanFetch(`/anime/${random.mal_id}/full`);
-      renderAnimeDuJour(rFull.data || random, true);
-    });
+    const btn = el('adjShuffle');
+
+if (btn && !btn.dataset.bound) {
+  btn.dataset.bound = "1";
+
+  btn.addEventListener('click', async () => {
+    const random = animes[Math.floor(Math.random() * animes.length)];
+    const rFull = await jikanFetch(`/anime/${random.mal_id}/full`);
+    renderAnimeDuJour(rFull.data || random, true);
+  });
+}
   } catch (e) {
     console.warn('Anime du jour:', e);
   }
@@ -1062,10 +1119,13 @@ function renderAnimeDuJour(anime, shuffle = false) {
   const badgesEl    = el('adjBadges');
   const linkEl      = el('adjLink');
 
-  if (!section) return;
+  if (!section || !iframe || !imgFallback || !titleEl || !synEl || !badgesEl || !linkEl) {
+    console.warn('Anime du jour: éléments HTML manquants');
+    return;
+  }
 
   const title     = anime.title_english || anime.title;
-  const img       = anime.images?.jpg?.large_image_url || '';
+ const img = getAnimeImage(anime);
   const synopsis  = (anime.synopsis || '').replace(/\[Written by MAL Rewrite\]/gi, '').trim();
   const youtubeId = anime.trailer?.youtube_id || null;
 
@@ -1097,16 +1157,25 @@ function renderAnimeDuJour(anime, shuffle = false) {
     imgFallback.style.display = 'block';
   }
 
-  const badges = [];
-  if (anime.score) badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
-  if (anime.type) {
-    const tMap = { TV:t('type.tv'), Movie:"Film d'anime", OVA:t('type.ova'), ONA:t('type.ona'), Special:t('type.special') };
-    badges.push(`<span class="badge badge-muted">${tMap[anime.type] || anime.type}</span>`);
-  }
-  badgesEl.innerHTML = badges.join('');
+ const badges = [];
 
-  section.style.display = 'block';
-  section.style.transition = 'opacity 0.4s ease';
+if (anime.score) {
+  badges.push(`<span class="badge badge-gold">★ ${anime.score.toFixed(1)}</span>`);
+}
+
+if (anime.type) {
+  const tMap = {
+    TV: "TV",
+    Movie: "Film d'anime",
+    OVA: "OVA",
+    ONA: "ONA",
+    Special: "Spécial"
+  };
+
+  badges.push(`<span class="badge badge-muted">${esc(tMap[anime.type] || anime.type)}</span>`);
+}
+
+badgesEl.innerHTML = badges.join('');
 }
 /* ──────────────────────────────────────
    POUR TOI — Recommandations basées sur l'historique
@@ -1212,9 +1281,7 @@ async function init() {
   initAdvancedSearch();
   updateFavUI();
   renderFavoritesSection();
-  // renderContinueWatching() — supprimé, géré dans le profil
 
-  // Hero supprimé — remplacé par Anime du jour
   loadAnimeDuJour();
   loadForYou();
 
@@ -1226,8 +1293,20 @@ async function init() {
   await loadSection('/top/anime?type=ova&limit=20',            'ova',     'skel-ova',     10);
   await loadSection('/top/anime?type=ona&limit=20',            'ona',     'skel-ona',     10);
 
-  // Trending Firebase — chargé en dernier, non bloquant
   loadTrending();
 }
+// autre code de ton main.js ...
 
-document.addEventListener('DOMContentLoaded', init);
+let _initDone = false;
+
+function safeInit() {
+  if (_initDone) return;
+  _initDone = true;
+  init();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', safeInit);
+} else {
+  safeInit();
+}
