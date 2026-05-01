@@ -1153,15 +1153,6 @@ ul, ol { list-style: none; }
 
 .trailer-left { display: flex; gap: 10px; }
 
-.trailer-rating {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text2);
-  border: 1.5px solid var(--text2);
-  padding: 4px 10px;
-  border-radius: 4px;
-  opacity: 0.7;
-}
 
 /* Fondu bas hero detail */
 .hero-bottom-fade {
@@ -4021,7 +4012,6 @@ a:active {
     gap: 6px;
   }
   .trailer-btn { font-size: 0.78rem; padding: 8px 12px; gap: 6px; }
-  .trailer-rating { font-size: 0.68rem; }
 
   /* Contenu détail */
   .anime-content { padding: 0 12px 36px; margin-top: -12px; }
