@@ -1708,10 +1708,16 @@ main { flex: 1; }
 
 .adj-video-bg {
   position: absolute;
-  inset: calc(var(--nav-h) + 16px) 48px 8px 48px;
+  top: calc(var(--nav-h) + 16px);
+  left: 48px;
+  right: 48px;
+  bottom: 8px;
+
   border-radius: var(--r-xl);
   overflow: hidden;
   z-index: 0;
+
+  height: calc(100% - (var(--nav-h) + 24px));
 }
 
 .adj-video-bg iframe,
@@ -1890,9 +1896,15 @@ main { flex: 1; }
   }
 
   .adj-video-bg {
-    inset: 10px 14px 6px 14px;
-    border-radius: var(--r-lg);
-  }
+  top: 10px;
+  left: 14px;
+  right: 14px;
+  bottom: 6px;
+
+  border-radius: var(--r-lg);
+
+  height: calc(100% - 16px);
+}
 
   .adj-inner {
     padding: 12px 16px;
@@ -3979,15 +3991,52 @@ a:active {
    ANIME DU JOUR — Mobile
 ───────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .anime-du-jour { padding: calc(var(--nav-h) + 8px) 12px 8px; }
-  .adj-inner { padding: 12px 16px; }
-  .adj-content { grid-template-columns: 80px 1fr; gap: 12px; }
-  .adj-img { width: 80px; }
-  .adj-title { font-size: 0.92rem; }
-  .adj-synopsis { font-size: 0.78rem; -webkit-line-clamp: 2; }
-  .adj-actions { flex-direction: column; align-items: flex-start; gap: 8px; }
-  .adj-btn-primary  { font-size: 0.8rem; padding: 8px 16px; }
-  .adj-btn-shuffle  { font-size: 0.76rem; padding: 6px 12px; }
+  .anime-du-jour {
+    padding: calc(var(--nav-h) + 8px) 12px 8px;
+  }
+
+  .adj-video-bg {
+    inset: calc(var(--nav-h) + 8px) 12px 8px 12px;
+    border-radius: var(--r-lg);
+  }
+
+  .adj-inner {
+    padding: 12px 16px;
+  }
+
+  .adj-content {
+    grid-template-columns: 80px 1fr;
+    gap: 12px;
+  }
+
+  .adj-img {
+    width: 80px;
+  }
+
+  .adj-title {
+    font-size: 0.92rem;
+  }
+
+  .adj-synopsis {
+    font-size: 0.78rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .adj-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .adj-btn-primary {
+    font-size: 0.8rem;
+    padding: 8px 16px;
+  }
+
+  .adj-btn-shuffle {
+    font-size: 0.76rem;
+    padding: 6px 12px;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -4788,8 +4837,10 @@ a:active {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
   z-index: 0;
+  background: #08070f;
 }
 
 .adj-overlay {
