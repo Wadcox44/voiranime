@@ -1227,8 +1227,9 @@ main { flex: 1; }
 /* Stats rapides */
 .anime-quick-stats {
   display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
   margin-bottom: 24px;
   padding: 16px 20px;
   background: var(--ink3);
@@ -1255,26 +1256,27 @@ main { flex: 1; }
   letter-spacing: 0.1em;
 }
 
+/* Bouton YouTube dans les stats — mobile/Pi Browser uniquement */
 .stat-yt-btn {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 7px;
+  flex: 1;
+  justify-content: center;
   background: rgba(255,0,0,0.12);
   border: 1px solid rgba(255,0,0,0.3);
   color: #ff6b6b;
-  font-size: 0.88rem;
+  font-size: 0.78rem;
   font-weight: 600;
   font-family: var(--font);
-  padding: 10px 22px;
+  padding: 14px 48px;
   border-radius: 20px;
   text-decoration: none;
   white-space: nowrap;
+  font-size: 0.92rem;
   transition: background 0.2s, transform 0.2s;
 }
-.stat-yt-btn:hover {
-  background: rgba(255,0,0,0.22);
-  transform: translateY(-1px);
-}
+.stat-yt-btn:hover { background: rgba(255,0,0,0.22); }
 
 /* Boutons action détail */
 .anime-action-row {
@@ -1554,7 +1556,7 @@ main { flex: 1; }
   .anime-card:hover { transform: scale(1.02) translateY(-2px); }
   .search-overlay { padding: 72px 12px 32px; }
   .search-results-grid { grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); }
-  .anime-quick-stats { padding: 12px 20px; }
+  .anime-quick-stats { gap: 14px; padding: 12px 12px; }
   .stat-value { font-size: 0.95rem; }
 }
 
@@ -3772,8 +3774,13 @@ a:active {
 
   /* Stats rapides */
   .anime-quick-stats {
+    gap: 12px;
     padding: 12px 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
   }
+  .anime-quick-stats::-webkit-scrollbar { display: none; }
   .stat-value { font-size: 1rem; }
   .stat-label { font-size: 0.58rem; }
 
@@ -3809,7 +3816,7 @@ a:active {
 @media (max-width: 480px) {
   .anime-hero { height: calc(56.25vw + var(--nav-h)); min-height: 280px; }
   .anime-title { font-size: clamp(1.3rem, 6vw, 1.8rem); }
-
+  .anime-quick-stats { gap: 10px; }
   .stat-item { min-width: 52px; }
 
   .rating-widget { flex-wrap: wrap; gap: 7px; padding: 10px 12px; }
