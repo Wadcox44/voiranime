@@ -4711,6 +4711,7 @@ a:active {
   top: calc(var(--nav-h) + 16px); left: 48px; right: 48px; bottom: 8px;
   border-radius: var(--r-xl);
   overflow: hidden;
+  isolation: isolate;
   z-index: 0;
 }
 
@@ -4730,6 +4731,7 @@ a:active {
   height: 100%;
   object-fit: cover;
   object-position: center 15%;
+  border-radius: var(--r-xl);
   z-index: 0;
 }
 
