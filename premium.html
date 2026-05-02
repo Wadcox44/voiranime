@@ -50,68 +50,107 @@
     .header h1 em { font-style: normal; color: var(--v); }
     .header p { font-size: 0.83rem; color: var(--text2); line-height: 1.5; }
 
-    /* Table */
-    .table-wrap {
-      border: 1px solid var(--b1); border-radius: 14px;
-      overflow: hidden; margin-bottom: 20px; overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
+    /* Compare grid */
+    .compare {
+      margin-bottom: 20px;
     }
-    table { width: 100%; border-collapse: collapse; min-width: 400px; }
-    col.c-feat { width: 54%; } col.c-free { width: 20%; } col.c-prem { width: 26%; }
-
-    thead th {
-      padding: 11px 12px; font-size: 0.66rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.09em;
-      background: var(--s1); border-bottom: 1px solid var(--b1);
+    .compare-heads {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0;
+      margin-bottom: 2px;
     }
-    thead th.h-feat { text-align: left; color: var(--muted); }
-    thead th.h-free { text-align: center; color: var(--text2); }
-    thead th.h-prem {
-      text-align: center; color: var(--v);
+    .compare-head {
+      padding: 8px 10px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-align: center;
+    }
+    .compare-head.h-label { text-align: left; color: var(--muted); }
+    .compare-head.h-free  { color: var(--text2); }
+    .compare-head.h-prem  {
+      color: var(--v);
       background: rgba(167,139,250,0.07);
-      border-left: 1px solid rgba(167,139,250,0.15); position: relative;
+      border-radius: 8px 8px 0 0;
+      border: 1px solid rgba(167,139,250,0.18);
+      border-bottom: none;
+      position: relative;
     }
-    thead th.h-prem::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0;
-      height: 2px; background: linear-gradient(90deg, #a78bfa, #22d3ee);
+    .compare-head.h-prem::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      border-radius: 8px 8px 0 0;
+      background: linear-gradient(90deg, #a78bfa, #22d3ee);
     }
-    .h-prem-inner { display: flex; flex-direction: column; align-items: center; gap: 1px; }
-    .h-prem-price { font-size: 0.6rem; color: var(--muted); font-weight: 400; letter-spacing: 0; text-transform: none; }
-
-    tr.cat td {
-      padding: 7px 12px 4px; font-size: 0.62rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.09em; color: var(--muted);
-      background: rgba(255,255,255,0.02); border-top: 1px solid var(--b1);
-      border-bottom: 1px solid var(--b1);
+    .compare-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
-    tr.cat td.p-col { background: rgba(167,139,250,0.03); border-left: 1px solid rgba(167,139,250,0.12); }
-
-    tr.row td {
-      padding: 10px 12px; border-bottom: 1px solid var(--b1);
-      vertical-align: middle; line-height: 1.3;
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      align-items: center;
+      background: var(--s1);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--b1);
     }
-    tr.row:last-child td { border-bottom: none; }
-    tr.row:hover td { background: rgba(255,255,255,0.015); }
-    td.feat { font-size: 0.82rem; color: var(--text2); background: var(--s1); }
-    td.free { text-align: center; font-size: 0.78rem; color: var(--muted); background: var(--s1); }
-    td.prem {
-      text-align: center; font-size: 0.78rem;
-      background: rgba(167,139,250,0.04);
+    .compare-row:hover { border-color: var(--b2); }
+    .cr-label {
+      padding: 10px 12px;
+      font-size: 0.8rem;
+      color: var(--text2);
+      font-weight: 500;
+    }
+    .cr-free {
+      padding: 10px 8px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      border-left: 1px solid var(--b1);
+    }
+    .cr-prem {
+      padding: 10px 8px;
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(167,139,250,0.05);
       border-left: 1px solid rgba(167,139,250,0.12);
-      color: var(--text); font-weight: 600;
     }
-
-    .y { color: var(--green); font-size: 0.85rem; }
-    .n { color: var(--muted); opacity: 0.4; font-size: 0.75rem; }
-    .val { font-size: 0.74rem; color: var(--muted); }
-    .tag {
-      display: inline-block; padding: 2px 8px; border-radius: 6px;
-      font-size: 0.68rem; font-weight: 700; line-height: 1.4;
+    .y   { color: var(--green); }
+    .n   { color: var(--muted); opacity: 0.35; }
+    .v-tag {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: rgba(167,139,250,0.14);
+      color: var(--v);
     }
-    .tag-v  { background: rgba(167,139,250,0.13); color: var(--v); }
-    .tag-c  { background: rgba(34,211,238,0.11);  color: var(--cyan); }
-    .tag-g  { background: rgba(74,222,128,0.11);  color: var(--green); }
-    .tag-sm { font-size: 0.62rem; }
+    .c-tag {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: rgba(34,211,238,0.12);
+      color: var(--cyan);
+    }
+    .g-tag {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      background: rgba(74,222,128,0.12);
+      color: var(--green);
+    }
 
     /* Pricing */
     .pricing { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
@@ -168,42 +207,51 @@
     <p>Recommandations avancées, stats enrichies, alertes intelligentes et plus encore.</p>
   </div>
 
-  <div class="table-wrap">
-    <table>
-      <colgroup><col class="c-feat"><col class="c-free"><col class="c-prem"></colgroup>
-      <thead>
-        <tr>
-          <th class="h-feat"></th>
-          <th class="h-free">Gratuit</th>
-          <th class="h-prem">
-            <div class="h-prem-inner">
-              <span>⭐ Premium</span>
-              <span class="h-prem-price">1.99 Pi/mois</span>
-            </div>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="cat"><td>Découverte</td><td></td><td class="p-col"></td></tr>
-        <tr class="row"><td class="feat">Catalogue, recherche, news, duels</td><td class="free"><span class="y">✓</span></td><td class="prem"><span class="y">✓</span></td></tr>
-        <tr class="row"><td class="feat">Recommandations "Pour toi"</td><td class="free"><span class="val">6</span></td><td class="prem"><span class="tag tag-v">20 avancées</span></td></tr>
-        <tr class="row"><td class="feat">News personnalisées</td><td class="free"><span class="n">—</span></td><td class="prem"><span class="y">✓</span></td></tr>
-        <tr class="row"><td class="feat">Notifications intelligentes</td><td class="free"><span class="n">—</span></td><td class="prem"><span class="y">✓</span></td></tr>
-        <tr class="row"><td class="feat">Early access aux nouvelles features</td><td class="free"><span class="n">—</span></td><td class="prem"><span class="tag tag-c tag-sm">⚡ Immédiat</span></td></tr>
+  <div class="compare">
+    <div class="compare-heads">
+      <div class="compare-head h-label"></div>
+      <div class="compare-head h-free">Gratuit</div>
+      <div class="compare-head h-prem">⭐ Premium</div>
+    </div>
+    <div class="compare-rows">
 
-        <tr class="cat"><td>Ma liste</td><td></td><td class="p-col"></td></tr>
-        <tr class="row"><td class="feat">Favoris</td><td class="free"><span class="val">20 max</span></td><td class="prem"><span class="tag tag-g">Illimités</span></td></tr>
-        <tr class="row"><td class="feat">Réorganisation (drag & drop)</td><td class="free"><span class="n">—</span></td><td class="prem"><span class="y">✓</span></td></tr>
-        <tr class="row"><td class="feat">Historique de visionnage</td><td class="free"><span class="val">Basique</span></td><td class="prem"><span class="tag tag-v tag-sm">Avancé</span></td></tr>
-        <tr class="row"><td class="feat">Alertes nouvel épisode</td><td class="free"><span class="val">Basique</span></td><td class="prem"><span class="tag tag-c tag-sm">Temps réel</span></td></tr>
+      <div class="compare-row">
+        <div class="cr-label">Favoris</div>
+        <div class="cr-free">20 max</div>
+        <div class="cr-prem"><span class="g-tag">Illimités</span></div>
+      </div>
 
-        <tr class="cat"><td>Profil & stats</td><td></td><td class="p-col"></td></tr>
-        <tr class="row"><td class="feat">Stats de base (heures, jours, progression)</td><td class="free"><span class="y">✓</span></td><td class="prem"><span class="y">✓</span></td></tr>
-        <tr class="row"><td class="feat">Analyse avancée (genres, top animes)</td><td class="free"><span class="n">—</span></td><td class="prem"><span class="y">✓</span></td></tr>
-        <tr class="row"><td class="feat">Personnalisation UI & profil</td><td class="free"><span class="n">—</span></td><td class="prem"><span class="y">✓</span></td></tr>
-        <tr class="row"><td class="feat">Badge Premium</td><td class="free"><span class="n">—</span></td><td class="prem">⭐</td></tr>
-      </tbody>
-    </table>
+      <div class="compare-row">
+        <div class="cr-label">Recommandations</div>
+        <div class="cr-free">6</div>
+        <div class="cr-prem"><span class="v-tag">20 avancées</span></div>
+      </div>
+
+      <div class="compare-row">
+        <div class="cr-label">Stats profil</div>
+        <div class="cr-free">Basiques</div>
+        <div class="cr-prem"><span class="v-tag">Avancées</span></div>
+      </div>
+
+      <div class="compare-row">
+        <div class="cr-label">Alertes épisodes</div>
+        <div class="cr-free">Basiques</div>
+        <div class="cr-prem"><span class="c-tag">Temps réel</span></div>
+      </div>
+
+      <div class="compare-row">
+        <div class="cr-label">Personnalisation</div>
+        <div class="cr-free"><span class="n">—</span></div>
+        <div class="cr-prem"><span class="y">✓</span></div>
+      </div>
+
+      <div class="compare-row">
+        <div class="cr-label">Early access</div>
+        <div class="cr-free"><span class="n">—</span></div>
+        <div class="cr-prem"><span class="c-tag">⚡ Immédiat</span></div>
+      </div>
+
+    </div>
   </div>
 
   <div class="pricing">
