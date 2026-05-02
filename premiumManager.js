@@ -146,13 +146,12 @@
     document.body.appendChild(overlay);
   };
 
-  /* Features listées dans le popup */
+  /* Features listées dans le popup — alignées sur la grille produit */
   var _PREMIUM_FEATURES = [
-    '📊 Stats avancées & genres préférés',
-    '🔥 Recommandations personnalisées',
-    '❤️ Favoris illimités',
-    '⚡ Accès anticipé aux nouveautés',
-    '↕️ Réorganisation de ta liste',
+    '🎯 Analyse : genres préférés & top animes',
+    '🔥 20 recommandations personnalisées',
+    '❤️ Favoris illimités & réorganisation',
+    '⚡ Early access aux nouvelles features',
   ];
 
   /* ── Badge Premium navbar ── */
