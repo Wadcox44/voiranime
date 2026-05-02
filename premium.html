@@ -39,6 +39,7 @@
       min-height: 100vh;
       overflow-x: hidden;
       position: relative;
+      width: 100%;
     }
 
     /* ── Fond animé ─────────────────────────────────────── */
@@ -89,6 +90,7 @@
       position: relative;
       z-index: 2;
       max-width: 860px;
+      width: 100%;
       margin: 0 auto;
       padding: 0 24px 80px;
     }
@@ -186,10 +188,15 @@
     /* ── Tableau comparatif ──────────────────────────────── */
     .compare-wrap {
       animation: fadeUp 0.7s ease 0.1s both;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      width: 100%;
+      border-radius: 20px;
     }
 
     .compare-table {
       width: 100%;
+      min-width: 480px;
       border-collapse: separate;
       border-spacing: 0;
       border-radius: 20px;
@@ -503,9 +510,7 @@
       .page { padding: 0 14px 60px; }
       .hero { padding: 40px 0 36px; }
 
-      /* Table scroll mobile */
-      .compare-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-      .compare-table { min-width: 480px; }
+      /* Table scroll mobile — déjà géré au-dessus */
 
       .social-proof { gap: 16px; }
       .sp-num { font-size: 1.2rem; }
@@ -546,6 +551,11 @@
   <!-- ── TABLEAU COMPARATIF ── -->
   <div class="compare-wrap">
     <table class="compare-table">
+      <colgroup>
+        <col style="width:55%">
+        <col style="width:20%">
+        <col style="width:25%">
+      </colgroup>
       <thead>
         <tr>
           <td class="col-head feat">Fonctionnalité</td>
