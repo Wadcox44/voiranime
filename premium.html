@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VoirAnime Premium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink0:   #06050f;
+      --ink1:   #0d0b1a;
+      --ink2:   #12101f;
+      --ink3:   #1a1730;
+      --ink4:   #231f3a;
+      --b1:     rgba(255,255,255,0.06);
+      --b2:     rgba(255,255,255,0.12);
+      --text:   #f0eeff;
+      --text2:  #a09bbe;
+      --muted:  #5a5875;
+      --violet: #a78bfa;
+      --violet2:#818cf8;
+      --cyan:   #22d3ee;
+      --green:  #4ade80;
+      --gold:   #fbbf24;
+      --pink:   #f472b6;
+      --font:   'Outfit', sans-serif;
+      --display:'Syne', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--ink0);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── Fond animé ─────────────────────────────────────── */
+    .bg-orbs {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .bg-orbs::before {
+      content: '';
+      position: absolute;
+      top: -20%;
+      left: -10%;
+      width: 70vw;
+      height: 70vw;
+      background: radial-gradient(ellipse, rgba(167,139,250,0.08) 0%, transparent 65%);
+      animation: orbFloat1 18s ease-in-out infinite;
+    }
+    .bg-orbs::after {
+      content: '';
+      position: absolute;
+      bottom: -20%;
+      right: -10%;
+      width: 60vw;
+      height: 60vw;
+      background: radial-gradient(ellipse, rgba(34,211,238,0.06) 0%, transparent 65%);
+      animation: orbFloat2 22s ease-in-out infinite;
+    }
+    @keyframes orbFloat1 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(4%,6%) scale(1.06)} }
+    @keyframes orbFloat2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-5%,-4%) scale(1.05)} }
+
+    /* Grain overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.022;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+
+    /* ── Wrapper ─────────────────────────────────────────── */
+    .page {
+      position: relative;
+      z-index: 2;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ── Bouton retour ───────────────────────────────────── */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 18px 10px 14px;
+      margin: 24px 0 0;
+      background: var(--ink3);
+      border: 1px solid var(--b2);
+      border-radius: 50px;
+      color: var(--text2);
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .back-btn:hover {
+      background: var(--ink4);
+      color: var(--text);
+      border-color: rgba(167,139,250,0.3);
+    }
+    .back-btn svg { opacity: 0.7; }
+
+    /* ── Header ──────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 56px 0 48px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: linear-gradient(135deg, rgba(167,139,250,0.15), rgba(34,211,238,0.1));
+      border: 1px solid rgba(167,139,250,0.3);
+      border-radius: 50px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--violet);
+      margin-bottom: 24px;
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px;
+      background: var(--violet);
+      border-radius: 50%;
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
+
+    .hero-title {
+      font-family: var(--display);
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #fff 30%, #a78bfa 70%, #22d3ee 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 1rem;
+      color: var(--text2);
+      line-height: 1.6;
+      max-width: 500px;
+      margin: 0 auto 32px;
+    }
+
+    /* Pricing preview */
+    .hero-pricing {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 20px;
+      background: rgba(167,139,250,0.08);
+      border: 1px solid rgba(167,139,250,0.2);
+      border-radius: 50px;
+      font-size: 0.82rem;
+      color: var(--text2);
+    }
+    .hero-pricing strong { color: var(--violet); font-weight: 800; }
+
+    /* ── Tableau comparatif ──────────────────────────────── */
+    .compare-wrap {
+      animation: fadeUp 0.7s ease 0.1s both;
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    /* Header colonnes */
+    .col-head {
+      padding: 20px 16px;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid var(--b1);
+    }
+    .col-head.feat { text-align: left; background: var(--ink2); color: var(--muted); }
+    .col-head.free { background: var(--ink2); color: var(--text2); }
+    .col-head.prem {
+      background: linear-gradient(160deg, rgba(167,139,250,0.18) 0%, rgba(34,211,238,0.1) 100%);
+      color: var(--violet);
+      border-left: 1px solid rgba(167,139,250,0.2);
+      border-right: 1px solid rgba(167,139,250,0.2);
+      position: relative;
+    }
+    .col-head.prem::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #a78bfa, #22d3ee);
+    }
+    .prem-col-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .prem-col-label .star { font-size: 1.1rem; }
+    .prem-col-price {
+      font-size: 0.65rem;
+      color: var(--text2);
+      font-weight: 400;
+      letter-spacing: 0;
+      text-transform: none;
+      margin-top: 2px;
+    }
+
+    /* Lignes de catégorie */
+    .cat-row td {
+      padding: 10px 16px 6px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      background: var(--ink1);
+      border-top: 1px solid var(--b1);
+    }
+    .cat-row td.prem-col {
+      background: rgba(167,139,250,0.04);
+      border-left: 1px solid rgba(167,139,250,0.15);
+      border-right: 1px solid rgba(167,139,250,0.15);
+    }
+
+    /* Lignes de données */
+    .data-row td {
+      padding: 13px 16px;
+      font-size: 0.84rem;
+      border-bottom: 1px solid var(--b1);
+      vertical-align: middle;
+      transition: background 0.15s;
+    }
+    .data-row:hover td { background: rgba(255,255,255,0.015); }
+    .data-row td.feat-cell {
+      color: var(--text2);
+      background: var(--ink2);
+      font-weight: 500;
+    }
+    .data-row td.free-cell {
+      text-align: center;
+      background: var(--ink2);
+      color: var(--text2);
+    }
+    .data-row td.prem-cell {
+      text-align: center;
+      background: rgba(167,139,250,0.04);
+      border-left: 1px solid rgba(167,139,250,0.15);
+      border-right: 1px solid rgba(167,139,250,0.15);
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Dernière ligne du tableau */
+    .data-row:last-child td { border-bottom: none; }
+    .data-row:last-child td.feat-cell { border-radius: 0 0 0 20px; }
+    .data-row:last-child td.prem-cell {
+      border-radius: 0;
+      border-bottom: 1px solid rgba(167,139,250,0.2);
+    }
+
+    /* Icônes */
+    .ic-yes  { color: var(--green);  font-size: 1rem; }
+    .ic-no   { color: var(--muted);  font-size: 0.85rem; opacity: 0.5; }
+    .ic-prem { color: var(--violet); font-size: 0.9rem; font-weight: 700; }
+    .ic-star { color: var(--gold);   font-size: 0.95rem; }
+
+    /* Tag valeur premium */
+    .val-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      background: rgba(167,139,250,0.12);
+      color: var(--violet);
+      border: 1px solid rgba(167,139,250,0.2);
+    }
+    .val-tag.cyan {
+      background: rgba(34,211,238,0.1);
+      color: var(--cyan);
+      border-color: rgba(34,211,238,0.2);
+    }
+    .val-tag.green {
+      background: rgba(74,222,128,0.1);
+      color: var(--green);
+      border-color: rgba(74,222,128,0.2);
+    }
+
+    /* ── Social proof ────────────────────────────────────── */
+    .social-proof {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 28px 0;
+      animation: fadeUp 0.7s ease 0.2s both;
+    }
+    .sp-item {
+      text-align: center;
+    }
+    .sp-num {
+      font-family: var(--display);
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--violet), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .sp-label { font-size: 0.7rem; color: var(--muted); font-weight: 600; }
+    .sp-div { width: 1px; height: 32px; background: var(--b2); }
+
+    /* ── CTA final ───────────────────────────────────────── */
+    .cta-section {
+      text-align: center;
+      padding: 48px 0 16px;
+      animation: fadeUp 0.7s ease 0.3s both;
+    }
+
+    .cta-card {
+      background: linear-gradient(160deg, rgba(167,139,250,0.1) 0%, rgba(34,211,238,0.06) 100%);
+      border: 1px solid rgba(167,139,250,0.25);
+      border-radius: 24px;
+      padding: 40px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(167,139,250,0.6), rgba(34,211,238,0.4), transparent);
+    }
+
+    .cta-glow {
+      position: absolute;
+      top: -60%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 500px;
+      height: 300px;
+      background: radial-gradient(ellipse, rgba(167,139,250,0.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .cta-title {
+      font-family: var(--display);
+      font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+      font-weight: 800;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .cta-sub {
+      color: var(--text2);
+      font-size: 0.88rem;
+      margin-bottom: 28px;
+      position: relative;
+    }
+
+    .cta-plans {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .plan-card {
+      background: var(--ink3);
+      border: 1px solid var(--b2);
+      border-radius: 16px;
+      padding: 18px 24px;
+      min-width: 160px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .plan-card:hover {
+      border-color: rgba(167,139,250,0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(167,139,250,0.1);
+    }
+    .plan-card.featured {
+      background: linear-gradient(160deg, rgba(167,139,250,0.15), rgba(34,211,238,0.08));
+      border-color: rgba(167,139,250,0.4);
+      box-shadow: 0 0 0 1px rgba(167,139,250,0.2), 0 16px 48px rgba(167,139,250,0.12);
+    }
+    .plan-badge {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #a78bfa, #22d3ee);
+      color: var(--ink0);
+      font-size: 0.6rem;
+      font-weight: 800;
+      padding: 3px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+      letter-spacing: 0.05em;
+    }
+    .plan-name { font-size: 0.7rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+    .plan-price { font-family: var(--display); font-size: 1.7rem; font-weight: 800; color: var(--violet); line-height: 1; margin-bottom: 2px; }
+    .plan-price span { font-size: 0.8rem; color: var(--text2); font-weight: 500; font-family: var(--font); }
+    .plan-period { font-size: 0.7rem; color: var(--muted); }
+    .plan-saving {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: var(--green);
+      background: rgba(74,222,128,0.1);
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 40px;
+      background: linear-gradient(135deg, #a78bfa, #818cf8, #22d3ee);
+      background-size: 200% 200%;
+      color: #fff;
+      font-family: var(--font);
+      font-weight: 800;
+      font-size: 1rem;
+      border-radius: 16px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      animation: gradShift 4s ease infinite;
+      box-shadow: 0 8px 32px rgba(167,139,250,0.3);
+      position: relative;
+    }
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 48px rgba(167,139,250,0.45);
+    }
+    @keyframes gradShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+
+    .cta-btn-arrow {
+      transition: transform 0.2s;
+    }
+    .cta-btn:hover .cta-btn-arrow { transform: translateX(3px); }
+
+    .cta-note {
+      margin-top: 16px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      position: relative;
+    }
+    .cta-note a { color: var(--text2); text-decoration: underline; text-underline-offset: 3px; }
+
+    /* ── Animations ──────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 600px) {
+      .page { padding: 0 14px 60px; }
+      .hero { padding: 40px 0 36px; }
+
+      /* Table scroll mobile */
+      .compare-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .compare-table { min-width: 480px; }
+
+      .social-proof { gap: 16px; }
+      .sp-num { font-size: 1.2rem; }
+
+      .cta-card { padding: 28px 18px; }
+      .cta-plans { flex-direction: column; align-items: center; }
+      .plan-card { width: 100%; max-width: 240px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-orbs"></div>
+
+<div class="page">
+
+  <!-- Bouton retour -->
+  <a href="javascript:history.back()" class="back-btn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Retour
+  </a>
+
+  <!-- ── HERO ── -->
+  <div class="hero">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      VoirAnime Premium
+    </div>
+    <h1 class="hero-title">Passe à Premium et débloque<br>toute l'expérience VoirAnime</h1>
+    <p class="hero-sub">Recommandations avancées, stats enrichies, alertes intelligentes et plus encore.</p>
+    <div class="hero-pricing">
+      À partir de <strong>1.99 Pi / mois</strong>&nbsp;·&nbsp;🔥 Offre de lancement
+    </div>
+  </div>
+
+  <!-- ── TABLEAU COMPARATIF ── -->
+  <div class="compare-wrap">
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <td class="col-head feat">Fonctionnalité</td>
+          <td class="col-head free">Gratuit</td>
+          <td class="col-head prem">
+            <div class="prem-col-label">
+              <span class="star">⭐</span>
+              Premium
+              <span class="prem-col-price">1.99 Pi/mois · 19.99 Pi/an</span>
+            </div>
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+
+        <!-- Catégorie : Découverte -->
+        <tr class="cat-row">
+          <td>🔍 Découverte</td>
+          <td></td>
+          <td class="prem-col"></td>
+        </tr>
+        <tr class="data-row">
+          <td class="feat-cell">Catalogue complet, recherche, news, duels</td>
+          <td class="free-cell"><span class="ic-yes">✓</span></td>
+          <td class="prem-cell"><span class="ic-yes">✓</span></td>
+        </tr>
+        <tr class="data-row">
+          <td class="feat-cell">Recommandations "Pour toi"</td>
+          <td class="free-cell" style="color:var(--muted);font-size:0.78rem">6 suggestions</td>
+          <td class="prem-cell"><span class="val-tag">20 avancées</span></td>
+        </tr>
+        <tr class="data-row">
+          <td class="feat-cell">News personnalisées selon tes genres</td>
+          <td class="free-cell"><span class="ic-no">—</span></td>
+          <td class="prem-cell"><span class="ic-yes">✓</span></td>
+        </tr>
+        <tr class="data-row">
+          <td class="feat-cell">Notifications intelligentes (trending, similaires)</td>
+          <td class="free-cell"><span class="ic-no">—</span></td>
+          <td class="prem-cell"><span class="ic-yes">✓</span></td>
+        </tr>
+        <tr class="data-row">
+          <td class="feat-cell">Early access aux nouvelles features</td>
+          <td class="free-cell"><span class="ic-no">—</span></td>
+          <td class="prem-cell"><span class="val-tag cyan">⚡ Immédiat</span></td>
+        </tr>
+
+        <!-- Catégorie : Ma liste -->
+        <tr class="cat-row">
+          <td>❤️ Ma liste</td>
+          <td></td>
+          <td class="prem-col"></td>
+        </tr>
+        <tr class="data-row">
+          <td class="feat-cell">Favoris</td>
+          <td class="free-cell" style="color:var(--muted);font-size:0.78rem">20 max</td>
+          <td class="prem-cell"><span class="val-tag green">Illimités</span></td>
+        </tr>
+        <tr class="data-row">
+          <td class="feat-cell">Réorganisation de la liste (drag & drop)</td>
+          <td class="free-cell"><span class="ic-no">—</span></td>
+          <td class="prem-cell"><span class="ic-yes">✓</span></td>
+        </tr>
+        <tr class="data-row">
+          <td class="feat-cell">Historique de visionnage</td>
+          <td class="free-cell" style="color:var(--muted);font-size:0.78rem">Basique</td>
+          <td class="prem-cell"><span class="val-tag">Avancé</span></td>
+        </tr>
+        <tr class="data-row">
+          <td class="feat-cell">Alertes nouvel épisode</td>
+          <td class="free-cell" style="color:var(--muted);font-size:0.78rem">Basique</td>
+          <td class="prem-cell"><span class="val-tag cyan">Temps réel</span></td>
+        </tr>
+
+        <!-- Catégorie : Profil & stats -->
+        <tr class="cat-row">
+          <td>📊 Profil & stats</td>
+          <td></td>
+          <td class="prem-col"></td>
+        </tr>
+        <tr class="data-row">
+          <td class="feat-cell">Stats de base (heures, jours actifs, progression)</td>
+          <td class="free-cell"><span class="ic-yes">✓</span></td>
+          <td class="prem-cell"><span class="ic-yes">✓</span></td>
+        </tr>
+        <tr class="data-row">
+          <td class="feat-cell">Analyse avancée (genres préférés, top animes)</td>
+          <td class="free-cell"><span class="ic-no">—</span></td>
+          <td class="prem-cell"><span class="ic-yes">✓</span></td>
+        </tr>
+        <tr class="data-row">
+          <td class="feat-cell">Personnalisation de l'UI et du profil</td>
+          <td class="free-cell"><span class="ic-no">—</span></td>
+          <td class="prem-cell"><span class="ic-yes">✓</span></td>
+        </tr>
+        <tr class="data-row">
+          <td class="feat-cell">Badge ⭐ Premium sur le profil</td>
+          <td class="free-cell"><span class="ic-no">—</span></td>
+          <td class="prem-cell"><span class="ic-star">⭐</span></td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── SOCIAL PROOF ── -->
+  <div class="social-proof">
+    <div class="sp-item">
+      <div class="sp-num">1.99π</div>
+      <div class="sp-label">par mois seulement</div>
+    </div>
+    <div class="sp-div"></div>
+    <div class="sp-item">
+      <div class="sp-num">2 mois</div>
+      <div class="sp-label">offerts avec l'abonnement annuel</div>
+    </div>
+    <div class="sp-div"></div>
+    <div class="sp-item">
+      <div class="sp-num">Pi</div>
+      <div class="sp-label">paiement via Pi Network</div>
+    </div>
+  </div>
+
+  <!-- ── CTA FINAL ── -->
+  <div class="cta-section">
+    <div class="cta-card">
+      <div class="cta-glow"></div>
+
+      <h2 class="cta-title">Prêt à passer au niveau supérieur ?</h2>
+      <p class="cta-sub">Rejoins les membres Premium et vis l'anime autrement.</p>
+
+      <!-- Plans -->
+      <div class="cta-plans">
+        <div class="plan-card">
+          <div class="plan-name">Mensuel</div>
+          <div class="plan-price">1.99 <span>Pi</span></div>
+          <div class="plan-period">par mois</div>
+        </div>
+        <div class="plan-card featured">
+          <div class="plan-badge">🔥 Meilleure offre</div>
+          <div class="plan-name">Annuel</div>
+          <div class="plan-price">19.99 <span>Pi</span></div>
+          <div class="plan-period">par an</div>
+          <div class="plan-saving">2 mois offerts</div>
+        </div>
+      </div>
+
+      <a href="soutenir.html" class="cta-btn">
+        Passer Premium maintenant
+        <span class="cta-btn-arrow">→</span>
+      </a>
+
+      <p class="cta-note">
+        Paiement sécurisé via Pi Network · <a href="javascript:history.back()">Pas maintenant</a>
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Mise en évidence de la colonne Premium au scroll (animation staggerée)
+(function() {
+  const rows = document.querySelectorAll('.data-row');
+  if (!('IntersectionObserver' in window)) return;
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.animation = 'fadeUp 0.4s ease both';
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  rows.forEach((row, i) => {
+    row.style.opacity = '0';
+    row.style.animationDelay = Math.min(i * 0.03, 0.4) + 's';
+    io.observe(row);
+  });
+})();
+
+// Hover glow sur colonne Premium
+document.querySelectorAll('.data-row').forEach(row => {
+  row.addEventListener('mouseenter', () => {
+    const cell = row.querySelector('.prem-cell');
+    if (cell) cell.style.background = 'rgba(167,139,250,0.09)';
+  });
+  row.addEventListener('mouseleave', () => {
+    const cell = row.querySelector('.prem-cell');
+    if (cell) cell.style.background = 'rgba(167,139,250,0.04)';
+  });
+});
+</script>
+
+</body>
+</html>
