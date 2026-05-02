@@ -171,7 +171,7 @@
 <!-- ════════════════════════════════
      ANIME DU JOUR
 ════════════════════════════════ -->
-<section class="anime-du-jour" id="animeDuJour" 
+<section class="anime-du-jour" id="animeDuJour">
   <div class="adj-video-bg" id="adjVideoBg">
     <iframe id="adjIframe" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     <img class="adj-img-fallback" id="adjImgFallback" src="" alt=""/>
@@ -286,7 +286,6 @@
   <div class="section-header">
     <h2 class="section-title"><span class="section-dot pink"></span><span data-i18n="section.for_you">✨ Pour toi</span></h2>
     <span class="section-badge" id="forYouBadge"></span>
-    <!-- Badge Premium affiché si non-premium -->
     <span id="forYouPremiumBadge" style="display:none;font-size:0.62rem;font-weight:700;
       padding:3px 9px;border-radius:20px;
       background:linear-gradient(135deg,rgba(167,139,250,0.15),rgba(34,211,238,0.1));
@@ -301,11 +300,10 @@
       <div class="carousel" id="carousel-for-you"></div>
       <button class="carousel-btn next" data-carousel="for-you">›</button>
     </div>
-    <!-- Overlay teaser non-premium (affiché par JS si non-premium) -->
     <div id="forYouPremiumOverlay" style="display:none;
       position:absolute;bottom:0;left:0;right:0;height:80%;
       background:linear-gradient(to top,rgba(2,6,23,0.97) 0%,rgba(2,6,23,0.7) 50%,transparent 100%);
-      display:none;align-items:flex-end;justify-content:center;padding-bottom:20px;
+      align-items:flex-end;justify-content:center;padding-bottom:20px;
       pointer-events:none;border-radius:0 0 var(--r) var(--r)">
       <div style="text-align:center;pointer-events:all">
         <div style="font-size:0.82rem;color:var(--text2);margin-bottom:10px">
@@ -882,29 +880,20 @@
     tryInitNotifs();
   }
 
-  /* ── UI Premium pour index.html ── */
   function _applyPremiumUI(isPremium) {
-    // Badge ⭐ Premium sur "Pour toi"
     var badge = document.getElementById('forYouPremiumBadge');
     if (badge) badge.style.display = isPremium ? 'none' : 'inline-flex';
-
-    // Overlay teaser sur le carousel "Pour toi"
     var overlay = document.getElementById('forYouPremiumOverlay');
     if (overlay) overlay.style.display = isPremium ? 'none' : 'flex';
-
-    // Badge Early access : style différent si premium
     var earlyBadge = document.getElementById('earlyAccessBadge');
-    if (earlyBadge) {
-      if (isPremium) {
-        earlyBadge.style.background = 'rgba(34,211,238,0.18)';
-        earlyBadge.style.borderColor = 'rgba(34,211,238,0.5)';
-        earlyBadge.onclick = null; // premium = pas de popup
-        earlyBadge.title = 'Fonctionnalité Early access active';
-      }
+    if (earlyBadge && isPremium) {
+      earlyBadge.style.background = 'rgba(34,211,238,0.18)';
+      earlyBadge.style.borderColor = 'rgba(34,211,238,0.5)';
+      earlyBadge.onclick = null;
+      earlyBadge.title = 'Fonctionnalité Early access active';
     }
   }
 
-  // Attendre que premiumManager soit prêt
   (function waitPremium() {
     if (window.VA_onPremiumReady) {
       window.VA_onPremiumReady(function(data) {
