@@ -383,28 +383,19 @@
       <div class="stat-compact-num" id="statCompletedCount" style="color:#4ade80">0</div>
       <div class="stat-compact-label">Terminés</div>
     </div>
-    <div class="stat-compact" style="cursor:pointer" title="Disponible avec Premium"
-         onclick="window.VA_showUpgradePrompt && !window.VA_isPremium() && window.VA_showUpgradePrompt('Les stats avancées sont réservées aux membres Premium.',['⏱️ Heures regardées','📅 Jours actifs','🏁 Progression globale','🎯 Genres préférés'])">
+    <div class="stat-compact">
       <div class="stat-compact-num" id="statHoursCount" style="color:#a78bfa">—</div>
-      <div class="stat-compact-label" style="display:flex;align-items:center;gap:3px;justify-content:center">
-        Heures <span style="font-size:0.55rem;color:#a78bfa" id="hoursLockIcon">⭐</span>
-      </div>
+      <div class="stat-compact-label">Heures</div>
     </div>
 
     <!-- Ligne 3 : 2 centré -->
-    <div class="stat-compact stat-compact-half" style="cursor:pointer" title="Disponible avec Premium"
-         onclick="window.VA_showUpgradePrompt && !window.VA_isPremium() && window.VA_showUpgradePrompt('Les stats avancées sont réservées aux membres Premium.',['⏱️ Heures regardées','📅 Jours actifs','🏁 Progression globale','🎯 Genres préférés'])">
+    <div class="stat-compact stat-compact-half">
       <div class="stat-compact-num" id="statActiveDaysCount" style="color:#22d3ee">—</div>
-      <div class="stat-compact-label" style="display:flex;align-items:center;gap:3px;justify-content:center">
-        Jours actifs <span style="font-size:0.55rem;color:#a78bfa" id="daysLockIcon">⭐</span>
-      </div>
+      <div class="stat-compact-label">Jours actifs</div>
     </div>
-    <div class="stat-compact stat-compact-half" style="cursor:pointer" title="Disponible avec Premium"
-         onclick="window.VA_showUpgradePrompt && !window.VA_isPremium() && window.VA_showUpgradePrompt('Les stats avancées sont réservées aux membres Premium.',['⏱️ Heures regardées','📅 Jours actifs','🏁 Progression globale','🎯 Genres préférés'])">
+    <div class="stat-compact stat-compact-half">
       <div class="stat-compact-num" id="statProgressCount" style="color:#f59e0b">—</div>
-      <div class="stat-compact-label" style="display:flex;align-items:center;gap:3px;justify-content:center">
-        Progression <span style="font-size:0.55rem;color:#a78bfa" id="progressLockIcon">⭐</span>
-      </div>
+      <div class="stat-compact-label">Progression</div>
     </div>
 
   </div>
@@ -427,14 +418,14 @@
   <div style="background:linear-gradient(135deg,rgba(167,139,250,0.07),rgba(34,211,238,0.05));
     border:1px solid rgba(167,139,250,0.2);border-radius:16px;padding:22px 20px;
     cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s"
-    onclick="window.VA_showUpgradePrompt('Débloque tes stats personnalisées, tes recommandations et bien plus.',['📊 Stats avancées & genres préférés','🔥 Recommandations personnalisées','❤️ Favoris illimités','⚡ Accès anticipé aux nouveautés'])"
+    onclick="window.VA_showUpgradePrompt('Débloque une expérience anime complète et personnalisée.',['🎯 Genres préférés & top animes','🔥 20 recommandations avancées','❤️ Favoris illimités & réorganisation','⚡ Early access aux nouveautés'])"
     onmouseover="this.style.borderColor='rgba(167,139,250,0.45)';this.style.boxShadow='0 8px 32px rgba(167,139,250,0.12)'"
     onmouseout="this.style.borderColor='rgba(167,139,250,0.2)';this.style.boxShadow='none'">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
       <div style="font-size:1.4rem">⭐</div>
       <div>
         <div style="font-size:0.9rem;font-weight:800;color:var(--text);margin-bottom:2px">Détails Premium</div>
-        <div style="font-size:0.75rem;color:var(--muted)">Débloque tes stats et recommandations personnalisées</div>
+        <div style="font-size:0.75rem;color:var(--muted)">Genres préférés, top animes et recommandations avancées</div>
       </div>
       <div style="margin-left:auto;font-size:0.72rem;font-weight:700;
         background:linear-gradient(135deg,#a78bfa,#818cf8);
@@ -612,42 +603,31 @@
     const wEl = el('statWatchingCount');  if (wEl) wEl.textContent  = watching.length;
     const cEl = el('statCompletedCount'); if (cEl) cEl.textContent  = completed.length;
 
-    // ⏱ Heures / Jours actifs / Progression — PREMIUM UNIQUEMENT
+    // ⏱ Heures / Jours actifs / Progression — VISIBLES POUR TOUS
     const totalMins = completed.reduce((acc, a) => acc + (a.episodes||0)*(a.duration||24), 0);
+    const hEl2 = el('statHoursCount');
+    if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
+
     const now2 = new Date();
     const monthStart2 = new Date(now2.getFullYear(), now2.getMonth(), 1).getTime();
     const histAll = getHistory();
     const activeDays2 = new Set(histAll.filter(h=>(h.ts||0)>=monthStart2).map(h=>new Date(h.ts).toDateString())).size;
+    const dEl2 = el('statActiveDaysCount');
+    if (dEl2) dEl2.textContent = activeDays2 || 0;
 
-    if (window.VA_isPremium && window.VA_isPremium()) {
-      // Premium : afficher les vraies valeurs + masquer les ⭐
-      const hEl2 = el('statHoursCount');
-      if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
-      const dEl2 = el('statActiveDaysCount');
-      if (dEl2) dEl2.textContent = activeDays2 || 0;
-      ['hoursLockIcon','daysLockIcon','progressLockIcon'].forEach(function(lockId) {
-        var ic = el(lockId); if (ic) ic.style.display = 'none';
-      });
-      [el('statHoursCount'), el('statActiveDaysCount'), el('statProgressCount')].forEach(function(se) {
-        if (!se) return;
-        var p = se.closest('.stat-compact');
-        if (p) { p.style.cursor = ''; p.onclick = null; p.removeAttribute('title'); }
-      });
-      // Progression async
-      (async function() {
-        try {
-          const r = await fetch('/api/jikan?path=' + encodeURIComponent('/anime?limit=1&page=1'));
-          const d = await r.json();
-          const total = d.pagination?.items?.total || 24000;
-          const pct = +(completed.length / total * 100).toFixed(1);
-          const pEl2 = el('statProgressCount'); if (pEl2) pEl2.textContent = pct + '%';
-        } catch {
-          const pEl2 = el('statProgressCount');
-          if (pEl2) pEl2.textContent = completed.length > 0 ? completed.length + ' vus' : '—';
-        }
-      })();
-    }
-    // Non-premium : stats restent '—' avec ⭐ → onclick ouvre popup premium
+    // Progression (fetch async — total catalogue Jikan)
+    (async function() {
+      try {
+        const r = await fetch('/api/jikan?path=' + encodeURIComponent('/anime?limit=1&page=1'));
+        const d = await r.json();
+        const total = d.pagination?.items?.total || 24000;
+        const pct = +(completed.length / total * 100).toFixed(1);
+        const pEl2 = el('statProgressCount'); if (pEl2) pEl2.textContent = pct + '%';
+      } catch {
+        const pEl2 = el('statProgressCount');
+        if (pEl2) pEl2.textContent = completed.length > 0 ? completed.length + ' vus' : '—';
+      }
+    })();
 
     // Date membre
     const firstVisit = parseInt(localStorage.getItem('VoirAnime_firstVisit') || '0');
@@ -847,9 +827,9 @@
         + '<button id="subPerksToggle" style="background:none;border:none;color:var(--muted);font-size:0.72rem;cursor:pointer;font-family:var(--font);padding:2px 0;text-align:left;">Voir les avantages ▼</button>'
         + '<div id="subPerksBody" class="sub-card-perks" style="display:none">'
         + '<span class="sub-perk active">&#10084; Favoris illimit&eacute;s</span>'
-        + '<span class="sub-perk active">&#128202; Stats d&eacute;taill&eacute;es</span>'
-        + '<span class="sub-perk active">&#9889; Acc&egrave;s anticip&eacute;</span>'
-        + '<span class="sub-perk active">&#8597; R&eacute;organiser</span>'
+        + '<span class="sub-perk active">&#8597; R&eacute;organisation des favoris</span>'
+        + '<span class="sub-perk active">&#127919; Analyse avanc&eacute;e du profil</span>'
+        + '<span class="sub-perk active">&#9889; Early access features</span>'
         + '</div>'
         + '<div class="sub-card-actions">'
         + '<button class="sub-card-btn sub-card-btn-renew" id="subRenewBtn">Renouveler</button>'
@@ -883,7 +863,7 @@
         + '<div class="sub-offers-title-row">' + expiredHtml + '</div>'
 
         // Tableau 3 colonnes : Fonctionnalité / Gratuit / Premium
-        + '<table style="width:100%;border-collapse:collapse;font-size:0.74rem;margin-bottom:12px">'        + '<thead><tr>'        + '<th style="text-align:left;padding:5px 6px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--b1)">Fonctionnalité</th>'        + '<th style="text-align:center;padding:5px 6px;color:var(--text2);font-weight:700;border-bottom:1px solid var(--b1)">Gratuit</th>'        + '<th style="text-align:center;padding:5px 6px;color:#22d3ee;font-weight:700;border-bottom:1px solid var(--b1)">⭐ Premium<br><span style=\'font-size:0.62rem;color:var(--muted);font-weight:400\'>1.99π/mois · 19.99π/an<br>🔥 Offre de lancement</span></th>'        + '</tr></thead><tbody>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">❤ Favoris</td><td style="text-align:center;color:var(--muted)">20 max</td><td style="text-align:center;color:#4ade80">✓ Illimités</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">📊 Stats détaillées</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">⚡ Accès anticipé</td><td style="text-align:center;color:var(--muted)">+15j</td><td style="text-align:center;color:#4ade80">✓ Immédiat</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">↕ Réorganiser</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">🔔 News perso</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '</tbody></table>'
+        + '<table style="width:100%;border-collapse:collapse;font-size:0.74rem;margin-bottom:12px">'        + '<thead><tr>'        + '<th style="text-align:left;padding:5px 6px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--b1)">Fonctionnalité</th>'        + '<th style="text-align:center;padding:5px 6px;color:var(--text2);font-weight:700;border-bottom:1px solid var(--b1)">Gratuit</th>'        + '<th style="text-align:center;padding:5px 6px;color:#22d3ee;font-weight:700;border-bottom:1px solid var(--b1)">⭐ Premium<br><span style=\'font-size:0.62rem;color:var(--muted);font-weight:400\'>1.99π/mois · 19.99π/an<br>🔥 Offre de lancement</span></th>'        + '</tr></thead><tbody>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">❤ Favoris</td><td style="text-align:center;color:var(--muted)">20 max</td><td style="text-align:center;color:#4ade80">✓ Illimités</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">🎯 Analyse avancée (genres/top)</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">⚡ Accès anticipé</td><td style="text-align:center;color:var(--muted)">+15j</td><td style="text-align:center;color:#4ade80">✓ Immédiat</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">↕ Réorganiser</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">🔔 News perso</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '</tbody></table>'
 
         // Plans
         + '<div class="sub-offers-grid">'
