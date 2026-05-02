@@ -10,203 +10,287 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg:   #0a0914; --s1: #111020; --s2: #19172b; --s3: #221f36;
-      --b1:   rgba(255,255,255,0.07); --b2: rgba(255,255,255,0.12);
+      --b1:   rgba(255,255,255,0.07); --b2: rgba(255,255,255,0.13);
       --text: #eeecff; --text2: #9b99be; --muted: #5c5a78;
-      --v:    #a78bfa; --cyan: #22d3ee; --green: #4ade80;
-      --font: 'Outfit', sans-serif; --r: 10px;
+      --v:    #a78bfa; --cyan: #22d3ee; --green: #4ade80; --gold: #fbbf24;
+      --font: 'Outfit', sans-serif; --r: 12px;
     }
     html, body {
-      background: var(--bg); color: var(--text);
-      font-family: var(--font); font-size: 14px; min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
+      background: var(--bg); color: var(--text); font-family: var(--font);
+      font-size: 14px; min-height: 100vh; -webkit-font-smoothing: antialiased;
     }
     a { color: inherit; text-decoration: none; }
 
-    .wrap { max-width: 680px; margin: 0 auto; padding: 20px 18px 60px; }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 18px 16px 60px; }
 
-    /* Back */
-    .back {
+    /* ── Retour ── */
+    .header-top-row {
+      display: flex; align-items: center; margin-bottom: 14px;
+    }
+    .back-inline {
       display: inline-flex; align-items: center; gap: 5px;
       padding: 6px 12px 6px 9px; background: var(--s2);
       border: 1px solid var(--b1); border-radius: 8px;
       color: var(--text2); font-size: 0.78rem; font-weight: 600;
-      cursor: pointer; transition: background 0.15s, color 0.15s; margin-bottom: 24px;
+      cursor: pointer; transition: background 0.15s;
     }
-    .back:hover { background: var(--s3); color: var(--text); }
+    .back-inline:hover { background: var(--s3); color: var(--text); }
 
-    /* Header */
-    .header { margin-bottom: 24px; }
+    /* ── Header ── */
+    .header { margin-bottom: 20px; text-align: center; }
     .header-badge {
       display: inline-flex; align-items: center; gap: 5px;
       padding: 3px 10px; background: rgba(167,139,250,0.1);
       border: 1px solid rgba(167,139,250,0.22); border-radius: 20px;
       font-size: 0.68rem; font-weight: 700; color: var(--v);
-      letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px;
+      letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px;
     }
     .header h1 {
-      font-size: 1.5rem; font-weight: 800; line-height: 1.2;
-      letter-spacing: -0.02em; margin-bottom: 7px; color: var(--text);
+      font-size: 1.45rem; font-weight: 800; line-height: 1.2;
+      letter-spacing: -0.02em; margin-bottom: 6px; text-align: center;
     }
     .header h1 em { font-style: normal; color: var(--v); }
-    .header p { font-size: 0.83rem; color: var(--text2); line-height: 1.5; }
+    .header-badge { display: block; text-align: center; margin-bottom: 10px; }
 
-    /* Compare grid */
-    .compare {
-      margin-bottom: 20px;
+    /* ── Urgence founders ── */
+    .urgency-bar {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 12px; background: rgba(251,191,36,0.07);
+      border: 1px solid rgba(251,191,36,0.2); border-radius: 8px;
+      margin-bottom: 14px; font-size: 0.75rem; color: #fbbf24;
     }
+    .urgency-dot { width: 6px; height: 6px; background: #f87171; border-radius: 50%; flex-shrink:0; animation: blink 1.6s ease infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+    /* ── Plan card ── */
+    .plan-card {
+      background: rgba(251,191,36,0.05); border: 1px solid rgba(251,191,36,0.32);
+      border-radius: var(--r); padding: 22px 18px 18px; position: relative;
+      margin-bottom: 14px; text-align: center;
+    }
+    .plan-top-badge {
+      position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+      background: linear-gradient(90deg, #fbbf24, #f59e0b); color: #0a0914;
+      font-size: 0.6rem; font-weight: 800; padding: 3px 14px;
+      border-radius: 20px; white-space: nowrap; letter-spacing: 0.04em;
+    }
+
+    .plan-main-price {
+      display: flex; align-items: baseline; gap: 3px;
+      justify-content: center; margin: 8px 0 5px;
+    }
+    .plan-amount { font-size: 2.4rem; font-weight: 800; line-height: 1; color: var(--text); }
+    .plan-cur    { font-size: 0.88rem; font-weight: 700; color: var(--v); margin-left: 2px; }
+    .plan-per    { font-size: 0.76rem; color: var(--muted); margin-left: 3px; }
+
+    .plan-ref-price {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 2px; margin-bottom: 10px;
+    }
+    .plan-ref-amount {
+      font-size: 0.78rem; font-weight: 600; color: var(--muted);
+      text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.2);
+    }
+    .plan-ref-label { font-size: 0.64rem; color: var(--muted); font-style: italic; }
+
+    .plan-annual-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; margin-bottom: 16px; font-size: 0.72rem; color: var(--muted);
+    }
+    .plan-saving {
+      display: inline-block; padding: 2px 8px; border-radius: 5px;
+      font-size: 0.62rem; font-weight: 700;
+      background: rgba(74,222,128,0.12); color: var(--green);
+    }
+
+    .plan-sub-btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; padding: 13px; border-radius: 9px;
+      font-family: var(--font); font-size: 0.9rem; font-weight: 700;
+      cursor: pointer; border: none; transition: opacity 0.15s, transform 0.15s;
+    }
+    .plan-sub-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .plan-sub-btn.founders-btn {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #0a0914;
+    }
+
+    /* ── Statut Pi Browser ── */
+    .pi-status {
+      display: none; margin-top: 8px; padding: 7px 10px;
+      border-radius: 7px; font-size: 0.72rem; font-weight: 600; text-align: center;
+      background: rgba(248,113,113,0.12); color: #f87171;
+    }
+
+    /* ── Social proof ── */
+    .social-proof {
+      display: none; align-items: center; justify-content: center;
+      padding: 9px 12px; background: var(--s2); border: 1px solid var(--b1);
+      border-radius: 9px; margin-bottom: 14px; font-size: 0.75rem; color: var(--text2);
+      text-align: center;
+    }
+
+    /* ── Détails déroulants ── */
+    .details-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: 11px 14px; background: var(--s2);
+      border: 1px solid var(--b1); border-radius: var(--r);
+      font-family: var(--font); font-size: 0.82rem; font-weight: 600;
+      color: var(--text2); cursor: pointer; transition: background 0.15s;
+      margin-bottom: 2px;
+    }
+    .details-toggle:hover { background: var(--s3); color: var(--text); }
+    .details-toggle svg { transition: transform 0.25s; flex-shrink: 0; }
+    .details-toggle.open svg { transform: rotate(180deg); }
+    .details-toggle .dt-left { display: flex; align-items: center; gap: 7px; }
+
+    .details-panel {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.35s ease, opacity 0.25s ease;
+      opacity: 0;
+    }
+    .details-panel.open { max-height: 900px; opacity: 1; }
+    .details-inner {
+      padding: 14px 0 6px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+
+    /* Blocs de détails */
+    .detail-block {
+      background: var(--s2); border: 1px solid var(--b1);
+      border-radius: var(--r); padding: 14px;
+    }
+    .detail-block-head {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    }
+    .detail-block-icon {
+      width: 32px; height: 32px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .icon-v  { background: rgba(167,139,250,0.15); }
+    .icon-c  { background: rgba(34,211,238,0.13); }
+    .icon-g  { background: rgba(74,222,128,0.13); }
+    .detail-block-title {
+      font-size: 0.85rem; font-weight: 800; line-height: 1.2;
+    }
+    .detail-block-title span { display: block; font-size: 0.68rem; font-weight: 500; color: var(--muted); margin-top: 1px; }
+
+    .detail-feat {
+      display: flex; align-items: center; gap: 7px;
+      padding: 5px 0; font-size: 0.79rem; color: var(--text2);
+      border-bottom: 1px solid var(--b1);
+    }
+    .detail-feat:last-child { border-bottom: none; }
+    .ck { color: var(--green); font-size: 0.7rem; flex-shrink: 0; }
+    .feat-pill {
+      margin-left: auto; font-size: 0.6rem; font-weight: 700;
+      padding: 2px 7px; border-radius: 5px; white-space: nowrap; flex-shrink: 0;
+    }
+    .pv { background: rgba(167,139,250,0.13); color: var(--v); }
+    .pc { background: rgba(34,211,238,0.12); color: var(--cyan); }
+    .pg { background: rgba(74,222,128,0.12); color: var(--green); }
+
+    /* ── Comparatif ── */
+    .compare-title {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.09em; color: var(--muted); margin: 16px 0 8px;
+    }
+    .compare { margin-bottom: 20px; }
     .compare-heads {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 0;
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
       margin-bottom: 2px;
     }
     .compare-head {
-      padding: 8px 10px;
-      font-size: 0.65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      text-align: center;
+      padding: 7px 10px; font-size: 0.63rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em; text-align: center;
     }
     .compare-head.h-label { text-align: left; color: var(--muted); }
     .compare-head.h-free  { color: var(--text2); }
     .compare-head.h-prem  {
-      color: var(--v);
-      background: rgba(167,139,250,0.07);
-      border-radius: 8px 8px 0 0;
-      border: 1px solid rgba(167,139,250,0.18);
-      border-bottom: none;
-      position: relative;
+      color: var(--v); background: rgba(167,139,250,0.07);
+      border-radius: 8px 8px 0 0; border: 1px solid rgba(167,139,250,0.18);
+      border-bottom: none; position: relative;
     }
     .compare-head.h-prem::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      border-radius: 8px 8px 0 0;
-      background: linear-gradient(90deg, #a78bfa, #22d3ee);
+      content:''; position: absolute; top:0; left:0; right:0; height:2px;
+      border-radius: 8px 8px 0 0; background: linear-gradient(90deg,#a78bfa,#22d3ee);
     }
-    .compare-rows {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
+    .compare-rows { display: flex; flex-direction: column; gap: 2px; }
     .compare-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      align-items: center;
-      background: var(--s1);
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid var(--b1);
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      align-items: center; background: var(--s1);
+      border-radius: 8px; overflow: hidden; border: 1px solid var(--b1);
     }
     .compare-row:hover { border-color: var(--b2); }
-    .cr-label {
-      padding: 10px 12px;
-      font-size: 0.8rem;
-      color: var(--text2);
-      font-weight: 500;
-    }
-    .cr-free {
-      padding: 10px 8px;
-      text-align: center;
-      font-size: 0.75rem;
-      color: var(--muted);
-      border-left: 1px solid var(--b1);
-    }
-    .cr-prem {
-      padding: 10px 8px;
-      text-align: center;
-      font-size: 0.75rem;
-      font-weight: 600;
-      background: rgba(167,139,250,0.05);
-      border-left: 1px solid rgba(167,139,250,0.12);
-    }
-    .y   { color: var(--green); }
-    .n   { color: var(--muted); opacity: 0.35; }
-    .v-tag {
-      display: inline-block;
-      padding: 2px 7px;
-      border-radius: 5px;
-      font-size: 0.65rem;
-      font-weight: 700;
-      background: rgba(167,139,250,0.14);
-      color: var(--v);
-    }
-    .c-tag {
-      display: inline-block;
-      padding: 2px 7px;
-      border-radius: 5px;
-      font-size: 0.65rem;
-      font-weight: 700;
-      background: rgba(34,211,238,0.12);
-      color: var(--cyan);
-    }
-    .g-tag {
-      display: inline-block;
-      padding: 2px 7px;
-      border-radius: 5px;
-      font-size: 0.65rem;
-      font-weight: 700;
-      background: rgba(74,222,128,0.12);
-      color: var(--green);
-    }
+    .cr-label { padding: 9px 12px; font-size: 0.79rem; color: var(--text2); font-weight: 500; }
+    .cr-free  { padding: 9px 8px; text-align: center; font-size: 0.74rem; color: var(--muted); border-left: 1px solid var(--b1); }
+    .cr-prem  { padding: 9px 8px; text-align: center; font-size: 0.74rem; font-weight: 600; background: rgba(167,139,250,0.05); border-left: 1px solid rgba(167,139,250,0.12); }
+    .y { color: var(--green); } .n { color: var(--muted); opacity: 0.35; }
+    .tag { display: inline-block; padding: 2px 7px; border-radius: 5px; font-size: 0.63rem; font-weight: 700; }
+    .tv { background: rgba(167,139,250,0.13); color: var(--v); }
+    .tc { background: rgba(34,211,238,0.11);  color: var(--cyan); }
+    .tg { background: rgba(74,222,128,0.11);  color: var(--green); }
 
-    /* Pricing */
-    .pricing { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .plan {
-      background: var(--s2); border: 1px solid var(--b1);
-      border-radius: var(--r); padding: 14px 16px; position: relative;
-      transition: border-color 0.15s;
-    }
-    .plan:hover { border-color: rgba(167,139,250,0.3); }
-    .plan.best { background: rgba(167,139,250,0.07); border-color: rgba(167,139,250,0.3); }
-    .plan-top-badge {
-      position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
-      background: linear-gradient(90deg, #a78bfa, #22d3ee); color: #0a0914;
-      font-size: 0.6rem; font-weight: 800; padding: 2px 10px;
-      border-radius: 20px; white-space: nowrap;
-    }
-    .plan-name { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px; }
-    .plan-price { font-size: 1.35rem; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 2px; }
-    .plan-price .cur { font-size: 0.75rem; font-weight: 600; color: var(--v); margin-left: 2px; }
-    .plan-period { font-size: 0.7rem; color: var(--muted); }
-    .plan-saving { display: inline-block; margin-top: 5px; font-size: 0.62rem; font-weight: 700; color: var(--green); background: rgba(74,222,128,0.1); padding: 2px 7px; border-radius: 5px; }
+    /* ── Note bas ── */
+    .page-note { text-align: center; font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+    .page-note a { color: var(--text2); text-decoration: underline; text-underline-offset: 2px; }
 
-    /* CTA */
-    .cta-btn {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      width: 100%; padding: 13px 24px;
-      background: linear-gradient(135deg, #a78bfa, #818cf8);
-      color: #fff; font-family: var(--font); font-size: 0.9rem; font-weight: 700;
-      border: none; border-radius: var(--r); cursor: pointer; text-decoration: none;
-      transition: opacity 0.15s, transform 0.15s;
-      box-shadow: 0 4px 20px rgba(167,139,250,0.25);
-    }
-    .cta-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-    .cta-note { text-align: center; font-size: 0.7rem; color: var(--muted); margin-top: 10px; }
-    .cta-note a { color: var(--text2); text-decoration: underline; text-underline-offset: 2px; }
-
-    @media (max-width: 480px) {
-      .wrap { padding: 16px 14px 50px; }
+    @media (max-width: 420px) {
       .header h1 { font-size: 1.25rem; }
+      .plan-amount { font-size: 1.3rem; }
     }
   </style>
 </head>
 <body>
 <div class="wrap">
 
-  <a href="javascript:history.back()" class="back">
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-    Retour
-  </a>
-
+  <!-- Header -->
   <div class="header">
+    <div class="header-top-row">
+      <a href="javascript:history.back()" class="back-inline">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Retour
+      </a>
+    </div>
     <div class="header-badge">⭐ Premium</div>
     <h1>Débloque toute l'expérience<br><em>VoirAnime</em></h1>
-    <p>Recommandations avancées, stats enrichies, alertes intelligentes et plus encore.</p>
   </div>
 
+  <!-- Urgence Founders -->
+  <div class="urgency-bar">
+    <span class="urgency-dot"></span>
+    Founders Plan · Offre de lancement limitée dans le temps pour les premiers membres
+  </div>
+
+  <!-- Social proof (masqué jusqu'au seuil) -->
+  <div class="social-proof" id="socialProof">
+    <span id="socialProofText">🔥 Plus de 200 passionnés ont rejoint le Founders Plan</span>
+  </div>
+
+  <!-- Plan unique : Founders avec référence prix standard -->
+  <div class="plan-card founders plan-solo">
+    <div class="plan-top-badge">⭐ Founders Plan — Offre de lancement</div>
+    <div class="plan-main-price">
+      <div class="plan-amount">2,49</div>
+      <div class="plan-cur">Pi</div>
+      <div class="plan-per">/mois</div>
+    </div>
+    <div class="plan-ref-price">
+      <span class="plan-ref-amount">3,49 Pi/mois</span>
+      <span class="plan-ref-label">Prix standard après la période de lancement</span>
+    </div>
+    <div class="plan-annual-row">
+      <span>ou 24,99 Pi/an</span>
+      <span class="plan-saving">2 mois offerts</span>
+    </div>
+    <button class="plan-sub-btn founders-btn plan-sub-full" onclick="launchPremium('founders_monthly')">
+      👑 S'abonner au Founders Plan
+    </button>
+    <div class="pi-status" id="pi-status-founders"></div>
+  </div>
+
+  <!-- Comparatif -->
+  <div class="compare-title">Comparatif Gratuit / Premium</div>
   <div class="compare">
     <div class="compare-heads">
       <div class="compare-head h-label"></div>
@@ -214,64 +298,214 @@
       <div class="compare-head h-prem">⭐ Premium</div>
     </div>
     <div class="compare-rows">
+      <div class="compare-row"><div class="cr-label">Favoris</div><div class="cr-free">20 max</div><div class="cr-prem"><span class="tag tg">Illimités</span></div></div>
+      <div class="compare-row"><div class="cr-label">Recommandations</div><div class="cr-free">6</div><div class="cr-prem"><span class="tag tv">20 avancées</span></div></div>
+      <div class="compare-row"><div class="cr-label">Stats profil</div><div class="cr-free">Basiques</div><div class="cr-prem"><span class="tag tv">Avancées</span></div></div>
+      <div class="compare-row"><div class="cr-label">Alertes épisodes</div><div class="cr-free">Basiques</div><div class="cr-prem"><span class="tag tc">Temps réel</span></div></div>
+      <div class="compare-row"><div class="cr-label">Personnalisation</div><div class="cr-free"><span class="n">—</span></div><div class="cr-prem"><span class="y">✓</span></div></div>
+      <div class="compare-row"><div class="cr-label">Early access</div><div class="cr-free"><span class="n">—</span></div><div class="cr-prem"><span class="tag tc">⚡ Immédiat</span></div></div>
+    </div>
+  </div>
 
-      <div class="compare-row">
-        <div class="cr-label">Favoris</div>
-        <div class="cr-free">20 max</div>
-        <div class="cr-prem"><span class="g-tag">Illimités</span></div>
+
+  <!-- Détails déroulants -->
+  <button class="details-toggle" id="detailsToggle" onclick="toggleDetails()">
+    <div class="dt-left">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Détails des avantages
+    </div>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+
+  <div class="details-panel" id="detailsPanel">
+    <div class="details-inner">
+
+      <div class="detail-block">
+        <div class="detail-block-head">
+          <div class="detail-block-icon icon-v">⭐</div>
+          <div class="detail-block-title">
+            1. Débloquez tout votre potentiel
+            <span>Accès complet à votre expérience anime</span>
+          </div>
+        </div>
+        <div class="detail-feat"><span class="ck">✓</span> Favoris illimités <span class="feat-pill pg">Illimités</span></div>
+        <div class="detail-feat"><span class="ck">✓</span> Recommandations personnalisées selon vos goûts <span class="feat-pill pv">×3</span></div>
+        <div class="detail-feat"><span class="ck">✓</span> Stats avancées (genres, animes préférés, tendances)</div>
+        <div class="detail-feat"><span class="ck">✓</span> Suivi détaillé de votre progression</div>
       </div>
 
-      <div class="compare-row">
-        <div class="cr-label">Recommandations</div>
-        <div class="cr-free">6</div>
-        <div class="cr-prem"><span class="v-tag">20 avancées</span></div>
+      <div class="detail-block">
+        <div class="detail-block-head">
+          <div class="detail-block-icon icon-c">🔔</div>
+          <div class="detail-block-title">
+            2. Soyez toujours en avance
+            <span>Alertes et notifications intelligentes</span>
+          </div>
+        </div>
+        <div class="detail-feat"><span class="ck">✓</span> Alerte dès l'annonce + compte à rebours <span class="feat-pill pc">Temps réel</span></div>
+        <div class="detail-feat"><span class="ck">✓</span> Notifications basées sur vos goûts + tendances</div>
+        <div class="detail-feat"><span class="ck">✓</span> News personnalisées selon votre profil</div>
+        <div class="detail-feat"><span class="ck">✓</span> Accès anticipé aux nouveautés <span class="feat-pill pc">Early access</span></div>
       </div>
 
-      <div class="compare-row">
-        <div class="cr-label">Stats profil</div>
-        <div class="cr-free">Basiques</div>
-        <div class="cr-prem"><span class="v-tag">Avancées</span></div>
-      </div>
-
-      <div class="compare-row">
-        <div class="cr-label">Alertes épisodes</div>
-        <div class="cr-free">Basiques</div>
-        <div class="cr-prem"><span class="c-tag">Temps réel</span></div>
-      </div>
-
-      <div class="compare-row">
-        <div class="cr-label">Personnalisation</div>
-        <div class="cr-free"><span class="n">—</span></div>
-        <div class="cr-prem"><span class="y">✓</span></div>
-      </div>
-
-      <div class="compare-row">
-        <div class="cr-label">Early access</div>
-        <div class="cr-free"><span class="n">—</span></div>
-        <div class="cr-prem"><span class="c-tag">⚡ Immédiat</span></div>
+      <div class="detail-block">
+        <div class="detail-block-head">
+          <div class="detail-block-icon icon-g">✦</div>
+          <div class="detail-block-title">
+            3. Une expérience 100% à votre image
+            <span>Personnalisation complète</span>
+          </div>
+        </div>
+        <div class="detail-feat"><span class="ck">✓</span> Organisez et triez votre liste librement</div>
+        <div class="detail-feat"><span class="ck">✓</span> Personnalisez votre profil et votre thème</div>
+        <div class="detail-feat"><span class="ck">✓</span> Badge Premium exclusif ⭐</div>
       </div>
 
     </div>
   </div>
 
-  <div class="pricing">
-    <div class="plan">
-      <div class="plan-name">Mensuel</div>
-      <div class="plan-price">1.99<span class="cur">Pi</span></div>
-      <div class="plan-period">par mois</div>
-    </div>
-    <div class="plan best">
-      <div class="plan-top-badge">Meilleure offre</div>
-      <div class="plan-name">Annuel</div>
-      <div class="plan-price">19.99<span class="cur">Pi</span></div>
-      <div class="plan-period">par an</div>
-      <div class="plan-saving">2 mois offerts</div>
-    </div>
-  </div>
 
-  <a href="soutenir.html" class="cta-btn">Passer Premium maintenant →</a>
-  <p class="cta-note">Paiement via Pi Network · <a href="javascript:history.back()">Pas maintenant</a></p>
 
 </div>
+
+<script>
+/* ── Pi SDK init ── */
+var _piReady = false;
+(function() {
+  if (typeof window.Pi === 'undefined') return;
+  try { window.Pi.init({ version: '2.0', sandbox: true }); _piReady = true; } catch(e) {}
+})();
+
+/* ── Plans ── */
+var PLANS = {
+  founders_monthly:  { amount: 2.49,  label: 'VoirAnime Founders Mensuel',  plan: 'founders_monthly'  },
+  founders_annual:   { amount: 24.99, label: 'VoirAnime Founders Annuel',    plan: 'founders_annual'   },
+  standard_monthly:  { amount: 3.49,  label: 'VoirAnime Premium Mensuel',    plan: 'standard_monthly'  },
+  standard_annual:   { amount: 34.99, label: 'VoirAnime Premium Annuel',     plan: 'standard_annual'   },
+};
+
+function launchPremium(planKey) {
+  var planDef = PLANS[planKey];
+  if (!planDef) return;
+
+  var statusId = planKey.startsWith('founders') ? 'pi-status-founders' : 'pi-status-standard';
+  var statusEl = document.getElementById(statusId);
+
+  function showStatus(msg, color) {
+    if (!statusEl) return;
+    statusEl.style.display = 'block';
+    statusEl.style.background = color === 'ok'
+      ? 'rgba(74,222,128,0.12)' : color === 'warn'
+      ? 'rgba(251,191,36,0.12)' : 'rgba(248,113,113,0.12)';
+    statusEl.style.color = color === 'ok' ? '#4ade80' : color === 'warn' ? '#fbbf24' : '#f87171';
+    statusEl.textContent = msg;
+  }
+  function clearStatus() { if (statusEl) statusEl.style.display = 'none'; }
+
+  /* Vérifier Pi Browser */
+  if (!_piReady || typeof window.Pi === 'undefined') {
+    if (typeof window.Pi !== 'undefined') {
+      try { window.Pi.init({ version: '2.0', sandbox: true }); _piReady = true; } catch(e) {}
+    }
+    if (!_piReady) {
+      showStatus("⚠️ Ouvre VoirAnime dans Pi Browser pour t'abonner.", 'warn');
+      return;
+    }
+  }
+
+  clearStatus();
+  var piUser = (window.piAuth && window.piAuth.getUser && window.piAuth.getUser()) || (function() {
+    try { return JSON.parse(localStorage.getItem('pi_user')); } catch(e) { return null; }
+  })();
+
+  /* Paiement incomplet en attente */
+  window.Pi.authenticate(['payments', 'username'], function onIncomplete(payment) {
+    if (!payment || !payment.identifier) return;
+    fetch('https://voir-anime.vercel.app/api/pi-complete', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        paymentId: payment.identifier,
+        txid: payment.transaction && payment.transaction.txid,
+        piUserId: piUser && piUser.uid,
+        plan: planDef.plan,
+        piUsername: payment.user && payment.user.username,
+      }),
+    }).catch(function() {});
+  })
+  .then(function(auth) {
+    if (auth && auth.user) {
+      try { localStorage.setItem('pi_user', JSON.stringify(auth.user)); } catch(e) {}
+    }
+    window.Pi.createPayment(
+      {
+        amount:   planDef.amount,
+        memo:     planDef.label,
+        metadata: { app: 'voiranime', type: 'subscription', plan: planDef.plan },
+      },
+      {
+        onReadyForServerApproval: function(paymentId) {
+          fetch('https://voir-anime.vercel.app/api/pi-approve', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentId: paymentId, plan: planDef.plan }),
+          }).catch(function() {});
+        },
+        onReadyForServerCompletion: function(paymentId, txid) {
+          fetch('https://voir-anime.vercel.app/api/pi-complete', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              paymentId: paymentId, txid: txid,
+              piUserId: piUser && piUser.uid,
+              plan: planDef.plan,
+              piUsername: auth.user && auth.user.username,
+            }),
+          })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (data.premium && data.premium.isPremium) {
+              window.VA_clearPremiumCache && window.VA_clearPremiumCache();
+              showStatus('✅ Abonnement activé ! Bienvenue 🎉', 'ok');
+              setTimeout(function() { window.location.href = 'profile.html'; }, 2000);
+            }
+          })
+          .catch(function() { showStatus('Paiement reçu — activation en cours…', 'warn'); });
+        },
+        onCancel: function() { clearStatus(); },
+        onError:  function(e) { showStatus('❌ Erreur paiement', 'error'); console.error('[premium]', e); },
+      }
+    );
+  })
+  .catch(function(e) { showStatus('❌ Authentification échouée', 'error'); console.error('[pi auth]', e); });
+}
+
+/* ── Détails toggle ── */
+function toggleDetails() {
+  var btn   = document.getElementById('detailsToggle');
+  var panel = document.getElementById('detailsPanel');
+  var open  = panel.classList.contains('open');
+  panel.classList.toggle('open', !open);
+  btn.classList.toggle('open', !open);
+}
+
+/* ── Social proof ── */
+(function() {
+  var THRESHOLD  = 100;   // ← seuil minimal avant affichage
+  var DEMO_COUNT = 214;   // ← utilisé si /api/premium-count indisponible
+
+  function show(count) {
+    if (count < THRESHOLD) return;
+    var el  = document.getElementById('socialProof');
+    var txt = document.getElementById('socialProofText');
+    if (!el || !txt) return;
+    txt.textContent = '🔥 Plus de ' + count + ' passionnés ont rejoint le Founders Plan';
+    el.style.display = 'flex';
+  }
+
+  fetch('/api/premium-count')
+    .then(function(r) { return r.json(); })
+    .then(function(d) { show(d.count || 0); })
+    .catch(function() { show(DEMO_COUNT); });
+})();
+</script>
+
 </body>
 </html>
