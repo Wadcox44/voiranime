@@ -25,7 +25,8 @@
 
     /* ── Retour ── */
     .header-top-row {
-      display: flex; align-items: center; margin-bottom: 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
     }
     .back-inline {
       display: inline-flex; align-items: center; gap: 5px;
@@ -52,15 +53,6 @@
     .header h1 em { font-style: normal; color: var(--v); }
     .header-badge { display: block; text-align: center; margin-bottom: 10px; }
 
-    /* ── Urgence founders ── */
-    .urgency-bar {
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 12px; background: rgba(251,191,36,0.07);
-      border: 1px solid rgba(251,191,36,0.2); border-radius: 8px;
-      margin-bottom: 14px; font-size: 0.75rem; color: #fbbf24;
-    }
-    .urgency-dot { width: 6px; height: 6px; background: #f87171; border-radius: 50%; flex-shrink:0; animation: blink 1.6s ease infinite; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
 
     /* ── Plan card ── */
     .plan-card {
@@ -235,6 +227,62 @@
     .page-note { text-align: center; font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
     .page-note a { color: var(--text2); text-decoration: underline; text-underline-offset: 2px; }
 
+    /* ── Pricing lines ── */
+    .pricing-lines { margin: 10px 0 16px; text-align: center; }
+
+    /* Sélecteur mensuel/annuel */
+    .billing-toggle {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--s1); border: 1px solid var(--b1);
+      border-radius: 10px; padding: 4px 6px; margin-bottom: 14px;
+    }
+    .billing-btn {
+      padding: 6px 16px; border-radius: 7px; border: none;
+      font-family: var(--font); font-size: 0.78rem; font-weight: 600;
+      cursor: pointer; transition: all 0.18s;
+      background: transparent; color: var(--muted);
+    }
+    .billing-btn.active {
+      background: var(--s3); color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .billing-or {
+      font-size: 0.68rem; color: var(--muted); font-weight: 500;
+      pointer-events: none;
+    }
+
+    /* Affichage du prix */
+    .price-display {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; margin-bottom: 8px; flex-wrap: wrap;
+    }
+    .price-main {
+      font-size: 2rem; font-weight: 800; color: var(--text); line-height: 1;
+    }
+    .price-per { font-size: 0.82rem; color: var(--muted); font-weight: 500; }
+
+    /* Prix barré mis en valeur */
+    .price-line-ref {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.18);
+      border-radius: 8px; padding: 5px 12px; margin-bottom: 7px;
+    }
+    .price-ref-label {
+      font-size: 0.7rem; color: #f87171; font-weight: 600;
+    }
+    .price-striked {
+      font-size: 0.82rem; color: #f87171;
+      text-decoration: line-through;
+      text-decoration-color: #f87171;
+      font-weight: 600; opacity: 0.75;
+    }
+
+
+    /* ── Compact global — above the fold ── */
+    .wrap { max-width: 560px; margin: 0 auto; padding: 14px 16px 50px; }
+    .header { margin-bottom: 14px; }
+    .plan-card { padding: 18px 16px 16px; }
+
     @media (max-width: 420px) {
       .header h1 { font-size: 1.25rem; }
       .plan-amount { font-size: 1.3rem; }
@@ -247,45 +295,49 @@
   <!-- Header -->
   <div class="header">
     <div class="header-top-row">
+      <div class="header-badge">⭐ Premium</div>
       <a href="javascript:history.back()" class="back-inline">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
         Retour
       </a>
     </div>
-    <div class="header-badge">⭐ Premium</div>
     <h1>Débloque toute l'expérience<br><em>VoirAnime</em></h1>
   </div>
 
-  <!-- Urgence Founders -->
-  <div class="urgency-bar">
-    <span class="urgency-dot"></span>
-    Founders Plan · Offre de lancement limitée dans le temps pour les premiers membres
-  </div>
 
-  <!-- Social proof (masqué jusqu'au seuil) -->
-  <div class="social-proof" id="socialProof">
-    <span id="socialProofText">🔥 Plus de 200 passionnés ont rejoint le Founders Plan</span>
-  </div>
 
   <!-- Plan unique : Founders avec référence prix standard -->
   <div class="plan-card founders plan-solo">
     <div class="plan-top-badge">⭐ Founders Plan — Offre de lancement</div>
-    <div class="plan-main-price">
-      <div class="plan-amount">2,49</div>
-      <div class="plan-cur">Pi</div>
-      <div class="plan-per">/mois</div>
-    </div>
-    <div class="plan-ref-price">
-      <span class="plan-ref-amount">3,49 Pi/mois</span>
-      <span class="plan-ref-label">Prix standard après la période de lancement</span>
-    </div>
-    <div class="plan-annual-row">
-      <span>ou 24,99 Pi/an</span>
-      <span class="plan-saving">2 mois offerts</span>
+    <div class="pricing-lines">
+      <!-- Sélecteur mensuel / annuel -->
+      <div class="billing-toggle">
+        <button class="billing-btn active" id="btnMonthly" onclick="selectBilling('monthly')">Mensuel</button>
+        <span class="billing-or">ou</span>
+        <button class="billing-btn" id="btnAnnual" onclick="selectBilling('annual')">Annuel</button>
+      </div>
+
+      <!-- Prix actuel (change selon sélection) -->
+      <div class="price-display">
+        <span class="price-main" id="priceMain">2,49 Pi</span>
+        <span class="price-per" id="pricePer">/mois</span>
+        <span class="plan-saving" id="annualBadge" style="display:none">2 mois offerts vs Mensuel</span>
+      </div>
+
+      <!-- Ligne barré : mise en valeur "ce que vous évitez" -->
+      <div class="price-line-ref">
+        <span class="price-ref-label">Au lieu de</span>
+        <span class="price-striked" id="priceStriked">3,49 Pi/mois</span>
+      </div>
+
     </div>
     <button class="plan-sub-btn founders-btn plan-sub-full" onclick="launchPremium('founders_monthly')">
       👑 S'abonner au Founders Plan
     </button>
+    <!-- Social proof sous le bouton -->
+    <div class="social-proof" id="socialProof" style="margin-top:10px;margin-bottom:0;border:none;background:transparent;padding:6px 0">
+      <span id="socialProofText">🔥 Plus de 200 passionnés ont rejoint le Founders Plan</span>
+    </div>
     <div class="pi-status" id="pi-status-founders"></div>
   </div>
 
@@ -376,6 +428,35 @@ var _piReady = false;
   try { window.Pi.init({ version: '2.0', sandbox: true }); _piReady = true; } catch(e) {}
 })();
 
+/* ── Sélecteur mensuel / annuel ── */
+var _currentBilling = 'monthly';
+
+function selectBilling(type) {
+  _currentBilling = type;
+  var btnM = document.getElementById('btnMonthly');
+  var btnA = document.getElementById('btnAnnual');
+  var main  = document.getElementById('priceMain');
+  var per   = document.getElementById('pricePer');
+  var strik = document.getElementById('priceStriked');
+
+  if (btnM) btnM.classList.toggle('active', type === 'monthly');
+  if (btnA) btnA.classList.toggle('active', type === 'annual');
+
+  if (type === 'monthly') {
+    if (main)  main.textContent  = '2,49 Pi';
+    if (per)   per.textContent   = '/mois';
+    if (strik) strik.textContent = '3,49 Pi/mois';
+    var badge = document.getElementById('annualBadge');
+    if (badge) badge.style.display = 'none';
+  } else {
+    if (main)  main.textContent  = '24,99 Pi';
+    if (per)   per.textContent   = '/an';
+    if (strik) strik.textContent = '34,99 Pi/an';
+    var badge2 = document.getElementById('annualBadge');
+    if (badge2) badge2.style.display = 'inline-block';
+  }
+}
+
 /* ── Plans ── */
 var PLANS = {
   founders_monthly:  { amount: 2.49,  label: 'VoirAnime Founders Mensuel',  plan: 'founders_monthly'  },
@@ -385,6 +466,10 @@ var PLANS = {
 };
 
 function launchPremium(planKey) {
+  // Utiliser la sélection billing courante si planKey est générique
+  if (planKey === 'founders_monthly' && _currentBilling === 'annual') {
+    planKey = 'founders_annual';
+  }
   var planDef = PLANS[planKey];
   if (!planDef) return;
 
