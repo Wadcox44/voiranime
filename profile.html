@@ -360,6 +360,63 @@
       .stat-cell-num { font-size: 1.15rem; }
       .stat-cell { padding: 8px 4px; }
     }
+
+    /* ── Prochaines sorties Premium ── */
+    .upcoming-grid { display: flex; flex-direction: column; gap: 10px; }
+    .upcoming-card {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--ink3); border: 1px solid var(--b1);
+      border-radius: 12px; padding: 10px 14px;
+      transition: border-color 0.2s; text-decoration: none; color: inherit;
+    }
+    .upcoming-card:hover { border-color: var(--b2); }
+    .upcoming-card.airing  { border-left: 3px solid #4ade80; }
+    .upcoming-card.upcoming { border-left: 3px solid #a78bfa; }
+    .upcoming-card.movie   { border-left: 3px solid #22d3ee; }
+    .upcoming-thumb {
+      width: 42px; height: 58px; border-radius: 6px;
+      object-fit: cover; flex-shrink: 0; background: var(--ink4);
+    }
+    .upcoming-info { flex: 1; min-width: 0; }
+    .upcoming-title {
+      font-size: 0.84rem; font-weight: 700; line-height: 1.3;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-bottom: 3px; color: var(--text);
+    }
+    .upcoming-type {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; margin-bottom: 4px;
+    }
+    .upcoming-type.ep   { color: #4ade80; }
+    .upcoming-type.film { color: #22d3ee; }
+    .upcoming-type.soon { color: #a78bfa; }
+    .upcoming-countdown { text-align: right; flex-shrink: 0; }
+    .upc-time {
+      font-size: 0.88rem; font-weight: 800; color: #a78bfa;
+      line-height: 1; margin-bottom: 2px; white-space: nowrap;
+    }
+    .upc-time.today { color: #4ade80; }
+    .upc-time.soon  { color: #fbbf24; }
+    .upc-label { font-size: 0.62rem; color: var(--muted); white-space: nowrap; }
+    .upcoming-filters { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .uf-btn {
+      padding: 4px 12px; border-radius: 20px; border: 1px solid var(--b2);
+      background: transparent; color: var(--text2); font-size: 0.72rem;
+      font-weight: 600; cursor: pointer; transition: all 0.15s; font-family: var(--font);
+    }
+    .uf-btn:hover { border-color: var(--violet); color: var(--violet); }
+    .uf-btn.active { background: var(--ink4); border-color: var(--violet); color: var(--violet); }
+    .upcoming-loader {
+      display: flex; align-items: center; gap: 8px;
+      padding: 16px; color: var(--muted); font-size: 0.82rem;
+    }
+    .sk-spin {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid var(--b2); border-top-color: var(--violet);
+      animation: spin 0.7s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .upcoming-empty { text-align: center; padding: 24px 12px; color: var(--muted); font-size: 0.82rem; }
   </style>
   <script src="js/i18n.js"></script>
   <script src="featuresManager.js"></script>
@@ -520,6 +577,30 @@
     <div class="avatar-modal-grid" id="avatarGrid"></div>
   </div>
 </div>
+
+
+<!-- PROCHAINES SORTIES — Premium uniquement -->
+<section class="profile-section" id="upcomingSection" style="display:none">
+  <div class="profile-section-title">
+    <span class="section-dot violet"></span>
+    📅 Mes prochaines sorties
+  </div>
+
+  <!-- Filtres -->
+  <div class="upcoming-filters">
+    <button class="uf-btn active" data-filter="all"    onclick="setUpcomingFilter('all',this)">Tout</button>
+    <button class="uf-btn"        data-filter="week"   onclick="setUpcomingFilter('week',this)">Cette semaine</button>
+    <button class="uf-btn"        data-filter="month"  onclick="setUpcomingFilter('month',this)">Ce mois-ci</button>
+  </div>
+
+  <!-- Liste -->
+  <div class="upcoming-grid" id="upcomingGrid">
+    <div class="upcoming-loader">
+      <div class="sk-spin"></div>
+      Chargement de tes prochaines sorties…
+    </div>
+  </div>
+</section>
 
 <!-- TEASER premium pour non-abonnés -->
 <section class="profile-section" id="premiumTeaserSection" style="display:none">
@@ -771,9 +852,15 @@
       } else if (completed.length === 0) {
         phraseProg.textContent = watching.length + ' anime' + (watching.length > 1 ? 's' : '') + ' en cours · ' + planTo.length + ' en attente';
       } else if (completed.length === 1) {
-        phraseProg.textContent = 'Tu as terminé ton premier anime 🎉';
+        phraseProg.textContent = '1 anime vu · Tu commences ton aventure 🎉';
+      } else if (completed.length < 10) {
+        phraseProg.textContent = completed.length + ' animes vus · ' + watching.length + ' en cours';
+      } else if (completed.length < 50) {
+        phraseProg.textContent = completed.length + ' animes vus · Tu progresses !';
+      } else if (completed.length < 100) {
+        phraseProg.textContent = completed.length + ' animes vus · Vrai passionné 🔥';
       } else {
-        phraseProg.textContent = 'Tu as terminé ' + completed.length + ' animes · ' + watching.length + ' en cours';
+        phraseProg.textContent = completed.length + ' animes vus · Niveau légendaire 🏆';
       }
     }
 
@@ -1278,11 +1365,236 @@
     }
   }
 
+
+  /* ── Prochaines sorties Premium ─────────────────────────────────────────
+     Fetche les données de chaque anime suivi/favori via /api/jikan
+     et filtre ceux avec une prochaine diffusion connue.
+  ─────────────────────────────────────────────────────────────────────── */
+
+  var _upcomingData    = [];   // données brutes après fetch
+  var _upcomingFilter  = 'all';
+  var _upcomingTimers  = [];   // pour nettoyer les setInterval
+
+  function setUpcomingFilter(filter, btn) {
+    _upcomingFilter = filter;
+    document.querySelectorAll('.uf-btn').forEach(function(b) { b.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    _renderUpcomingGrid();
+  }
+
+  function _getNextAirMs(anime) {
+    // Retourne les ms jusqu'à la prochaine diffusion, ou null si inconnu
+    var broadcastDay  = anime.broadcast && anime.broadcast.day;
+    var broadcastTime = anime.broadcast && anime.broadcast.time;
+    var airedFrom     = anime.aired && anime.aired.from;
+
+    if (anime.status === 'Currently Airing' && broadcastDay && broadcastTime) {
+      var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      var epIdx = days.findIndex(function(d) { return broadcastDay.toLowerCase().startsWith(d.toLowerCase()); });
+      if (epIdx < 0) return null;
+      var parts = broadcastTime.split(':').map(Number);
+      var h = parts[0] || 0, m = parts[1] || 0;
+      // Calcul en JST (UTC+9)
+      var nowUTC    = new Date();
+      var jstOffset = 9 * 60; // minutes
+      var nowJST    = new Date(nowUTC.getTime() + (jstOffset - nowUTC.getTimezoneOffset()) * 60000);
+      var nextAir   = new Date(nowJST);
+      nextAir.setHours(h, m, 0, 0);
+      var diff = ((epIdx - nowJST.getDay()) + 7) % 7;
+      if (diff === 0 && nowJST >= nextAir) diff = 7;
+      nextAir.setDate(nextAir.getDate() + diff);
+      return nextAir.getTime() - nowUTC.getTime();
+    }
+
+    if (anime.status === 'Not yet aired' && airedFrom) {
+      var ms = new Date(airedFrom).getTime() - Date.now();
+      return ms > 0 ? ms : null;
+    }
+
+    return null;
+  }
+
+  function _formatUpcomingTime(ms) {
+    if (ms <= 0) return { text: 'En cours', cls: 'today' };
+    var totalSec = Math.floor(ms / 1000);
+    var d = Math.floor(totalSec / 86400);
+    var h = Math.floor((totalSec % 86400) / 3600);
+    var mi = Math.floor((totalSec % 3600) / 60);
+    var s  = totalSec % 60;
+    var cls = d === 0 ? (h < 2 ? 'today' : 'soon') : '';
+    if (d > 6)  return { text: d + 'j', cls: cls, label: 'dans ' + d + ' jours' };
+    if (d > 0)  return { text: d + 'j ' + String(h).padStart(2,'0') + 'h', cls: cls };
+    if (h > 0)  return { text: h + 'h ' + String(mi).padStart(2,'0') + 'min', cls: cls };
+    return { text: String(mi).padStart(2,'0') + 'min ' + String(s).padStart(2,'0') + 's', cls: 'today' };
+  }
+
+  function _upcomingTypeInfo(anime) {
+    var type = anime.type || 'TV';
+    if (anime.status === 'Currently Airing') return { label: 'Nouvel épisode', cls: 'ep' };
+    if (type === 'Movie')   return { label: 'Film', cls: 'film' };
+    if (type === 'OVA')     return { label: 'OVA', cls: 'film' };
+    if (type === 'Special') return { label: 'Spécial', cls: 'film' };
+    return { label: 'Nouvelle saison', cls: 'soon' };
+  }
+
+  function _renderUpcomingGrid() {
+    var grid = el('upcomingGrid');
+    if (!grid) return;
+
+    // Nettoyer les timers live précédents
+    _upcomingTimers.forEach(function(t) { clearInterval(t); });
+    _upcomingTimers = [];
+
+    // Filtrer selon sélection
+    var now   = Date.now();
+    var week  = now + 7  * 86400000;
+    var month = now + 30 * 86400000;
+
+    var filtered = _upcomingData.filter(function(item) {
+      if (_upcomingFilter === 'week')  return item.nextMs <= week;
+      if (_upcomingFilter === 'month') return item.nextMs <= month;
+      return true;
+    });
+
+    // Trier par proximité
+    filtered.sort(function(a, b) { return a.nextMs - b.nextMs; });
+
+    if (filtered.length === 0) {
+      grid.innerHTML = '<div class="upcoming-empty">Aucune sortie à venir pour cette période.<br>Ajoute des animes en cours à tes favoris !</div>';
+      return;
+    }
+
+    grid.innerHTML = '';
+    filtered.forEach(function(item, idx) {
+      var typeInfo = _upcomingTypeInfo(item.anime);
+      var cardCls  = item.anime.status === 'Currently Airing' ? 'airing' : (item.anime.type === 'Movie' ? 'movie' : 'upcoming');
+      var img      = (item.anime.images && item.anime.images.jpg && (item.anime.images.jpg.image_url || '')) || '';
+      var title    = item.anime.title_english || item.anime.title || '?';
+      var animeId  = item.anime.mal_id;
+
+      var card = document.createElement('a');
+      card.href      = 'anime.html?id=' + animeId;
+      card.className = 'upcoming-card ' + cardCls;
+      card.innerHTML =
+        '<img class="upcoming-thumb" src="' + img + '" alt="' + title + '" onerror="this.src=''"/>' +
+        '<div class="upcoming-info">' +
+          '<div class="upcoming-title">' + title + '</div>' +
+          '<div class="upcoming-type ' + typeInfo.cls + '">' + typeInfo.label + '</div>' +
+        '</div>' +
+        '<div class="upcoming-countdown">' +
+          '<div class="upc-time" id="upcTime_' + idx + '">--</div>' +
+          '<div class="upc-label" id="upcLabel_' + idx + '">chargement…</div>' +
+        '</div>';
+      grid.appendChild(card);
+
+      // Countdown live pour cet item
+      var ms0 = item.nextMs - Date.now();
+      function updateCard() {
+        var msNow = item.nextMs - Date.now();
+        var fmt   = _formatUpcomingTime(msNow);
+        var timeEl  = el('upcTime_' + idx);
+        var labelEl = el('upcLabel_' + idx);
+        if (timeEl)  { timeEl.textContent = fmt.text; timeEl.className = 'upc-time ' + (fmt.cls || ''); }
+        if (labelEl) {
+          var days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+          var daysFR = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+          var bDay   = item.anime.broadcast && item.anime.broadcast.day;
+          var bTime  = item.anime.broadcast && item.anime.broadcast.time;
+          var epIdx  = bDay ? days.findIndex(function(d){ return bDay.toLowerCase().startsWith(d.toLowerCase()); }) : -1;
+          var dayLbl = epIdx >= 0 ? daysFR[epIdx] : '';
+          labelEl.textContent = bDay && bTime ? (dayLbl + ' ' + bTime + ' JST') : 'Date connue';
+        }
+      }
+      updateCard();
+      // Rafraîchissement 1x/sec si < 1h, sinon 1x/min
+      var interval = ms0 < 3600000 ? 1000 : 60000;
+      _upcomingTimers.push(setInterval(updateCard, interval));
+    });
+  }
+
+  async function renderUpcomingReleases() {
+    var section = el('upcomingSection');
+    if (!section) return;
+
+    // Guard premium
+    function _tryRender() {
+      if (window.VA_onPremiumReady) {
+        window.VA_onPremiumReady(function(status) {
+          if (!status || !status.isPremium) return;
+          section.style.display = 'block';
+          _fetchUpcomingData();
+        });
+      } else {
+        setTimeout(_tryRender, 500);
+      }
+    }
+    _tryRender();
+  }
+
+  async function _fetchUpcomingData() {
+    var grid = el('upcomingGrid');
+    if (!grid) return;
+
+    // Collecter les IDs uniques (favoris + watching + planToWatch, pas completed)
+    var favs      = getFavs();
+    var watchList = getWatchList();
+    var idSet     = new Set();
+
+    favs.forEach(function(f) { if (f.id) idSet.add(String(f.id)); });
+    Object.keys(watchList).forEach(function(id) {
+      var entry = watchList[id];
+      if (entry.status !== 'completed') idSet.add(id);
+    });
+
+    var ids = Array.from(idSet).slice(0, 20); // max 20 pour limiter les requêtes
+
+    if (ids.length === 0) {
+      grid.innerHTML = '<div class="upcoming-empty">Ajoute des animes à tes favoris ou à ta liste pour voir les prochaines sorties !</div>';
+      return;
+    }
+
+    grid.innerHTML = '<div class="upcoming-loader"><div class="sk-spin"></div>Chargement de tes prochaines sorties…</div>';
+
+    _upcomingData = [];
+    var fetched   = 0;
+
+    for (var i = 0; i < ids.length; i++) {
+      var id = ids[i];
+      try {
+        var encoded = encodeURIComponent('/anime/' + id);
+        var res  = await fetch('/api/jikan?path=' + encoded);
+        var data = await res.json();
+        var anime = data.data;
+        if (!anime) { fetched++; continue; }
+
+        // Garder uniquement si sortie à venir connue
+        var nextMs = _getNextAirMs(anime);
+        if (nextMs !== null) {
+          _upcomingData.push({ anime: anime, nextMs: Date.now() + nextMs });
+        }
+        fetched++;
+
+        // Affichage progressif : mettre à jour après chaque fetch
+        if (_upcomingData.length > 0) _renderUpcomingGrid();
+
+      } catch(e) {
+        fetched++;
+      }
+      // Rate-limit : attente entre requêtes
+      if (i < ids.length - 1) await new Promise(function(r) { setTimeout(r, 900); });
+    }
+
+    if (_upcomingData.length === 0) {
+      grid.innerHTML = '<div class="upcoming-empty">Aucune sortie à venir trouvée.<br>Les animes que tu suis sont peut-être tous terminés.</div>';
+    }
+  }
+
   /* ── Init ── */
   renderStats();
   initAvatar();
   renderSubscriptionStatus();
   renderPremiumStats();
+  renderUpcomingReleases();
 
 })();
 </script>
