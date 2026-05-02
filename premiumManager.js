@@ -118,8 +118,8 @@
 
     // CTA
     var cta = document.createElement('a');
-    cta.href = 'soutenir.html';
-    cta.textContent = 'Soutenir VoirAnime →';
+    cta.href = 'premium.html';
+    cta.textContent = 'Voir les avantages Premium →';
     cta.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;background:linear-gradient(135deg,#a78bfa,#818cf8);color:#fff;font-family:var(--font);font-weight:700;font-size:0.95rem;padding:13px 24px;border-radius:14px;text-decoration:none;box-shadow:0 4px 20px rgba(167,139,250,0.35);transition:opacity 0.2s,transform 0.2s';
     cta.addEventListener('mouseover', function() { this.style.opacity = '0.9'; this.style.transform = 'translateY(-1px)'; });
     cta.addEventListener('mouseout',  function() { this.style.opacity = '1';   this.style.transform = ''; });
@@ -146,12 +146,13 @@
     document.body.appendChild(overlay);
   };
 
-  /* Features listées dans le popup — alignées sur la grille produit */
+  /* Features listées dans le popup */
   var _PREMIUM_FEATURES = [
-    '🎯 Analyse : genres préférés & top animes',
-    '🔥 20 recommandations personnalisées',
-    '❤️ Favoris illimités & réorganisation',
-    '⚡ Early access aux nouvelles features',
+    '📊 Stats avancées & genres préférés',
+    '🔥 Recommandations personnalisées',
+    '❤️ Favoris illimités',
+    '⚡ Accès anticipé aux nouveautés',
+    '↕️ Réorganisation de ta liste',
   ];
 
   /* ── Badge Premium navbar ── */
