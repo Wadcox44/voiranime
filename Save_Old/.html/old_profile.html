@@ -280,6 +280,86 @@
     }
     .watch-filter-btn:hover { border-color: var(--pink); color: var(--pink); }
     .watch-filter-btn.active { background: var(--pink); border-color: var(--pink); color: #fff; }
+
+    /* ── Stats reorganisées en 3 groupes ── */
+    .stats-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .stat-group {
+      background: var(--ink3);
+      border: 1px solid var(--b1);
+      border-radius: 14px;
+      padding: 14px 16px;
+      transition: border-color 0.2s;
+    }
+    .stat-group:hover { border-color: var(--b2); }
+    .stat-group-header {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 10px;
+    }
+    .stat-group-icon {
+      font-size: 0.75rem;
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .stat-group-icon.blue  { background: rgba(96,165,250,0.12); }
+    .stat-group-icon.green { background: rgba(74,222,128,0.12); }
+    .stat-group-icon.purple{ background: rgba(167,139,250,0.12); }
+    .stat-group-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+    .stat-group-phrase {
+      font-size: 0.74rem;
+      color: var(--text2);
+      margin-bottom: 10px;
+      line-height: 1.4;
+      min-height: 1.1em;
+    }
+    .stat-group-cells {
+      display: grid;
+      gap: 6px;
+    }
+    .stat-group-cells.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .stat-group-cells.cols-1 { grid-template-columns: 1fr; }
+    .stat-cell {
+      background: var(--ink2);
+      border: 1px solid var(--b1);
+      border-radius: 10px;
+      padding: 10px 6px;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+    .stat-cell:hover { border-color: var(--b2); transform: translateY(-1px); }
+    .stat-cell-num {
+      font-size: 1.35rem;
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+    .stat-cell-label {
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    /* Engagement : 2 cells côte à côte + phrase centrale */
+    .stat-group-cells.cols-2 { grid-template-columns: 1fr 1fr; }
+
+    @media (max-width: 480px) {
+      .stat-cell-num { font-size: 1.15rem; }
+      .stat-cell { padding: 8px 4px; }
+    }
   </style>
   <script src="js/i18n.js"></script>
   <script src="featuresManager.js"></script>
@@ -357,55 +437,74 @@
     <div id="profileSubscriptionCard"></div>
   </div>
 
-  <!-- Stats : 2×3 + 1×2 centré ─ Free + Premium fusionnés -->
-  <div class="profile-stats-compact" id="profileStats">
+  <!-- Stats : 3 groupes thématiques -->
+  <div class="stats-groups" id="profileStats">
 
-    <!-- Ligne 1 -->
-    <a href="history.html" class="stat-compact stat-compact-link">
-      <div class="stat-compact-num" id="statHistCount" style="color:var(--violet)">0</div>
-      <div class="stat-compact-label">Visités</div>
-    </a>
-    <a href="favorites.html" class="stat-compact stat-compact-link">
-      <div class="stat-compact-num" id="statFavCount" style="color:var(--pink)">0</div>
-      <div class="stat-compact-label">Favoris</div>
-    </a>
-    <div class="stat-compact">
-      <div class="stat-compact-num" id="statPlanCount" style="color:#f59e0b">0</div>
-      <div class="stat-compact-label">À voir</div>
-    </div>
-
-    <!-- Ligne 2 -->
-    <div class="stat-compact">
-      <div class="stat-compact-num" id="statWatchingCount" style="color:#60a5fa">0</div>
-      <div class="stat-compact-label">En cours</div>
-    </div>
-    <div class="stat-compact">
-      <div class="stat-compact-num" id="statCompletedCount" style="color:#4ade80">0</div>
-      <div class="stat-compact-label">Terminés</div>
-    </div>
-    <div class="stat-compact" style="cursor:pointer" title="Disponible avec Premium"
-         onclick="window.VA_showUpgradePrompt && !window.VA_isPremium() && window.VA_showUpgradePrompt('Les stats avancées sont réservées aux membres Premium.')">
-      <div class="stat-compact-num" id="statHoursCount" style="color:#a78bfa">—</div>
-      <div class="stat-compact-label" style="display:flex;align-items:center;gap:3px;justify-content:center">
-        Heures <span style="font-size:0.55rem;color:#a78bfa" id="hoursLockIcon">⭐</span>
+    <!-- 🟦 Groupe 1 : Activité -->
+    <div class="stat-group">
+      <div class="stat-group-header">
+        <div class="stat-group-icon blue">📚</div>
+        <span class="stat-group-label">Activité</span>
+      </div>
+      <div class="stat-group-phrase" id="phraseActivite">Commence à explorer le catalogue !</div>
+      <div class="stat-group-cells cols-3">
+        <a href="history.html" class="stat-cell" style="text-decoration:none">
+          <div class="stat-cell-num" id="statHistCount" style="color:var(--violet)">0</div>
+          <div class="stat-cell-label">Visités</div>
+        </a>
+        <a href="favorites.html" class="stat-cell" style="text-decoration:none">
+          <div class="stat-cell-num" id="statFavCount" style="color:var(--pink)">0</div>
+          <div class="stat-cell-label">Favoris</div>
+        </a>
+        <div class="stat-cell">
+          <div class="stat-cell-num" id="statActiveDaysCount" style="color:#22d3ee">0</div>
+          <div class="stat-cell-label">Jours actifs</div>
+        </div>
       </div>
     </div>
 
-    <!-- Ligne 3 : 2 centré -->
-    <div class="stat-compact stat-compact-half" style="cursor:pointer" title="Disponible avec Premium"
-         onclick="window.VA_showUpgradePrompt && !window.VA_isPremium() && window.VA_showUpgradePrompt('Les stats avancées sont réservées aux membres Premium.')">
-      <div class="stat-compact-num" id="statActiveDaysCount" style="color:#22d3ee">—</div>
-      <div class="stat-compact-label" style="display:flex;align-items:center;gap:3px;justify-content:center">
-        Jours actifs <span style="font-size:0.55rem;color:#a78bfa" id="daysLockIcon">⭐</span>
+    <!-- 🟩 Groupe 2 : Progression anime -->
+    <div class="stat-group">
+      <div class="stat-group-header">
+        <div class="stat-group-icon green">🎬</div>
+        <span class="stat-group-label">Progression anime</span>
+      </div>
+      <div class="stat-group-phrase" id="phraseProgression">Ajoute des animes à ta liste !</div>
+      <div class="stat-group-cells cols-3">
+        <div class="stat-cell">
+          <div class="stat-cell-num" id="statPlanCount" style="color:#f59e0b">0</div>
+          <div class="stat-cell-label">À voir</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-cell-num" id="statWatchingCount" style="color:#60a5fa">0</div>
+          <div class="stat-cell-label">En cours</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-cell-num" id="statCompletedCount" style="color:#4ade80">0</div>
+          <div class="stat-cell-label">Terminés</div>
+        </div>
       </div>
     </div>
-    <div class="stat-compact stat-compact-half" style="cursor:pointer" title="Disponible avec Premium"
-         onclick="window.VA_showUpgradePrompt && !window.VA_isPremium() && window.VA_showUpgradePrompt('Les stats avancées sont réservées aux membres Premium.')">
-      <div class="stat-compact-num" id="statProgressCount" style="color:#f59e0b">—</div>
-      <div class="stat-compact-label" style="display:flex;align-items:center;gap:3px;justify-content:center">
-        Progression <span style="font-size:0.55rem;color:#a78bfa" id="progressLockIcon">⭐</span>
+
+    <!-- 🟪 Groupe 3 : Engagement -->
+    <div class="stat-group">
+      <div class="stat-group-header">
+        <div class="stat-group-icon purple">⏱</div>
+        <span class="stat-group-label">Engagement</span>
+      </div>
+      <div class="stat-group-phrase" id="phraseEngagement">Termine ton premier anime pour voir tes heures !</div>
+      <div class="stat-group-cells cols-1">
+        <div class="stat-cell" style="display:flex;align-items:center;justify-content:center;gap:14px;padding:10px 16px">
+          <div class="stat-cell-num" id="statHoursCount" style="color:#a78bfa;font-size:1.6rem">0h</div>
+          <div style="text-align:left">
+            <div class="stat-cell-label" style="font-size:0.65rem">de visionnage cumulé</div>
+          </div>
+        </div>
       </div>
     </div>
+
+    <!-- ID conservé pour compatibilité JS (masqué) -->
+    <span id="statProgressCount" style="display:none">—</span>
 
   </div>
 
@@ -424,16 +523,12 @@
 
 <!-- TEASER premium pour non-abonnés -->
 <section class="profile-section" id="premiumTeaserSection" style="display:none">
-  <div style="
-    background:linear-gradient(135deg,rgba(167,139,250,0.07),rgba(34,211,238,0.05));
-    border:1px solid rgba(167,139,250,0.2);
-    border-radius:16px;padding:22px 20px;
-    cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s;
-    "
+  <div style="background:linear-gradient(135deg,rgba(167,139,250,0.07),rgba(34,211,238,0.05));
+    border:1px solid rgba(167,139,250,0.2);border-radius:16px;padding:22px 20px;
+    cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s"
     onclick="window.VA_showUpgradePrompt('Débloque tes stats personnalisées, tes recommandations et bien plus.',['📊 Stats avancées & genres préférés','🔥 Recommandations personnalisées','❤️ Favoris illimités','⚡ Accès anticipé aux nouveautés'])"
     onmouseover="this.style.borderColor='rgba(167,139,250,0.45)';this.style.boxShadow='0 8px 32px rgba(167,139,250,0.12)'"
-    onmouseout="this.style.borderColor='rgba(167,139,250,0.2)';this.style.boxShadow='none'"
-  >
+    onmouseout="this.style.borderColor='rgba(167,139,250,0.2)';this.style.boxShadow='none'">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
       <div style="font-size:1.4rem">⭐</div>
       <div>
@@ -612,39 +707,92 @@
     const hEl = el('statHistCount');      if (hEl) hEl.textContent  = hist.length;
     const fEl = el('statFavCount');       if (fEl) fEl.textContent  = favs.length;
     const pEl = el('statPlanCount');      if (pEl) pEl.textContent  = planTo.length;
-    /* Masquer les icônes ⭐ si premium */
-    if (window.VA_isPremium && window.VA_isPremium()) {
-      ['hoursLockIcon','daysLockIcon','progressLockIcon'].forEach(function(id) {
-        var ic = el(id); if (ic) ic.style.display = 'none';
-      });
-    }
     // Ligne 2 : En cours / Terminés / Notés
     const wEl = el('statWatchingCount');  if (wEl) wEl.textContent  = watching.length;
     const cEl = el('statCompletedCount'); if (cEl) cEl.textContent  = completed.length;
 
-    // ⏱ Heures regardées (tous utilisateurs)
+    // ⏱ Heures / Jours actifs / Progression — PREMIUM UNIQUEMENT
     const totalMins = completed.reduce((acc, a) => acc + (a.episodes||0)*(a.duration||24), 0);
-    const hEl2 = el('statHoursCount'); if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
-
-    // 📅 Jours actifs ce mois
     const now2 = new Date();
     const monthStart2 = new Date(now2.getFullYear(), now2.getMonth(), 1).getTime();
     const histAll = getHistory();
     const activeDays2 = new Set(histAll.filter(h=>(h.ts||0)>=monthStart2).map(h=>new Date(h.ts).toDateString())).size;
-    const dEl = el('statActiveDaysCount'); if (dEl) dEl.textContent = activeDays2 || 0;
 
-    // 🏁 Progression (fetch async)
-    (async function() {
-      try {
-        const r = await fetch('/api/jikan?path=' + encodeURIComponent('/anime?limit=1&page=1'));
-        const d = await r.json();
-        const total = d.pagination?.items?.total || 24000;
-        const pct = +(completed.length / total * 100).toFixed(1);
-        const pEl2 = el('statProgressCount'); if (pEl2) pEl2.textContent = pct + '%';
-      } catch {
-        const pEl2 = el('statProgressCount'); if (pEl2) pEl2.textContent = completed.length > 0 ? completed.length + ' vus' : '—';
+    if (window.VA_isPremium && window.VA_isPremium()) {
+      // Premium : afficher les vraies valeurs + masquer les ⭐
+      const hEl2 = el('statHoursCount');
+      if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
+      const dEl2 = el('statActiveDaysCount');
+      if (dEl2) dEl2.textContent = activeDays2 || 0;
+      ['hoursLockIcon','daysLockIcon','progressLockIcon'].forEach(function(lockId) {
+        var ic = el(lockId); if (ic) ic.style.display = 'none';
+      });
+      [el('statHoursCount'), el('statActiveDaysCount'), el('statProgressCount')].forEach(function(se) {
+        if (!se) return;
+        var p = se.closest('.stat-compact');
+        if (p) { p.style.cursor = ''; p.onclick = null; p.removeAttribute('title'); }
+      });
+      // Progression async
+      (async function() {
+        try {
+          const r = await fetch('/api/jikan?path=' + encodeURIComponent('/anime?limit=1&page=1'));
+          const d = await r.json();
+          const total = d.pagination?.items?.total || 24000;
+          const pct = +(completed.length / total * 100).toFixed(1);
+          const pEl2 = el('statProgressCount'); if (pEl2) pEl2.textContent = pct + '%';
+        } catch {
+          const pEl2 = el('statProgressCount');
+          if (pEl2) pEl2.textContent = completed.length > 0 ? completed.length + ' vus' : '—';
+        }
+      })();
+    }
+    // Non-premium : stats restent '—' avec ⭐ → onclick ouvre popup premium
+
+    // ── Phrases humaines sous chaque groupe ──────────────────────────────
+    // Groupe 1 : Activité
+    const phraseAct = el('phraseActivite');
+    if (phraseAct) {
+      if (hist.length === 0) {
+        phraseAct.textContent = 'Commence à explorer le catalogue !';
+      } else if (hist.length === 1) {
+        phraseAct.textContent = 'Premier anime visité — bonne découverte !';
+      } else if (hist.length < 10) {
+        phraseAct.textContent = hist.length + ' animes visités · Tu explores !';
+      } else {
+        phraseAct.textContent = hist.length + ' animes visités · ' + (activeDays2 || 0) + ' jours actifs ce mois';
       }
-    })();
+    }
+
+    // Groupe 2 : Progression
+    const phraseProg = el('phraseProgression');
+    if (phraseProg) {
+      if (completed.length === 0 && watching.length === 0 && planTo.length === 0) {
+        phraseProg.textContent = 'Ajoute des animes à ta liste pour commencer !';
+      } else if (completed.length === 0) {
+        phraseProg.textContent = watching.length + ' anime' + (watching.length > 1 ? 's' : '') + ' en cours · ' + planTo.length + ' en attente';
+      } else if (completed.length === 1) {
+        phraseProg.textContent = 'Tu as terminé ton premier anime 🎉';
+      } else {
+        phraseProg.textContent = 'Tu as terminé ' + completed.length + ' animes · ' + watching.length + ' en cours';
+      }
+    }
+
+    // Groupe 3 : Engagement (phrases calculées après la valeur des heures)
+    const phraseEng = el('phraseEngagement');
+    if (phraseEng) {
+      const hrs = Math.round(totalMins / 60);
+      if (hrs === 0) {
+        phraseEng.textContent = 'Termine ton premier anime pour voir tes heures !';
+      } else if (hrs < 10) {
+        phraseEng.textContent = 'Tu commence à t'investir — continue !';
+      } else if (hrs < 50) {
+        phraseEng.textContent = 'Déjà ' + hrs + 'h devant des animes — beau palmarès !';
+      } else if (hrs < 200) {
+        phraseEng.textContent = hrs + 'h de visionnage · Tu es un vrai fan !';
+      } else {
+        phraseEng.textContent = hrs + 'h · Niveau légendaire 🏆';
+      }
+    }
 
     // Date membre
     const firstVisit = parseInt(localStorage.getItem('VoirAnime_firstVisit') || '0');
@@ -1053,13 +1201,7 @@
         isPremium  = data.isPremium === true;
       } catch {}
     }
-    if (!isPremium) {
-      /* Afficher le teaser pour les non-premium */
-      if (teaserSection) teaserSection.style.display = 'block';
-      return;
-    }
-    /* Premium : afficher les vraies stats, cacher le teaser */
-    if (teaserSection) teaserSection.style.display = 'none';
+    if (!isPremium) return;
     if (section) section.style.display = 'block';
 
     const watchList = getWatchList();
