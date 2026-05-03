@@ -417,6 +417,21 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .upcoming-empty { text-align: center; padding: 24px 12px; color: var(--muted); font-size: 0.82rem; }
+  
+    /* ── Debug panel ── */
+    #va-debug {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999;
+      background: #0a0914; border-top: 2px solid #a78bfa;
+      padding: 10px 14px; font-size: 0.72rem; font-family: monospace;
+      color: #eeecff; max-height: 50vh; overflow-y: auto;
+      display: none;
+    }
+    #va-debug h4 { color: #a78bfa; margin-bottom: 6px; font-size: 0.8rem; }
+    #va-debug .ok  { color: #4ade80; }
+    #va-debug .err { color: #f87171; }
+    #va-debug .warn { color: #fbbf24; }
+    #va-debug .row { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+
   </style>
   <script src="js/i18n.js"></script>
   <script src="featuresManager.js"></script>
@@ -1663,5 +1678,92 @@ document.addEventListener('DOMContentLoaded', function(){
   } catch(e) {}
 })();
 </script>
+
+<!-- DEBUG PANEL — visible uniquement avec ?debug=1 dans l'URL -->
+<div id="va-debug">
+  <h4>🔍 VoirAnime Debug</h4>
+  <div id="va-debug-content">Chargement…</div>
+</div>
+
+
+<script>
+/* ── Debug panel ── */
+(function() {
+  if (!location.search.includes('debug=1')) return;
+
+  var panel = document.getElementById('va-debug');
+  var content = document.getElementById('va-debug-content');
+  if (!panel || !content) return;
+  panel.style.display = 'block';
+
+  function row(label, value, cls) {
+    return '<div class="row"><span class="' + (cls||'') + '"><b>' + label + '</b> : ' + value + '</span></div>';
+  }
+
+  function renderDebug() {
+    var lines = [];
+
+    // 1. pi_user
+    var piRaw = localStorage.getItem('pi_user');
+    var piUser = null;
+    try { piUser = JSON.parse(piRaw); } catch(e) {}
+    lines.push(row('pi_user', piUser ? '✅ uid=' + (piUser.uid||'?') + ' user=' + (piUser.username||'?') : '❌ null/absent', piUser ? 'ok' : 'err'));
+
+    // 2. sessionStorage premium
+    var sessRaw = sessionStorage.getItem('VoirAnime_premiumStatus');
+    var sessData = null;
+    try { sessData = JSON.parse(sessRaw); } catch(e) {}
+    if (sessData) {
+      var age = Math.round((Date.now() - (sessData._ts||0)) / 1000);
+      lines.push(row('Cache premium', 'isPremium=' + sessData.isPremium + ' plan=' + (sessData.plan||'?') + ' age=' + age + 's', sessData.isPremium ? 'ok' : 'err'));
+    } else {
+      lines.push(row('Cache premium', '❌ absent (pas encore fetchée)', 'warn'));
+    }
+
+    // 3. VA_isPremium()
+    var isPrem = window.VA_isPremium ? window.VA_isPremium() : 'fonction absente';
+    lines.push(row('VA_isPremium()', isPrem, isPrem === true ? 'ok' : 'err'));
+
+    // 4. localStorage données
+    var favs = [];
+    var hist = [];
+    var watch = {};
+    try { favs  = JSON.parse(localStorage.getItem('VoirAnime_favs') || '[]'); } catch(e) {}
+    try { hist  = JSON.parse(localStorage.getItem('VoirAnime_history') || '[]'); } catch(e) {}
+    try { watch = JSON.parse(localStorage.getItem('VoirAnime_watchStatus') || '{}'); } catch(e) {}
+    lines.push(row('Favoris',   favs.length + ' entrées', favs.length > 0 ? 'ok' : 'warn'));
+    lines.push(row('Historique', hist.length + ' entrées', hist.length > 0 ? 'ok' : 'warn'));
+    lines.push(row('WatchStatus', Object.keys(watch).length + ' entrées', Object.keys(watch).length > 0 ? 'ok' : 'warn'));
+
+    // 5. Test fetch /api/premium
+    lines.push(row('API /api/premium', '⏳ test en cours…', 'warn'));
+    content.innerHTML = '<h4>🔍 VoirAnime Debug</h4>' + lines.join('');
+
+    if (piUser && piUser.uid) {
+      fetch('https://voir-anime.vercel.app/api/premium?piUserId=' + encodeURIComponent(piUser.uid))
+        .then(function(r) { return r.json().then(function(d) { return { status: r.status, data: d }; }); })
+        .then(function(res) {
+          lines.pop(); // retirer "en cours"
+          lines.push(row('API /api/premium', 'HTTP ' + res.status + ' → isPremium=' + res.data.isPremium + ' plan=' + (res.data.plan||'?') + ' status=' + (res.data.subscriptionStatus||'?'), res.data.isPremium ? 'ok' : 'err'));
+          lines.push(row('Réponse brute', JSON.stringify(res.data).substring(0, 150), ''));
+          content.innerHTML = '<h4>🔍 VoirAnime Debug</h4>' + lines.join('');
+        })
+        .catch(function(e) {
+          lines.pop();
+          lines.push(row('API /api/premium', '❌ ERREUR RÉSEAU : ' + e.message, 'err'));
+          content.innerHTML = '<h4>🔍 VoirAnime Debug</h4>' + lines.join('');
+        });
+    } else {
+      lines.pop();
+      lines.push(row('API /api/premium', '⏭ skipped (pas de pi_user)', 'warn'));
+      content.innerHTML = '<h4>🔍 VoirAnime Debug</h4>' + lines.join('');
+    }
+  }
+
+  // Attendre que tout soit initialisé
+  setTimeout(renderDebug, 2500);
+})();
+</script>
+
 </body>
 </html>
