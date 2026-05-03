@@ -26,9 +26,6 @@
 
     /* ── Profile page styles ── */
 
-    /* 1. Masquer l'icône profil navbar sur cette page */
-    #navAvatarBtn { display: none !important; }
-
     /* Hero v2 : 2 colonnes côte à côte */
     .profile-hero-v2 {
       padding: calc(var(--nav-h) + 40px) 48px 32px;
@@ -420,40 +417,69 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .upcoming-empty { text-align: center; padding: 24px 12px; color: var(--muted); font-size: 0.82rem; }
-  
-    /* 3. Modal avatar étendu */
-    .avatar-modal { align-items: flex-start !important; padding-top: calc(var(--nav-h,56px) + 12px) !important; }
-    .avm-tabs {
-      display: flex; gap: 4px; margin-bottom: 16px;
-      border-bottom: 1px solid var(--b1); padding-bottom: 0;
+
+    /* ════ SYSTÈME D'ONGLETS ════ */
+    .profile-tabs-wrap {
+      position: sticky;
+      top: var(--nav-h, 56px);
+      z-index: 90;
+      background: var(--ink1);
+      border-bottom: 1px solid var(--b1);
+      padding: 0 12px;
+      margin-bottom: 16px;
     }
-    .avm-tab {
-      padding: 8px 14px; background: none; border: none;
-      border-bottom: 2px solid transparent; color: var(--muted);
+    .profile-tabs {
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+      max-width: 1160px;
+      margin: 0 auto;
+    }
+    .profile-tabs::-webkit-scrollbar { display: none; }
+    .ptab {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 11px 16px 10px;
+      border: none; border-bottom: 2px solid transparent;
+      background: transparent; color: var(--muted);
       font-family: var(--font); font-size: 0.8rem; font-weight: 600;
-      cursor: pointer; transition: color 0.15s, border-color 0.15s;
-      margin-bottom: -1px;
+      cursor: pointer; white-space: nowrap;
+      transition: color 0.15s, border-color 0.15s;
+      flex-shrink: 0;
     }
-    .avm-tab:hover { color: var(--text2); }
-    .avm-tab.active { color: var(--text); border-bottom-color: #a78bfa; }
-    /* Zone upload */
-    .avm-upload-zone {
-      border: 2px dashed var(--b2); border-radius: 14px;
-      padding: 36px 20px; text-align: center; cursor: pointer;
-      transition: border-color 0.2s, background 0.2s; margin-bottom: 8px;
+    .ptab:hover { color: var(--text2); }
+    .ptab.active { color: var(--text); border-bottom-color: #a78bfa; }
+    .ptab-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #4ade80; box-shadow: 0 0 5px rgba(74,222,128,0.7);
+      flex-shrink: 0; display: none;
     }
-    .avm-upload-zone:hover { border-color: var(--violet); background: rgba(167,139,250,0.05); }
-    .avm-upload-icon { font-size: 2.4rem; margin-bottom: 10px; }
-    .avm-upload-label { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-    .avm-upload-sub   { font-size: 0.72rem; color: var(--muted); }
-    /* Aperçu */
-    .avm-preview-wrap { text-align: center; }
-    .avm-preview-img  { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--pink); margin: 0 auto 16px; display: block; }
-    .avm-preview-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-    .avm-btn-primary   { padding: 9px 20px; background: var(--violet); color: #fff; border: none; border-radius: 10px; font-family: var(--font); font-size: 0.82rem; font-weight: 700; cursor: pointer; }
-    .avm-btn-secondary { padding: 9px 16px; background: var(--ink4); color: var(--text2); border: 1px solid var(--b2); border-radius: 10px; font-family: var(--font); font-size: 0.82rem; font-weight: 600; cursor: pointer; }
-  
-    /* 2. Bouton Premium compact + animations */
+    .ptab-dot.visible { display: block; }
+
+    /* ════ PANELS ════ */
+    .profile-panel {
+      display: none;
+      max-width: 1160px; margin: 0 auto;
+      padding: 0 14px 40px;
+    }
+    .profile-panel.active {
+      display: block;
+      animation: panelIn 0.2s ease both;
+    }
+    @keyframes panelIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ════ HERO COMPACT ════ */
+    .profile-hero-compact {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 12px;
+      padding: calc(var(--nav-h,56px) + 14px) 14px 14px;
+      max-width: 1160px; margin: 0 auto;
+    }
+    .profile-hero-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+
+    /* ════ BOUTON PREMIUM COMPACT ════ */
     .premium-hero-btn {
       display: inline-flex; align-items: center; gap: 5px;
       padding: 4px 10px; border-radius: 16px; cursor: pointer;
@@ -462,34 +488,67 @@
       white-space: nowrap; line-height: 1.4;
     }
     .premium-hero-btn.active {
-      background: rgba(167,139,250,0.12);
-      border-color: rgba(167,139,250,0.35);
-      color: var(--text);
+      background: rgba(167,139,250,0.12); border-color: rgba(167,139,250,0.35); color: var(--text);
     }
     .premium-hero-btn.inactive {
-      background: rgba(167,139,250,0.08);
-      border-color: rgba(167,139,250,0.2);
-      color: var(--violet);
-      animation: premBtnPulse 2.4s ease-in-out infinite;
+      background: rgba(167,139,250,0.08); border-color: rgba(167,139,250,0.2); color: var(--violet);
+      animation: premPulse 2.4s ease-in-out infinite;
     }
     .premium-hero-btn.expiring {
-      background: rgba(251,191,36,0.1);
-      border-color: rgba(251,191,36,0.35);
-      color: #fbbf24;
-      animation: premBtnPulse 1.6s ease-in-out infinite;
+      background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.35); color: #fbbf24;
+      animation: premPulseOrange 1.6s ease-in-out infinite;
     }
-    @keyframes premBtnPulse {
-      0%,100% { box-shadow: 0 0 0 0 transparent; }
-      50%      { box-shadow: 0 0 0 4px rgba(167,139,250,0.18); }
+    @keyframes premPulse { 0%,100%{box-shadow:0 0 0 0 transparent} 50%{box-shadow:0 0 0 4px rgba(167,139,250,0.18)} }
+    @keyframes premPulseOrange { 0%,100%{box-shadow:0 0 0 0 transparent} 50%{box-shadow:0 0 0 4px rgba(251,191,36,0.22)} }
+    .phb-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ════ PSTATS CÔTE À CÔTE ════ */
+    .pstats-side {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start;
     }
-    .premium-hero-btn.expiring { animation-name: premBtnPulseOrange; }
-    @keyframes premBtnPulseOrange {
-      0%,100% { box-shadow: 0 0 0 0 transparent; }
-      50%      { box-shadow: 0 0 0 4px rgba(251,191,36,0.22); }
+    @media (max-width: 420px) { .pstats-side { grid-template-columns: 1fr; } }
+
+    /* ════ MODAL AVATAR FIXÉ EN HAUT ════ */
+    .avatar-modal {
+      align-items: flex-start !important;
+      padding-top: calc(var(--nav-h,56px) + 10px) !important;
     }
-    .phb-dot {
-      width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
+    /* Onglets dans le modal */
+    .avm-tabs {
+      display: flex; gap: 0; margin-bottom: 16px;
+      border-bottom: 1px solid var(--b1);
     }
+    .avm-tab {
+      padding: 8px 14px; background: none; border: none;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+      color: var(--muted); font-family: var(--font); font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: color 0.15s, border-color 0.15s;
+    }
+    .avm-tab:hover { color: var(--text2); }
+    .avm-tab.active { color: var(--text); border-bottom-color: #a78bfa; }
+    /* Zone upload */
+    .avm-upload-zone {
+      border: 2px dashed var(--b2); border-radius: 14px;
+      padding: 32px 20px; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .avm-upload-zone:hover, .avm-upload-zone:active {
+      border-color: var(--violet); background: rgba(167,139,250,0.06);
+    }
+    .avm-upload-icon { font-size: 2.2rem; margin-bottom: 10px; }
+    .avm-upload-label { font-size: 0.88rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .avm-upload-sub   { font-size: 0.7rem; color: var(--muted); }
+    .avm-preview-img  {
+      width: 96px; height: 96px; border-radius: 50%; object-fit: cover;
+      border: 2px solid var(--pink); display: block; margin: 0 auto 14px;
+    }
+    .avm-preview-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .avm-btn-primary   { padding: 9px 20px; background: #a78bfa; color: #fff; border: none; border-radius: 10px; font-family: var(--font); font-size: 0.82rem; font-weight: 700; cursor: pointer; }
+    .avm-btn-secondary { padding: 9px 16px; background: var(--ink4); color: var(--text2); border: 1px solid var(--b2); border-radius: 10px; font-family: var(--font); font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+
+    /* Masquer l'icône nav profil sur cette page */
+    #navAvatarBtn { display: none !important; }
+
   </style>
   <script src="js/i18n.js"></script>
   <script src="featuresManager.js"></script>
@@ -536,41 +595,45 @@
     <li><a href="soutenir.html" class="nav-link nav-link-support">💜 Support</a></li>
   </ul>
 </nav>
-<!-- HERO PROFIL -->
-<div class="profile-hero-v2">
-
-  <!-- Colonne gauche : avatar + identité + abonnement -->
-  <div class="profile-left">
-    <div class="profile-identity">
-
-      <!-- Avatar cliquable → sélecteur -->
-      <div class="profile-avatar-wrap" id="profileAvatarWrap" title="Change avatar">
-        <img class="profile-avatar-img" id="profileAvatarImg"
-             src="" alt="Avatar"
-             onerror="this.style.display='none';document.getElementById('profileAvatarFallback').style.display='flex'"/>
-        <div class="profile-avatar-fallback" id="profileAvatarFallback">👤</div>
-        <div class="profile-avatar-edit">✎</div>
-      </div>
-
-      <div class="profile-identity-info">
-        <h1 class="profile-name" data-i18n="profile.title">Mon Profil</h1>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <p class="profile-since" id="profileSince" style="margin-bottom:0">Membre depuis aujourd'hui</p>
-          <button id="footerContactBtn" title="Nous contacter"
-            style="background:none;border:1px solid rgba(34,211,238,0.3);color:#22d3ee;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 0.2s;padding:0">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
-          </button>
-        </div>
+<!-- HERO COMPACT -->
+<div class="profile-hero-compact">
+  <div class="profile-hero-left">
+    <div class="profile-avatar-wrap" id="profileAvatarWrap" title="Change avatar">
+      <img class="profile-avatar-img" id="profileAvatarImg" src="" alt="Avatar"
+           onerror="this.style.display='none';document.getElementById('profileAvatarFallback').style.display='flex'"/>
+      <div class="profile-avatar-fallback" id="profileAvatarFallback">👤</div>
+      <div class="profile-avatar-edit">✎</div>
+    </div>
+    <div class="profile-identity-info">
+      <h1 class="profile-name" data-i18n="profile.title">Mon Profil</h1>
+      <div style="display:flex;align-items:center;gap:6px">
+        <p class="profile-since" id="profileSince" style="margin:0">Membre depuis aujourd'hui</p>
+        <button id="footerContactBtn" title="Nous contacter"
+          style="background:none;border:1px solid rgba(34,211,238,0.3);color:#22d3ee;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/></svg>
+        </button>
       </div>
     </div>
-    <!-- Carte abonnement -->
-    <div id="profileSubscriptionCard"></div>
   </div>
+  <div id="profileSubscriptionCard" style="flex-shrink:0"></div>
+</div>
 
-  <!-- Stats : 3 groupes thématiques -->
+<!-- BARRE D'ONGLETS STICKY -->
+<div class="profile-tabs-wrap">
+  <div class="profile-tabs" role="tablist">
+    <button class="ptab active" id="ptab-stats"   onclick="switchTab('stats')"   role="tab">📊 Stats</button>
+    <button class="ptab"        id="ptab-sorties" onclick="switchTab('sorties')" role="tab">📅 Sorties</button>
+    <button class="ptab"        id="ptab-perso"   onclick="switchTab('perso')"   role="tab">✦ Perso</button>
+    <button class="ptab"        id="ptab-abo"     onclick="switchTab('abo')"     role="tab">
+      <span class="ptab-dot" id="ptabPremiumDot"></span>⭐ Abonnement
+    </button>
+  </div>
+</div>
+
+<!-- ══ PANEL : STATS ══ -->
+<div class="profile-panel active" id="panel-stats" role="tabpanel">
   <div class="stats-groups" id="profileStats">
-
-    <!-- 🟦 Groupe 1 : Activité -->
+        <!-- 🟦 Groupe 1 : Activité -->
     <div class="stat-group">
       <div class="stat-group-header">
         <div class="stat-group-icon blue">📚</div>
@@ -635,54 +698,14 @@
 
     <!-- ID conservé pour compatibilité JS (masqué) -->
     <span id="statProgressCount" style="display:none">—</span>
-
-  </div>
-
-</div>
-
-<!-- MODAL SÉLECTEUR AVATAR -->
-<div class="avatar-modal" id="avatarModal" style="display:none">
-  <div class="avatar-modal-box">
-    <div class="avatar-modal-header">
-      <span class="avatar-modal-title">✎ Changer l'avatar</span>
-      <button class="avatar-modal-close" id="avatarModalClose">✕</button>
-    </div>
-    <!-- Onglets -->
-    <div class="avm-tabs">
-      <button class="avm-tab active" id="avmTabChars" onclick="avmSwitch('chars')">🎭 Personnages</button>
-      <button class="avm-tab"        id="avmTabPhoto" onclick="avmSwitch('photo')">📷 Ma photo</button>
-    </div>
-    <!-- Panel avatars -->
-    <div id="avmPanelChars">
-      <div class="avatar-modal-grid" id="avatarGrid"></div>
-    </div>
-    <!-- Panel upload photo -->
-    <div id="avmPanelPhoto" style="display:none">
-      <div class="avm-upload-zone" id="avmUploadZone">
-        <div class="avm-upload-icon">📷</div>
-        <div class="avm-upload-label">Appuie pour choisir une photo</div>
-        <div class="avm-upload-sub">JPG, PNG, WEBP · max 5 Mo</div>
-        <input type="file" id="avmFileInput" accept="image/*" style="display:none"/>
-      </div>
-      <div class="avm-preview-wrap" id="avmPreviewWrap" style="display:none">
-        <img id="avmPreviewImg" src="" alt="Aperçu" class="avm-preview-img"/>
-        <div class="avm-preview-actions">
-          <button class="avm-btn-secondary" onclick="avmCancelPhoto()">Changer</button>
-          <button class="avm-btn-primary"   onclick="avmConfirmPhoto()">✓ Utiliser cette photo</button>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
-
-<!-- PROCHAINES SORTIES — Premium uniquement -->
-<section class="profile-section" id="upcomingSection" style="display:none">
-  <div class="profile-section-title">
-    <span class="section-dot violet"></span>
-    📅 Mes prochaines sorties
-  </div>
-  <div class="upcoming-filters">
+<!-- ══ PANEL : SORTIES ══ -->
+<div class="profile-panel" id="panel-sorties" role="tabpanel">
+  <!-- Contenu upcoming (visible si premium, sinon teaser) -->
+  <div id="upcomingSectionInner">
+      <div class="upcoming-filters">
     <button class="uf-btn active" data-filter="all"   onclick="setUpcomingFilter('all',this)">Tout</button>
     <button class="uf-btn"        data-filter="week"  onclick="setUpcomingFilter('week',this)">Cette semaine</button>
     <button class="uf-btn"        data-filter="month" onclick="setUpcomingFilter('month',this)">Ce mois-ci</button>
@@ -693,11 +716,37 @@
       Chargement de tes prochaines sorties…
     </div>
   </div>
-</section>
+  </div>
+  <div id="upcomingTeaserPanel" style="display:none">
+    <div style="text-align:center;padding:40px 16px">
+      <div style="font-size:2rem;margin-bottom:10px">📅</div>
+      <div style="font-weight:700;color:var(--text);margin-bottom:6px">Prochaines sorties</div>
+      <div style="font-size:0.8rem;color:var(--muted);margin-bottom:18px">Suis tes animes et reçois les dates de diffusion en temps réel.</div>
+      <a href="premium.html" style="display:inline-flex;align-items:center;gap:6px;padding:9px 20px;background:linear-gradient(135deg,#a78bfa,#818cf8);color:#fff;border-radius:20px;font-size:0.8rem;font-weight:700;text-decoration:none">⭐ Passer Premium</a>
+    </div>
+  </div>
+</div>
 
-<!-- TEASER premium pour non-abonnés -->
-<section class="profile-section" id="premiumTeaserSection" style="display:none">
-  <div style="background:linear-gradient(135deg,rgba(167,139,250,0.07),rgba(34,211,238,0.05));
+<!-- ══ PANEL : PERSO ══ -->
+<div class="profile-panel" id="panel-perso" role="tabpanel">
+  <!-- Stats premium (top3 + genres) -->
+  <div id="persoStatsContent">
+    <div class="pstats-side">
+        <div class="pstats-block">
+    <div class="pstats-block-title">🔥 Top 3 animes</div>
+    <div class="pstats-top-list" id="pstatTopAnimes"></div>
+  </div>
+  <div class="pstats-block">
+    <div class="pstats-block-title">🎯 Genres préférés</div>
+    <div class="pstats-genres" id="pstatGenres">
+      <div class="pstats-empty-hint">Visite plus d'animés pour débloquer tes genres !</div>
+    </div>
+  </div>
+    </div>
+  </div>
+  <!-- Teaser si non premium -->
+  <div id="persoTeaserPanel" style="display:none">
+      <div style="background:linear-gradient(135deg,rgba(167,139,250,0.07),rgba(34,211,238,0.05));
     border:1px solid rgba(167,139,250,0.2);border-radius:16px;padding:22px 20px;
     cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s"
     onclick="window.VA_showUpgradePrompt('Débloque tes stats personnalisées, tes recommandations et bien plus.',['📊 Stats avancées & genres préférés','🔥 Recommandations personnalisées','❤️ Favoris illimités','⚡ Accès anticipé aux nouveautés'])"
@@ -729,25 +778,70 @@
       </div>
     </div>
   </div>
-</section>
+  </div>
+</div>
 
-<!-- STATS PREMIUM DÉTAILLÉES (genres + top animes — masquées si non Premium) -->
-<section class="profile-section" id="premiumStatsSection" style="display:none">
-  <div class="profile-section-title">
-    <span class="section-dot gold"></span>
-    🎯 Détails Premium
+<!-- ══ PANEL : ABONNEMENT ══ -->
+<div class="profile-panel" id="panel-abo" role="tabpanel">
+  <div style="background:var(--ink3);border:1px solid var(--b1);border-radius:14px;padding:18px 16px;margin-bottom:14px">
+    <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:10px">Statut</div>
+    <div id="aboStatusBlock"><span style="color:var(--muted);font-size:0.82rem">Chargement…</span></div>
   </div>
-  <div class="pstats-block">
-    <div class="pstats-block-title">🔥 Top 3 animes</div>
-    <div class="pstats-top-list" id="pstatTopAnimes"></div>
-  </div>
-  <div class="pstats-block">
-    <div class="pstats-block-title">🎯 Genres préférés</div>
-    <div class="pstats-genres" id="pstatGenres">
-      <div class="pstats-empty-hint">Visite plus d'animés pour débloquer tes genres !</div>
+  <div style="background:var(--ink3);border:1px solid var(--b1);border-radius:14px;padding:18px 16px">
+    <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:12px">Avantages Premium</div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Favoris illimités</div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>3× plus de recommandations personnalisées</div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Alertes de nouvelles sorties + compte à rebours en direct</div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Stats avancées (top animes, genres préférés)</div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Badge Premium exclusif ⭐</div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Accès anticipé aux nouvelles fonctionnalités</div>
     </div>
   </div>
-</section>
+</div>
+
+<!-- MODAL AVATAR AVEC ONGLETS + UPLOAD -->
+<div class="avatar-modal" id="avatarModal" style="display:none">
+  <div class="avatar-modal-box">
+    <div class="avatar-modal-header">
+      <span class="avatar-modal-title">✎ Changer l'avatar</span>
+      <button class="avatar-modal-close" id="avatarModalClose">✕</button>
+    </div>
+    <div class="avm-tabs">
+      <button class="avm-tab active" id="avmTabChars" onclick="avmSwitch('chars')">🎭 Personnages</button>
+      <button class="avm-tab"        id="avmTabPhoto" onclick="avmSwitch('photo')">📷 Ma photo</button>
+    </div>
+    <div id="avmPanelChars">
+      <div class="avatar-modal-grid" id="avatarGrid"></div>
+    </div>
+    <div id="avmPanelPhoto" style="display:none">
+      <div class="avm-upload-zone" id="avmUploadZone">
+        <div class="avm-upload-icon">📷</div>
+        <div class="avm-upload-label">Appuie pour choisir une photo</div>
+        <div class="avm-upload-sub">JPG · PNG · WEBP · max 5 Mo</div>
+      </div>
+      <input type="file" id="avmFileInput" accept="image/*" style="display:none"/>
+      <div id="avmPreviewWrap" style="display:none;text-align:center">
+        <img id="avmPreviewImg" src="" alt="Aperçu" class="avm-preview-img"/>
+        <div class="avm-preview-actions">
+          <button class="avm-btn-secondary" onclick="avmCancelPhoto()">Choisir autre</button>
+          <button class="avm-btn-primary"   onclick="avmConfirmPhoto()">✓ Utiliser cette photo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- IDs legacy pour compatibilité JS (hors panels, hidden) -->
+<div style="display:none">
+  <div id="upcomingSection"></div>
+  <div id="premiumTeaserSection"></div>
+  <div id="premiumStatsSection"></div>
+  <span id="pstatTopAnimes_legacy"></span>
+  <span id="pstatGenres_legacy"></span>
+</div>
+
+
 
 <footer class="site-footer">
   <div class="footer-logo">Voir<span>Anime</span></div>
@@ -867,13 +961,13 @@
 
   /* ── Stats grille ── */
   function renderStats() {
-    // 4. Pseudo Pi Network dans .profile-name
+    // Afficher le pseudo Pi dans le nom
     (function() {
       var nameEl = document.querySelector('.profile-name');
       if (!nameEl) return;
       try {
         var piUser = JSON.parse(localStorage.getItem('pi_user') || 'null');
-        if (piUser && piUser.username) { nameEl.textContent = piUser.username; }
+        if (piUser && piUser.username) nameEl.textContent = piUser.username;
       } catch(e) {}
     })();
 
@@ -1140,21 +1234,15 @@
      Affichage immédiat. Mise à jour si Pi auth disponible.
   ──────────────────────────────────────────────────────────────────────── */
   function renderSubscriptionStatus() {
-    const card = el('profileSubscriptionCard');
-    if (!card) return;
-
-    // Affichage immédiat Free par défaut
-    _buildSubCard(card, null);
-
-    // Mise à jour si premiumManager disponible (maintenant ou plus tard)
+    var card = el('profileSubscriptionCard');
+    _buildPremiumBtn(card, null); // bouton par défaut immédiat
     function _tryPremium() {
       if (window.VA_onPremiumReady) {
         window.VA_onPremiumReady(function(status) {
-          _buildSubCard(card, status);
+          _buildPremiumBtn(card, status);
+          _buildAboPanel(status);
         });
-      } else {
-        setTimeout(_tryPremium, 1500);
-      }
+      } else { setTimeout(_tryPremium, 500); }
     }
     _tryPremium();
   }
@@ -1172,16 +1260,19 @@
       var renewalNotice = days <= 7 && days > 0
         ? '<div style="font-size:0.7rem;color:#f59e0b;margin-bottom:6px">⚠ Expire dans ' + days + ' jour' + (days>1?'s':'') + ' — pensez à renouveler</div>'
         : (days === 0 ? '<div style="font-size:0.7rem;color:#ef4444;margin-bottom:6px">⚠ Expire aujourd\'hui</div>' : '');
-      // Bouton compact premium dans le hero
-      var dotColor = days <= 3 ? '#f87171' : days <= 7 ? '#fbbf24' : '#4ade80';
-      var btnClass = days <= 7 ? 'premium-hero-btn expiring' : 'premium-hero-btn active';
-      var expiresAt = status && status.expiresAt;
-      var expDate = expiresAt ? new Date(expiresAt).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}) : '';
-      var daysTxt  = days > 0 && days <= 14 ? ' · ' + days + 'j' : '';
-      var html = '<a href="premium.html" class="' + btnClass + '" title="' + (expDate ? 'Expire le ' + expDate : '') + '">'
-        + '<span class="phb-dot" style="background:' + dotColor + ';box-shadow:0 0 4px ' + dotColor + '80"></span>'
-        + '⭐ Premium' + daysTxt
-        + '</a>';
+      var html = '<div class="sub-card sub-card-premium ' + urgency + '">'        + '<div class="sub-card-header">'        + '<span class="sub-card-badge">&#11088; Premium actif</span>'        + '<span class="sub-card-plan">' + planLabel + ' &middot; ' + renewPrice + '</span>'        + '</div>'        + renewalNotice
+        + '<button id="subPerksToggle" style="background:none;border:none;color:var(--muted);font-size:0.72rem;cursor:pointer;font-family:var(--font);padding:2px 0;text-align:left;">Voir les avantages ▼</button>'
+        + '<div id="subPerksBody" class="sub-card-perks" style="display:none">'
+        + '<span class="sub-perk active">&#10084; Favoris illimit&eacute;s</span>'
+        + '<span class="sub-perk active">&#128202; Stats d&eacute;taill&eacute;es</span>'
+        + '<span class="sub-perk active">&#9889; Acc&egrave;s anticip&eacute;</span>'
+        + '<span class="sub-perk active">&#8597; R&eacute;organiser</span>'
+        + '</div>'
+        + '<div class="sub-card-actions">'
+        + '<button class="sub-card-btn sub-card-btn-renew" id="subRenewBtn">Renouveler</button>'
+        + '<button class="sub-card-btn sub-card-btn-cancel" id="subCancelBtn">Annuler</button>'
+        + '</div>'
+        + '</div>';
 
       card.innerHTML = html;
 
@@ -1201,10 +1292,37 @@
 
     } else {
       // ── Vue offres (Free ou expiré) ──
-      // Bouton compact "🔒 Premium" avec pulse
-      var html = '<a href="premium.html" class="premium-hero-btn inactive">🔒 Premium</a>';
+      var expiredHtml = isExpired
+        ? '<span class="sub-expired-tag">Abonn. expir&eacute;</span>'
+        : '<span class="sub-upgrade-title">&#11088; Passer Premium</span>';
+
+      var html = '<div class="sub-card sub-offers-card">'
+        + '<div class="sub-offers-title-row">' + expiredHtml + '</div>'
+
+        // Tableau 3 colonnes : Fonctionnalité / Gratuit / Premium
+        + '<table style="width:100%;border-collapse:collapse;font-size:0.74rem;margin-bottom:12px">'        + '<thead><tr>'        + '<th style="text-align:left;padding:5px 6px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--b1)">Fonctionnalité</th>'        + '<th style="text-align:center;padding:5px 6px;color:var(--text2);font-weight:700;border-bottom:1px solid var(--b1)">Gratuit</th>'        + '<th style="text-align:center;padding:5px 6px;color:#22d3ee;font-weight:700;border-bottom:1px solid var(--b1)">⭐ Premium<br><span style=\'font-size:0.62rem;color:var(--muted);font-weight:400\'>1.99π/mois · 19.99π/an<br>🔥 Offre de lancement</span></th>'        + '</tr></thead><tbody>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">❤ Favoris</td><td style="text-align:center;color:var(--muted)">20 max</td><td style="text-align:center;color:#4ade80">✓ Illimités</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">📊 Stats détaillées</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">⚡ Accès anticipé</td><td style="text-align:center;color:var(--muted)">+15j</td><td style="text-align:center;color:#4ade80">✓ Immédiat</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">↕ Réorganiser</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">🔔 News perso</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '</tbody></table>'
+
+        // Plans
+        + '<div class="sub-offers-grid">'
+        + '<div class="sub-offer-item">'
+        + '<div class="sub-launch-badge">&#128293; Offre de lancement</div>'
+        + '<div class="sub-offer-name">Mensuel</div>'
+        + '<div class="sub-offer-price">1.99 <span class="sub-offer-currency">Pi</span></div>'
+        + '<div class="sub-offer-period">par mois</div>'
+        + '<button class="sub-offer-btn" data-plan="monthly">S\'abonner</button>'
+        + '</div>'
+        + '<div class="sub-offer-item sub-offer-featured">'
+        + '<div class="sub-offer-badge-top">Meilleure offre</div>'
+        + '<div class="sub-launch-badge sub-launch-badge-sm">&#128293; Offre de lancement</div>'
+        + '<div class="sub-offer-name">Annuel</div>'
+        + '<div class="sub-offer-price">19.99 <span class="sub-offer-currency">Pi</span></div>'
+        + '<div class="sub-offer-period">par an <span class="sub-offer-saving">2 mois offerts</span></div>'
+        + '<button class="sub-offer-btn sub-offer-btn-featured" data-plan="annual">S\'abonner</button>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
+
       card.innerHTML = html;
-      return; // fin anticipée pour le cas non-premium
 
       card.querySelectorAll('.sub-offer-btn').forEach(function(btn) {
         btn.addEventListener('click', function() { _launchSubscription(btn.dataset.plan); });
@@ -1342,8 +1460,11 @@
 
     /* ── Stats Premium ── */
   async function renderPremiumStats() {
-    const section       = el('premiumStatsSection');
-    const teaserSection = el('premiumTeaserSection');
+    var section       = document.getElementById('persoStatsContent');
+    var teaserSection = document.getElementById('persoTeaserPanel');
+    // Legacy — forcer hide
+    var _ls = el('premiumStatsSection'); if (_ls) _ls.style.display = 'none';
+    var _lt = el('premiumTeaserSection'); if (_lt) _lt.style.display = 'none';
 
     // ── Attendre que premiumManager soit prêt (source unique de vérité) ──
     const premiumStatus = await new Promise(function(resolve) {
@@ -1593,8 +1714,16 @@
     function _tryRender() {
       if (window.VA_onPremiumReady) {
         window.VA_onPremiumReady(function(status) {
-          if (!status || !status.isPremium) return;
-          section.style.display = 'block';
+          var inner  = document.getElementById('upcomingSectionInner');
+          var teaser = document.getElementById('upcomingTeaserPanel');
+          if (!status || !status.isPremium) {
+            if (inner)  inner.style.display  = 'none';
+            if (teaser) teaser.style.display = 'block';
+            return;
+          }
+          if (inner)  inner.style.display  = '';
+          if (teaser) teaser.style.display = 'none';
+          if (section) section.style.display = 'none'; // legacy hidden
           _fetchUpcomingData();
         });
       } else {
@@ -1664,26 +1793,32 @@
 
 
 
-  /* ── Modal avatar étendu : onglets + upload photo ── */
+  /* ════ NAVIGATION PAR ONGLETS ════ */
+  function switchTab(tabId) {
+    document.querySelectorAll('.ptab').forEach(function(t) { t.classList.remove('active'); });
+    document.querySelectorAll('.profile-panel').forEach(function(p) { p.classList.remove('active'); });
+    var tab   = document.getElementById('ptab-' + tabId);
+    var panel = document.getElementById('panel-' + tabId);
+    if (tab)   tab.classList.add('active');
+    if (panel) panel.classList.add('active');
+  }
+
+  /* ════ MODAL AVATAR : onglets + upload ════ */
   function avmSwitch(tab) {
-    var panelChars = document.getElementById('avmPanelChars');
-    var panelPhoto = document.getElementById('avmPanelPhoto');
-    var tabChars   = document.getElementById('avmTabChars');
-    var tabPhoto   = document.getElementById('avmTabPhoto');
+    var pc = document.getElementById('avmPanelChars');
+    var pp = document.getElementById('avmPanelPhoto');
+    var tc = document.getElementById('avmTabChars');
+    var tp = document.getElementById('avmTabPhoto');
     if (tab === 'chars') {
-      if (panelChars) panelChars.style.display = '';
-      if (panelPhoto) panelPhoto.style.display = 'none';
-      if (tabChars)   { tabChars.classList.add('active'); }
-      if (tabPhoto)   { tabPhoto.classList.remove('active'); }
+      if (pc) pc.style.display = '';    if (pp) pp.style.display = 'none';
+      if (tc) tc.classList.add('active');    if (tp) tp.classList.remove('active');
     } else {
-      if (panelChars) panelChars.style.display = 'none';
-      if (panelPhoto) panelPhoto.style.display = '';
-      if (tabChars)   { tabChars.classList.remove('active'); }
-      if (tabPhoto)   { tabPhoto.classList.add('active'); }
+      if (pc) pc.style.display = 'none'; if (pp) pp.style.display = '';
+      if (tc) tc.classList.remove('active'); if (tp) tp.classList.add('active');
     }
   }
 
-  // Clic sur la zone upload → déclenche l'input file
+  // Clic sur zone upload → input file
   document.addEventListener('click', function(e) {
     if (e.target.closest('#avmUploadZone')) {
       var inp = document.getElementById('avmFileInput');
@@ -1691,22 +1826,18 @@
     }
   });
 
-  // Lecture du fichier sélectionné
+  // Lecture fichier sélectionné
   document.addEventListener('change', function(e) {
     if (e.target.id !== 'avmFileInput') return;
     var file = e.target.files && e.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('Photo trop lourde (max 5 Mo)');
-      return;
-    }
+    if (file.size > 5 * 1024 * 1024) { showToast('Photo trop lourde (max 5 Mo)'); return; }
     var reader = new FileReader();
     reader.onload = function(ev) {
-      var dataUrl = ev.target.result;
       var prevImg  = document.getElementById('avmPreviewImg');
       var prevWrap = document.getElementById('avmPreviewWrap');
       var upZone   = document.getElementById('avmUploadZone');
-      if (prevImg)  prevImg.src = dataUrl;
+      if (prevImg)  prevImg.src = ev.target.result;
       if (prevWrap) prevWrap.style.display = 'block';
       if (upZone)   upZone.style.display = 'none';
     };
@@ -1724,23 +1855,87 @@
 
   function avmConfirmPhoto() {
     var prevImg = document.getElementById('avmPreviewImg');
-    if (!prevImg || !prevImg.src) return;
+    if (!prevImg || !prevImg.src || prevImg.src === window.location.href) return;
     var dataUrl = prevImg.src;
-    // Sauvegarder comme avatar (même logique que saveAvatar)
     localStorage.setItem('VoirAnime_avatar', JSON.stringify({ id: 'custom', img: dataUrl }));
-    // Mettre à jour les éléments visuels
-    var pImg = document.getElementById('profileAvatarImg');
+    var pImg  = document.getElementById('profileAvatarImg');
     var pFall = document.getElementById('profileAvatarFallback');
     if (pImg)  { pImg.src = dataUrl; pImg.style.display = 'block'; }
     if (pFall) pFall.style.display = 'none';
     document.querySelectorAll('.nav-avatar-img').forEach(function(ni) { ni.src = dataUrl; ni.style.display = 'block'; });
     document.querySelectorAll('.nav-avatar-fallback').forEach(function(nf) { nf.style.display = 'none'; });
-    // Sync Firestore (photo custom = URL data, on ne sync que l'ID)
     var modal = document.getElementById('avatarModal');
     if (modal) modal.style.display = 'none';
     showToast('Photo de profil mise à jour !');
     avmCancelPhoto();
   }
+
+  /* ════ BOUTON PREMIUM COMPACT ════ */
+  function _buildPremiumBtn(container, status) {
+    if (!container) return;
+    var isPremium = status && status.isPremium;
+    var days      = (status && status.daysLeft) || 0;
+    var plan      = status && status.plan;
+    var planLabel = plan === 'annual' ? 'Annuel' : 'Mensuel';
+    var expiresAt = status && status.expiresAt;
+    var btn = document.createElement('a');
+    btn.href = 'premium.html';
+    if (isPremium) {
+      var expDate  = expiresAt ? new Date(expiresAt).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}) : '';
+      var dotColor = days <= 3 ? '#f87171' : days <= 7 ? '#fbbf24' : '#4ade80';
+      var btnCls   = days <= 7 ? 'premium-hero-btn expiring' : 'premium-hero-btn active';
+      btn.className = btnCls;
+      btn.title     = expDate ? 'Expire le ' + expDate : '';
+      btn.innerHTML = '<span class="phb-dot" style="background:' + dotColor + ';box-shadow:0 0 4px ' + dotColor + '80"></span>'
+        + '⭐ Premium'
+        + (days > 0 && days <= 14 ? '<span style="font-size:0.62rem;color:var(--muted);margin-left:2px">· ' + days + 'j</span>' : '');
+      // Dot vert sur onglet Abonnement
+      var dot = document.getElementById('ptabPremiumDot');
+      if (dot) dot.classList.add('visible');
+    } else {
+      btn.className = 'premium-hero-btn inactive';
+      btn.innerHTML = '🔒 Premium';
+    }
+    container.innerHTML = '';
+    container.appendChild(btn);
+  }
+
+  function _buildAboPanel(status) {
+    var block = document.getElementById('aboStatusBlock');
+    if (!block) return;
+    var isPremium = status && status.isPremium;
+    var days      = (status && status.daysLeft) || 0;
+    var plan      = status && status.plan;
+    var expiresAt = status && status.expiresAt;
+    var planLabel = plan === 'annual' ? 'Annuel' : 'Mensuel';
+    var renewPrice = plan === 'annual' ? '19,99 Pi/an' : '1,99 Pi/mois';
+    if (isPremium) {
+      var expDate  = expiresAt ? new Date(expiresAt).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}) : '—';
+      var urgColor = days <= 3 ? '#f87171' : days <= 7 ? '#fbbf24' : '#4ade80';
+      block.innerHTML =
+        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">'
+        + '<div>'
+          + '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">'
+            + '<span style="background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);color:#4ade80;border-radius:20px;padding:3px 10px;font-size:0.72rem;font-weight:700">⭐ Premium actif</span>'
+            + (days <= 7 ? '<span style="color:' + urgColor + ';font-size:0.7rem">Expire dans ' + days + ' jours</span>' : '')
+          + '</div>'
+          + '<div style="font-size:0.78rem;color:var(--text2)">Plan <b>' + planLabel + '</b> · ' + renewPrice + '</div>'
+          + '<div style="font-size:0.72rem;color:var(--muted);margin-top:3px">Expire le ' + expDate + '</div>'
+        + '</div>'
+        + '<a href="premium.html" style="display:inline-flex;align-items:center;padding:8px 16px;background:var(--ink4);border:1px solid var(--b2);border-radius:10px;font-size:0.78rem;font-weight:600;color:var(--text2);text-decoration:none">Gérer →</a>'
+      + '</div>';
+    } else {
+      block.innerHTML =
+        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">'
+        + '<div style="font-size:0.78rem;color:var(--muted)">Passe Premium pour débloquer toutes les fonctionnalités.</div>'
+        + '<a href="premium.html" style="display:inline-flex;padding:8px 16px;background:linear-gradient(135deg,#a78bfa,#818cf8);color:#fff;border-radius:10px;font-size:0.78rem;font-weight:700;text-decoration:none">⭐ Passer Premium</a>'
+      + '</div>';
+    }
+  }
+
+  /* ════ ADAPTATION renderPremiumStats → panel Perso ════ */
+  // Wrapper : après renderPremiumStats on redirige vers les panels perso
+  var _origRenderPremiumStats = null;
 
   /* ── Init ── */
   renderStats();
