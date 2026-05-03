@@ -585,15 +585,11 @@
     <span class="section-dot violet"></span>
     📅 Mes prochaines sorties
   </div>
-
-  <!-- Filtres -->
   <div class="upcoming-filters">
-    <button class="uf-btn active" data-filter="all"    onclick="setUpcomingFilter('all',this)">Tout</button>
-    <button class="uf-btn"        data-filter="week"   onclick="setUpcomingFilter('week',this)">Cette semaine</button>
-    <button class="uf-btn"        data-filter="month"  onclick="setUpcomingFilter('month',this)">Ce mois-ci</button>
+    <button class="uf-btn active" data-filter="all"   onclick="setUpcomingFilter('all',this)">Tout</button>
+    <button class="uf-btn"        data-filter="week"  onclick="setUpcomingFilter('week',this)">Cette semaine</button>
+    <button class="uf-btn"        data-filter="month" onclick="setUpcomingFilter('month',this)">Ce mois-ci</button>
   </div>
-
-  <!-- Liste -->
   <div class="upcoming-grid" id="upcomingGrid">
     <div class="upcoming-loader">
       <div class="sk-spin"></div>
@@ -852,15 +848,9 @@
       } else if (completed.length === 0) {
         phraseProg.textContent = watching.length + ' anime' + (watching.length > 1 ? 's' : '') + ' en cours · ' + planTo.length + ' en attente';
       } else if (completed.length === 1) {
-        phraseProg.textContent = '1 anime vu · Tu commences ton aventure 🎉';
-      } else if (completed.length < 10) {
-        phraseProg.textContent = completed.length + ' animes vus · ' + watching.length + ' en cours';
-      } else if (completed.length < 50) {
-        phraseProg.textContent = completed.length + ' animes vus · Tu progresses !';
-      } else if (completed.length < 100) {
-        phraseProg.textContent = completed.length + ' animes vus · Vrai passionné 🔥';
+        phraseProg.textContent = 'Tu as terminé ton premier anime 🎉';
       } else {
-        phraseProg.textContent = completed.length + ' animes vus · Niveau légendaire 🏆';
+        phraseProg.textContent = 'Tu as terminé ' + completed.length + ' animes · ' + watching.length + ' en cours';
       }
     }
 
@@ -1275,19 +1265,25 @@
 
     /* ── Stats Premium ── */
   async function renderPremiumStats() {
-    const piUser = window.piAuth?.getUser?.() || (() => {
-      try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
-    })();
     const section       = el('premiumStatsSection');
     const teaserSection = el('premiumTeaserSection');
-    let isPremium = false;
-    if (piUser?.uid) {
-      try {
-        const res  = await fetch(`/api/notifications?piUserId=${encodeURIComponent(piUser.uid)}`);
-        const data = await res.json();
-        isPremium  = data.isPremium === true;
-      } catch {}
-    }
+
+    // ── Attendre que premiumManager soit prêt (source unique de vérité) ──
+    const premiumStatus = await new Promise(function(resolve) {
+      function tryCheck() {
+        if (window.VA_onPremiumReady) {
+          window.VA_onPremiumReady(function(status) { resolve(status); });
+        } else {
+          setTimeout(tryCheck, 300);
+        }
+      }
+      tryCheck();
+    });
+
+    const isPremium = premiumStatus && premiumStatus.isPremium === true;
+
+    // Afficher/masquer le teaser selon statut
+    if (teaserSection) teaserSection.style.display = isPremium ? 'none' : 'block';
     if (!isPremium) return;
     if (section) section.style.display = 'block';
 
@@ -1589,6 +1585,7 @@
     }
   }
 
+
   /* ── Init ── */
   renderStats();
   initAvatar();
@@ -1639,8 +1636,8 @@ document.addEventListener('DOMContentLoaded', function(){
     if (!raw) return;
     try {
       var user = JSON.parse(raw);
-      if (user && user.uid && window.VA_initNotifications) {
-if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
+      if (user && user.uid) {
+        if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
         if (window.VA_initPremium) window.VA_initPremium(user.uid);
       }
     } catch (_) {}
