@@ -861,7 +861,7 @@
       if (hrs === 0) {
         phraseEng.textContent = 'Termine ton premier anime pour voir tes heures !';
       } else if (hrs < 10) {
-        phraseEng.textContent = 'Tu commence à t'investir — continue !';
+        phraseEng.textContent = 'Tu commence à t\'investir — continue !';
       } else if (hrs < 50) {
         phraseEng.textContent = 'Déjà ' + hrs + 'h devant des animes — beau palmarès !';
       } else if (hrs < 200) {
@@ -877,7 +877,7 @@
     const sinceEl = el('profileSince');
     if (sinceEl && firstVisit) {
       const days = Math.floor((Date.now() - firstVisit) / 86400000);
-      sinceEl.textContent = days === 0 ? "Membre depuis aujourd'hui" : days === 1 ? 'Membre depuis 1 jour' : ('Membre depuis ' + days + ' jours');
+      sinceEl.textContent = days === 0 ? "Membre depuis aujourd\'hui" : days === 1 ? 'Membre depuis 1 jour' : ('Membre depuis ' + days + ' jours');
     }
   }
 
@@ -1064,7 +1064,7 @@
 
       var renewalNotice = days <= 7 && days > 0
         ? '<div style="font-size:0.7rem;color:#f59e0b;margin-bottom:6px">⚠ Expire dans ' + days + ' jour' + (days>1?'s':'') + ' — pensez à renouveler</div>'
-        : (days === 0 ? '<div style="font-size:0.7rem;color:#ef4444;margin-bottom:6px">⚠ Expire aujourd'hui</div>' : '');
+        : (days === 0 ? '<div style="font-size:0.7rem;color:#ef4444;margin-bottom:6px">⚠ Expire aujourd\'hui</div>' : '');
       var html = '<div class="sub-card sub-card-premium ' + urgency + '">'        + '<div class="sub-card-header">'        + '<span class="sub-card-badge">&#11088; Premium actif</span>'        + '<span class="sub-card-plan">' + planLabel + ' &middot; ' + renewPrice + '</span>'        + '</div>'        + renewalNotice
         + '<button id="subPerksToggle" style="background:none;border:none;color:var(--muted);font-size:0.72rem;cursor:pointer;font-family:var(--font);padding:2px 0;text-align:left;">Voir les avantages ▼</button>'
         + '<div id="subPerksBody" class="sub-card-perks" style="display:none">'
@@ -1250,7 +1250,7 @@
       try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
     })();
     if (!piUser?.uid) return;
-    if (!confirm("Annuler l'abonnement ? Tu gardes l'accès jusqu'à expiration.")) return;
+    if (!confirm("Annuler l'abonnement ? Tu gardes l\'accès jusqu'à expiration.")) return;
     fetch('/api/premium', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1282,13 +1282,13 @@
 
     const isPremium = premiumStatus && premiumStatus.isPremium === true;
 
-    // ── Debug toast visible ──
+    // ── Toast debug ──
     (function() {
       var t = document.createElement('div');
-      t.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:99999;background:#1a1730;border:1px solid #a78bfa;border-radius:10px;padding:8px 16px;font-size:0.75rem;color:#eeecff;max-width:90vw;word-break:break-all;text-align:center';
-      t.textContent = 'Premium debug: isPremium=' + isPremium + ' | premiumStatus=' + JSON.stringify(premiumStatus).substring(0,60);
+      t.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:99999;background:#1a1730;border:1px solid #a78bfa;border-radius:10px;padding:8px 16px;font-size:0.75rem;color:#eeecff;max-width:90vw;text-align:center';
+      t.textContent = 'isPremium=' + isPremium + ' | status=' + JSON.stringify(premiumStatus).substring(0,50);
       document.body.appendChild(t);
-      setTimeout(function() { t.remove(); }, 8000);
+      setTimeout(function() { if(t.parentNode) t.parentNode.removeChild(t); }, 8000);
     })();
 
     // Afficher/masquer le teaser selon statut
@@ -1296,13 +1296,13 @@
     if (!isPremium) return;
     if (section) section.style.display = 'block';
 
-    // ── Debug toast section visible ──
+    // ── Toast section visible ──
     (function() {
       var t2 = document.createElement('div');
-      t2.style.cssText = 'position:fixed;top:120px;left:50%;transform:translateX(-50%);z-index:99999;background:#0a2010;border:1px solid #4ade80;border-radius:10px;padding:8px 16px;font-size:0.75rem;color:#4ade80;max-width:90vw;text-align:center';
-      t2.textContent = '✅ Section premium affichée — scroll vers le bas !';
+      t2.style.cssText = 'position:fixed;top:130px;left:50%;transform:translateX(-50%);z-index:99999;background:#0a2010;border:1px solid #4ade80;border-radius:10px;padding:8px 16px;font-size:0.75rem;color:#4ade80;max-width:90vw;text-align:center';
+      t2.textContent = 'Section premium affichee - scroll bas !';
       document.body.appendChild(t2);
-      setTimeout(function() { t2.remove(); }, 8000);
+      setTimeout(function() { if(t2.parentNode) t2.parentNode.removeChild(t2); }, 8000);
     })();
 
     const watchList = getWatchList();
@@ -1490,7 +1490,7 @@
       card.href      = 'anime.html?id=' + animeId;
       card.className = 'upcoming-card ' + cardCls;
       card.innerHTML =
-        '<img class="upcoming-thumb" src="' + img + '" alt="' + title + '" onerror="this.src=''"/>' +
+        '<img class="upcoming-thumb" src="' + img + '" alt="' + title + '"/>' +
         '<div class="upcoming-info">' +
           '<div class="upcoming-title">' + title + '</div>' +
           '<div class="upcoming-type ' + typeInfo.cls + '">' + typeInfo.label + '</div>' +
@@ -1534,16 +1534,7 @@
     function _tryRender() {
       if (window.VA_onPremiumReady) {
         window.VA_onPremiumReady(function(status) {
-          if (!status || !status.isPremium) {
-            (function() {
-              var t = document.createElement('div');
-              t.style.cssText = 'position:fixed;top:180px;left:50%;transform:translateX(-50%);z-index:99999;background:#200a0a;border:1px solid #f87171;border-radius:10px;padding:8px 16px;font-size:0.75rem;color:#f87171;max-width:90vw;text-align:center';
-              t.textContent = '❌ Upcoming: isPremium=' + (status&&status.isPremium) + ' status=' + JSON.stringify(status).substring(0,40);
-              document.body.appendChild(t);
-              setTimeout(function() { t.remove(); }, 8000);
-            })();
-            return;
-          }
+          if (!status || !status.isPremium) return;
           section.style.display = 'block';
           _fetchUpcomingData();
         });
