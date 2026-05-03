@@ -290,8 +290,8 @@
     .stat-group {
       background: var(--ink3);
       border: 1px solid var(--b1);
-      border-radius: 14px;
-      padding: 14px 16px;
+      border-radius: 10px;
+      padding: 10px 12px;
       transition: border-color 0.2s;
     }
     .stat-group:hover { border-color: var(--b2); }
@@ -334,20 +334,20 @@
     .stat-cell {
       background: var(--ink2);
       border: 1px solid var(--b1);
-      border-radius: 10px;
-      padding: 10px 6px;
+      border-radius: 8px;
+      padding: 6px 4px;
       text-align: center;
       transition: border-color 0.2s, transform 0.15s;
     }
     .stat-cell:hover { border-color: var(--b2); transform: translateY(-1px); }
     .stat-cell-num {
-      font-size: 1.35rem;
+      font-size: 1.1rem;
       font-weight: 900;
       line-height: 1;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
     .stat-cell-label {
-      font-size: 0.58rem;
+      font-size: 0.5rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--muted);
@@ -430,21 +430,21 @@
     }
     .profile-tabs {
       display: flex;
-      overflow-x: auto;
-      scrollbar-width: none;
+      justify-content: space-between;
+      width: 100%;
       max-width: 1160px;
       margin: 0 auto;
     }
     .profile-tabs::-webkit-scrollbar { display: none; }
     .ptab {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 11px 16px 10px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+      flex: 1;
+      padding: 10px 2px;
       border: none; border-bottom: 2px solid transparent;
       background: transparent; color: var(--muted);
-      font-family: var(--font); font-size: 0.8rem; font-weight: 600;
+      font-family: var(--font); font-size: 0.72rem; font-weight: 600;
       cursor: pointer; white-space: nowrap;
       transition: color 0.15s, border-color 0.15s;
-      flex-shrink: 0;
     }
     .ptab:hover { color: var(--text2); }
     .ptab.active { color: var(--text); border-bottom-color: #a78bfa; }
@@ -504,9 +504,8 @@
 
     /* ════ PSTATS CÔTE À CÔTE ════ */
     .pstats-side {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: start;
     }
-    @media (max-width: 420px) { .pstats-side { grid-template-columns: 1fr; } }
 
     /* ════ MODAL AVATAR FIXÉ EN HAUT ════ */
     .avatar-modal {
@@ -744,6 +743,30 @@
   width: 120%; height: 100%; background: radial-gradient(ellipse at center, rgba(124, 92, 252, .08) 0%, transparent 70%);
   pointer-events: none; z-index: -1;
 }
+
+/* ════ STAT DETAIL PANEL ════ */
+.stat-detail-panel {
+  position: fixed; inset: 0; z-index: 99999;
+  background: var(--bg); display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.stat-detail-panel.is-open { transform: translateX(0); }
+.sdp-header {
+  display: flex; align-items: center; gap: 16px; padding: 16px;
+  background: var(--ink1); border-bottom: 1px solid var(--b1);
+  position: sticky; top: 0; z-index: 10;
+}
+.sdp-back-btn {
+  background: rgba(255,255,255,0.05); border: 1px solid var(--b2);
+  color: var(--text); border-radius: 50%; width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s;
+}
+.sdp-back-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--text2); }
+.sdp-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin: 0; }
+.sdp-content { flex: 1; overflow-y: auto; padding: 20px; }
+@media (max-width: 480px) { .sdp-content { padding: 12px; } }
   </style>
 </head>
 <body>
@@ -1115,15 +1138,43 @@
     const planTo     = watchArr.filter(a => a.status === 'planToWatch');
 
     // Ligne 1 : Visités / Favoris / À voir
-    const hEl = el('statHistCount');      if (hEl) hEl.textContent  = hist.length;
-    const fEl = el('statFavCount');       if (fEl) fEl.textContent  = favs.length;
-    const pEl = el('statPlanCount');      if (pEl) pEl.textContent  = planTo.length;
+    const hEl = el('statHistCount');      
+    if (hEl) { 
+      hEl.textContent = hist.length; 
+      let c = hEl.closest('.stat-cell'); 
+      if(c) { c.style.cursor='pointer'; c.onclick = () => window.openStatDetail('history', 'Animes visités'); } 
+    }
+    const fEl = el('statFavCount');       
+    if (fEl) { 
+      fEl.textContent = favs.length; 
+      let c = fEl.closest('.stat-cell'); 
+      if(c) { c.style.cursor='pointer'; c.onclick = () => window.openStatDetail('favs', 'Favoris'); } 
+    }
+    const pEl = el('statPlanCount');      
+    if (pEl) { 
+      pEl.textContent = planTo.length; 
+      let c = pEl.closest('.stat-cell'); 
+      if(c) { c.style.cursor='pointer'; c.onclick = () => window.openStatDetail('planToWatch', 'À voir'); } 
+    }
     // Ligne 2 : En cours / Terminés / Notés
-    const wEl = el('statWatchingCount');  if (wEl) wEl.textContent  = watching.length;
-    const cEl = el('statCompletedCount'); if (cEl) cEl.textContent  = completed.length;
+    const wEl = el('statWatchingCount');  
+    if (wEl) { 
+      wEl.textContent = watching.length; 
+      let c = wEl.closest('.stat-cell'); 
+      if(c) { c.style.cursor='pointer'; c.onclick = () => window.openStatDetail('watching', 'En cours'); } 
+    }
+    const cEl = el('statCompletedCount'); 
+    if (cEl) { 
+      cEl.textContent = completed.length; 
+      let c = cEl.closest('.stat-cell'); 
+      if(c) { c.style.cursor='pointer'; c.onclick = () => window.openStatDetail('completed', 'Terminés'); } 
+    }
 
-    // ⏱ Heures / Jours actifs / Progression — PREMIUM UNIQUEMENT
-    const totalMins = completed.reduce((acc, a) => acc + (a.episodes||0)*(a.duration||24), 0);
+    const totalMins = completed.reduce((acc, a) => {
+      let eps = a.episodes ? parseInt(a.episodes) : 12;
+      if (isNaN(eps) || eps <= 0) eps = 12;
+      return acc + (eps * 24);
+    }, 0);
     const now2 = new Date();
     const monthStart2 = new Date(now2.getFullYear(), now2.getMonth(), 1).getTime();
     const histAll = getHistory();
@@ -1140,16 +1191,16 @@
       });
       [el('statHoursCount'), el('statActiveDaysCount'), el('statProgressCount')].forEach(function(se) {
         if (!se) return;
-        var p = se.closest('.stat-compact');
+        var p = se.closest('.stat-cell');
         if (p) { p.style.cursor = ''; p.onclick = null; p.removeAttribute('title'); }
       });
       // Progression async
       (async function() {
         try {
-          const r = await fetch('/api/jikan?path=' + encodeURIComponent('/anime?limit=1&page=1'));
+          const r = await fetch('https://api.jikan.moe/v4/anime?limit=1&page=1');
           const d = await r.json();
           const total = d.pagination?.items?.total || 24000;
-          const pct = +(completed.length / total * 100).toFixed(1);
+          const pct = +(completed.length / total * 100).toFixed(2);
           const pEl2 = el('statProgressCount'); if (pEl2) pEl2.textContent = pct + '%';
         } catch {
           const pEl2 = el('statProgressCount');
@@ -2339,6 +2390,75 @@ document.addEventListener('DOMContentLoaded', function(){
     if (profileContactBtn && window.VoirAnimeContact) {
       profileContactBtn.addEventListener('click', window.VoirAnimeContact.open);
     }
+  </script>
+
+  <!-- ════ STAT DETAIL PANEL ════ -->
+  <div class="stat-detail-panel" id="statDetailPanel">
+    <div class="sdp-header">
+      <button class="sdp-back-btn" onclick="window.closeStatDetail()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h2 class="sdp-title" id="sdpTitle">Détails</h2>
+    </div>
+    <div class="sdp-content">
+      <div class="profile-grid" id="sdpGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    window.openStatDetail = function(type, title) {
+      const panel = document.getElementById('statDetailPanel');
+      const titleEl = document.getElementById('sdpTitle');
+      const gridEl = document.getElementById('sdpGrid');
+      if(!panel || !titleEl || !gridEl) return;
+
+      let items = [];
+      if (type === 'history') {
+        try { items = JSON.parse(localStorage.getItem('VoirAnime_history') || '[]'); } catch(e) { items = []; }
+      } else if (type === 'favs') {
+        try { items = JSON.parse(localStorage.getItem('VoirAnime_favs') || '[]'); } catch(e) { items = []; }
+      } else {
+        let watchList = {};
+        try { watchList = JSON.parse(localStorage.getItem('VoirAnime_watchStatus') || '{}'); } catch(e) {}
+        const watchArr = Object.values(watchList);
+        if (type === 'planToWatch') items = watchArr.filter(a => a.status === 'planToWatch');
+        if (type === 'watching') items = watchArr.filter(a => a.status === 'watching');
+        if (type === 'completed') items = watchArr.filter(a => a.status === 'completed');
+      }
+
+      titleEl.textContent = title + ' (' + items.length + ')';
+      gridEl.innerHTML = '';
+
+      if (items.length === 0) {
+        gridEl.innerHTML = '<div class="profile-empty" style="grid-column: 1 / -1;">Aucun anime trouvé.</div>';
+      } else {
+        items.forEach(function(a) {
+          const imgUrl = a.img || a.image_url || 'https://via.placeholder.com/225x318?text=Image';
+          const titleStr = a.title || 'Anime';
+          
+          const card = document.createElement('a');
+          card.className = 'profile-anime-card';
+          card.href = 'anime.html?id=' + a.id;
+          card.innerHTML = 
+            '<img src="' + imgUrl + '" class="profile-card-img" loading="lazy" alt="Cover">' +
+            '<div class="profile-card-body">' +
+              '<div class="profile-card-title">' + titleStr + '</div>' +
+            '</div>';
+          gridEl.appendChild(card);
+        });
+      }
+
+      panel.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closeStatDetail = function() {
+      const panel = document.getElementById('statDetailPanel');
+      if (panel) {
+        panel.classList.remove('is-open');
+        document.body.style.overflow = '';
+      }
+    };
   </script>
 </body>
 </html>
