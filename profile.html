@@ -273,13 +273,13 @@
     .stats-groups {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
     }
     .stat-group {
       background: var(--ink3);
       border: 1px solid var(--b1);
       border-radius: 10px;
-      padding: 6px 8px;
+      padding: 5px 8px;
       transition: border-color 0.2s;
     }
     .stat-group:hover { border-color: var(--b2); }
@@ -309,7 +309,7 @@
     .stat-group-phrase {
       font-size: 0.7rem;
       color: var(--text2);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       line-height: 1.2;
       min-height: 1.1em;
     }
@@ -414,7 +414,7 @@
       background: var(--ink1);
       border-bottom: 1px solid var(--b1);
       padding: 0 12px;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
     .profile-tabs {
       display: flex;
@@ -476,7 +476,7 @@
     .profile-panel {
       display: none;
       max-width: 1160px; margin: 0 auto;
-      padding: 0 14px 40px;
+      padding: 0 14px 10px;
     }
     .profile-panel.active {
       display: block;
@@ -487,7 +487,7 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      min-height: calc(100dvh - 230px);
+      min-height: calc(100dvh - 260px);
     }
     @keyframes panelIn {
       from { opacity: 0; transform: translateY(6px); }
@@ -498,7 +498,7 @@
     .profile-hero-compact {
       display: flex; align-items: center;
       justify-content: space-between; gap: 12px;
-      padding: calc(var(--nav-h,56px) + 14px) 14px 14px;
+      padding: calc(var(--nav-h,56px) + 8px) 14px 8px;
       max-width: 1160px; margin: 0 auto;
     }
     .profile-hero-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
@@ -2181,16 +2181,19 @@
       var expDate  = expiresAt ? new Date(expiresAt).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}) : '—';
       var planLabel = plan === 'annual' ? 'Annuel' : 'Mensuel';
       var statusHtml = 
-        '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">'
-        + '<span style="background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);color:#4ade80;border-radius:20px;padding:3px 10px;font-size:0.72rem;font-weight:700">⭐ Premium actif</span>'
-        + (canceled ? '<span style="color:#f87171;font-size:0.7rem">Sera annulé le ' + expDate + '</span>' : '')
-        + '</div>'
-        + '<div style="font-size:0.78rem;color:var(--text2)">Plan <b>' + planLabel + '</b></div>'
-        + '<div style="font-size:0.72rem;color:var(--muted);margin-top:3px">Date de fin : ' + expDate + '</div>';
+        '<div style="display:flex;justify-content:space-between;align-items:center">'
+        + '<div>'
+          + '<div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">'
+          + '<span style="background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);color:#4ade80;border-radius:20px;padding:3px 10px;font-size:0.72rem;font-weight:700">⭐ Premium actif</span>'
+          + (canceled ? '<span style="color:#f87171;font-size:0.65rem">Sera annulé le ' + expDate + '</span>' : '')
+          + '</div>'
+          + '<div style="font-size:0.78rem;color:var(--text2)">Plan <b>' + planLabel + '</b> · Fin le ' + expDate + '</div>'
+        + '</div>';
         
       if (!canceled) {
-        statusHtml += '<div style="margin-top:12px"><button onclick="cancelSubscription()" style="padding:6px 12px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;font-size:0.75rem;cursor:pointer">Annuler l\'abonnement</button></div>';
+        statusHtml += '<button onclick="cancelSubscription()" style="padding:6px 12px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;font-size:0.75rem;cursor:pointer">Annuler</button>';
       }
+      statusHtml += '</div>';
       block.innerHTML = statusHtml;
     } else {
       block.innerHTML = '<div style="font-size:0.78rem;color:var(--muted)">Aucun abonnement actif.</div>';
@@ -2201,18 +2204,17 @@
       '<div style="background:var(--ink3);border:1px solid var(--violet);border-radius:14px;padding:18px 16px">'
       + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
       + '<div style="font-size:1.1rem;font-weight:800;color:var(--text)">Premium - Offre de lancement</div>'
-      + '<div style="font-size:0.75rem;color:var(--pink);font-weight:700">⭐ +15,000 passionnés</div>'
       + '</div>'
       + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
-        + '<button onclick="purchasePlan(\'monthly\', 1.99)" style="padding:12px;background:var(--ink4);border:1px solid var(--b2);border-radius:10px;cursor:pointer;text-align:center;transition:border-color 0.2s">'
+        + '<button onclick="purchasePlan(\'monthly\', 2.49)" style="padding:12px;background:var(--ink4);border:1px solid var(--b2);border-radius:10px;cursor:pointer;text-align:center;transition:border-color 0.2s">'
           + '<div style="font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:4px">Mensuel</div>'
-          + '<div style="font-size:1.1rem;font-weight:900;color:var(--violet)">1,99 Pi</div>'
+          + '<div style="font-size:1.1rem;font-weight:900;color:var(--violet)">2,49 Pi</div>'
           + '<div style="font-size:0.7rem;color:var(--muted);margin-top:4px">' + baseSubText + '</div>'
         + '</button>'
-        + '<button onclick="purchasePlan(\'annual\', 19.99)" style="position:relative;padding:12px;background:rgba(167,139,250,0.1);border:1px solid var(--violet);border-radius:10px;cursor:pointer;text-align:center">'
+        + '<button onclick="purchasePlan(\'annual\', 24.99)" style="position:relative;padding:12px;background:rgba(167,139,250,0.1);border:1px solid var(--violet);border-radius:10px;cursor:pointer;text-align:center">'
           + '<div style="position:absolute;top:-8px;right:-8px;background:var(--pink);color:#fff;font-size:0.6rem;font-weight:800;padding:2px 8px;border-radius:10px">ÉCONOMISE 15%</div>'
           + '<div style="font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:4px">Annuel</div>'
-          + '<div style="font-size:1.1rem;font-weight:900;color:var(--violet)">19,99 Pi</div>'
+          + '<div style="font-size:1.1rem;font-weight:900;color:var(--violet)">24,99 Pi</div>'
           + '<div style="font-size:0.7rem;color:var(--muted);margin-top:4px">' + baseSubText + '</div>'
         + '</button>'
       + '</div>'
@@ -2233,15 +2235,16 @@
       return;
     }
     const scopes = ['payments'];
+    // On force une petite attente pour s'assurer que le Pi Browser est prêt à afficher le modal
     window.Pi.authenticate(scopes, function(incompletePayment) {}).then(function(auth) {
-      window.Pi.createPayment({
-        amount: price,
-        memo: "VoirAnime Premium " + (plan === 'annual' ? "Annuel" : "Mensuel"),
-        metadata: { plan: plan }
-      }, {
-        onReadyForServerApproval: function(paymentId) {
-          // Simulation du succès de paiement côté serveur (car front-end uniquement)
-          setTimeout(function() {
+      setTimeout(function() {
+        window.Pi.createPayment({
+          amount: price,
+          memo: "Premium VoirAnime (" + (plan === 'annual' ? "Annuel" : "Mensuel") + ")",
+          metadata: { plan: plan }
+        }, {
+          onReadyForServerApproval: function(paymentId) {
+            // Simulation du succès côté serveur
             var currentExp = parseInt(localStorage.getItem('VA_premium_expires') || '0');
             var now = Date.now();
             var baseDate = (currentExp > now) ? currentExp : now;
@@ -2251,16 +2254,21 @@
             localStorage.setItem('VA_premium_plan', plan);
             localStorage.removeItem('VA_premium_canceled');
             
-            alert('Paiement réussi ! Ton abonnement a été ' + (currentExp > now ? 'prolongé' : 'activé') + '.');
-            location.reload();
-          }, 1500);
-        },
-        onReadyForServerCompletion: function(paymentId, txid) {},
-        onCancel: function(paymentId) {},
-        onError: function(error, payment) {
-          alert('Erreur lors du paiement: ' + error.message);
-        }
-      });
+            // On laisse le temps au Pi SDK de traiter le succès avant de recharger
+            setTimeout(function() {
+              alert('Paiement Pi validé ! Ton abonnement a été mis à jour.');
+              location.reload();
+            }, 800);
+          },
+          onReadyForServerCompletion: function(paymentId, txid) {},
+          onCancel: function(paymentId) {},
+          onError: function(error, payment) {
+            if (error.message.indexOf('closed') === -1) {
+              alert('Erreur lors du paiement: ' + error.message);
+            }
+          }
+        });
+      }, 100);
     }).catch(function(error) {
       alert("Erreur d'authentification Pi: " + error.message);
     });
