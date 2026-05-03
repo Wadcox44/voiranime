@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VoirAnime — Profile</title>
+  <title>Mon Profil - VoirAnime</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <link rel="stylesheet" href="style.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
@@ -26,52 +27,52 @@
 
     /* ── Profile page styles ── */
 
-    /* Hero v2 : 2 colonnes côte à côte */
+    /* Hero Profile V2 */
     .profile-hero-v2 {
-      padding: calc(var(--nav-h) + 40px) 48px 32px;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: calc(var(--nav-h) + 6px) 16px 10px;
       max-width: 1160px;
       margin: 0 auto;
-      align-items: start;
     }
-
-    /* Colonne gauche */
-    .profile-left { display: flex; flex-direction: column; gap: 16px; }
-    .profile-identity {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    /* Avatar wrap + image */
     .profile-avatar-wrap {
       position: relative;
-      width: 72px; height: 72px;
-      flex-shrink: 0;
-      cursor: pointer;
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      padding: 3px;
+      background: linear-gradient(135deg, var(--violet), var(--pink));
+    }
+    @keyframes premiumGlow {
+      0%, 100% { box-shadow: 0 0 8px 2px rgba(167,139,250,0.4); }
+      50% { box-shadow: 0 0 16px 6px rgba(167,139,250,0.8); }
+    }
+    .profile-avatar-wrap.is-premium {
+      border: 2px solid #a78bfa;
+      animation: premiumGlow 2.5s infinite ease-in-out;
     }
     .profile-avatar-img {
-      width: 72px; height: 72px;
+      width: 100%; height: 100%;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid var(--pink);
-      box-shadow: 0 0 20px rgba(124,77,255,0.4);
+      background: var(--ink3);
+      border: 3px solid var(--bg);
       display: none;
     }
     .profile-avatar-fallback {
-      width: 72px; height: 72px;
+      width: 100%; height: 100%;
       border-radius: 50%;
-      background: linear-gradient(135deg, #7c4dff, #ff4fd8);
+      background: var(--ink3);
+      border: 3px solid var(--bg);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 2rem;
-      box-shadow: 0 0 24px rgba(124,77,255,0.35);
     }
     .profile-avatar-edit {
       position: absolute;
-      bottom: 0; right: 0;
+      bottom: -2px; right: -2px;
       width: 22px; height: 22px;
       background: var(--pink);
       border-radius: 50%;
@@ -83,19 +84,6 @@
       transition: opacity 0.2s;
     }
     .profile-avatar-wrap:hover .profile-avatar-edit { opacity: 1; }
-    .profile-identity-info { flex: 1; }
-    .profile-name {
-      font-size: 1.4rem;
-      font-weight: 900;
-      letter-spacing: -0.5px;
-      margin-bottom: 3px;
-    }
-    .profile-since {
-      font-size: 0.74rem;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
 
     /* Stats : 2×3 + ligne 3 centrée */
     .profile-stats-compact {
@@ -285,30 +273,30 @@
     .stats-groups {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 4px;
     }
     .stat-group {
       background: var(--ink3);
       border: 1px solid var(--b1);
-      border-radius: 14px;
-      padding: 14px 16px;
+      border-radius: 10px;
+      padding: 5px 8px;
       transition: border-color 0.2s;
     }
     .stat-group:hover { border-color: var(--b2); }
     .stat-group-header {
       display: flex;
       align-items: center;
-      gap: 7px;
-      margin-bottom: 10px;
+      gap: 6px;
+      margin-bottom: 2px;
     }
     .stat-group-icon {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       width: 22px; height: 22px;
       border-radius: 6px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .stat-group-icon.blue  { background: rgba(96,165,250,0.12); }
+    .stat-group-icon.blue  { background: rgba(34,211,238,0.12); }
     .stat-group-icon.green { background: rgba(74,222,128,0.12); }
     .stat-group-icon.purple{ background: rgba(167,139,250,0.12); }
     .stat-group-label {
@@ -319,35 +307,35 @@
       color: var(--muted);
     }
     .stat-group-phrase {
-      font-size: 0.74rem;
+      font-size: 0.7rem;
       color: var(--text2);
-      margin-bottom: 10px;
-      line-height: 1.4;
+      margin-bottom: 4px;
+      line-height: 1.2;
       min-height: 1.1em;
     }
     .stat-group-cells {
       display: grid;
-      gap: 6px;
+      gap: 4px;
     }
     .stat-group-cells.cols-3 { grid-template-columns: repeat(3, 1fr); }
     .stat-group-cells.cols-1 { grid-template-columns: 1fr; }
     .stat-cell {
       background: var(--ink2);
       border: 1px solid var(--b1);
-      border-radius: 10px;
-      padding: 10px 6px;
+      border-radius: 8px;
+      padding: 4px 2px;
       text-align: center;
       transition: border-color 0.2s, transform 0.15s;
     }
     .stat-cell:hover { border-color: var(--b2); transform: translateY(-1px); }
     .stat-cell-num {
-      font-size: 1.35rem;
+      font-size: 1rem;
       font-weight: 900;
       line-height: 1;
-      margin-bottom: 3px;
+      margin-bottom: 1px;
     }
     .stat-cell-label {
-      font-size: 0.58rem;
+      font-size: 0.5rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: var(--muted);
@@ -357,43 +345,44 @@
     .stat-group-cells.cols-2 { grid-template-columns: 1fr 1fr; }
 
     @media (max-width: 480px) {
-      .stat-cell-num { font-size: 1.15rem; }
-      .stat-cell { padding: 8px 4px; }
+      .stat-cell-num { font-size: 1rem; }
+      .stat-cell { padding: 4px 2px; }
     }
 
     /* ── Prochaines sorties Premium ── */
-    .upcoming-grid { display: flex; flex-direction: column; gap: 10px; }
+    .upcoming-grid { display: flex; flex-direction: column; gap: 6px; width: 100%; box-sizing: border-box; }
     .upcoming-card {
-      display: flex; align-items: center; gap: 12px;
+      display: flex; align-items: center; gap: 6px;
       background: var(--ink3); border: 1px solid var(--b1);
-      border-radius: 12px; padding: 10px 14px;
+      border-radius: 12px; padding: 6px 8px;
       transition: border-color 0.2s; text-decoration: none; color: inherit;
+      width: 100%; box-sizing: border-box; overflow: hidden;
     }
     .upcoming-card:hover { border-color: var(--b2); }
     .upcoming-card.airing  { border-left: 3px solid #4ade80; }
     .upcoming-card.upcoming { border-left: 3px solid #a78bfa; }
     .upcoming-card.movie   { border-left: 3px solid #22d3ee; }
     .upcoming-thumb {
-      width: 42px; height: 58px; border-radius: 6px;
+      width: 36px; height: 50px; border-radius: 6px;
       object-fit: cover; flex-shrink: 0; background: var(--ink4);
     }
     .upcoming-info { flex: 1; min-width: 0; }
     .upcoming-title {
-      font-size: 0.84rem; font-weight: 700; line-height: 1.3;
+      font-size: 0.78rem; font-weight: 700; line-height: 1.2;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      margin-bottom: 3px; color: var(--text);
+      margin-bottom: 2px; color: var(--text);
     }
     .upcoming-type {
-      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.07em; margin-bottom: 4px;
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; margin-bottom: 2px;
     }
     .upcoming-type.ep   { color: #4ade80; }
     .upcoming-type.film { color: #22d3ee; }
     .upcoming-type.soon { color: #a78bfa; }
     .upcoming-countdown { text-align: right; flex-shrink: 0; }
     .upc-time {
-      font-size: 0.88rem; font-weight: 800; color: #a78bfa;
-      line-height: 1; margin-bottom: 2px; white-space: nowrap;
+      font-size: 0.78rem; font-weight: 800; color: #a78bfa;
+      line-height: 1; margin-bottom: 1px; white-space: nowrap;
     }
     .upc-time.today { color: #4ade80; }
     .upc-time.soon  { color: #fbbf24; }
@@ -426,25 +415,25 @@
       background: var(--ink1);
       border-bottom: 1px solid var(--b1);
       padding: 0 12px;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
     .profile-tabs {
       display: flex;
-      overflow-x: auto;
-      scrollbar-width: none;
+      justify-content: space-between;
+      width: 100%;
       max-width: 1160px;
       margin: 0 auto;
     }
     .profile-tabs::-webkit-scrollbar { display: none; }
     .ptab {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 11px 16px 10px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+      flex: 1;
+      padding: 10px 2px;
       border: none; border-bottom: 2px solid transparent;
       background: transparent; color: var(--muted);
-      font-family: var(--font); font-size: 0.8rem; font-weight: 600;
+      font-family: var(--font); font-size: 0.72rem; font-weight: 600;
       cursor: pointer; white-space: nowrap;
       transition: color 0.15s, border-color 0.15s;
-      flex-shrink: 0;
     }
     .ptab:hover { color: var(--text2); }
     .ptab.active { color: var(--text); border-bottom-color: #a78bfa; }
@@ -455,15 +444,51 @@
     }
     .ptab-dot.visible { display: block; }
 
+    /* Sous-onglets pour la partie Perso */
+    .perso-sub-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      padding: 4px;
+      background: var(--ink3);
+      border-radius: 12px;
+      border: 1px solid var(--b1);
+    }
+    .psub-tab {
+      flex: 1;
+      padding: 8px 4px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--font);
+    }
+    .psub-tab.active {
+      background: var(--ink4);
+      color: var(--text);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
     /* ════ PANELS ════ */
     .profile-panel {
       display: none;
       max-width: 1160px; margin: 0 auto;
-      padding: 0 14px 40px;
+      padding: 0 14px 10px;
     }
     .profile-panel.active {
       display: block;
       animation: panelIn 0.2s ease both;
+    }
+    /* Centrage vertical spécifique pour les stats */
+    #panel-stats.active {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: calc(100dvh - 260px);
     }
     @keyframes panelIn {
       from { opacity: 0; transform: translateY(6px); }
@@ -474,7 +499,7 @@
     .profile-hero-compact {
       display: flex; align-items: center;
       justify-content: space-between; gap: 12px;
-      padding: calc(var(--nav-h,56px) + 14px) 14px 14px;
+      padding: calc(var(--nav-h,56px) + 8px) 14px 8px;
       max-width: 1160px; margin: 0 auto;
     }
     .profile-hero-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
@@ -504,9 +529,8 @@
 
     /* ════ PSTATS CÔTE À CÔTE ════ */
     .pstats-side {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start;
     }
-    @media (max-width: 420px) { .pstats-side { grid-template-columns: 1fr; } }
 
     /* ════ MODAL AVATAR FIXÉ EN HAUT ════ */
     .avatar-modal {
@@ -744,6 +768,39 @@
   width: 120%; height: 100%; background: radial-gradient(ellipse at center, rgba(124, 92, 252, .08) 0%, transparent 70%);
   pointer-events: none; z-index: -1;
 }
+
+/* ════ STAT DETAIL PANEL ════ */
+.stat-detail-panel {
+  position: fixed; inset: 0; z-index: 99999;
+  background: var(--bg); display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.stat-detail-panel.is-open { transform: translateX(0); }
+.sdp-header {
+  display: flex; align-items: center; gap: 16px; padding: 16px;
+  background: var(--ink1); border-bottom: 1px solid var(--b1);
+  position: sticky; top: 0; z-index: 10;
+}
+.sdp-back-btn {
+  background: rgba(255,255,255,0.05); border: 1px solid var(--b2);
+  color: var(--text); border-radius: 50%; width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s;
+}
+.sdp-back-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--text2); }
+.sdp-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin: 0; }
+.sdp-content { flex: 1; overflow-y: auto; padding: 20px; }
+@media (max-width: 480px) { .sdp-content { padding: 12px; } }
+.sdp-grid .profile-anime-card { position: relative; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: none; }
+.sdp-grid .profile-card-img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
+.sdp-grid .profile-card-body { padding: 0; }
+.sdp-grid .profile-card-title {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+  padding: 18px 8px 8px; color: #fff; font-size: 0.76rem; font-weight: 600;
+  text-align: center; line-height: 1.2;
+}
   </style>
 </head>
 <body>
@@ -920,19 +977,29 @@
 
 <!-- ══ PANEL : PERSO ══ -->
 <div class="profile-panel" id="panel-perso" role="tabpanel">
-  <!-- Stats premium (top3 + genres) -->
-  <div id="persoStatsContent">
-    <div class="pstats-side">
-        <div class="pstats-block">
-    <div class="pstats-block-title">🔥 Top 3 animes</div>
-    <div class="pstats-top-list" id="pstatTopAnimes"></div>
-  </div>
-  <div class="pstats-block">
-    <div class="pstats-block-title">🎯 Genres préférés</div>
-    <div class="pstats-genres" id="pstatGenres">
-      <div class="pstats-empty-hint">Visite plus d'animés pour débloquer tes genres !</div>
+  <!-- Sélecteur de sous-menu -->
+  <div id="persoSubTabsWrap">
+    <div class="perso-sub-tabs">
+      <button class="psub-tab active" id="psub-top"    onclick="switchPersoTab('top')">🔥 Top 3</button>
+      <button class="psub-tab"        id="psub-genres" onclick="switchPersoTab('genres')">🎯 Genres</button>
     </div>
   </div>
+
+  <!-- Stats premium (top3 + genres) -->
+  <div id="persoStatsContent">
+    <div id="perso-top-panel">
+      <div class="pstats-block">
+        <div class="pstats-block-title">🔥 Top 3 animes</div>
+        <div class="pstats-top-list" id="pstatTopAnimes"></div>
+      </div>
+    </div>
+    <div id="perso-genres-panel" style="display:none">
+      <div class="pstats-block">
+        <div class="pstats-block-title">🎯 Genres préférés</div>
+        <div class="pstats-genres" id="pstatGenres">
+          <div class="pstats-empty-hint">Visite plus d'animés pour débloquer tes genres !</div>
+        </div>
+      </div>
     </div>
   </div>
   <!-- Teaser si non premium -->
@@ -978,9 +1045,17 @@
     <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:10px">Statut</div>
     <div id="aboStatusBlock"><span style="color:var(--muted);font-size:0.82rem">Chargement…</span></div>
   </div>
-  <div style="background:var(--ink3);border:1px solid var(--b1);border-radius:14px;padding:18px 16px">
-    <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:12px">Avantages Premium</div>
-    <div style="display:flex;flex-direction:column;gap:9px">
+  
+  <div id="aboPricingBlock" style="margin-bottom:14px">
+    <!-- Rempli dynamiquement par JS -->
+  </div>
+
+  <details style="background:var(--ink3);border:1px solid var(--b1);border-radius:14px;padding:14px 16px;cursor:pointer">
+    <summary style="font-size:0.85rem;font-weight:700;color:var(--text);outline:none;display:flex;align-items:center;justify-content:space-between">
+      Voir les avantages Premium
+      <span style="font-size:1.2rem;color:var(--muted)">▼</span>
+    </summary>
+    <div style="display:flex;flex-direction:column;gap:9px;margin-top:16px;border-top:1px solid var(--b1);padding-top:16px">
       <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Favoris illimités</div>
       <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>3× plus de recommandations personnalisées</div>
       <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Alertes de nouvelles sorties + compte à rebours en direct</div>
@@ -988,7 +1063,7 @@
       <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Badge Premium exclusif ⭐</div>
       <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Accès anticipé aux nouvelles fonctionnalités</div>
     </div>
-  </div>
+  </details>
 </div>
 
 <!-- MODAL AVATAR AVEC ONGLETS + UPLOAD -->
@@ -1110,46 +1185,79 @@
 
     const watchList  = getWatchList();
     const watchArr   = Object.values(watchList);
-    const completed  = watchArr.filter(a => a.status === 'completed');
-    const watching   = watchArr.filter(a => a.status === 'watching');
-    const planTo     = watchArr.filter(a => a.status === 'planToWatch');
+    const completed  = watchArr.filter(a => a.status === 'completed' || a.status === 'Completed' || a.status === 'Terminé');
+    const watching   = watchArr.filter(a => a.status === 'watching' || a.status === 'Watching' || a.status === 'En cours');
+    const planTo     = watchArr.filter(a => a.status === 'planToWatch' || a.status === 'plan_to_watch' || a.status === 'Plan to Watch');
 
     // Ligne 1 : Visités / Favoris / À voir
-    const hEl = el('statHistCount');      if (hEl) hEl.textContent  = hist.length;
-    const fEl = el('statFavCount');       if (fEl) fEl.textContent  = favs.length;
-    const pEl = el('statPlanCount');      if (pEl) pEl.textContent  = planTo.length;
+    const hEl = el('statHistCount');      
+    if (hEl) { 
+      hEl.textContent = hist.length; 
+      let c = hEl.closest('.stat-cell'); 
+      if(c) { c.style.cursor='pointer'; c.onclick = () => window.openStatDetail('history', 'Animes visités'); } 
+    }
+    const fEl = el('statFavCount');       
+    if (fEl) { 
+      fEl.textContent = favs.length; 
+      let c = fEl.closest('.stat-cell'); 
+      if(c) { c.style.cursor='pointer'; c.onclick = () => window.openStatDetail('favs', 'Favoris'); } 
+    }
+    const pEl = el('statPlanCount');      
+    if (pEl) { 
+      pEl.textContent = planTo.length; 
+      let c = pEl.closest('.stat-cell'); 
+      if(c) { c.style.cursor='pointer'; c.onclick = () => window.openStatDetail('planToWatch', 'À voir'); } 
+    }
     // Ligne 2 : En cours / Terminés / Notés
-    const wEl = el('statWatchingCount');  if (wEl) wEl.textContent  = watching.length;
-    const cEl = el('statCompletedCount'); if (cEl) cEl.textContent  = completed.length;
+    const wEl = el('statWatchingCount');  
+    if (wEl) { 
+      wEl.textContent = watching.length; 
+      let c = wEl.closest('.stat-cell'); 
+      if(c) { c.style.cursor='pointer'; c.onclick = () => window.openStatDetail('watching', 'En cours'); } 
+    }
+    const cEl = el('statCompletedCount'); 
+    if (cEl) { 
+      cEl.textContent = completed.length; 
+      let c = cEl.closest('.stat-cell'); 
+      if(c) { c.style.cursor='pointer'; c.onclick = () => window.openStatDetail('completed', 'Terminés'); } 
+    }
 
-    // ⏱ Heures / Jours actifs / Progression — PREMIUM UNIQUEMENT
-    const totalMins = completed.reduce((acc, a) => acc + (a.episodes||0)*(a.duration||24), 0);
+    const totalMins = completed.reduce((acc, a) => {
+      let eps = a.episodes ? parseInt(a.episodes) : 12;
+      if (isNaN(eps) || eps <= 0) eps = 12;
+      return acc + (eps * 24);
+    }, 0);
     const now2 = new Date();
     const monthStart2 = new Date(now2.getFullYear(), now2.getMonth(), 1).getTime();
     const histAll = getHistory();
-    const activeDays2 = new Set(histAll.filter(h=>(h.ts||0)>=monthStart2).map(h=>new Date(h.ts).toDateString())).size;
+    const activeDays2 = new Set(histAll.filter(h=>(h && h.ts && h.ts>=monthStart2)).map(h=>new Date(h.ts).toDateString())).size;
+
+    // Mise à jour systématique des compteurs (pour que les chiffres correspondent aux phrases affichées)
+    const hEl2 = el('statHoursCount');
+    if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
+    const dEl2 = el('statActiveDaysCount');
+    if (dEl2) dEl2.textContent = activeDays2 || 0;
 
     if (window.VA_isPremium && window.VA_isPremium()) {
-      // Premium : afficher les vraies valeurs + masquer les ⭐
-      const hEl2 = el('statHoursCount');
-      if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
-      const dEl2 = el('statActiveDaysCount');
-      if (dEl2) dEl2.textContent = activeDays2 || 0;
+      var avWrap = document.querySelector('.profile-avatar-wrap');
+      if(avWrap) avWrap.classList.add('is-premium');
+      
+      // Premium : masquer les icônes de verrouillage si présentes
       ['hoursLockIcon','daysLockIcon','progressLockIcon'].forEach(function(lockId) {
         var ic = el(lockId); if (ic) ic.style.display = 'none';
       });
       [el('statHoursCount'), el('statActiveDaysCount'), el('statProgressCount')].forEach(function(se) {
         if (!se) return;
-        var p = se.closest('.stat-compact');
+        var p = se.closest('.stat-cell');
         if (p) { p.style.cursor = ''; p.onclick = null; p.removeAttribute('title'); }
       });
       // Progression async
       (async function() {
         try {
-          const r = await fetch('/api/jikan?path=' + encodeURIComponent('/anime?limit=1&page=1'));
+          const r = await fetch('https://api.jikan.moe/v4/anime?limit=1&page=1');
           const d = await r.json();
           const total = d.pagination?.items?.total || 24000;
-          const pct = +(completed.length / total * 100).toFixed(1);
+          const pct = +(completed.length / total * 100).toFixed(2);
           const pEl2 = el('statProgressCount'); if (pEl2) pEl2.textContent = pct + '%';
         } catch {
           const pEl2 = el('statProgressCount');
@@ -1884,46 +1992,69 @@
       if (entry.status !== 'completed') idSet.add(id);
     });
 
-    var ids = Array.from(idSet).slice(0, 20); // max 20 pour limiter les requêtes
+    var ids = Array.from(idSet).slice(0, 10); // max 10 pour limiter les requêtes API
 
+    grid.innerHTML = '<div class="upcoming-loader"><div class="sk-spin"></div>Chargement de tes prochaines sorties…</div>';
+    _upcomingData = [];
+
+    // Fallback : Si aucune donnée, charger la saison en cours
     if (ids.length === 0) {
-      grid.innerHTML = '<div class="upcoming-empty">Ajoute des animes à tes favoris ou à ta liste pour voir les prochaines sorties !</div>';
+      try {
+        var res = await fetch('https://api.jikan.moe/v4/seasons/now?limit=10');
+        var data = await res.json();
+        var animes = data.data || [];
+        animes.forEach(function(anime) {
+          var nextMs = _getNextAirMs(anime);
+          if (nextMs !== null) _upcomingData.push({ anime: anime, nextMs: Date.now() + nextMs });
+        });
+        if (_upcomingData.length > 0) _renderUpcomingGrid();
+      } catch(e) {}
+      
+      if (_upcomingData.length === 0) {
+        grid.innerHTML = '<div class="upcoming-empty">Aucune sortie trouvée. Ajoute des animes à tes favoris !</div>';
+      }
       return;
     }
 
-    grid.innerHTML = '<div class="upcoming-loader"><div class="sk-spin"></div>Chargement de tes prochaines sorties…</div>';
-
-    _upcomingData = [];
-    var fetched   = 0;
-
+    var fetched = 0;
     for (var i = 0; i < ids.length; i++) {
       var id = ids[i];
       try {
-        var encoded = encodeURIComponent('/anime/' + id);
-        var res  = await fetch('/api/jikan?path=' + encoded);
+        var res  = await fetch('https://api.jikan.moe/v4/anime/' + id);
         var data = await res.json();
         var anime = data.data;
         if (!anime) { fetched++; continue; }
 
-        // Garder uniquement si sortie à venir connue
         var nextMs = _getNextAirMs(anime);
         if (nextMs !== null) {
           _upcomingData.push({ anime: anime, nextMs: Date.now() + nextMs });
         }
         fetched++;
 
-        // Affichage progressif : mettre à jour après chaque fetch
         if (_upcomingData.length > 0) _renderUpcomingGrid();
-
       } catch(e) {
         fetched++;
       }
-      // Rate-limit : attente entre requêtes
-      if (i < ids.length - 1) await new Promise(function(r) { setTimeout(r, 900); });
+      // Rate-limit : attente entre requêtes Jikan V4
+      if (i < ids.length - 1) await new Promise(function(r) { setTimeout(r, 400); });
     }
 
     if (_upcomingData.length === 0) {
-      grid.innerHTML = '<div class="upcoming-empty">Aucune sortie à venir trouvée.<br>Les animes que tu suis sont peut-être tous terminés.</div>';
+      // Deuxième Fallback : Les favoris sont terminés, on propose la saison
+      try {
+        var res = await fetch('https://api.jikan.moe/v4/seasons/now?limit=10');
+        var data = await res.json();
+        var animes = data.data || [];
+        animes.forEach(function(anime) {
+          var nextMs = _getNextAirMs(anime);
+          if (nextMs !== null) _upcomingData.push({ anime: anime, nextMs: Date.now() + nextMs });
+        });
+        if (_upcomingData.length > 0) _renderUpcomingGrid();
+      } catch(e) {}
+
+      if (_upcomingData.length === 0) {
+        grid.innerHTML = '<div class="upcoming-empty">Aucune sortie à venir trouvée.<br>Les animes que tu suis sont peut-être tous terminés.</div>';
+      }
     }
   }
 
@@ -2038,36 +2169,111 @@
 
   function _buildAboPanel(status) {
     var block = document.getElementById('aboStatusBlock');
-    if (!block) return;
+    var pricingBlock = document.getElementById('aboPricingBlock');
+    if (!block || !pricingBlock) return;
+    
     var isPremium = status && status.isPremium;
     var days      = (status && status.daysLeft) || 0;
     var plan      = status && status.plan;
     var expiresAt = status && status.expiresAt;
-    var planLabel = plan === 'annual' ? 'Annuel' : 'Mensuel';
-    var renewPrice = plan === 'annual' ? '19,99 Pi/an' : '1,99 Pi/mois';
+    var canceled  = localStorage.getItem('VA_premium_canceled') === 'true';
+
     if (isPremium) {
       var expDate  = expiresAt ? new Date(expiresAt).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}) : '—';
-      var urgColor = days <= 3 ? '#f87171' : days <= 7 ? '#fbbf24' : '#4ade80';
-      block.innerHTML =
-        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">'
+      var planLabel = plan === 'annual' ? 'Annuel' : 'Mensuel';
+      var statusHtml = 
+        '<div style="display:flex;justify-content:space-between;align-items:center">'
         + '<div>'
-          + '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">'
-            + '<span style="background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);color:#4ade80;border-radius:20px;padding:3px 10px;font-size:0.72rem;font-weight:700">⭐ Premium actif</span>'
-            + (days <= 7 ? '<span style="color:' + urgColor + ';font-size:0.7rem">Expire dans ' + days + ' jours</span>' : '')
+          + '<div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">'
+          + '<span style="background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);color:#4ade80;border-radius:20px;padding:3px 10px;font-size:0.72rem;font-weight:700">⭐ Premium actif</span>'
+          + (canceled ? '<span style="color:#f87171;font-size:0.65rem">Sera annulé le ' + expDate + '</span>' : '')
           + '</div>'
-          + '<div style="font-size:0.78rem;color:var(--text2)">Plan <b>' + planLabel + '</b> · ' + renewPrice + '</div>'
-          + '<div style="font-size:0.72rem;color:var(--muted);margin-top:3px">Expire le ' + expDate + '</div>'
-        + '</div>'
-        + '<a href="premium.html" style="display:inline-flex;align-items:center;padding:8px 16px;background:var(--ink4);border:1px solid var(--b2);border-radius:10px;font-size:0.78rem;font-weight:600;color:var(--text2);text-decoration:none">Gérer →</a>'
-      + '</div>';
+          + '<div style="font-size:0.78rem;color:var(--text2)">Plan <b>' + planLabel + '</b> · Fin le ' + expDate + '</div>'
+        + '</div>';
+        
+      if (!canceled) {
+        statusHtml += '<button onclick="cancelSubscription()" style="padding:6px 12px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;font-size:0.75rem;cursor:pointer">Annuler</button>';
+      }
+      statusHtml += '</div>';
+      block.innerHTML = statusHtml;
     } else {
-      block.innerHTML =
-        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">'
-        + '<div style="font-size:0.78rem;color:var(--muted)">Passe Premium pour débloquer toutes les fonctionnalités.</div>'
-        + '<a href="premium.html" style="display:inline-flex;padding:8px 16px;background:linear-gradient(135deg,#a78bfa,#818cf8);color:#fff;border-radius:10px;font-size:0.78rem;font-weight:700;text-decoration:none">⭐ Passer Premium</a>'
-      + '</div>';
+      block.innerHTML = '<div style="font-size:0.78rem;color:var(--muted)">Aucun abonnement actif.</div>';
     }
+
+    var baseSubText = isPremium ? "Prolonger l'abonnement" : "S'abonner maintenant";
+    pricingBlock.innerHTML = 
+      '<div style="background:var(--ink3);border:1px solid var(--violet);border-radius:14px;padding:18px 16px">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+      + '<div style="font-size:1.1rem;font-weight:800;color:var(--text)">Premium - Offre de lancement</div>'
+      + '</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+        + '<button onclick="purchasePlan(\'monthly\', 2.49)" style="padding:12px;background:var(--ink4);border:1px solid var(--b2);border-radius:10px;cursor:pointer;text-align:center;transition:border-color 0.2s">'
+          + '<div style="font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:4px">Mensuel</div>'
+          + '<div style="font-size:1.1rem;font-weight:900;color:var(--violet)">2,49 Pi</div>'
+          + '<div style="font-size:0.7rem;color:var(--muted);margin-top:4px">' + baseSubText + '</div>'
+        + '</button>'
+        + '<button onclick="purchasePlan(\'annual\', 24.99)" style="position:relative;padding:12px;background:rgba(167,139,250,0.1);border:1px solid var(--violet);border-radius:10px;cursor:pointer;text-align:center">'
+          + '<div style="position:absolute;top:-8px;right:-8px;background:var(--pink);color:#fff;font-size:0.6rem;font-weight:800;padding:2px 8px;border-radius:10px">ÉCONOMISE 15%</div>'
+          + '<div style="font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:4px">Annuel</div>'
+          + '<div style="font-size:1.1rem;font-weight:900;color:var(--violet)">24,99 Pi</div>'
+          + '<div style="font-size:0.7rem;color:var(--muted);margin-top:4px">' + baseSubText + '</div>'
+        + '</button>'
+      + '</div>'
+      + '</div>';
   }
+
+  window.cancelSubscription = function() {
+    if(confirm('Es-tu sûr de vouloir annuler ton abonnement ? Tu garderas tes avantages jusqu\'à la date de fin prévue.')) {
+      localStorage.setItem('VA_premium_canceled', 'true');
+      alert('Ton abonnement a été annulé avec succès.');
+      location.reload();
+    }
+  };
+
+  window.purchasePlan = function(plan, price) {
+    if (typeof window.Pi === 'undefined') {
+      alert("⚠️ Ouvre VoirAnime dans le Pi Browser pour t'abonner.");
+      return;
+    }
+    const scopes = ['payments'];
+    // On force une petite attente pour s'assurer que le Pi Browser est prêt à afficher le modal
+    window.Pi.authenticate(scopes, function(incompletePayment) {}).then(function(auth) {
+      setTimeout(function() {
+        window.Pi.createPayment({
+          amount: price,
+          memo: "Premium VoirAnime (" + (plan === 'annual' ? "Annuel" : "Mensuel") + ")",
+          metadata: { plan: plan }
+        }, {
+          onReadyForServerApproval: function(paymentId) {
+            // Simulation du succès côté serveur
+            var currentExp = parseInt(localStorage.getItem('VA_premium_expires') || '0');
+            var now = Date.now();
+            var baseDate = (currentExp > now) ? currentExp : now;
+            var addMs = plan === 'annual' ? 365*24*60*60*1000 : 30*24*60*60*1000;
+            
+            localStorage.setItem('VA_premium_expires', baseDate + addMs);
+            localStorage.setItem('VA_premium_plan', plan);
+            localStorage.removeItem('VA_premium_canceled');
+            
+            // On laisse le temps au Pi SDK de traiter le succès avant de recharger
+            setTimeout(function() {
+              alert('Paiement Pi validé ! Ton abonnement a été mis à jour.');
+              location.reload();
+            }, 800);
+          },
+          onReadyForServerCompletion: function(paymentId, txid) {},
+          onCancel: function(paymentId) {},
+          onError: function(error, payment) {
+            if (error.message.indexOf('closed') === -1) {
+              alert('Erreur lors du paiement: ' + error.message);
+            }
+          }
+        });
+      }, 100);
+    }).catch(function(error) {
+      alert("Erreur d'authentification Pi: " + error.message);
+    });
+  };
 
   /* ════ ADAPTATION renderPremiumStats → panel Perso ════ */
   // Wrapper : après renderPremiumStats on redirige vers les panels perso
@@ -2339,6 +2545,95 @@ document.addEventListener('DOMContentLoaded', function(){
     if (profileContactBtn && window.VoirAnimeContact) {
       profileContactBtn.addEventListener('click', window.VoirAnimeContact.open);
     }
+  </script>
+
+  <!-- ════ STAT DETAIL PANEL ════ -->
+  <div class="stat-detail-panel" id="statDetailPanel">
+    <div class="sdp-header">
+      <button class="sdp-back-btn" onclick="window.closeStatDetail()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h2 class="sdp-title" id="sdpTitle">Détails</h2>
+    </div>
+    <div class="sdp-content">
+      <div class="profile-grid" id="sdpGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    window.openStatDetail = function(type, title) {
+      const panel = document.getElementById('statDetailPanel');
+      const titleEl = document.getElementById('sdpTitle');
+      const gridEl = document.getElementById('sdpGrid');
+      if(!panel || !titleEl || !gridEl) return;
+
+      let items = [];
+      if (type === 'history') {
+        try { items = JSON.parse(localStorage.getItem('VoirAnime_history') || '[]'); } catch(e) { items = []; }
+      } else if (type === 'favs') {
+        try { items = JSON.parse(localStorage.getItem('VoirAnime_favs') || '[]'); } catch(e) { items = []; }
+      } else {
+        let watchList = {};
+        try { watchList = JSON.parse(localStorage.getItem('VoirAnime_watchStatus') || '{}'); } catch(e) {}
+        const watchArr = Object.values(watchList);
+        if (type === 'planToWatch') items = watchArr.filter(a => a.status === 'planToWatch' || a.status === 'plan_to_watch' || a.status === 'Plan to Watch');
+        if (type === 'watching') items = watchArr.filter(a => a.status === 'watching' || a.status === 'Watching' || a.status === 'En cours');
+        if (type === 'completed') items = watchArr.filter(a => a.status === 'completed' || a.status === 'Completed' || a.status === 'Terminé');
+      }
+
+      titleEl.textContent = title + ' (' + items.length + ')';
+      gridEl.innerHTML = '';
+
+      if (items.length === 0) {
+        gridEl.innerHTML = '<div class="profile-empty" style="grid-column: 1 / -1;">Aucun anime trouvé.</div>';
+      } else {
+        items.forEach(function(a) {
+          const imgUrl = a.img || a.image_url || 'https://via.placeholder.com/225x318?text=Image';
+          const titleStr = a.title || 'Anime';
+          
+          const card = document.createElement('a');
+          card.className = 'profile-anime-card';
+          card.href = 'anime.html?id=' + a.id;
+          card.innerHTML = 
+            '<img src="' + imgUrl + '" class="profile-card-img" loading="lazy" alt="Cover">' +
+            '<div class="profile-card-body">' +
+              '<div class="profile-card-title">' + titleStr + '</div>' +
+            '</div>';
+          gridEl.appendChild(card);
+        });
+      }
+
+      panel.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closeStatDetail = function() {
+      const panel = document.getElementById('statDetailPanel');
+      if (panel) {
+        panel.classList.remove('is-open');
+        document.body.style.overflow = '';
+      }
+    };
+
+    window.switchPersoTab = function(tabId) {
+      const topBtn = document.getElementById('psub-top');
+      const genresBtn = document.getElementById('psub-genres');
+      const topPanel = document.getElementById('perso-top-panel');
+      const genresPanel = document.getElementById('perso-genres-panel');
+      if(!topBtn || !genresBtn || !topPanel || !genresPanel) return;
+
+      if (tabId === 'top') {
+        topBtn.classList.add('active');
+        genresBtn.classList.remove('active');
+        topPanel.style.display = 'block';
+        genresPanel.style.display = 'none';
+      } else {
+        topBtn.classList.remove('active');
+        genresBtn.classList.add('active');
+        topPanel.style.display = 'none';
+        genresPanel.style.display = 'block';
+      }
+    };
   </script>
 </body>
 </html>
