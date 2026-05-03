@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VoirAnime — Profile</title>
+  <title>Mon Profil - VoirAnime</title>
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
   <link rel="stylesheet" href="style.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
@@ -26,76 +27,38 @@
 
     /* ── Profile page styles ── */
 
-    /* Hero v2 : 2 colonnes côte à côte */
+    /* Hero Profile V2 */
     .profile-hero-v2 {
-      padding: calc(var(--nav-h) + 40px) 48px 32px;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: calc(var(--nav-h) + 12px) 16px 16px;
       max-width: 1160px;
       margin: 0 auto;
-      align-items: start;
     }
-
-    /* Colonne gauche */
-    .profile-left { display: flex; flex-direction: column; gap: 16px; }
-    .profile-identity {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    /* Avatar wrap + image */
     .profile-avatar-wrap {
       position: relative;
-      width: 72px; height: 72px;
-      flex-shrink: 0;
-      cursor: pointer;
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      padding: 3px;
+      background: linear-gradient(135deg, var(--violet), var(--pink));
     }
-    .profile-avatar-img {
-      width: 72px; height: 72px;
+    @keyframes premiumGlow {
+      0%, 100% { box-shadow: 0 0 8px 2px rgba(167,139,250,0.4); }
+      50% { box-shadow: 0 0 16px 6px rgba(167,139,250,0.8); }
+    }
+    .profile-avatar-wrap.is-premium {
+      border: 2px solid #a78bfa;
+      animation: premiumGlow 2.5s infinite ease-in-out;
+    }
+    .profile-avatar {
+      width: 100%; height: 100%;
       border-radius: 50%;
       object-fit: cover;
-      border: 2px solid var(--pink);
-      box-shadow: 0 0 20px rgba(124,77,255,0.4);
-      display: none;
+      background: var(--ink3);
+      border: 3px solid var(--bg);
     }
-    .profile-avatar-fallback {
-      width: 72px; height: 72px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #7c4dff, #ff4fd8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      box-shadow: 0 0 24px rgba(124,77,255,0.35);
-    }
-    .profile-avatar-edit {
-      position: absolute;
-      bottom: 0; right: 0;
-      width: 22px; height: 22px;
-      background: var(--pink);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.65rem;
-      color: #fff;
-      border: 2px solid var(--ink1);
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .profile-avatar-wrap:hover .profile-avatar-edit { opacity: 1; }
-    .profile-identity-info { flex: 1; }
-    .profile-name {
-      font-size: 1.4rem;
-      font-weight: 900;
-      letter-spacing: -0.5px;
-      margin-bottom: 3px;
-    }
-    .profile-since {
-      font-size: 0.74rem;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
 
     /* Stats : 2×3 + ligne 3 centrée */
     .profile-stats-compact {
@@ -285,13 +248,13 @@
     .stats-groups {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
     .stat-group {
       background: var(--ink3);
       border: 1px solid var(--b1);
       border-radius: 10px;
-      padding: 10px 12px;
+      padding: 8px 10px;
       transition: border-color 0.2s;
     }
     .stat-group:hover { border-color: var(--b2); }
@@ -504,7 +467,7 @@
 
     /* ════ PSTATS CÔTE À CÔTE ════ */
     .pstats-side {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: start;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start;
     }
 
     /* ════ MODAL AVATAR FIXÉ EN HAUT ════ */
@@ -767,6 +730,15 @@
 .sdp-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin: 0; }
 .sdp-content { flex: 1; overflow-y: auto; padding: 20px; }
 @media (max-width: 480px) { .sdp-content { padding: 12px; } }
+.sdp-grid .profile-anime-card { position: relative; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: none; }
+.sdp-grid .profile-card-img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
+.sdp-grid .profile-card-body { padding: 0; }
+.sdp-grid .profile-card-title {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+  padding: 18px 8px 8px; color: #fff; font-size: 0.76rem; font-weight: 600;
+  text-align: center; line-height: 1.2;
+}
   </style>
 </head>
 <body>
@@ -1001,9 +973,17 @@
     <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:10px">Statut</div>
     <div id="aboStatusBlock"><span style="color:var(--muted);font-size:0.82rem">Chargement…</span></div>
   </div>
-  <div style="background:var(--ink3);border:1px solid var(--b1);border-radius:14px;padding:18px 16px">
-    <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:12px">Avantages Premium</div>
-    <div style="display:flex;flex-direction:column;gap:9px">
+  
+  <div id="aboPricingBlock" style="margin-bottom:14px">
+    <!-- Rempli dynamiquement par JS -->
+  </div>
+
+  <details style="background:var(--ink3);border:1px solid var(--b1);border-radius:14px;padding:14px 16px;cursor:pointer">
+    <summary style="font-size:0.85rem;font-weight:700;color:var(--text);outline:none;display:flex;align-items:center;justify-content:space-between">
+      Voir les avantages Premium
+      <span style="font-size:1.2rem;color:var(--muted)">▼</span>
+    </summary>
+    <div style="display:flex;flex-direction:column;gap:9px;margin-top:16px;border-top:1px solid var(--b1);padding-top:16px">
       <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Favoris illimités</div>
       <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>3× plus de recommandations personnalisées</div>
       <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Alertes de nouvelles sorties + compte à rebours en direct</div>
@@ -1011,7 +991,7 @@
       <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Badge Premium exclusif ⭐</div>
       <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Accès anticipé aux nouvelles fonctionnalités</div>
     </div>
-  </div>
+  </details>
 </div>
 
 <!-- MODAL AVATAR AVEC ONGLETS + UPLOAD -->
@@ -1133,9 +1113,9 @@
 
     const watchList  = getWatchList();
     const watchArr   = Object.values(watchList);
-    const completed  = watchArr.filter(a => a.status === 'completed');
-    const watching   = watchArr.filter(a => a.status === 'watching');
-    const planTo     = watchArr.filter(a => a.status === 'planToWatch');
+    const completed  = watchArr.filter(a => a.status === 'completed' || a.status === 'Completed' || a.status === 'Terminé');
+    const watching   = watchArr.filter(a => a.status === 'watching' || a.status === 'Watching' || a.status === 'En cours');
+    const planTo     = watchArr.filter(a => a.status === 'planToWatch' || a.status === 'plan_to_watch' || a.status === 'Plan to Watch');
 
     // Ligne 1 : Visités / Favoris / À voir
     const hEl = el('statHistCount');      
@@ -1178,9 +1158,12 @@
     const now2 = new Date();
     const monthStart2 = new Date(now2.getFullYear(), now2.getMonth(), 1).getTime();
     const histAll = getHistory();
-    const activeDays2 = new Set(histAll.filter(h=>(h.ts||0)>=monthStart2).map(h=>new Date(h.ts).toDateString())).size;
+    const activeDays2 = new Set(histAll.filter(h=>(h && h.ts && h.ts>=monthStart2)).map(h=>new Date(h.ts).toDateString())).size;
 
     if (window.VA_isPremium && window.VA_isPremium()) {
+      var avWrap = document.querySelector('.profile-avatar-wrap');
+      if(avWrap) avWrap.classList.add('is-premium');
+      
       // Premium : afficher les vraies valeurs + masquer les ⭐
       const hEl2 = el('statHoursCount');
       if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
@@ -1935,46 +1918,69 @@
       if (entry.status !== 'completed') idSet.add(id);
     });
 
-    var ids = Array.from(idSet).slice(0, 20); // max 20 pour limiter les requêtes
+    var ids = Array.from(idSet).slice(0, 10); // max 10 pour limiter les requêtes API
 
+    grid.innerHTML = '<div class="upcoming-loader"><div class="sk-spin"></div>Chargement de tes prochaines sorties…</div>';
+    _upcomingData = [];
+
+    // Fallback : Si aucune donnée, charger la saison en cours
     if (ids.length === 0) {
-      grid.innerHTML = '<div class="upcoming-empty">Ajoute des animes à tes favoris ou à ta liste pour voir les prochaines sorties !</div>';
+      try {
+        var res = await fetch('https://api.jikan.moe/v4/seasons/now?limit=10');
+        var data = await res.json();
+        var animes = data.data || [];
+        animes.forEach(function(anime) {
+          var nextMs = _getNextAirMs(anime);
+          if (nextMs !== null) _upcomingData.push({ anime: anime, nextMs: Date.now() + nextMs });
+        });
+        if (_upcomingData.length > 0) _renderUpcomingGrid();
+      } catch(e) {}
+      
+      if (_upcomingData.length === 0) {
+        grid.innerHTML = '<div class="upcoming-empty">Aucune sortie trouvée. Ajoute des animes à tes favoris !</div>';
+      }
       return;
     }
 
-    grid.innerHTML = '<div class="upcoming-loader"><div class="sk-spin"></div>Chargement de tes prochaines sorties…</div>';
-
-    _upcomingData = [];
-    var fetched   = 0;
-
+    var fetched = 0;
     for (var i = 0; i < ids.length; i++) {
       var id = ids[i];
       try {
-        var encoded = encodeURIComponent('/anime/' + id);
-        var res  = await fetch('/api/jikan?path=' + encoded);
+        var res  = await fetch('https://api.jikan.moe/v4/anime/' + id);
         var data = await res.json();
         var anime = data.data;
         if (!anime) { fetched++; continue; }
 
-        // Garder uniquement si sortie à venir connue
         var nextMs = _getNextAirMs(anime);
         if (nextMs !== null) {
           _upcomingData.push({ anime: anime, nextMs: Date.now() + nextMs });
         }
         fetched++;
 
-        // Affichage progressif : mettre à jour après chaque fetch
         if (_upcomingData.length > 0) _renderUpcomingGrid();
-
       } catch(e) {
         fetched++;
       }
-      // Rate-limit : attente entre requêtes
-      if (i < ids.length - 1) await new Promise(function(r) { setTimeout(r, 900); });
+      // Rate-limit : attente entre requêtes Jikan V4
+      if (i < ids.length - 1) await new Promise(function(r) { setTimeout(r, 400); });
     }
 
     if (_upcomingData.length === 0) {
-      grid.innerHTML = '<div class="upcoming-empty">Aucune sortie à venir trouvée.<br>Les animes que tu suis sont peut-être tous terminés.</div>';
+      // Deuxième Fallback : Les favoris sont terminés, on propose la saison
+      try {
+        var res = await fetch('https://api.jikan.moe/v4/seasons/now?limit=10');
+        var data = await res.json();
+        var animes = data.data || [];
+        animes.forEach(function(anime) {
+          var nextMs = _getNextAirMs(anime);
+          if (nextMs !== null) _upcomingData.push({ anime: anime, nextMs: Date.now() + nextMs });
+        });
+        if (_upcomingData.length > 0) _renderUpcomingGrid();
+      } catch(e) {}
+
+      if (_upcomingData.length === 0) {
+        grid.innerHTML = '<div class="upcoming-empty">Aucune sortie à venir trouvée.<br>Les animes que tu suis sont peut-être tous terminés.</div>';
+      }
     }
   }
 
@@ -2089,36 +2095,103 @@
 
   function _buildAboPanel(status) {
     var block = document.getElementById('aboStatusBlock');
-    if (!block) return;
+    var pricingBlock = document.getElementById('aboPricingBlock');
+    if (!block || !pricingBlock) return;
+    
     var isPremium = status && status.isPremium;
     var days      = (status && status.daysLeft) || 0;
     var plan      = status && status.plan;
     var expiresAt = status && status.expiresAt;
-    var planLabel = plan === 'annual' ? 'Annuel' : 'Mensuel';
-    var renewPrice = plan === 'annual' ? '19,99 Pi/an' : '1,99 Pi/mois';
+    var canceled  = localStorage.getItem('VA_premium_canceled') === 'true';
+
     if (isPremium) {
       var expDate  = expiresAt ? new Date(expiresAt).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}) : '—';
-      var urgColor = days <= 3 ? '#f87171' : days <= 7 ? '#fbbf24' : '#4ade80';
-      block.innerHTML =
-        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">'
-        + '<div>'
-          + '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">'
-            + '<span style="background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);color:#4ade80;border-radius:20px;padding:3px 10px;font-size:0.72rem;font-weight:700">⭐ Premium actif</span>'
-            + (days <= 7 ? '<span style="color:' + urgColor + ';font-size:0.7rem">Expire dans ' + days + ' jours</span>' : '')
-          + '</div>'
-          + '<div style="font-size:0.78rem;color:var(--text2)">Plan <b>' + planLabel + '</b> · ' + renewPrice + '</div>'
-          + '<div style="font-size:0.72rem;color:var(--muted);margin-top:3px">Expire le ' + expDate + '</div>'
+      var planLabel = plan === 'annual' ? 'Annuel' : 'Mensuel';
+      var statusHtml = 
+        '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">'
+        + '<span style="background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);color:#4ade80;border-radius:20px;padding:3px 10px;font-size:0.72rem;font-weight:700">⭐ Premium actif</span>'
+        + (canceled ? '<span style="color:#f87171;font-size:0.7rem">Sera annulé le ' + expDate + '</span>' : '')
         + '</div>'
-        + '<a href="premium.html" style="display:inline-flex;align-items:center;padding:8px 16px;background:var(--ink4);border:1px solid var(--b2);border-radius:10px;font-size:0.78rem;font-weight:600;color:var(--text2);text-decoration:none">Gérer →</a>'
-      + '</div>';
+        + '<div style="font-size:0.78rem;color:var(--text2)">Plan <b>' + planLabel + '</b></div>'
+        + '<div style="font-size:0.72rem;color:var(--muted);margin-top:3px">Date de fin : ' + expDate + '</div>';
+        
+      if (!canceled) {
+        statusHtml += '<div style="margin-top:12px"><button onclick="cancelSubscription()" style="padding:6px 12px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:8px;font-size:0.75rem;cursor:pointer">Annuler l\'abonnement</button></div>';
+      }
+      block.innerHTML = statusHtml;
     } else {
-      block.innerHTML =
-        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">'
-        + '<div style="font-size:0.78rem;color:var(--muted)">Passe Premium pour débloquer toutes les fonctionnalités.</div>'
-        + '<a href="premium.html" style="display:inline-flex;padding:8px 16px;background:linear-gradient(135deg,#a78bfa,#818cf8);color:#fff;border-radius:10px;font-size:0.78rem;font-weight:700;text-decoration:none">⭐ Passer Premium</a>'
-      + '</div>';
+      block.innerHTML = '<div style="font-size:0.78rem;color:var(--muted)">Aucun abonnement actif.</div>';
     }
+
+    var baseSubText = isPremium ? "Prolonger l'abonnement" : "S'abonner maintenant";
+    pricingBlock.innerHTML = 
+      '<div style="background:var(--ink3);border:1px solid var(--violet);border-radius:14px;padding:18px 16px">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+      + '<div style="font-size:1.1rem;font-weight:800;color:var(--text)">Premium - Offre de lancement</div>'
+      + '<div style="font-size:0.75rem;color:var(--pink);font-weight:700">⭐ +15,000 passionnés</div>'
+      + '</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+        + '<button onclick="purchasePlan(\'monthly\', 1.99)" style="padding:12px;background:var(--ink4);border:1px solid var(--b2);border-radius:10px;cursor:pointer;text-align:center;transition:border-color 0.2s">'
+          + '<div style="font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:4px">Mensuel</div>'
+          + '<div style="font-size:1.1rem;font-weight:900;color:var(--violet)">1,99 Pi</div>'
+          + '<div style="font-size:0.7rem;color:var(--muted);margin-top:4px">' + baseSubText + '</div>'
+        + '</button>'
+        + '<button onclick="purchasePlan(\'annual\', 19.99)" style="position:relative;padding:12px;background:rgba(167,139,250,0.1);border:1px solid var(--violet);border-radius:10px;cursor:pointer;text-align:center">'
+          + '<div style="position:absolute;top:-8px;right:-8px;background:var(--pink);color:#fff;font-size:0.6rem;font-weight:800;padding:2px 8px;border-radius:10px">ÉCONOMISE 15%</div>'
+          + '<div style="font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:4px">Annuel</div>'
+          + '<div style="font-size:1.1rem;font-weight:900;color:var(--violet)">19,99 Pi</div>'
+          + '<div style="font-size:0.7rem;color:var(--muted);margin-top:4px">' + baseSubText + '</div>'
+        + '</button>'
+      + '</div>'
+      + '</div>';
   }
+
+  window.cancelSubscription = function() {
+    if(confirm('Es-tu sûr de vouloir annuler ton abonnement ? Tu garderas tes avantages jusqu\'à la date de fin prévue.')) {
+      localStorage.setItem('VA_premium_canceled', 'true');
+      alert('Ton abonnement a été annulé avec succès.');
+      location.reload();
+    }
+  };
+
+  window.purchasePlan = function(plan, price) {
+    if (typeof window.Pi === 'undefined') {
+      alert("⚠️ Ouvre VoirAnime dans le Pi Browser pour t'abonner.");
+      return;
+    }
+    const scopes = ['payments'];
+    window.Pi.authenticate(scopes, function(incompletePayment) {}).then(function(auth) {
+      window.Pi.createPayment({
+        amount: price,
+        memo: "VoirAnime Premium " + (plan === 'annual' ? "Annuel" : "Mensuel"),
+        metadata: { plan: plan }
+      }, {
+        onReadyForServerApproval: function(paymentId) {
+          // Simulation du succès de paiement côté serveur (car front-end uniquement)
+          setTimeout(function() {
+            var currentExp = parseInt(localStorage.getItem('VA_premium_expires') || '0');
+            var now = Date.now();
+            var baseDate = (currentExp > now) ? currentExp : now;
+            var addMs = plan === 'annual' ? 365*24*60*60*1000 : 30*24*60*60*1000;
+            
+            localStorage.setItem('VA_premium_expires', baseDate + addMs);
+            localStorage.setItem('VA_premium_plan', plan);
+            localStorage.removeItem('VA_premium_canceled');
+            
+            alert('Paiement réussi ! Ton abonnement a été ' + (currentExp > now ? 'prolongé' : 'activé') + '.');
+            location.reload();
+          }, 1500);
+        },
+        onReadyForServerCompletion: function(paymentId, txid) {},
+        onCancel: function(paymentId) {},
+        onError: function(error, payment) {
+          alert('Erreur lors du paiement: ' + error.message);
+        }
+      });
+    }).catch(function(error) {
+      alert("Erreur d'authentification Pi: " + error.message);
+    });
+  };
 
   /* ════ ADAPTATION renderPremiumStats → panel Perso ════ */
   // Wrapper : après renderPremiumStats on redirige vers les panels perso
@@ -2421,9 +2494,9 @@ document.addEventListener('DOMContentLoaded', function(){
         let watchList = {};
         try { watchList = JSON.parse(localStorage.getItem('VoirAnime_watchStatus') || '{}'); } catch(e) {}
         const watchArr = Object.values(watchList);
-        if (type === 'planToWatch') items = watchArr.filter(a => a.status === 'planToWatch');
-        if (type === 'watching') items = watchArr.filter(a => a.status === 'watching');
-        if (type === 'completed') items = watchArr.filter(a => a.status === 'completed');
+        if (type === 'planToWatch') items = watchArr.filter(a => a.status === 'planToWatch' || a.status === 'plan_to_watch' || a.status === 'Plan to Watch');
+        if (type === 'watching') items = watchArr.filter(a => a.status === 'watching' || a.status === 'Watching' || a.status === 'En cours');
+        if (type === 'completed') items = watchArr.filter(a => a.status === 'completed' || a.status === 'Completed' || a.status === 'Terminé');
       }
 
       titleEl.textContent = title + ' (' + items.length + ')';
