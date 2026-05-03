@@ -443,6 +443,35 @@
     }
     .ptab-dot.visible { display: block; }
 
+    /* Sous-onglets pour la partie Perso */
+    .perso-sub-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      padding: 4px;
+      background: var(--ink3);
+      border-radius: 12px;
+      border: 1px solid var(--b1);
+    }
+    .psub-tab {
+      flex: 1;
+      padding: 8px 4px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: var(--font);
+    }
+    .psub-tab.active {
+      background: var(--ink4);
+      color: var(--text);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
     /* ════ PANELS ════ */
     .profile-panel {
       display: none;
@@ -947,19 +976,29 @@
 
 <!-- ══ PANEL : PERSO ══ -->
 <div class="profile-panel" id="panel-perso" role="tabpanel">
-  <!-- Stats premium (top3 + genres) -->
-  <div id="persoStatsContent">
-    <div class="pstats-side">
-        <div class="pstats-block">
-    <div class="pstats-block-title">🔥 Top 3 animes</div>
-    <div class="pstats-top-list" id="pstatTopAnimes"></div>
-  </div>
-  <div class="pstats-block">
-    <div class="pstats-block-title">🎯 Genres préférés</div>
-    <div class="pstats-genres" id="pstatGenres">
-      <div class="pstats-empty-hint">Visite plus d'animés pour débloquer tes genres !</div>
+  <!-- Sélecteur de sous-menu -->
+  <div id="persoSubTabsWrap">
+    <div class="perso-sub-tabs">
+      <button class="psub-tab active" id="psub-top"    onclick="switchPersoTab('top')">🔥 Top 3</button>
+      <button class="psub-tab"        id="psub-genres" onclick="switchPersoTab('genres')">🎯 Genres</button>
     </div>
   </div>
+
+  <!-- Stats premium (top3 + genres) -->
+  <div id="persoStatsContent">
+    <div id="perso-top-panel">
+      <div class="pstats-block">
+        <div class="pstats-block-title">🔥 Top 3 animes</div>
+        <div class="pstats-top-list" id="pstatTopAnimes"></div>
+      </div>
+    </div>
+    <div id="perso-genres-panel" style="display:none">
+      <div class="pstats-block">
+        <div class="pstats-block-title">🎯 Genres préférés</div>
+        <div class="pstats-genres" id="pstatGenres">
+          <div class="pstats-empty-hint">Visite plus d'animés pour débloquer tes genres !</div>
+        </div>
+      </div>
     </div>
   </div>
   <!-- Teaser si non premium -->
@@ -2564,6 +2603,26 @@ document.addEventListener('DOMContentLoaded', function(){
       if (panel) {
         panel.classList.remove('is-open');
         document.body.style.overflow = '';
+      }
+    };
+
+    window.switchPersoTab = function(tabId) {
+      const topBtn = document.getElementById('psub-top');
+      const genresBtn = document.getElementById('psub-genres');
+      const topPanel = document.getElementById('perso-top-panel');
+      const genresPanel = document.getElementById('perso-genres-panel');
+      if(!topBtn || !genresBtn || !topPanel || !genresPanel) return;
+
+      if (tabId === 'top') {
+        topBtn.classList.add('active');
+        genresBtn.classList.remove('active');
+        topPanel.style.display = 'block';
+        genresPanel.style.display = 'none';
+      } else {
+        topBtn.classList.remove('active');
+        genresBtn.classList.add('active');
+        topPanel.style.display = 'none';
+        genresPanel.style.display = 'block';
       }
     };
   </script>
