@@ -417,18 +417,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .upcoming-empty { text-align: center; padding: 24px 12px; color: var(--muted); font-size: 0.82rem; }
-  
-    /* ── Debug panel ── */
-    #va-debug {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999;
-      background: #0a0914; border-top: 2px solid #a78bfa;
-      padding: 10px 14px; font-size: 0.72rem; font-family: monospace;
-      color: #eeecff; max-height: 50vh; overflow-y: auto; display: none;
-    }
-    #va-debug h4 { color: #a78bfa; margin-bottom: 6px; font-size: 0.8rem; }
-    #va-debug .ok { color: #4ade80; } #va-debug .err { color: #f87171; } #va-debug .warn { color: #fbbf24; }
-    #va-debug .row { padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
-</style>
+  </style>
   <script src="js/i18n.js"></script>
   <script src="featuresManager.js"></script>
   <script src="premiumManager.js"></script>
@@ -1279,11 +1268,11 @@
     const section       = el('premiumStatsSection');
     const teaserSection = el('premiumTeaserSection');
 
-    // Attendre premiumManager — source unique de vérité
+    // ── Attendre que premiumManager soit prêt (source unique de vérité) ──
     const premiumStatus = await new Promise(function(resolve) {
       function tryCheck() {
         if (window.VA_onPremiumReady) {
-          window.VA_onPremiumReady(function(s) { resolve(s); });
+          window.VA_onPremiumReady(function(status) { resolve(status); });
         } else {
           setTimeout(tryCheck, 300);
         }
@@ -1291,61 +1280,102 @@
       tryCheck();
     });
 
-    const isPremium = !!(premiumStatus && premiumStatus.isPremium);
+    const isPremium = premiumStatus && premiumStatus.isPremium === true;
 
-    // Afficher/masquer le teaser
+    // ── Debug toast visible ──
+    (function() {
+      var t = document.createElement('div');
+      t.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:99999;background:#1a1730;border:1px solid #a78bfa;border-radius:10px;padding:8px 16px;font-size:0.75rem;color:#eeecff;max-width:90vw;word-break:break-all;text-align:center';
+      t.textContent = 'Premium debug: isPremium=' + isPremium + ' | premiumStatus=' + JSON.stringify(premiumStatus).substring(0,60);
+      document.body.appendChild(t);
+      setTimeout(function() { t.remove(); }, 8000);
+    })();
+
+    // Afficher/masquer le teaser selon statut
     if (teaserSection) teaserSection.style.display = isPremium ? 'none' : 'block';
     if (!isPremium) return;
-
-    // Afficher la section détails premium
     if (section) section.style.display = 'block';
 
-    const hist = getHistory();
+    // ── Debug toast section visible ──
+    (function() {
+      var t2 = document.createElement('div');
+      t2.style.cssText = 'position:fixed;top:120px;left:50%;transform:translateX(-50%);z-index:99999;background:#0a2010;border:1px solid #4ade80;border-radius:10px;padding:8px 16px;font-size:0.75rem;color:#4ade80;max-width:90vw;text-align:center';
+      t2.textContent = '✅ Section premium affichée — scroll vers le bas !';
+      document.body.appendChild(t2);
+      setTimeout(function() { t2.remove(); }, 8000);
+    })();
 
-    // 🔥 Top 3 animes (les plus récents de l'historique)
+    const watchList = getWatchList();
+    const watchArr  = Object.values(watchList);
+    const completed = watchArr.filter(a => a.status === 'completed');
+    const totalMins = completed.reduce((acc, a) => acc + (a.episodes||0)*(a.duration||24), 0);
+
+    // ⏱ Heures regardées
+    if (el('pstatHours')) el('pstatHours').textContent = Math.round(totalMins/60) + 'h';
+
+    // 📅 Jours actifs ce mois-ci (jours uniques dans VoirAnime_history)
+    const now       = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    const hist       = getHistory();
+    const activeDays = new Set(
+      hist.filter(h => (h.ts||0) >= monthStart)
+          .map(h => new Date(h.ts).toDateString())
+    ).size;
+    if (el('pstatActiveDays')) el('pstatActiveDays').textContent = activeDays || 0;
+
+    // 🏁 Progression globale : fetch vrai total depuis Jikan
+    try {
+      const r = await fetch('/api/jikan?path=' + encodeURIComponent('/anime?limit=1&page=1'));
+      const d = await r.json();
+      const CATALOGUE_TOTAL = d.data?.pagination?.items?.total || d.pagination?.items?.total || 24000;
+      const pct = +(completed.length / CATALOGUE_TOTAL * 100).toFixed(2);
+      if (el('pstatProgression')) el('pstatProgression').textContent = `${completed.length} / ${CATALOGUE_TOTAL.toLocaleString()} (${pct}%)`;
+      if (el('pstatProgressFill')) el('pstatProgressFill').style.width = Math.min(pct * 100, 100) + '%';
+    } catch {
+      const CATALOGUE_EST = 24000;
+      const pct = +(completed.length / CATALOGUE_EST * 100).toFixed(2);
+      if (el('pstatProgression')) el('pstatProgression').textContent = `${completed.length} / ~${CATALOGUE_EST.toLocaleString()} (${pct}%)`;
+    }
+
+    // 🔥 Top 3 animes (les + récents de l'historique = les + consultés)
     const topEl = el('pstatTopAnimes');
     if (topEl) {
       const top3 = hist.slice(0, 3);
       topEl.innerHTML = top3.length === 0
         ? '<div class="pstats-empty-hint">Visite des anim&eacute;s pour d&eacute;bloquer !</div>'
-        : top3.map(function(a, i) {
-            return '<a href="anime.html?id=' + a.id + '" class="pstats-top-item">'
-              + '<span class="pstats-top-rank">#' + (i+1) + '</span>'
-              + '<img src="' + (a.img||'') + '" class="pstats-top-img" onerror="this.src='https://placehold.co/36x50/0f0e1a/555?text=?'" />'
-              + '<span class="pstats-top-title">' + (a.title||'') + '</span>'
-              + '</a>';
-          }).join('');
+        : top3.map((a,i) => `
+            <a href="anime.html?id=${a.id}" class="pstats-top-item">
+              <span class="pstats-top-rank">#${i+1}</span>
+              <img src="${a.img||''}" class="pstats-top-img"
+                   onerror="this.src='https://placehold.co/36x50/0f0e1a/555?text=?'"/>
+              <span class="pstats-top-title">${a.title}</span>
+            </a>`).join('');
     }
 
     // 🎯 Genres préférés
     const GENRE_NAMES = {
-      1:'Action', 2:'Aventure', 4:'Comédie', 5:'Avant Garde',
-      7:'Mystère', 8:'Drame', 10:'Fantasy', 13:'Historique',
-      14:'Horreur', 22:'Romance', 24:'Sci-Fi', 36:'Slice of Life',
-      37:'Surnaturel', 40:'Psychologique', 41:'Seinen', 27:'Shōnen',
+      1:'Action', 2:'Adventure', 4:'Comedy', 5:'Avant Garde',
+      7:'Mystery', 8:'Drama', 10:'Fantasy', 13:'Historical',
+      14:'Horror', 22:'Romance', 24:'Sci-Fi', 36:'Slice of Life',
+      37:'Supernatural', 40:'Psychological', 41:'Seinen', 27:'Shounen',
     };
     const genreCount = {};
-    hist.forEach(function(h) {
-      (h.genres || []).forEach(function(g) {
-        genreCount[g] = (genreCount[g] || 0) + 1;
-      });
-    });
-    const topGenres = Object.entries(genreCount).sort(function(a,b){ return b[1]-a[1]; }).slice(0, 5);
+    hist.forEach(h => (h.genres||[]).forEach(g => { genreCount[g]=(genreCount[g]||0)+1; }));
+    const topGenres = Object.entries(genreCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
     const genresEl = el('pstatGenres');
     if (genresEl) {
-      if (topGenres.length === 0) {
-        genresEl.innerHTML = '<div class="pstats-empty-hint">Visite plus d'anim&eacute;s pour d&eacute;bloquer tes genres !</div>';
-      } else {
-        genresEl.innerHTML = topGenres.map(function(entry) {
-          var gid = entry[0], count = entry[1];
-          var pct = Math.round((count / topGenres[0][1]) * 100);
-          return '<div class="pstats-genre-row">'
-            + '<span class="pstats-genre-name">' + (GENRE_NAMES[gid] || 'Genre ' + gid) + '</span>'
-            + '<div class="pstats-genre-bar-wrap"><div class="pstats-genre-bar" style="width:' + pct + '%"></div></div>'
-            + '<span class="pstats-genre-count">' + count + '</span>'
-            + '</div>';
-        }).join('');
-      }
+      genresEl.innerHTML = topGenres.length === 0
+        ? '<div class="pstats-empty-hint">Visite plus d&#39;anim&eacute;s pour d&eacute;bloquer tes genres !</div>'
+        : topGenres.map(([gid,count]) => {
+            const pct = Math.round((count / topGenres[0][1]) * 100);
+            return `<div class="pstats-genre-row">
+              <span class="pstats-genre-name">${GENRE_NAMES[gid] || 'Genre '+gid}</span>
+              <div class="pstats-genre-bar-wrap">
+                <div class="pstats-genre-bar" style="width:${pct}%"></div>
+              </div>
+              <span class="pstats-genre-count">${count}</span>
+            </div>`;
+          }).join('');
     }
   }
 
@@ -1504,7 +1534,16 @@
     function _tryRender() {
       if (window.VA_onPremiumReady) {
         window.VA_onPremiumReady(function(status) {
-          if (!status || !status.isPremium) return;
+          if (!status || !status.isPremium) {
+            (function() {
+              var t = document.createElement('div');
+              t.style.cssText = 'position:fixed;top:180px;left:50%;transform:translateX(-50%);z-index:99999;background:#200a0a;border:1px solid #f87171;border-radius:10px;padding:8px 16px;font-size:0.75rem;color:#f87171;max-width:90vw;text-align:center';
+              t.textContent = '❌ Upcoming: isPremium=' + (status&&status.isPremium) + ' status=' + JSON.stringify(status).substring(0,40);
+              document.body.appendChild(t);
+              setTimeout(function() { t.remove(); }, 8000);
+            })();
+            return;
+          }
           section.style.display = 'block';
           _fetchUpcomingData();
         });
@@ -1649,37 +1688,6 @@ document.addEventListener('DOMContentLoaded', function(){
       fallbacks.forEach(function(f) { f.style.display = 'none'; });
     }
   } catch(e) {}
-})();
-</script>
-
-<!-- DEBUG — ?debug=1 -->
-<div id="va-debug"><h4>🔍 Debug</h4><div id="va-debug-content">Chargement…</div></div>
-<script>
-(function() {
-  if (!location.search.includes('debug=1')) return;
-  var panel = document.getElementById('va-debug');
-  var content = document.getElementById('va-debug-content');
-  if (panel) panel.style.display = 'block';
-  function row(l,v,c){ return '<div class="row"><span class="'+(c||'')+'"><b>'+l+'</b> : '+v+'</span></div>'; }
-  function run() {
-    var lines = [];
-    var piUser = null; try { piUser = JSON.parse(localStorage.getItem('pi_user')); } catch(e) {}
-    lines.push(row('pi_user', piUser ? '✅ uid='+piUser.uid+' user='+piUser.username : '❌ null', piUser?'ok':'err'));
-    var sess = null; try { sess = JSON.parse(sessionStorage.getItem('VoirAnime_premiumStatus')); } catch(e) {}
-    lines.push(row('Cache premium', sess ? 'isPremium='+sess.isPremium+' age='+Math.round((Date.now()-(sess._ts||0))/1000)+'s' : '❌ absent', sess&&sess.isPremium?'ok':'err'));
-    lines.push(row('VA_isPremium()', window.VA_isPremium ? window.VA_isPremium() : 'N/A', window.VA_isPremium&&window.VA_isPremium()?'ok':'err'));
-    var favs=[],hist=[],watch={};
-    try{favs=JSON.parse(localStorage.getItem('VoirAnime_favs')||'[]');}catch(e){}
-    try{hist=JSON.parse(localStorage.getItem('VoirAnime_history')||'[]');}catch(e){}
-    try{watch=JSON.parse(localStorage.getItem('VoirAnime_watchStatus')||'{}');}catch(e){}
-    lines.push(row('Favoris', favs.length+' entrées', favs.length>0?'ok':'warn'));
-    lines.push(row('Historique', hist.length+' entrées', hist.length>0?'ok':'warn'));
-    lines.push(row('WatchStatus', Object.keys(watch).length+' entrées — keys: '+Object.keys(watch).slice(0,3).join(','), Object.keys(watch).length>0?'ok':'warn'));
-    lines.push(row('premiumStatsSection', document.getElementById('premiumStatsSection') ? 'display='+document.getElementById('premiumStatsSection').style.display : '❌ absent', ''));
-    lines.push(row('upcomingSection', document.getElementById('upcomingSection') ? 'display='+document.getElementById('upcomingSection').style.display : '❌ absent', ''));
-    if (content) content.innerHTML = lines.join('');
-  }
-  setTimeout(run, 3000);
 })();
 </script>
 </body>
