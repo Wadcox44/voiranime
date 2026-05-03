@@ -583,7 +583,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 0;
   opacity: 0;
   visibility: hidden;
   transition: opacity .3s ease, visibility .3s ease;
@@ -602,16 +602,19 @@
 .contact-modal__card {
   position: relative;
   width: 100%;
-  max-width: 560px;
-  max-height: 90vh;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
   overflow-y: auto;
   background: var(--va-surface);
   backdrop-filter: blur(20px) saturate(1.4);
   -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  border: 1px solid var(--va-border);
-  border-radius: 20px;
-  padding: 36px 32px 32px;
-  box-shadow: 0 0 0 1px rgba(255,255,255,.04) inset, 0 24px 80px -12px rgba(0, 0, 0, .6), 0 0 60px -20px var(--va-accent-glow);
+  border: none;
+  border-radius: 0;
+  padding: 40px 24px;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
   transform: scale(.92) translateY(16px);
   transition: transform .35s cubic-bezier(.34,1.56,.64,1), opacity .3s ease;
 }
@@ -652,7 +655,7 @@
 }
 .contact-modal__subtitle { margin-top: 6px; font-size: 13.5px; color: var(--va-text-muted); font-weight: 400; }
 
-.contact-form { display: flex; flex-direction: column; gap: 20px; }
+.contact-form { display: flex; flex-direction: column; gap: 20px; flex: 1; justify-content: center; }
 .contact-form__group { display: flex; flex-direction: column; gap: 6px; }
 .contact-form__row { display: flex; gap: 16px; }
 .contact-form__group--half { flex: 1; min-width: 0; }
@@ -685,7 +688,7 @@
 }
 .contact-form__select:focus + .contact-form__select-chevron { color: var(--va-accent); }
 
-.contact-form__textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+.contact-form__textarea { resize: vertical; min-height: 120px; line-height: 1.6; flex: 1; }
 
 .contact-form__submit {
   position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -723,8 +726,8 @@
 @keyframes successIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 600px) {
-  .contact-modal { padding: 12px; align-items: flex-end; }
-  .contact-modal__card { max-height: 92vh; padding: 28px 20px 24px; border-radius: 18px 18px 12px 12px; }
+  .contact-modal { padding: 0; align-items: stretch; }
+  .contact-modal__card { max-height: 100vh; padding: 32px 20px; border-radius: 0; }
   .contact-form__row { flex-direction: column; gap: 20px; }
   .contact-modal__title { font-size: 20px; }
   .contact-modal__subtitle { font-size: 12.5px; }
