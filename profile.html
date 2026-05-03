@@ -285,7 +285,7 @@
     .stats-groups {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 7px;
     }
     .stat-group {
       background: var(--ink3);
@@ -425,8 +425,8 @@
       z-index: 90;
       background: var(--ink1);
       border-bottom: 1px solid var(--b1);
-      padding: 0 12px;
-      margin-bottom: 16px;
+      padding: 0 10px;
+      margin-bottom: 10px;
     }
     .profile-tabs {
       display: flex;
@@ -437,14 +437,14 @@
     }
     .profile-tabs::-webkit-scrollbar { display: none; }
     .ptab {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 11px 16px 10px;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      padding: 10px 8px 9px;
       border: none; border-bottom: 2px solid transparent;
       background: transparent; color: var(--muted);
-      font-family: var(--font); font-size: 0.8rem; font-weight: 600;
+      font-family: var(--font); font-size: 0.76rem; font-weight: 600;
       cursor: pointer; white-space: nowrap;
       transition: color 0.15s, border-color 0.15s;
-      flex-shrink: 0;
+      flex: 1; min-width: 0;
     }
     .ptab:hover { color: var(--text2); }
     .ptab.active { color: var(--text); border-bottom-color: #a78bfa; }
@@ -459,7 +459,7 @@
     .profile-panel {
       display: none;
       max-width: 1160px; margin: 0 auto;
-      padding: 0 14px 40px;
+      padding: 0 12px 20px;
     }
     .profile-panel.active {
       display: block;
@@ -473,8 +473,8 @@
     /* ════ HERO COMPACT ════ */
     .profile-hero-compact {
       display: flex; align-items: center;
-      justify-content: space-between; gap: 12px;
-      padding: calc(var(--nav-h,56px) + 14px) 14px 14px;
+      justify-content: space-between; gap: 10px;
+      padding: calc(var(--nav-h,56px) + 8px) 12px 10px;
       max-width: 1160px; margin: 0 auto;
     }
     .profile-hero-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
@@ -511,7 +511,13 @@
     /* ════ MODAL AVATAR FIXÉ EN HAUT ════ */
     .avatar-modal {
       align-items: flex-start !important;
-      padding-top: calc(var(--nav-h,56px) + 10px) !important;
+      justify-content: center !important;
+      padding: calc(var(--nav-h,56px) + 10px) 16px 20px !important;
+      overflow-y: auto !important;
+    }
+    .avatar-modal-box {
+      max-height: none !important;
+      overflow-y: visible !important;
     }
     /* Onglets dans le modal */
     .avm-tabs {
@@ -1936,6 +1942,14 @@
   /* ════ ADAPTATION renderPremiumStats → panel Perso ════ */
   // Wrapper : après renderPremiumStats on redirige vers les panels perso
   var _origRenderPremiumStats = null;
+
+
+  /* Exposer les fonctions appelées via onclick dans le scope global */
+  window.switchTab       = switchTab;
+  window.avmSwitch       = avmSwitch;
+  window.avmCancelPhoto  = avmCancelPhoto;
+  window.avmConfirmPhoto = avmConfirmPhoto;
+  window.setUpcomingFilter = setUpcomingFilter;
 
   /* ── Init ── */
   renderStats();
