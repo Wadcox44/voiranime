@@ -350,11 +350,11 @@
     }
 
     /* ── Prochaines sorties Premium ── */
-    .upcoming-grid { display: flex; flex-direction: column; gap: 10px; }
+    .upcoming-grid { display: flex; flex-direction: column; gap: 6px; }
     .upcoming-card {
-      display: flex; align-items: center; gap: 12px;
+      display: flex; align-items: center; gap: 8px;
       background: var(--ink3); border: 1px solid var(--b1);
-      border-radius: 12px; padding: 10px 14px;
+      border-radius: 12px; padding: 6px 10px;
       transition: border-color 0.2s; text-decoration: none; color: inherit;
     }
     .upcoming-card:hover { border-color: var(--b2); }
@@ -362,26 +362,26 @@
     .upcoming-card.upcoming { border-left: 3px solid #a78bfa; }
     .upcoming-card.movie   { border-left: 3px solid #22d3ee; }
     .upcoming-thumb {
-      width: 42px; height: 58px; border-radius: 6px;
+      width: 36px; height: 50px; border-radius: 6px;
       object-fit: cover; flex-shrink: 0; background: var(--ink4);
     }
     .upcoming-info { flex: 1; min-width: 0; }
     .upcoming-title {
-      font-size: 0.84rem; font-weight: 700; line-height: 1.3;
+      font-size: 0.78rem; font-weight: 700; line-height: 1.2;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      margin-bottom: 3px; color: var(--text);
+      margin-bottom: 2px; color: var(--text);
     }
     .upcoming-type {
-      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.07em; margin-bottom: 4px;
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; margin-bottom: 2px;
     }
     .upcoming-type.ep   { color: #4ade80; }
     .upcoming-type.film { color: #22d3ee; }
     .upcoming-type.soon { color: #a78bfa; }
     .upcoming-countdown { text-align: right; flex-shrink: 0; }
     .upc-time {
-      font-size: 0.88rem; font-weight: 800; color: #a78bfa;
-      line-height: 1; margin-bottom: 2px; white-space: nowrap;
+      font-size: 0.78rem; font-weight: 800; color: #a78bfa;
+      line-height: 1; margin-bottom: 1px; white-space: nowrap;
     }
     .upc-time.today { color: #4ade80; }
     .upc-time.soon  { color: #fbbf24; }
