@@ -33,13 +33,13 @@
       grid-template-columns: auto 1fr auto;
       align-items: center;
       gap: 12px;
-      padding: calc(var(--nav-h) + 12px) 16px 16px;
+      padding: calc(var(--nav-h) + 6px) 16px 10px;
       max-width: 1160px;
       margin: 0 auto;
     }
     .profile-avatar-wrap {
       position: relative;
-      width: 70px; height: 70px;
+      width: 60px; height: 60px;
       border-radius: 50%;
       padding: 3px;
       background: linear-gradient(135deg, var(--violet), var(--pink));
@@ -273,30 +273,30 @@
     .stats-groups {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
     .stat-group {
       background: var(--ink3);
       border: 1px solid var(--b1);
       border-radius: 10px;
-      padding: 8px 10px;
+      padding: 6px 8px;
       transition: border-color 0.2s;
     }
     .stat-group:hover { border-color: var(--b2); }
     .stat-group-header {
       display: flex;
       align-items: center;
-      gap: 7px;
-      margin-bottom: 10px;
+      gap: 6px;
+      margin-bottom: 2px;
     }
     .stat-group-icon {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       width: 22px; height: 22px;
       border-radius: 6px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .stat-group-icon.blue  { background: rgba(96,165,250,0.12); }
+    .stat-group-icon.blue  { background: rgba(34,211,238,0.12); }
     .stat-group-icon.green { background: rgba(74,222,128,0.12); }
     .stat-group-icon.purple{ background: rgba(167,139,250,0.12); }
     .stat-group-label {
@@ -307,15 +307,15 @@
       color: var(--muted);
     }
     .stat-group-phrase {
-      font-size: 0.74rem;
+      font-size: 0.7rem;
       color: var(--text2);
-      margin-bottom: 10px;
-      line-height: 1.4;
+      margin-bottom: 6px;
+      line-height: 1.2;
       min-height: 1.1em;
     }
     .stat-group-cells {
       display: grid;
-      gap: 6px;
+      gap: 4px;
     }
     .stat-group-cells.cols-3 { grid-template-columns: repeat(3, 1fr); }
     .stat-group-cells.cols-1 { grid-template-columns: 1fr; }
@@ -323,16 +323,16 @@
       background: var(--ink2);
       border: 1px solid var(--b1);
       border-radius: 8px;
-      padding: 6px 4px;
+      padding: 4px 2px;
       text-align: center;
       transition: border-color 0.2s, transform 0.15s;
     }
     .stat-cell:hover { border-color: var(--b2); transform: translateY(-1px); }
     .stat-cell-num {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 900;
       line-height: 1;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
     }
     .stat-cell-label {
       font-size: 0.5rem;
@@ -345,8 +345,8 @@
     .stat-group-cells.cols-2 { grid-template-columns: 1fr 1fr; }
 
     @media (max-width: 480px) {
-      .stat-cell-num { font-size: 1.15rem; }
-      .stat-cell { padding: 8px 4px; }
+      .stat-cell-num { font-size: 1rem; }
+      .stat-cell { padding: 4px 2px; }
     }
 
     /* ── Prochaines sorties Premium ── */
