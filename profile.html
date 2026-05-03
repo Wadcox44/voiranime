@@ -2180,7 +2180,7 @@ document.addEventListener('DOMContentLoaded', function(){
       <form
         id="contactForm"
         class="contact-form"
-        action="https://formspree.io/f/YOUR_FORM_ID"
+        action="https://formspree.io/f/myklpggz"
         method="POST"
       >
         <!-- ── TYPE DE DEMANDE ── -->
@@ -2274,8 +2274,11 @@ document.addEventListener('DOMContentLoaded', function(){
           var piUser = JSON.parse(localStorage.getItem('pi_user'));
           if (piUser && piUser.username) {
             var nameInput = document.getElementById('contactName');
-            if (nameInput && !nameInput.value) {
+            if (nameInput) {
               nameInput.value = piUser.username;
+              nameInput.readOnly = true;
+              nameInput.style.opacity = '0.7';
+              nameInput.style.cursor = 'not-allowed';
             }
           }
         } catch(e) {}
