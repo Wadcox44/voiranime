@@ -26,20 +26,19 @@
 
     /* ── Profile page styles ── */
 
-    /* Hero v3 : identité + subscription sur 1 ligne, stats en dessous */
+    /* Hero v2 : 2 colonnes côte à côte */
     .profile-hero-v2 {
-      padding: calc(var(--nav-h) + 16px) 16px 16px;
+      padding: calc(var(--nav-h) + 40px) 48px 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
       max-width: 1160px;
       margin: 0 auto;
+      align-items: start;
     }
-    .profile-hero-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .profile-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+
+    /* Colonne gauche */
+    .profile-left { display: flex; flex-direction: column; gap: 16px; }
     .profile-identity {
       display: flex;
       align-items: center;
@@ -147,8 +146,8 @@
     /* Sections profil */
     .profile-section {
       max-width: 1160px;
-      margin: 0 auto 20px;
-      padding: 0 16px;
+      margin: 0 auto 40px;
+      padding: 0 48px;
     }
     .profile-section-title {
       font-size: 1rem;
@@ -261,31 +260,13 @@
     }
     .profile-empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
 
-    /* ── Sub-card compact dans le header ── */
-    #profileSubscriptionCard .sub-card {
-      border-radius: 12px;
-    }
-    #profileSubscriptionCard .sub-offers-card {
-      padding: 10px 12px;
-    }
-    #profileSubscriptionCard .sub-card-premium {
-      padding: 10px 12px;
-    }
-    #profileSubscriptionCard table {
-      display: none; /* masquer le tableau comparatif dans le header */
-    }
-    #profileSubscriptionCard .sub-offers-grid {
-      flex-direction: column;
-      gap: 6px;
-    }
-
     @media (max-width: 768px) {
       .profile-hero-v2 {
         grid-template-columns: 1fr;
-        padding: calc(var(--nav-h) + 12px) 12px 16px;
-        gap: 12px;
+        padding: calc(var(--nav-h) + 20px) 16px 24px;
+        gap: 16px;
       }
-      .profile-section { padding: 0 12px; }
+      .profile-section { padding: 0 16px; }
     }
     @media (max-width: 480px) {
       .profile-stats-compact { grid-template-columns: repeat(3, 1fr); gap: 6px; }
@@ -436,15 +417,35 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
     .upcoming-empty { text-align: center; padding: 24px 12px; color: var(--muted); font-size: 0.82rem; }
-    /* ── Détails premium côte à côte ── */
-    .pstats-side-by-side {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      align-items: start;
+
+    /* ── Bouton premium compact (hero) ── */
+    .premium-status-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 14px; border-radius: 20px; cursor: pointer;
+      font-family: var(--font); font-size: 0.78rem; font-weight: 700;
+      border: none; transition: all 0.18s; text-decoration: none;
+      white-space: nowrap;
     }
-    @media (max-width: 480px) {
-      .pstats-side-by-side { grid-template-columns: 1fr; }
+    .premium-status-btn.inactive {
+      background: rgba(167,139,250,0.1);
+      border: 1px solid rgba(167,139,250,0.25);
+      color: var(--violet);
+    }
+    .premium-status-btn.inactive:hover {
+      background: rgba(167,139,250,0.18);
+    }
+    .premium-status-btn.active {
+      background: linear-gradient(135deg, rgba(167,139,250,0.2), rgba(34,211,238,0.12));
+      border: 1px solid rgba(167,139,250,0.4);
+      color: var(--text);
+    }
+    .premium-status-btn.active:hover {
+      border-color: rgba(167,139,250,0.65);
+    }
+    .psb-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #4ade80; flex-shrink: 0;
+      box-shadow: 0 0 6px rgba(74,222,128,0.6);
     }
   </style>
   <script src="js/i18n.js"></script>
@@ -495,11 +496,11 @@
 <!-- HERO PROFIL -->
 <div class="profile-hero-v2">
 
-  <!-- Ligne haute : identité à gauche + abonnement à droite -->
-  <div class="profile-hero-top">
+  <!-- Colonne gauche : avatar + identité + abonnement -->
+  <div class="profile-left">
+    <div class="profile-identity">
 
-    <!-- Avatar + nom -->
-    <div class="profile-left">
+      <!-- Avatar cliquable → sélecteur -->
       <div class="profile-avatar-wrap" id="profileAvatarWrap" title="Change avatar">
         <img class="profile-avatar-img" id="profileAvatarImg"
              src="" alt="Avatar"
@@ -507,9 +508,10 @@
         <div class="profile-avatar-fallback" id="profileAvatarFallback">👤</div>
         <div class="profile-avatar-edit">✎</div>
       </div>
+
       <div class="profile-identity-info">
         <h1 class="profile-name" data-i18n="profile.title">Mon Profil</h1>
-        <div style="display:flex;align-items:center;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
           <p class="profile-since" id="profileSince" style="margin-bottom:0">Membre depuis aujourd'hui</p>
           <button id="footerContactBtn" title="Nous contacter"
             style="background:none;border:1px solid rgba(34,211,238,0.3);color:#22d3ee;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background 0.2s;padding:0">
@@ -518,13 +520,11 @@
         </div>
       </div>
     </div>
-
-    <!-- Carte abonnement à droite -->
-    <div id="profileSubscriptionCard" style="flex-shrink:0;max-width:200px;width:100%"></div>
-
+    <!-- Carte abonnement -->
+    <div id="profileSubscriptionCard"></div>
   </div>
 
-  <!-- Stats pleine largeur en dessous -->
+  <!-- Stats : 3 groupes thématiques -->
   <div class="stats-groups" id="profileStats">
 
     <!-- 🟦 Groupe 1 : Activité -->
@@ -670,7 +670,7 @@
     <span class="section-dot gold"></span>
     🎯 Détails Premium
   </div>
-  <div class="pstats-side-by-side">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start">
     <div class="pstats-block">
       <div class="pstats-block-title">🔥 Top 3 animes</div>
       <div class="pstats-top-list" id="pstatTopAnimes"></div>
@@ -909,7 +909,7 @@
     const sinceEl = el('profileSince');
     if (sinceEl && firstVisit) {
       const days = Math.floor((Date.now() - firstVisit) / 86400000);
-      sinceEl.textContent = days === 0 ? "Membre depuis aujourd'hui" : days === 1 ? 'Membre depuis 1 jour' : ('Membre depuis ' + days + ' jours');
+      sinceEl.textContent = days === 0 ? "Membre depuis aujourd\'hui" : days === 1 ? 'Membre depuis 1 jour' : ('Membre depuis ' + days + ' jours');
     }
   }
 
@@ -1065,107 +1065,49 @@
      Affichage immédiat. Mise à jour si Pi auth disponible.
   ──────────────────────────────────────────────────────────────────────── */
   function renderSubscriptionStatus() {
-    const card = el('profileSubscriptionCard');
+    var card = el('profileSubscriptionCard');
     if (!card) return;
-
-    // Affichage immédiat Free par défaut
-    _buildSubCard(card, null);
-
-    // Mise à jour si premiumManager disponible (maintenant ou plus tard)
+    // Afficher le bouton par défaut (non premium)
+    _buildPremiumBtn(card, null);
+    // Mettre à jour quand premiumManager est prêt
     function _tryPremium() {
       if (window.VA_onPremiumReady) {
-        window.VA_onPremiumReady(function(status) {
-          _buildSubCard(card, status);
-        });
-      } else {
-        setTimeout(_tryPremium, 1500);
-      }
+        window.VA_onPremiumReady(function(status) { _buildPremiumBtn(card, status); });
+      } else { setTimeout(_tryPremium, 500); }
     }
     _tryPremium();
   }
 
-  function _buildSubCard(card, status) {
-    var isPremium = status && status.isPremium;
-    var isExpired = status && status.subscriptionStatus === 'expired';
+  function _buildPremiumBtn(container, status) {
+    var isPremium  = status && status.isPremium;
+    var days       = status && status.daysLeft || 0;
+    var plan       = status && status.plan;
+    var planLabel  = plan === 'annual' ? 'Annuel' : 'Mensuel';
+    var renewPrice = plan === 'annual' ? '19.99 Pi/an' : '1.99 Pi/mois';
+    var expiresAt  = status && status.expiresAt;
+
+    var btn = document.createElement('a');
+    btn.href = 'premium.html';
 
     if (isPremium) {
-      var planLabel  = status.plan === 'annual' ? 'Annuel' : 'Mensuel';
-      var renewPrice = status.plan === 'annual' ? '19.99 Pi/an' : '1.99 Pi/mois';
-      var days       = status.daysLeft || 0;
-      var urgency    = days <= 3 ? 'sub-card-urgent' : days <= 7 ? 'sub-card-warning' : '';
-
-      var renewalNotice = days <= 7 && days > 0
-        ? '<div style="font-size:0.7rem;color:#f59e0b;margin-bottom:6px">⚠ Expire dans ' + days + ' jour' + (days>1?'s':'') + ' — pensez à renouveler</div>'
-        : (days === 0 ? '<div style="font-size:0.7rem;color:#ef4444;margin-bottom:6px">⚠ Expire aujourd\'hui</div>' : '');
-      var html = '<div class="sub-card sub-card-premium ' + urgency + '">'        + '<div class="sub-card-header">'        + '<span class="sub-card-badge">&#11088; Premium actif</span>'        + '<span class="sub-card-plan">' + planLabel + ' &middot; ' + renewPrice + '</span>'        + '</div>'        + renewalNotice
-        + '<button id="subPerksToggle" style="background:none;border:none;color:var(--muted);font-size:0.72rem;cursor:pointer;font-family:var(--font);padding:2px 0;text-align:left;">Voir les avantages ▼</button>'
-        + '<div id="subPerksBody" class="sub-card-perks" style="display:none">'
-        + '<span class="sub-perk active">&#10084; Favoris illimit&eacute;s</span>'
-        + '<span class="sub-perk active">&#128202; Stats d&eacute;taill&eacute;es</span>'
-        + '<span class="sub-perk active">&#9889; Acc&egrave;s anticip&eacute;</span>'
-        + '<span class="sub-perk active">&#8597; R&eacute;organiser</span>'
-        + '</div>'
-        + '<div class="sub-card-actions">'
-        + '<button class="sub-card-btn sub-card-btn-renew" id="subRenewBtn">Renouveler</button>'
-        + '<button class="sub-card-btn sub-card-btn-cancel" id="subCancelBtn">Annuler</button>'
-        + '</div>'
-        + '</div>';
-
-      card.innerHTML = html;
-
-      var renewBtn  = document.getElementById('subRenewBtn');
-      var cancelBtn = document.getElementById('subCancelBtn');
-      var perksToggle = document.getElementById('subPerksToggle');
-      var perksBody   = document.getElementById('subPerksBody');
-      if (renewBtn)  renewBtn.addEventListener('click',  function() { _launchSubscription(status.plan || 'monthly'); });
-      if (cancelBtn) cancelBtn.addEventListener('click', function() { _confirmCancel(); });
-      if (perksToggle && perksBody) {
-        perksToggle.addEventListener('click', function() {
-          var open = perksBody.style.display !== 'none';
-          perksBody.style.display = open ? 'none' : 'flex';
-          perksToggle.textContent = open ? 'Voir les avantages ▼' : 'Masquer ▲';
-        });
-      }
-
+      // Calculer la date d'expiration lisible
+      var expDate = expiresAt ? new Date(expiresAt).toLocaleDateString('fr-FR', {day:'numeric',month:'long',year:'numeric'}) : '';
+      var urgColor = days <= 3 ? '#f87171' : days <= 7 ? '#fbbf24' : '#4ade80';
+      btn.className = 'premium-status-btn active';
+      btn.title = expDate ? 'Expire le ' + expDate : '';
+      btn.innerHTML = '<span class="psb-dot" style="background:' + urgColor + ';box-shadow:0 0 6px ' + urgColor + '60"></span>'
+        + '⭐ Premium actif'
+        + '<span style="font-size:0.65rem;color:var(--muted);font-weight:400;margin-left:2px">' + planLabel
+        + (days > 0 && days <= 14 ? ' · ' + days + 'j' : '') + '</span>';
     } else {
-      // ── Vue offres (Free ou expiré) ──
-      var expiredHtml = isExpired
-        ? '<span class="sub-expired-tag">Abonn. expir&eacute;</span>'
-        : '<span class="sub-upgrade-title">&#11088; Passer Premium</span>';
-
-      var html = '<div class="sub-card sub-offers-card">'
-        + '<div class="sub-offers-title-row">' + expiredHtml + '</div>'
-
-        // Tableau 3 colonnes : Fonctionnalité / Gratuit / Premium
-        + '<table style="width:100%;border-collapse:collapse;font-size:0.74rem;margin-bottom:12px">'        + '<thead><tr>'        + '<th style="text-align:left;padding:5px 6px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--b1)">Fonctionnalité</th>'        + '<th style="text-align:center;padding:5px 6px;color:var(--text2);font-weight:700;border-bottom:1px solid var(--b1)">Gratuit</th>'        + '<th style="text-align:center;padding:5px 6px;color:#22d3ee;font-weight:700;border-bottom:1px solid var(--b1)">⭐ Premium<br><span style=\'font-size:0.62rem;color:var(--muted);font-weight:400\'>1.99π/mois · 19.99π/an<br>🔥 Offre de lancement</span></th>'        + '</tr></thead><tbody>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">❤ Favoris</td><td style="text-align:center;color:var(--muted)">20 max</td><td style="text-align:center;color:#4ade80">✓ Illimités</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">📊 Stats détaillées</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">⚡ Accès anticipé</td><td style="text-align:center;color:var(--muted)">+15j</td><td style="text-align:center;color:#4ade80">✓ Immédiat</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">↕ Réorganiser</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">🔔 News perso</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '</tbody></table>'
-
-        // Plans
-        + '<div class="sub-offers-grid">'
-        + '<div class="sub-offer-item">'
-        + '<div class="sub-launch-badge">&#128293; Offre de lancement</div>'
-        + '<div class="sub-offer-name">Mensuel</div>'
-        + '<div class="sub-offer-price">1.99 <span class="sub-offer-currency">Pi</span></div>'
-        + '<div class="sub-offer-period">par mois</div>'
-        + '<button class="sub-offer-btn" data-plan="monthly">S\'abonner</button>'
-        + '</div>'
-        + '<div class="sub-offer-item sub-offer-featured">'
-        + '<div class="sub-offer-badge-top">Meilleure offre</div>'
-        + '<div class="sub-launch-badge sub-launch-badge-sm">&#128293; Offre de lancement</div>'
-        + '<div class="sub-offer-name">Annuel</div>'
-        + '<div class="sub-offer-price">19.99 <span class="sub-offer-currency">Pi</span></div>'
-        + '<div class="sub-offer-period">par an <span class="sub-offer-saving">2 mois offerts</span></div>'
-        + '<button class="sub-offer-btn sub-offer-btn-featured" data-plan="annual">S\'abonner</button>'
-        + '</div>'
-        + '</div>'
-        + '</div>';
-
-      card.innerHTML = html;
-
-      card.querySelectorAll('.sub-offer-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() { _launchSubscription(btn.dataset.plan); });
-      });
+      btn.className = 'premium-status-btn inactive';
+      btn.title = 'Découvrir Premium';
+      btn.innerHTML = '🔒 Premium';
     }
+    container.innerHTML = '';
+    container.appendChild(btn);
   }
+
 
 
   // Lance le paiement Pi — logique identique à soutenir.html (qui fonctionne)
@@ -1282,7 +1224,7 @@
       try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
     })();
     if (!piUser?.uid) return;
-    if (!confirm("Annuler l'abonnement ? Tu gardes l'accès jusqu'à expiration.")) return;
+    if (!confirm("Annuler l'abonnement ? Tu gardes l\'accès jusqu'à expiration.")) return;
     fetch('/api/premium', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1405,35 +1347,37 @@
 
   function setUpcomingFilter(filter, btn) {
     _upcomingFilter = filter;
+    // Mettre à jour les boutons actifs
     document.querySelectorAll('.uf-btn').forEach(function(b) { b.classList.remove('active'); });
     if (btn) btn.classList.add('active');
-    // Filtrage DOM direct : masquer/afficher les cartes sans re-render
+    // Filtrage DOM direct — masquer/afficher les cartes existantes
     var now   = Date.now();
-    var week  = now + 7  * 86400000;
-    var month = now + 30 * 86400000;
+    var limit = filter === 'week' ? now + 7*86400000 : filter === 'month' ? now + 30*86400000 : Infinity;
     var cards = document.querySelectorAll('#upcomingGrid .upcoming-card');
-    if (cards.length > 0) {
-      cards.forEach(function(card) {
-        var ms = parseInt(card.getAttribute('data-next-ms') || '0');
-        var show = true;
-        if (filter === 'week')  show = ms <= week;
-        if (filter === 'month') show = ms <= month;
-        card.style.display = show ? '' : 'none';
-      });
-      // Montrer message si aucune carte visible
-      var visible = Array.from(cards).filter(function(c) { return c.style.display !== 'none'; });
-      var emptyEl = document.getElementById('upcomingEmpty');
+    var visible = 0;
+    cards.forEach(function(card) {
+      var ms = parseInt(card.getAttribute('data-next-ms') || '0', 10);
+      var show = ms <= limit;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    // Message si aucune carte visible
+    var grid = document.getElementById('upcomingGrid');
+    var emptyEl = document.getElementById('upcoming-filter-empty');
+    if (visible === 0 && cards.length > 0) {
       if (!emptyEl) {
         emptyEl = document.createElement('div');
-        emptyEl.id = 'upcomingEmpty';
+        emptyEl.id = 'upcoming-filter-empty';
         emptyEl.className = 'upcoming-empty';
-        document.getElementById('upcomingGrid').appendChild(emptyEl);
+        grid.appendChild(emptyEl);
       }
-      emptyEl.style.display = visible.length === 0 ? 'block' : 'none';
       emptyEl.textContent = 'Aucune sortie pour cette période.';
-    } else if (_upcomingData.length > 0) {
-      _renderUpcomingGrid();
+      emptyEl.style.display = 'block';
+    } else if (emptyEl) {
+      emptyEl.style.display = 'none';
     }
+    // Si pas encore de cartes → re-render classique
+    if (cards.length === 0 && _upcomingData.length > 0) _renderUpcomingGrid();
   }
 
   function _getNextAirMs(anime) {
