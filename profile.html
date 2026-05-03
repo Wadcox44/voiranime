@@ -430,21 +430,21 @@
     }
     .profile-tabs {
       display: flex;
-      justify-content: space-between;
-      width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
       max-width: 1160px;
       margin: 0 auto;
     }
     .profile-tabs::-webkit-scrollbar { display: none; }
     .ptab {
-      display: flex; align-items: center; justify-content: center; gap: 4px;
-      flex: 1; min-width: 0;
-      padding: 10px 4px 9px;
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 11px 16px 10px;
       border: none; border-bottom: 2px solid transparent;
       background: transparent; color: var(--muted);
-      font-family: var(--font); font-size: 0.72rem; font-weight: 600;
+      font-family: var(--font); font-size: 0.8rem; font-weight: 600;
       cursor: pointer; white-space: nowrap;
       transition: color 0.15s, border-color 0.15s;
+      flex-shrink: 0;
     }
     .ptab:hover { color: var(--text2); }
     .ptab.active { color: var(--text); border-bottom-color: #a78bfa; }
@@ -459,20 +459,20 @@
     .profile-panel {
       display: none;
       max-width: 1160px; margin: 0 auto;
-      padding: 0 14px 40px;
+      padding: 0 14px 8px;
     }
     .profile-panel.active {
       display: block;
       animation: panelIn 0.2s ease both;
     }
-    /* Panel stats : centré verticalement */
+    /* Stats : centré verticalement dans l'espace dispo */
     #panel-stats.active {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      min-height: calc(100dvh - var(--nav-h, 56px) - 60px - 44px - 50px);
-      padding-top: 0;
-      padding-bottom: 0;
+      min-height: calc(100dvh - var(--nav-h,56px) - 62px - 44px - 52px);
+      padding-top: 4px;
+      padding-bottom: 4px;
     }
     @keyframes panelIn {
       from { opacity: 0; transform: translateY(6px); }
@@ -1005,35 +1005,11 @@
     const histAll = getHistory();
     const activeDays2 = new Set(histAll.filter(h=>(h.ts||0)>=monthStart2).map(h=>new Date(h.ts).toDateString())).size;
 
-    if (window.VA_isPremium && window.VA_isPremium()) {
-      // Premium : afficher les vraies valeurs + masquer les ⭐
-      const hEl2 = el('statHoursCount');
-      if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
-      const dEl2 = el('statActiveDaysCount');
-      if (dEl2) dEl2.textContent = activeDays2 || 0;
-      ['hoursLockIcon','daysLockIcon','progressLockIcon'].forEach(function(lockId) {
-        var ic = el(lockId); if (ic) ic.style.display = 'none';
-      });
-      [el('statHoursCount'), el('statActiveDaysCount'), el('statProgressCount')].forEach(function(se) {
-        if (!se) return;
-        var p = se.closest('.stat-compact');
-        if (p) { p.style.cursor = ''; p.onclick = null; p.removeAttribute('title'); }
-      });
-      // Progression async
-      (async function() {
-        try {
-          const r = await fetch('/api/jikan?path=' + encodeURIComponent('/anime?limit=1&page=1'));
-          const d = await r.json();
-          const total = d.pagination?.items?.total || 24000;
-          const pct = +(completed.length / total * 100).toFixed(1);
-          const pEl2 = el('statProgressCount'); if (pEl2) pEl2.textContent = pct + '%';
-        } catch {
-          const pEl2 = el('statProgressCount');
-          if (pEl2) pEl2.textContent = completed.length > 0 ? completed.length + ' vus' : '—';
-        }
-      })();
-    }
-    // Non-premium : stats restent '—' avec ⭐ → onclick ouvre popup premium
+    // Heures + jours actifs : toujours affichés (données locales)
+    const hEl2 = el('statHoursCount');
+    if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
+    const dEl2 = el('statActiveDaysCount');
+    if (dEl2) dEl2.textContent = activeDays2 || 0;
 
     // ── Phrases humaines sous chaque groupe ──────────────────────────────
     // Groupe 1 : Activité
@@ -1945,6 +1921,14 @@
   /* ════ ADAPTATION renderPremiumStats → panel Perso ════ */
   // Wrapper : après renderPremiumStats on redirige vers les panels perso
   var _origRenderPremiumStats = null;
+
+
+  /* Exposer dans le scope global (requis pour onclick inline) */
+  window.switchTab         = switchTab;
+  window.avmSwitch         = avmSwitch;
+  window.avmCancelPhoto    = avmCancelPhoto;
+  window.avmConfirmPhoto   = avmConfirmPhoto;
+  window.setUpcomingFilter = setUpcomingFilter;
 
   /* ── Init ── */
   renderStats();
