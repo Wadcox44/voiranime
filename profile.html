@@ -1185,15 +1185,17 @@
     const histAll = getHistory();
     const activeDays2 = new Set(histAll.filter(h=>(h && h.ts && h.ts>=monthStart2)).map(h=>new Date(h.ts).toDateString())).size;
 
+    // Mise à jour systématique des compteurs (pour que les chiffres correspondent aux phrases affichées)
+    const hEl2 = el('statHoursCount');
+    if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
+    const dEl2 = el('statActiveDaysCount');
+    if (dEl2) dEl2.textContent = activeDays2 || 0;
+
     if (window.VA_isPremium && window.VA_isPremium()) {
       var avWrap = document.querySelector('.profile-avatar-wrap');
       if(avWrap) avWrap.classList.add('is-premium');
       
-      // Premium : afficher les vraies valeurs + masquer les ⭐
-      const hEl2 = el('statHoursCount');
-      if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
-      const dEl2 = el('statActiveDaysCount');
-      if (dEl2) dEl2.textContent = activeDays2 || 0;
+      // Premium : masquer les icônes de verrouillage si présentes
       ['hoursLockIcon','daysLockIcon','progressLockIcon'].forEach(function(lockId) {
         var ic = el(lockId); if (ic) ic.style.display = 'none';
       });
