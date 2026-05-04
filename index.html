@@ -1,923 +1,1183 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>VoirAnime — Ton portail anime</title>
-  <link rel="stylesheet" href="style.css"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
-  <style>
-    /* Logo néon */
-    .nav-logo{text-decoration:none;display:inline-flex;align-items:center}
-    .logo-glitch{display:inline-block;font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:-.5px;transform:skewX(-6deg);position:relative;user-select:none}
-    .logo-glitch::before,.logo-glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:0;pointer-events:none}
-    .logo-glitch::before{color:#22d3ee;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%)}
-    .logo-glitch::after{color:#a78bfa;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%)}
-    /* Glitch permanent — déclenché automatiquement toutes les 5s */
-    .logo-glitch::before{animation:va-gr-auto 5s steps(2) infinite;opacity:1}
-    .logo-glitch::after{animation:va-gb-auto 5s steps(2) .06s infinite;opacity:1}
-    /* Glitch actif = les 0.4s au début de chaque cycle (8% de 5s) */
-    @keyframes va-gr-auto{
-      0%{transform:translate(-2px,1px);opacity:1}
-      4%{transform:translate(2px,-1px);opacity:1}
-      8%{transform:translate(-1px,2px);opacity:1}
-      8.1%,100%{transform:translate(0,0);opacity:0}
-    }
-    @keyframes va-gb-auto{
-      0%{transform:translate(2px,-1px);opacity:1}
-      4%{transform:translate(-2px,1px);opacity:1}
-      8%{transform:translate(1px,-2px);opacity:1}
-      8.1%,100%{transform:translate(0,0);opacity:0}
-    }
-    /* Glow pulsant permanent sur les deux mots */
-    .logo-voir{color:#fff;animation:va-gw 2.6s ease-in-out infinite}
-    .logo-anime{color:#22d3ee;animation:va-gp 2.6s ease-in-out infinite .4s}
-    @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(34,211,238,.4),0 0 10px rgba(34,211,238,.2)}50%{text-shadow:0 0 8px rgba(34,211,238,.9),0 0 20px rgba(34,211,238,.5),0 0 36px rgba(167,139,250,.3)}}
-    @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(34,211,238,.6),0 0 14px rgba(167,139,250,.3)}50%{text-shadow:0 0 10px #22d3ee,0 0 24px rgba(34,211,238,.7),0 0 40px rgba(167,139,250,.45)}}
-    /* Boost glow au hover */
-    .nav-logo:hover .logo-voir{text-shadow:0 0 10px #fff,0 0 20px #ff4fd8,0 0 40px rgba(124,77,255,.6)}
-    .nav-logo:hover .logo-anime{text-shadow:0 0 12px #ff4fd8,0 0 28px #ff4fd8,0 0 50px rgba(124,77,255,.7)}
-    @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0612">
+<title>Gold Pixel — JeuxVideo.Pi</title>
 
-    /* Séparateur néon */
-    .section-divider{height:1px;background:linear-gradient(to right,transparent,rgba(124,77,255,.18) 30%,rgba(255,79,216,.18) 70%,transparent);margin:2px 48px}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Chakra+Petch:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 
-    /* Mood pills */
-    .mood-section{padding:8px 48px 12px;max-width:1600px;margin:0 auto;width:100%}
-    .mood-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
-    .mood-row::-webkit-scrollbar{display:none}
-    .mood-pill{flex-shrink:0;display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:24px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.04);cursor:pointer;transition:all .22s;white-space:nowrap;font-family:'Outfit',sans-serif}
-    .mood-pill:hover{background:rgba(124,77,255,.12);border-color:rgba(124,77,255,.3);transform:translateY(-2px)}
-    .mood-pill.active{background:rgba(255,79,216,.14);border-color:rgba(255,79,216,.4)}
-    .mood-pill-icon{font-size:15px;line-height:1}
-    .mood-pill-label{font-size:.78rem;font-weight:600;color:#a8a6c4}
-    .mood-pill:hover .mood-pill-label,.mood-pill.active .mood-pill-label{color:#eceaf8}
+<!-- Firebase (notifications push) -->
+<script type="module">
+  import { initializeApp }               from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getMessaging, getToken, onMessage } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js';
+  const FCM_CONFIG = {
+    apiKey:            "AIzaSyCrnYa3VYKZlZer1R1H-k7IcTLmGaho3Qs",
+    authDomain:        "gold-pixel.firebaseapp.com",
+    projectId:         "gold-pixel",
+    storageBucket:     "gold-pixel.firebasestorage.app",
+    messagingSenderId: "483082801795",
+    appId:             "1:483082801795:web:96e6ba329bab67e53841b6",
+  };
+  const VAPID = "BKGUW6lT2RGM6cxUFRdwELKrf5UAfnf2hIpm39PF29ZpM7qdQJFTFboxSAwVI3tM9ikuWmAxec55mbVfmv2bwCQ";
+  try {
+    const app = initializeApp(FCM_CONFIG);
+    const msg = getMessaging(app);
+    onMessage(msg, p => {
+      const body = p.notification?.body || p.notification?.title || '';
+      if (body && typeof showToast === 'function') showToast(body);
+    });
+    window._fcmMsg    = msg;
+    window._fcmVapid  = VAPID;
+  } catch(e) { console.warn('[FCM]', e.message); }
+</script>
 
-    /* ── Sections compactes ── */
-    .content-section{padding:6px 48px 8px !important}
-    .section-header{margin-bottom:8px !important}
-    .carousel{padding:8px 2px 14px !important}
+<!-- Pi Network SDK -->
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
 
-    /* ── Footer sans espace superflu ── */
-    .site-footer{padding:6px 24px 4px !important;margin-top:0 !important}
-    .content-section:last-of-type{padding-bottom:0 !important}
-    main > *:last-child, body > section:last-of-type{margin-bottom:0 !important}
+<!-- Socket.io (servi par Node) -->
+<script src="/socket.io/socket.io.js"></script>
 
-    @media(max-width:768px){
-      .mood-section{padding:8px 16px 10px}
-      .section-divider{margin:2px 16px}
-      .content-section{padding:4px 12px 6px !important}
-      .section-header{margin-bottom:6px !important}
-      .carousel{padding:6px 2px 10px !important}
-    }
-   /* 🔥 FIX SCROLL MOBILE HOME */
-
-/* autorise scroll vertical même dans les cartes */
-.anime-card {
-  touch-action: pan-y;
-}
-
-/* autorise scroll vertical dans les carousels */
-.carousel {
-  touch-action: pan-y;
-}
-  .section-badge { display: none !important; }
-  </style>
-  <script src="js/i18n.js"></script>
-  <script src="featuresManager.js"></script>
-  <script src="premiumManager.js"></script>
+<!-- Moteur canvas Gold Pixel -->
+<script src="gp-engine.js"></script>
 </head>
+
 <body>
 
-<!-- ════════════════════════════════
-     NAVBAR
-════════════════════════════════ -->
-<nav class="navbar" id="navbar">
-  <div class="nav-top">
-    
-    <div class="nav-left">
-      <div class="nav-logo-wrap">
-        <a href="index.html" class="nav-logo" aria-label="VoirAnime">
-          <span class="logo-glitch" data-text="VoirAnime">
-            <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
-          </span>
-        </a>
-        <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
-      </div>
+<!-- ══════════ PORTRAIT LOCK ══════════ -->
+<div id="portrait-lock">
+  <div class="portrait-icon">📱</div>
+  <h2>TOURNE TON ÉCRAN</h2>
+  <p>Gold Pixel se joue en mode <strong>paysage</strong></p>
+</div>
+
+<!-- ══════════ ÉCRAN CHARGEMENT ══════════ -->
+<div id="screen-loading">
+  <div class="loading-logo">✦ GOLD PIXEL<span>JeuxVideo.Pi</span></div>
+  <div class="loading-spinner"></div>
+</div>
+
+<!-- ══════════ ÉCRAN WELCOME ══════════ -->
+<div id="screen-welcome" class="hidden">
+  <div class="welcome-box">
+    <div class="welcome-logo">✦ GOLD PIXEL</div>
+    <div class="welcome-sub">JeuxVideo.Pi — Canvas collaboratif</div>
+
+    <div class="welcome-rules">
+      <div class="rule-item"><span class="ico">🎨</span><span>Pose des pixels sur le canvas partagé — chaque clic = 1 cellule exacte</span></div>
+      <div class="rule-item"><span class="ico">⏳</span><span><strong>5 pixels max</strong>, 1 recharge toutes les <strong>30 secondes</strong></span></div>
+      <div class="rule-item"><span class="ico">↩</span><span><strong>30 secondes</strong> pour annuler ton dernier pixel</span></div>
+      <div class="rule-item"><span class="ico">✦</span><span>Pixels <strong>Gold</strong> — rares, lumineux, distinctifs</span></div>
+      <div class="rule-item"><span class="ico">⚔️</span><span>Recouvre les pixels adverses pour conquérir du territoire</span></div>
+      <div class="rule-item"><span class="ico">👁️</span><span><strong style="color:#00e5ff">La Sentinelle</strong> surveille et t'alerte si un ennemi s'approche</span></div>
+      <div class="rule-item"><span class="ico">🌐</span><span>Canvas partagé en <strong>temps réel</strong> avec tous les joueurs</span></div>
     </div>
 
-    <!-- Avatar -->
-    <a href="profile.html" class="nav-avatar-btn nav-avatar-left" id="navAvatarBtn" title="Mon profil">
-      <img class="nav-avatar-img" id="navAvatarImg"
-           src="" alt="Profil"
-           onerror="this.style.display='none';document.getElementById('navAvatarFallback_index').style.display='flex'"/>
-      <div class="nav-avatar-fallback" id="navAvatarFallback_index">👤</div>
-    </a>
+    <button class="btn-play" onclick="startGame()">▶ JOUER MAINTENANT →</button>
+  </div>
+</div>
 
-    <div class="nav-right">
+<!-- ══════════ APP PRINCIPALE ══════════ -->
+<div id="app">
 
-           <!-- SEARCH -->
-      <div class="search-container" id="searchContainer">
-        <button class="search-toggle" id="searchToggle" aria-label="Rechercher">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <span class="search-toggle-label" data-i18n="nav.search">Search</span>
-        </button>
+  <!-- Happy Hour -->
+  <div id="happy-hour-bar">🔥 HAPPY HOUR — Recharge 2× plus rapide jusqu'à 14h !</div>
 
-        <div class="search-expand" id="searchExpand">
-          <input type="text" id="searchInput" placeholder="Title, genre, character…" autocomplete="off" spellcheck="false"/>
-          <button class="search-clear" id="searchClear">✕</button>
+  <!-- TOPBAR -->
+  <header id="topbar">
+
+    <!-- Gauche : titre + profil -->
+    <div class="tb-left">
+      <div class="tb-logo">
+        <span class="tb-logo-main">GOLD PIXEL</span>
+        <span class="tb-logo-sub">JeuxVideo.Pi</span>
+      </div>
+      <button class="tb-profile-btn" id="btn-profile" onclick="openPiAuth()" title="Connexion Pi">👤</button>
+    </div>
+
+    <!-- Centre : barres de stock -->
+    <div id="tb-center">
+
+      <!-- Barre pixels standard -->
+      <div class="tb-bar-wrap">
+        <div class="tb-bar-track tb-bar-std" id="tb-bar-std-track">
+          <div class="tb-bar-fill" id="tb-bar-std-fill"></div>
+          <span class="tb-bar-label" id="tb-bar-std-label">5 / 5 pixels</span>
+        </div>
+        <div class="tb-bar-sub" id="tb-cooldown">✓ Prêt</div>
+      </div>
+
+      <!-- Barre Gold -->
+      <div class="tb-bar-wrap">
+        <div class="tb-bar-track tb-bar-gold" id="tb-bar-gold-track">
+          <div class="tb-bar-fill" id="tb-bar-gold-fill"></div>
+          <span class="tb-bar-label" id="tb-bar-gold-label">✦ 5 / 5</span>
+        </div>
+        <div class="tb-bar-sub" id="tb-gold-sub">✓ Gold prêt</div>
+      </div>
+
+    </div><!-- /tb-center -->
+
+    <div class="tb-right">
+      <a class="tb-action-btn tb-portal" href="https://jeuxvideo.onrender.com/" title="Retour portail">🏠</a>
+      <button class="tb-action-btn" onclick="GP.resetCanvas()" title="Tout effacer (Reset)">🧹</button>
+      <button class="tb-action-btn" onclick="openLB()" title="Classement">🏆</button>
+      <button class="tb-action-btn tb-shop-btn" onclick="openModal('modal-shop')" title="Boutique">🛒</button>
+      <button class="tb-action-btn" onclick="openModal('modal-settings')" title="Réglages">⚙</button>
+    </div>
+
+  </header><!-- /topbar -->
+
+  <!-- ZONE DE JEU -->
+  <main id="game-area">
+
+    <!-- HUD GAUCHE : palette + or + undo -->
+    <aside id="hud-left">
+      <div id="color-preview" title="Couleur active"></div>
+      
+      <!-- Coordonnées en direct -->
+      <div id="coord-panel">
+        <div id="coord-display">X: -- | Y: --</div>
+        <div class="coord-input-row">
+          <input type="number" id="coord-x" placeholder="X">
+          <input type="number" id="coord-y" placeholder="Y">
+          <button id="btn-go-coord" onclick="GP.goToInputCoords()">Go</button>
         </div>
       </div>
 
-    </div>
-  </div>
-
-  <ul class="nav-links">
-    <li><a href="index.html" class="nav-link active" data-i18n="nav.home">Home</a></li>
-    <li><a href="catalogue.html" class="nav-link" data-i18n="nav.catalogue">Catalogue</a></li>
-    <li><a href="duel.html" class="nav-link" data-i18n="nav.duels">⚔ Duels</a></li>
-    <li><a href="news.html" class="nav-link">📰 News</a></li>
-    <li><a href="soutenir.html" class="nav-link nav-link-support" data-i18n="nav.support">💜 Support</a></li>
-  </ul>
-</nav>
-<!-- ════════════════════════════════
-     SEARCH OVERLAY
-════════════════════════════════ -->
-<div class="search-overlay" id="searchOverlay">
-  <div class="search-overlay-inner">
-    <div class="search-overlay-header">
-      <p class="search-overlay-label" id="searchLabel" data-i18n="search.results">Résultats de recherche</p>
-      <button class="search-overlay-close" id="searchOverlayClose" data-i18n="search.close">✕ Fermer</button>
-    </div>
-    <div class="search-results-grid" id="searchResultsGrid"></div>
-    <div class="search-loader" id="searchLoader">
-      <div class="sk-dots"><span></span><span></span><span></span></div>
-    </div>
-    <div class="search-empty" id="searchEmpty">
-      <p class="empty-kaomoji">（；￣д￣）</p>
-      <p data-i18n="search.empty">Aucun résultat. Essaie un autre titre.</p>
-    </div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════
-     HERO — PORTAIL ANIME
-════════════════════════════════ -->
-<!-- Hero supprimé -->
-
-<!-- ════════════════════════════════
-     ANIME DU JOUR
-════════════════════════════════ -->
-<section class="anime-du-jour" id="animeDuJour">
-  <div class="adj-video-bg" id="adjVideoBg">
-    <iframe id="adjIframe" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    <img class="adj-img-fallback" id="adjImgFallback" src="" alt=""/>
-    <div class="adj-overlay"></div>
-  </div>
-  <div class="adj-inner">
-    <div class="adj-label">
-      <span class="adj-dot"></span>
-      <span data-i18n="adj.label">Anime du jour</span>
-    </div>
-    <div class="adj-info">
-      <div class="adj-badges" id="adjBadges"></div>
-      <h2 class="adj-title" id="adjTitle"></h2>
-      <p class="adj-synopsis" id="adjSynopsis"></p>
-      <div class="adj-actions">
-        <a href="#" class="adj-btn-primary" id="adjLink" data-i18n="adj.watch">Voir l'anime →</a>
-        <button class="adj-btn-shuffle" id="adjShuffle" title="Autre suggestion" data-i18n-title="adj.shuffle">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
-            <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
-          </svg>
-          Autre suggestion
+      <div id="palette-grid"></div>
+      <div class="hud-sep"></div>
+      <!-- Gold + Undo/Reset -->
+      <div id="gold-undo-row">
+        <button id="btn-gold" title="Pixel Gold ✦" onclick="GP.pickGold()">✦</button>
+        <button id="btn-undo" title="Annuler" onclick="GP.resetCanvas()" class="active">
+          <span class="undo-ico">⟲</span>
         </button>
       </div>
+    </aside>
+
+    <!-- CANVAS CENTRAL -->
+    <div id="canvas-wrap">
+      <div id="canvas-inner">
+        <canvas id="gameCanvas"></canvas>
+        <div id="ghost-pixel"></div>
+        <div id="grid-overlay"></div>
+      </div>
     </div>
-  </div>
-</section>
 
-<!-- ════════════════════════════════
-     AMBIANCES — Portails émotionnels
-════════════════════════════════ -->
-<section class="mood-section" aria-label="Filtrer par ambiance">
-  <div class="mood-section-header">
-    <p class="mood-section-eyebrow" data-i18n="mood.eyebrow">Dans quel état d'esprit tu es ce soir ?</p>
-  </div>
-  <div class="mood-row" id="moodRow">
-    <button class="mood-pill active" data-mood="all" data-color="default">
-      <span class="mood-pill-icon">✦</span>
-      <span class="mood-pill-label" data-i18n="mood.all">Tout explorer</span>
-    </button>
-    <button class="mood-pill" data-mood="action" data-color="red">
-      <span class="mood-pill-icon">⚡</span>
-      <span class="mood-pill-label" data-i18n="mood.action">Adrénaline</span>
-    </button>
-    <button class="mood-pill" data-mood="romance" data-color="pink">
-      <span class="mood-pill-icon">🌸</span>
-      <span class="mood-pill-label" data-i18n="mood.romance">Romance</span>
-    </button>
-    <button class="mood-pill" data-mood="dark" data-color="dark">
-      <span class="mood-pill-icon">🌑</span>
-      <span class="mood-pill-label" data-i18n="mood.dark">Univers Sombre</span>
-    </button>
-    <button class="mood-pill" data-mood="comedy" data-color="gold">
-      <span class="mood-pill-icon">😄</span>
-      <span class="mood-pill-label" data-i18n="mood.comedy">Bonne Humeur</span>
-    </button>
-    <button class="mood-pill" data-mood="scifi" data-color="cyan">
-      <span class="mood-pill-icon">🚀</span>
-      <span class="mood-pill-label">Sci-fi &amp; Mecha</span>
-    </button>
-    <button class="mood-pill" data-mood="psychological" data-color="violet">
-      <span class="mood-pill-icon">🤯</span>
-      <span class="mood-pill-label" data-i18n="mood.psychological">Mind-bending</span>
-    </button>
-    <button class="mood-pill" data-mood="slice" data-color="green">
-      <span class="mood-pill-icon">🍃</span>
-      <span class="mood-pill-label" data-i18n="mood.slice">Zen &amp; Calme</span>
-    </button>
-  </div>
-</section>
+    <!-- HUD DROITE : sentinelle + navigation -->
+    <aside id="hud-right">
+      <!-- Sentinelle — espace top pour que l'anneau radar soit visible -->
+      <div class="sentinel-wrap">
+        <button id="btn-sentinel" class="sentinel-idle" onclick="SENTINEL.openLog()" title="Sentinelle">
+          👁️
+          <div id="sentinel-badge"></div>
+        </button>
+      </div>
 
-<!-- SECTION MOOD (peuplée par JS) -->
-<section class="content-section" id="section-mood" style="display:none">
-  <div class="section-header">
-    <h2 class="section-title" id="moodSectionTitle"><span class="section-dot violet"></span>Ambiance</h2>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="mood">‹</button>
-    <div class="carousel" id="carousel-mood"></div>
-    <button class="carousel-btn next" data-carousel="mood">›</button>
-  </div>
-</section>
+      <div class="hud-sep-v"></div>
 
-<!-- RÉSULTATS RECHERCHE AVANCÉE -->
-<section class="content-section" id="section-adv-results" style="display:none">
-  <div class="section-header">
-    <h2 class="section-title" id="advResultsTitle"><span class="section-dot blue"></span>Résultats</h2>
-    <button class="adv-clear-btn" id="advClearBtn">✕ Effacer</button>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="adv-results">‹</button>
-    <div class="carousel" id="carousel-adv-results"></div>
-    <button class="carousel-btn next" data-carousel="adv-results">›</button>
-  </div>
-</section>
+      <!-- Navigation — légèrement centrée vers le bas -->
+      <div class="nav-group">
+        <button class="nav-btn" onclick="GP.zoomIn()"   title="Zoom +">＋</button>
+        <button class="nav-btn" onclick="GP.zoomOut()"  title="Zoom −">－</button>
+        <button class="nav-btn nav-btn-sm" onclick="GP.resetView()" title="Centrer">⊙</button>
+      </div>
+    </aside>
 
-<!-- ════════════════════════════════
-     ZONE NARRATIVE 1 — La Rivière
-════════════════════════════════ -->
-<div class="zone-separator">
-  <div class="zone-separator-line"></div>
-  <div class="zone-separator-label">
-    <span class="zone-separator-num">01</span>
-    <span class="zone-separator-title" data-i18n="zone1.title">Ce qui vit en ce moment</span>
+  </main><!-- /game-area -->
+
+  <!-- Toast global -->
+  <div id="toast"></div>
+
+  <!-- Toast Sentinelle -->
+  <div id="sentinel-toast" onclick="SENTINEL.onToastClick()"></div>
+
+  <!-- Flash pixel -->
+  <div id="px-flash"></div>
+
+</div><!-- /app -->
+
+
+<!-- ══════════ MODALES ══════════ -->
+
+<!-- Classement -->
+<div class="modal-bg" id="modal-lb">
+  <div class="modal-box">
+    <div class="modal-title">🏆 CLASSEMENT</div>
+    <div class="lb-tabs">
+      <div class="lb-tab on" id="lb-tab-players"   onclick="switchLbTab('players')">👤 Joueurs</div>
+      <div class="lb-tab"    id="lb-tab-countries" onclick="switchLbTab('countries')">🌍 Pays</div>
+    </div>
+    <div class="lb-panel on" id="lb-panel-players">
+      <div class="lb-list" id="lb-list-players"></div>
+    </div>
+    <div class="lb-panel" id="lb-panel-countries">
+      <div class="lb-list" id="lb-list-countries"></div>
+    </div>
+    <button class="btn-modal-close" onclick="closeModal('modal-lb')">FERMER</button>
   </div>
-  <div class="zone-separator-line"></div>
 </div>
 
-
-<!-- POUR TOI -->
-<section class="content-section" id="section-for-you" style="display:none">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot pink"></span><span data-i18n="section.for_you">✨ Pour toi</span></h2>
-    <span class="section-badge" id="forYouBadge"></span>
-    <span id="forYouPremiumBadge" style="display:none;font-size:0.62rem;font-weight:700;
-      padding:3px 9px;border-radius:20px;
-      background:linear-gradient(135deg,rgba(167,139,250,0.15),rgba(34,211,238,0.1));
-      border:1px solid rgba(167,139,250,0.3);color:#a78bfa;cursor:pointer"
-      onclick="window.VA_showUpgradePrompt('Débloque des recommandations illimitées et personnalisées selon tes genres préférés.',['🔥 Recommandations basées sur tes genres','❤️ Mises à jour en temps réel','📊 Algorithme personnalisé','⚡ Accès anticipé aux nouveautés'])">
-      ⭐ Premium
-    </span>
-  </div>
-  <div style="position:relative">
-    <div class="carousel-wrapper">
-      <button class="carousel-btn prev" data-carousel="for-you">‹</button>
-      <div class="carousel" id="carousel-for-you"></div>
-      <button class="carousel-btn next" data-carousel="for-you">›</button>
-    </div>
-    <div id="forYouPremiumOverlay" style="display:none;
-      position:absolute;bottom:0;left:0;right:0;height:80%;
-      background:linear-gradient(to top,rgba(2,6,23,0.97) 0%,rgba(2,6,23,0.7) 50%,transparent 100%);
-      padding-bottom:20px;
-      pointer-events:none;border-radius:0 0 var(--r) var(--r)">
-      <div style="text-align:center;pointer-events:all">
-        <div style="font-size:0.82rem;color:var(--text2);margin-bottom:10px">
-          Débloque tes recommandations personnalisées
+<!-- Réglages -->
+<div class="modal-bg" id="modal-settings">
+  <div class="modal-box" style="max-width:340px;">
+    <div class="modal-title">⚙ RÉGLAGES</div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">🖐 Mode Gaucher</div>
+        <div class="setting-sub">Palette à droite · Navigation à gauche</div>
+      </div>
+      <div class="toggle-wrap">
+        <div class="toggle-track" id="toggle-hand" onclick="toggleHandedness()">
+          <div class="toggle-thumb"></div>
         </div>
-        <button onclick="window.VA_showUpgradePrompt('Accède à des recommandations illimitées basées sur tes genres préférés.',['🔥 Algo personnalisé basé sur tes genres','❤️ Favoris illimités','📊 Stats avancées','⚡ Accès anticipé'])"
-          style="display:inline-flex;align-items:center;gap:7px;
-            background:linear-gradient(135deg,#a78bfa,#818cf8);color:#fff;
-            font-family:var(--font);font-weight:700;font-size:0.82rem;
-            padding:9px 20px;border-radius:12px;border:none;cursor:pointer;
-            box-shadow:0 4px 20px rgba(167,139,250,0.35)">
-          ⭐ Passer Premium
-        </button>
       </div>
     </div>
-  </div>
-</section>
-
-<!-- POPULAIRES -->
-<section class="content-section" id="section-popular">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot orange"></span><span data-i18n="section.popular">🔥 Les plus populaires</span></h2>
-    <span class="section-badge" data-i18n="section.top25">Top 25</span>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="popular">‹</button>
-    <div class="carousel" id="carousel-popular">
-      <div class="carousel-skeleton" id="skel-popular"></div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">🔔 Notifications</div>
+        <div class="setting-sub">Alertes pixel en temps réel</div>
+      </div>
+      <div class="toggle-wrap">
+        <div class="toggle-track" id="toggle-notif" onclick="toggleNotif()">
+          <div class="toggle-thumb"></div>
+        </div>
+      </div>
     </div>
-    <button class="carousel-btn next" data-carousel="popular">›</button>
+    <button class="btn-modal-close" onclick="closeModal('modal-settings')">FERMER</button>
   </div>
-</section>
-
-<!-- ════════════════════════════════
-     ZONE NARRATIVE 2 — Les Légendes
-════════════════════════════════ -->
-<div class="zone-separator">
-  <div class="zone-separator-line"></div>
-  <div class="zone-separator-label">
-    <span class="zone-separator-num">02</span>
-    <span class="zone-separator-title" data-i18n="zone2.title">Ce qui a traversé le temps</span>
-  </div>
-  <div class="zone-separator-line"></div>
 </div>
 
-<!-- MIEUX NOTÉS -->
-<section class="content-section" id="section-top">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot gold"></span><span data-i18n="section.top">⭐ Mieux notés</span></h2>
-    <span class="section-badge">All time</span>
+<!-- Sentinelle log -->
+<div class="modal-bg" id="modal-sentinel">
+  <div class="modal-box" style="max-width:380px;">
+    <div class="modal-title" style="color:#00e5ff;">👁️ SENTINELLE</div>
+    <p class="modal-p">Alertes sur tes pixels en cours de partie.</p>
+    <div class="sentinel-log-list" id="sentinel-log-list"></div>
+    <button class="btn-modal-close" onclick="closeModal('modal-sentinel')">FERMER</button>
   </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="top">‹</button>
-    <div class="carousel" id="carousel-top">
-      <div class="carousel-skeleton" id="skel-top"></div>
-    </div>
-    <button class="carousel-btn next" data-carousel="top">›</button>
-  </div>
-</section>
-
-<!-- EN DIFFUSION -->
-<section class="content-section" id="section-airing">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot green"></span><span data-i18n="section.airing">📡 En cours</span></h2>
-    <span style="display:inline-flex;align-items:center;gap:5px;font-size:0.62rem;font-weight:700;
-      padding:3px 10px;border-radius:20px;
-      background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.3);
-      color:#22d3ee;cursor:pointer;transition:background 0.2s"
-      id="earlyAccessBadge"
-      onclick="if(window.VA_isPremium && !window.VA_isPremium()) window.VA_showUpgradePrompt('Accède aux nouvelles sorties en avant-première avec Premium.',['⚡ Accès immédiat aux nouveautés','🔔 Alertes épisodes en temps réel','📡 Saison en cours complète','🔥 Recommandations de la saison'])"
-      title="Accès anticipé Premium">
-      ⚡ Early access
-    </span>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="airing">‹</button>
-    <div class="carousel" id="carousel-airing">
-      <div class="carousel-skeleton" id="skel-airing"></div>
-    </div>
-    <button class="carousel-btn next" data-carousel="airing">›</button>
-  </div>
-</section>
-
-<!-- ════════════════════════════════
-     ZONE NARRATIVE 3 — Le Cinéma
-════════════════════════════════ -->
-<div class="zone-separator">
-  <div class="zone-separator-line"></div>
-  <div class="zone-separator-label">
-    <span class="zone-separator-num">03</span>
-    <span class="zone-separator-title">L'expérience cinématique</span>
-  </div>
-  <div class="zone-separator-line"></div>
 </div>
 
-<!-- FILMS -->
-<section class="content-section" id="section-movies">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot blue"></span><span data-i18n="section.movies">🎬 Films anime</span></h2>
+<!-- Sélection pays -->
+<div class="modal-bg" id="modal-country">
+  <div class="modal-box">
+    <div class="modal-title">🌍 TON PAYS</div>
+    <p class="modal-p">Choisis ton pays pour participer au classement territorial.</p>
+    <div class="country-grid" id="country-grid"></div>
+    <button class="btn-modal-close" onclick="closeModal('modal-country')">IGNORER</button>
   </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="movies">‹</button>
-    <div class="carousel" id="carousel-movies">
-      <div class="carousel-skeleton" id="skel-movies"></div>
+</div>
+
+
+<!-- ══════════ MODAL BOUTIQUE — 2 colonnes, pas de scroll ══════════ -->
+<div class="modal-bg" id="modal-shop">
+  <div class="shop2-box">
+
+    <!-- Header compact -->
+    <div class="shop2-header">
+      <span class="shop2-title">🛒 BOUTIQUE</span>
+      <span class="shop2-subtitle">Aucun avantage gameplay · Tout cosmétique</span>
+      <button class="shop2-close" onclick="closeModal('modal-shop')">✕</button>
     </div>
-    <button class="carousel-btn next" data-carousel="movies">›</button>
-  </div>
-</section>
 
-<!-- SÉRIES -->
-<section class="content-section" id="section-series">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot violet"></span>📺 Séries anime</h2>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="series">‹</button>
-    <div class="carousel" id="carousel-series">
-      <div class="carousel-skeleton" id="skel-series"></div>
-    </div>
-    <button class="carousel-btn next" data-carousel="series">›</button>
-  </div>
-</section>
+    <!-- Corps 2 colonnes -->
+    <div class="shop2-body">
 
-<!-- OVA -->
-<section class="content-section" id="section-ova">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot gold"></span>🎞 OVA</h2>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="ova">‹</button>
-    <div class="carousel" id="carousel-ova">
-      <div class="carousel-skeleton" id="skel-ova"></div>
-    </div>
-    <button class="carousel-btn next" data-carousel="ova">›</button>
-  </div>
-</section>
+      <!-- ── COL GAUCHE : Identité & Styles ── -->
+      <div class="shop2-col shop2-col-left">
+        <div class="shop2-col-title">🎨 Identité & Styles</div>
 
-<!-- ONA -->
-<section class="content-section" id="section-ona">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot green"></span>🌐 ONA</h2>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="ona">‹</button>
-    <div class="carousel" id="carousel-ona">
-      <div class="carousel-skeleton" id="skel-ona"></div>
-    </div>
-    <button class="carousel-btn next" data-carousel="ona">›</button>
-  </div>
-</section>
+        <!-- Signature -->
+        <div class="shop2-item" id="style-signature" onclick="buyCosmetique('signature')">
+          <div class="shop2-item-left">
+            <span class="shop2-item-ico">✍️</span>
+            <div>
+              <div class="shop2-item-name">Signature d'œuvre</div>
+              <div class="shop2-item-desc">Ton pseudo visible au zoom sur tes pixels</div>
+            </div>
+          </div>
+          <div class="shop2-price-tag">0.5 Pi<div class="cos-lock" id="sig-lock">🔒</div></div>
+        </div>
 
-<!-- TRENDING -->
-<section class="content-section" id="section-trending" style="display:none">
-  <div class="section-header">
-    <h2 class="section-title"><span class="section-dot pink"></span><span data-i18n="section.trending">📈 Trending sur VoirAnime</span></h2>
-    <span class="section-badge" data-i18n="zone.realtime">Temps réel</span>
-  </div>
-  <div class="carousel-wrapper">
-    <button class="carousel-btn prev" data-carousel="trending">‹</button>
-    <div class="carousel" id="carousel-trending"></div>
-    <button class="carousel-btn next" data-carousel="trending">›</button>
-  </div>
-</section>
+        <div class="shop2-divider"></div>
+        <div class="shop2-col-label">Palettes premium</div>
 
-<!-- ════════════════════════════════
-     FOOTER
-════════════════════════════════ -->
-<footer class="site-footer">
-  <div class="footer-logo">Voir<span>Anime</span></div>
-  <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
-</footer>
+        <!-- Neon Pulse -->
+        <div class="shop2-item" id="style-neon" onclick="buyCosmetique('neon')">
+          <div class="shop2-item-left">
+            <span class="shop2-item-ico cos-neon shop2-ico-large">■</span>
+            <div>
+              <div class="shop2-item-name">🌌 Neon Pulse</div>
+              <div class="shop2-item-desc">Couleurs vibrantes · Glow animé</div>
+            </div>
+          </div>
+          <div class="shop2-price-tag">1.5 Pi<div class="cos-lock" id="neon-lock">🔒</div></div>
+        </div>
+
+        <!-- Ink Stone -->
+        <div class="shop2-item" id="style-ink" onclick="buyCosmetique('ink')">
+          <div class="shop2-item-left">
+            <span class="shop2-item-ico cos-ink shop2-ico-large">■</span>
+            <div>
+              <div class="shop2-item-name">🪨 Ink / Stone Pro</div>
+              <div class="shop2-item-desc">Style gravé · Rendu premium</div>
+            </div>
+          </div>
+          <div class="shop2-price-tag">1.5 Pi<div class="cos-lock" id="ink-lock">🔒</div></div>
+        </div>
+
+        <!-- Pack -->
+        <button class="shop2-pack-btn" onclick="shopBuy('pack_styles')">
+          <span>⭐ Pack 2 palettes</span>
+          <span class="shop2-pack-price"><s style="opacity:.4;font-size:.6em">3 Pi</s> 2.5 Pi</span>
+        </button>
+
+        <!-- Style actif -->
+        <div class="shop2-active-style">
+          Style actif :
+          <button class="shop2-style-chip" id="chip-default"  onclick="applyPixelStyle('default')">Standard</button>
+          <button class="shop2-style-chip" id="chip-neon"     onclick="applyPixelStyle('neon')">Neon</button>
+          <button class="shop2-style-chip" id="chip-ink"      onclick="applyPixelStyle('ink')">Ink</button>
+        </div>
+      </div>
+
+      <!-- ── COL DROITE : Dons ── -->
+      <div class="shop2-col shop2-col-right">
+        <div class="shop2-col-title">❤️ Soutenir Gold Pixel</div>
+        <p class="shop2-don-msg">Soutenez l'hébergement et l'évolution du jeu. 💎<br>
+          <span class="shop2-don-reward">Badge <strong>Supporter ★</strong> + halo doré offerts</span>
+        </p>
+
+        <div class="shop2-don-grid">
+          <button class="shop2-don-btn" onclick="shopBuy('don_1')">
+            <div class="shop2-don-amt">1 Pi</div>
+            <div class="shop2-don-lbl">Coup de pouce</div>
+          </button>
+          <button class="shop2-don-btn" onclick="shopBuy('don_2')">
+            <div class="shop2-don-amt">2 Pi</div>
+            <div class="shop2-don-lbl">Soutien</div>
+          </button>
+          <button class="shop2-don-btn shop2-don-featured" onclick="shopBuy('don_5')">
+            <div class="shop2-don-badge">⭐</div>
+            <div class="shop2-don-amt">5 Pi</div>
+            <div class="shop2-don-lbl">Grand soutien</div>
+          </button>
+        </div>
+
+        <!-- Montant libre -->
+        <div class="shop2-libre-row">
+          <input id="don-libre-amount" type="number" min="0.5" step="0.5" value="1"
+            class="shop2-libre-input" placeholder="Pi">
+          <button class="shop2-libre-btn" onclick="shopBuy('don_libre')">Donner librement</button>
+        </div>
+
+        <div class="shop2-divider"></div>
+
+        <!-- Supporters -->
+        <div class="shop2-sup-title">🌟 Supporters récents</div>
+        <div id="supporters-list" class="shop2-sup-list"></div>
+      </div>
+
+    </div><!-- /shop2-body -->
+  </div><!-- /shop2-box -->
+</div>
 
 
-<div class="toast" id="toast"></div>
-
-<!-- ════════════════════════════════
-     SCRIPTS
-════════════════════════════════ -->
-<script type="module" src="main.js"></script>
-
+<!-- ══════════ SCRIPT PRINCIPAL ══════════ -->
 <script>
-/* Tilt 3D cards */
-(function(){
-  var lastCard = null;
-  document.addEventListener('mousemove', function(e){
-    var card = e.target.closest('.anime-card');
-    if(!card){ if(lastCard){ lastCard.style.transform=''; lastCard=null; } return; }
-    var r = card.getBoundingClientRect();
-    var dx = (e.clientX - r.left - r.width/2)  / (r.width/2);
-    var dy = (e.clientY - r.top  - r.height/2) / (r.height/2);
-    card.style.transform = 'translateY(-8px) scale(1.05) rotateY('+( dx*6)+'deg) rotateX('+(-dy*4)+'deg)';
-    lastCard = card;
-  });
-  document.addEventListener('mouseleave', function(e){
-    if (!e.target || typeof e.target.closest !== 'function') return;
-    var card = e.target.closest('.anime-card');
-    if(card) card.style.transform='';
-  }, true);
+'use strict';
 
-  /* Mood pills — UI only */
-  var row = document.getElementById('moodRow');
-  if(row) row.addEventListener('click', function(e){
-    var pill = e.target.closest('.mood-pill');
-    if(!pill) return;
-    row.querySelectorAll('.mood-pill').forEach(function(p){ p.classList.remove('active'); });
-    pill.classList.add('active');
-  });
-})();
-</script>
-<script>
-/* Transition cinématique entre pages */
-(function(){
-  var overlay = document.createElement("div");
-  overlay.className = "page-transition-overlay in";
-  document.body.appendChild(overlay);
-  setTimeout(function(){ overlay.remove(); }, 450);
+/* ════════════════════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════════════════════ */
+const GOLD_COLOR  = '#ffd700';
+const GOLD_MAX    = 5;
 
-  document.addEventListener("click", function(e){
-    var link = e.target.closest("a[href]");
-    if (!link) return;
-    var href = link.getAttribute("href");
-    if (!href || href.startsWith("#") || href.startsWith("http") ||
-        href.startsWith("mailto") || link.target === "_blank") return;
-    e.preventDefault();
-    var ov = document.createElement("div");
-    ov.className = "page-transition-overlay out";
-    document.body.appendChild(ov);
-    setTimeout(function(){ window.location.href = href; }, 340);
-  });
-})();
-</script>
+const COLORS = [
+  '#6d001a','#be0039','#ff4500','#ffa800','#ffd635','#fff8b8',
+  '#00a368','#00cc78','#7eed56','#00756f','#009eaa','#00ccc0',
+  '#2450a4','#3690ea','#51e9f4','#493ac1','#6a5cff','#94b3ff',
+  '#811e9f','#b44ac0','#e4abff','#de107f','#ff3881','#ff99aa',
+  '#6d482f','#9c6926','#ffb470','#000000','#515252','#898d90',
+  '#d4d7d9','#ffffff',
+];
 
-<script>
-/* ════════════════════════════════════════
-   DESIGN SYSTEM BRIDGE
-   Scroll reveal · Token sync · Focus polish
-   ════════════════════════════════════════ */
-(function(){
+const COUNTRIES = [
+  {code:'FR',flag:'🇫🇷',name:'France'},{code:'US',flag:'🇺🇸',name:'USA'},
+  {code:'GB',flag:'🇬🇧',name:'UK'},{code:'DE',flag:'🇩🇪',name:'Allemagne'},
+  {code:'ES',flag:'🇪🇸',name:'Espagne'},{code:'IT',flag:'🇮🇹',name:'Italie'},
+  {code:'BR',flag:'🇧🇷',name:'Brésil'},{code:'CN',flag:'🇨🇳',name:'Chine'},
+  {code:'JP',flag:'🇯🇵',name:'Japon'},{code:'KR',flag:'🇰🇷',name:'Corée'},
+  {code:'IN',flag:'🇮🇳',name:'Inde'},{code:'NG',flag:'🇳🇬',name:'Nigéria'},
+  {code:'GH',flag:'🇬🇭',name:'Ghana'},{code:'KE',flag:'🇰🇪',name:'Kenya'},
+  {code:'PH',flag:'🇵🇭',name:'Philippines'},{code:'VN',flag:'🇻🇳',name:'Vietnam'},
+  {code:'MA',flag:'🇲🇦',name:'Maroc'},{code:'DZ',flag:'🇩🇿',name:'Algérie'},
+  {code:'SN',flag:'🇸🇳',name:'Sénégal'},{code:'TN',flag:'🇹🇳',name:'Tunisie'},
+  {code:'MX',flag:'🇲🇽',name:'Mexique'},{code:'AR',flag:'🇦🇷',name:'Argentine'},
+  {code:'CO',flag:'🇨🇴',name:'Colombie'},{code:'TR',flag:'🇹🇷',name:'Turquie'},
+  {code:'PL',flag:'🇵🇱',name:'Pologne'},{code:'PT',flag:'🇵🇹',name:'Portugal'},
+  {code:'ZA',flag:'🇿🇦',name:'Afrique du Sud'},
+];
 
-  /* ── 1. Scroll Progress Bar ── */
-  const bar = document.createElement('div');
-  bar.className = 'scroll-progress';
-  document.body.prepend(bar);
+/* ════════════════════════════════════════════════════════
+   ÉTAT GLOBAL
+════════════════════════════════════════════════════════ */
+let activeColor   = '#3690ea';
+let goldStock     = GOLD_MAX;
+let GOLD_MAX_ACTIVE = GOLD_MAX;
+let pixelsPlaced  = 0;
+let piUsername    = 'Explorateur';
+let piCountry     = null;
+let piConnected   = false;
+// stock et rechargeLeft gérés dans gp-engine (cooldown 30s)
 
-  window.addEventListener('scroll', () => {
-    const h   = document.documentElement;
-    const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
-    bar.style.width = Math.min(pct, 100) + '%';
-  }, { passive: true });
+let gameStarted = false;
 
-  /* ── 2. Cursor Glow (desktop seulement) ── */
-  if (window.matchMedia('(hover: hover)').matches) {
-    const glow = document.createElement('div');
-    glow.className = 'cursor-glow';
-    document.body.appendChild(glow);
+/* ════════════════════════════════════════════════════════
+   DEV MODE (Passerelle avec gp-engine.js)
+════════════════════════════════════════════════════════ */
+function _checkDevMode() {
+  if (window.DEV_MODE) {
+    GOLD_MAX_ACTIVE = 999999;
+    goldStock = 999999;
+  }
+}
 
-    let glowX = 0, glowY = 0;
-    let raf = null;
-    document.addEventListener('mousemove', e => {
-      glowX = e.clientX;
-      glowY = e.clientY;
-      if (!raf) raf = requestAnimationFrame(() => {
-        glow.style.left = glowX + 'px';
-        glow.style.top  = glowY + 'px';
-        raf = null;
-      });
-    }, { passive: true });
+/* ════════════════════════════════════════════════════════
+   HAPPY HOUR
+════════════════════════════════════════════════════════ */
+function isHappyHour() { return new Date().getHours() >= 12 && new Date().getHours() < 14; }
+function getRechargeS() { return isHappyHour() ? 15 : 30; } // 30s base, 15s HH
 
-    document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
-    document.addEventListener('mouseenter', () => { glow.style.opacity = '1'; });
+/* Tick 1s — Happy Hour */
+let _hhNotified = false;
+setInterval(() => {
+  if (!gameStarted) return;
+  const bar = document.getElementById('happy-hour-bar');
+  if (bar) bar.classList.toggle('show', isHappyHour());
+  if (isHappyHour() && !_hhNotified) {
+    _hhNotified = true;
+    showToast('🔥 Happy Hour ! Recharge 2× plus rapide (12h–14h)');
+  } else if (!isHappyHour()) { _hhNotified = false; }
+}, 1000);
+
+/* ════════════════════════════════════════════════════════
+   HUD — updateStockUI
+════════════════════════════════════════════════════════ */
+function updateStockUI() {
+  /* ── Barres stock standard ── */
+  const localStock = typeof _localStock !== 'undefined' ? _localStock : 5;
+  const maxStock   = 5;
+  const stdFill    = document.getElementById('tb-bar-std-fill');
+  const stdLabel   = document.getElementById('tb-bar-std-label');
+  const stdTrack   = document.getElementById('tb-bar-std-track');
+  if (stdFill) stdFill.style.width  = Math.round((localStock / maxStock) * 100) + '%';
+  if (stdLabel) stdLabel.textContent = localStock + ' / ' + maxStock + ' pixels';
+  if (stdTrack) {
+    stdTrack.classList.toggle('bar-empty', localStock === 0);
+    stdTrack.classList.toggle('bar-full',  localStock === maxStock);
   }
 
-  /* ── 3. Scroll Reveal ── */
-  const revealEls = document.querySelectorAll(
-    '.content-section, .anime-du-jour, .zone-separator, .personal-zone, .adv-search-section, .mood-section'
-  );
+  /* ── Barre Gold ── */
+  const maxGold  = GOLD_MAX_ACTIVE || 5;
+  const goldFill  = document.getElementById('tb-bar-gold-fill');
+  const goldLabel = document.getElementById('tb-bar-gold-label');
+  if (goldFill)  goldFill.style.width   = Math.round((goldStock / maxGold) * 100) + '%';
+  if (goldLabel) goldLabel.textContent  = '✦ ' + goldStock + ' / ' + maxGold;
+}
 
-  if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('revealed');
-          io.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
-
-    revealEls.forEach((el, i) => {
-      el.classList.add('reveal-on-scroll');
-      el.style.transitionDelay = Math.min(i * 0.03, 0.18) + 's';
-      io.observe(el);
-    });
-  } else {
-    revealEls.forEach(el => el.classList.add('revealed'));
-  }
-
-  /* ── 4. Card Stagger — anime d'entrée au chargement des carousels ── */
-  function staggerCards(container) {
-    if (!container) return;
-    const cards = container.querySelectorAll('.anime-card');
-    cards.forEach((card, i) => {
-      card.style.animationDelay = Math.min(i * 0.045, 0.35) + 's';
-      card.classList.add('card-entering');
-    });
-  }
-
-  // Observer chaque carousel — stagger quand il entre dans la vue
-  document.querySelectorAll('.carousel').forEach(carousel => {
-    if (!('IntersectionObserver' in window)) return;
-    const ioC = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        staggerCards(carousel);
-        ioC.disconnect();
-      }
-    }, { threshold: 0.1 });
-    ioC.observe(carousel);
-  });
-
-  // MutationObserver — stagger les nouvelles cards ajoutées dynamiquement
-  const mutObs = new MutationObserver(mutations => {
-    mutations.forEach(m => {
-      m.addedNodes.forEach(node => {
-        if (node.nodeType !== 1) return;
-        if (node.classList?.contains('anime-card')) {
-          const siblings = node.parentElement?.querySelectorAll('.anime-card');
-          const idx      = Array.from(siblings || []).indexOf(node);
-          node.style.animationDelay = Math.min(idx * 0.04, 0.3) + 's';
-          node.classList.add('card-entering');
-        }
-      });
-    });
-  });
-  document.querySelectorAll('.carousel, .cat-grid, .search-results-grid').forEach(el => {
-    mutObs.observe(el, { childList: true });
-  });
-
-  /* ── 5. Mood Overlay — teinte de fond selon l'ambiance active ── */
-  const moodOverlay = document.createElement('div');
-  moodOverlay.className = 'page-mood-overlay';
-  document.body.insertBefore(moodOverlay, document.body.firstChild);
-
-  const MOOD_TINTS = {
-    action:        'radial-gradient(ellipse 80% 60% at 80% 20%, rgba(230,57,70,0.04) 0%, transparent 60%)',
-    romance:       'radial-gradient(ellipse 80% 60% at 20% 80%, rgba(255,79,216,0.05) 0%, transparent 60%)',
-    dark:          'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(40,0,80,0.08) 0%, transparent 70%)',
-    comedy:        'radial-gradient(ellipse 80% 60% at 50% 0%,  rgba(255,209,102,0.04) 0%, transparent 60%)',
-    scifi:         'radial-gradient(ellipse 80% 60% at 80% 80%, rgba(76,201,240,0.04) 0%, transparent 60%)',
-    psychological: 'radial-gradient(ellipse 80% 60% at 20% 20%, rgba(124,77,255,0.06) 0%, transparent 60%)',
-    slice:         'radial-gradient(ellipse 80% 60% at 50% 100%,rgba(6,214,160,0.03) 0%, transparent 60%)',
-    all:           '',
-  };
-
-  document.getElementById('moodRow')?.addEventListener('click', e => {
-    const pill = e.target.closest('.mood-pill');
-    if (!pill) return;
-    const mood = pill.dataset.mood || 'all';
-    const tint = MOOD_TINTS[mood] || '';
-    if (tint) {
-      moodOverlay.style.background = tint;
-      moodOverlay.classList.add('mood-active');
-    } else {
-      moodOverlay.classList.remove('mood-active');
-    }
-  });
-
-  /* ── 6. Tilt 3D cards — desktop uniquement ── */
-  const isTouch = window.matchMedia('(hover: none)').matches;
-  var lastCard = null;
-  if (!isTouch) {
-  document.addEventListener('mousemove', function(e){
-    var card = e.target.closest('.anime-card');
-    if(!card){
-      if(lastCard){ lastCard.style.transform=''; lastCard=null; }
-      return;
-    }
-    var r  = card.getBoundingClientRect();
-    var dx = (e.clientX - r.left - r.width/2)  / (r.width/2);
-    var dy = (e.clientY - r.top  - r.height/2) / (r.height/2);
-    card.style.transform = `translateY(-10px) scale(1.06) rotateY(${dx*7}deg) rotateX(${-dy*4}deg)`;
-    lastCard = card;
-  });
-  document.addEventListener('mouseleave', function(e){
-    if (!e.target || typeof e.target.closest !== 'function') return;
-    var card = e.target.closest('.anime-card');
-    if(card) card.style.transform = '';
-  }, true);
-  } // end !isTouch
-
-  /* ── 7. Navbar active link + Section tracking ── */
-  const navLinks = document.querySelectorAll('.nav-link');
-  const path     = location.pathname.split('/').pop() || 'index.html';
-  navLinks.forEach(l => {
-    const href = l.getAttribute('href');
-    l.classList.toggle('active', href === path || (path === '' && href === 'index.html'));
-  });
-
-  // Track section visible → met le nav-link correspondant en section-active
-  const sections = document.querySelectorAll('section[id]');
-  if ('IntersectionObserver' in window && sections.length) {
-    const sectionIO = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        const id   = entry.target.id;
-        const link = document.querySelector(`.nav-link[href="#${id}"]`);
-        document.querySelectorAll('.nav-link.section-active').forEach(l => l.classList.remove('section-active'));
-        if (link) link.classList.add('section-active');
-      });
-    }, { threshold: 0.35 });
-    sections.forEach(s => sectionIO.observe(s));
-  }
-
-})();
-</script>
-
-<script>
-/* ════════════════════════════════════════
-   HERO PORTAL ENGINE
-   Particules · Parallax souris · Aura · Surprise
-   ════════════════════════════════════════ */
-(function(){
-  /* ── Canvas particules ── */
-  const canvas = document.getElementById('heroParticles');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let W, H, particles = [];
-
-  function resize(){
-    W = canvas.width  = canvas.offsetWidth  || window.innerWidth;
-    H = canvas.height = canvas.offsetHeight || window.innerHeight * 0.92;
-  }
-  window.addEventListener('resize', resize, {passive:true});
-  resize();
-
-  function spawnParticles(){
-    particles = [];
-    const n = Math.min(90, Math.floor(W * H / 14000));
-    for(let i = 0; i < n; i++){
-      particles.push({
-        x:  Math.random() * W,
-        y:  Math.random() * H,
-        r:  0.4 + Math.random() * 1.6,
-        vx: (Math.random() - 0.5) * 0.15,
-        vy: -0.04 - Math.random() * 0.2,
-        o:  0.08 + Math.random() * 0.42,
-        h:  [280, 315, 200, 260][Math.floor(Math.random() * 4)],
-      });
-    }
-  }
-  spawnParticles();
-  window.addEventListener('resize', spawnParticles, {passive:true});
-
-  let mx = 0.5, my = 0.5;
-  document.getElementById('hero')?.addEventListener('mousemove', e => {
-    const r = e.currentTarget.getBoundingClientRect();
-    mx = (e.clientX - r.left) / r.width;
-    my = (e.clientY - r.top)  / r.height;
-  }, {passive:true});
-
-  (function tick(){
-    ctx.clearRect(0, 0, W, H);
-    for(const p of particles){
-      p.x += p.vx + (mx - 0.5) * 0.1;
-      p.y += p.vy + (my - 0.5) * 0.05;
-      if(p.y < -4) p.y = H + 4;
-      if(p.x < -4) p.x = W + 4;
-      if(p.x > W + 4) p.x = -4;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${p.h},75%,70%,${p.o})`;
-      ctx.fill();
-    }
-    requestAnimationFrame(tick);
-  })();
-
-  /* ── Parallax souris ── */
-  const heroBg     = document.getElementById('heroBg');
-  const posterWrap = document.getElementById('heroPosterWrap');
-  const heroAura   = document.getElementById('heroAura');
-
-  const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-  
-  // Parallax uniquement desktop — désactivé sur touch ET sur écrans < 1025px
-  const isDesktop = !isTouch && window.innerWidth > 1024;
-
-  if (isDesktop) {
-  document.getElementById('hero')?.addEventListener('mousemove', e => {
-    const r  = e.currentTarget.getBoundingClientRect();
-    const dx = (e.clientX - r.left  - r.width  / 2) / r.width;
-    const dy = (e.clientY - r.top   - r.height / 2) / r.height;
-    if(heroBg)     heroBg.style.transform     = `translate(${dx*-16}px,${dy*-9}px) scale(1.07)`;
-    if(posterWrap) posterWrap.style.transform = `translateY(-50%) translate(${dx*14}px,${dy*8}px) rotateY(${dx*6}deg) rotateX(${-dy*3}deg)`;
-    if(heroAura)   heroAura.style.transform   = `translate(${dx*22}px,${dy*14}px)`;
-  }, {passive:true});
-
-  document.getElementById('hero')?.addEventListener('mouseleave', () => {
-    if(heroBg)     heroBg.style.transform     = 'translate(0,0) scale(1.07)';
-    if(posterWrap) posterWrap.style.transform = 'translateY(-50%)';
-    if(heroAura)   heroAura.style.transform   = 'translate(0,0)';
-  }, {passive:true});
-  } // end isDesktop
-
-  /* ── Découverte aléatoire ── */
-  document.getElementById('heroSurpriseBtn')?.addEventListener('click', () => {
-    const pool = window._heroAnimesPool;
-    if(!pool || pool.length < 2) return;
-    let idx;
-    do { idx = Math.floor(Math.random() * pool.length); }
-    while(idx === (window._heroCurrentIndex || 0));
-    window._heroCurrentIndex = idx;
-    if(window._renderHero) window._renderHero(pool[idx]);
-    if(window._updateHeroDots) window._updateHeroDots();
-    // Flash visuel
-    const flash = document.createElement('div');
-    flash.style.cssText = 'position:fixed;inset:0;z-index:9000;background:#020617;opacity:.4;pointer-events:none;transition:opacity .4s';
-    document.body.appendChild(flash);
-    requestAnimationFrame(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 420); });
-  });
-
-})();
-  /* ── Carousel : flèches + swipe ── */
-(function () {
-  const SCROLL_AMOUNT = 900; // px scrollés par clic
-
-  // --- Flèches ---
-  document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.carousel-btn');
-    if (!btn) return;
-    const id = btn.dataset.carousel;
-    const track = document.getElementById('carousel-' + id);
-    if (!track) return;
-    const dir = btn.classList.contains('prev') ? -1 : 1;
-    track.scrollBy({ left: dir * SCROLL_AMOUNT, behavior: 'smooth' });
-  });
-
-  // --- Drag souris (desktop uniquement) ---
-  document.querySelectorAll('.carousel').forEach(function (track) {
-    let startX = 0, startScroll = 0, dragging = false;
-
-    track.addEventListener('mousedown', function (e) {
-      startX = e.pageX;
-      startScroll = track.scrollLeft;
-      dragging = true;
-      track.style.cursor = 'grabbing';
-      track.style.userSelect = 'none';
-    });
-    window.addEventListener('mousemove', function (e) {
-      if (!dragging) return;
-      track.scrollLeft = startScroll - (e.pageX - startX);
-    });
-    window.addEventListener('mouseup', function () {
-      dragging = false;
-      track.style.cursor = '';
-      track.style.userSelect = '';
-    });
-  });
-})();
-</script>
-<script>
-(function() {
-  function tryInitNotifs() {
-    var raw = localStorage.getItem('pi_user');
-    if (!raw) return;
-    try {
-      var user = JSON.parse(raw);
-      if (user && user.uid) {
-        if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
-        if (window.VA_initPremium) window.VA_initPremium(user.uid);
-      }
-    } catch (_) {}
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', tryInitNotifs);
-  } else {
-    tryInitNotifs();
-  }
-
-  function _applyPremiumUI(isPremium) {
-    var badge = document.getElementById('forYouPremiumBadge');
-    if (badge) badge.style.display = isPremium ? 'none' : 'inline-flex';
-    var overlay = document.getElementById('forYouPremiumOverlay');
-    if (overlay) overlay.style.display = isPremium ? 'none' : 'flex';
-    var earlyBadge = document.getElementById('earlyAccessBadge');
-    if (earlyBadge && isPremium) {
-      earlyBadge.style.background = 'rgba(34,211,238,0.18)';
-      earlyBadge.style.borderColor = 'rgba(34,211,238,0.5)';
-      earlyBadge.onclick = null;
-      earlyBadge.title = 'Fonctionnalité Early access active';
-    }
-  }
-
-  (function waitPremium() {
-    if (window.VA_onPremiumReady) {
-      window.VA_onPremiumReady(function(data) {
-        _applyPremiumUI(data && data.isPremium);
-      });
-    } else {
-      setTimeout(waitPremium, 300);
-    }
-  })();
-})();
-</script>
-<script>
-/* Chargement avatar navbar */
-(function() {
+/* ════════════════════════════════════════════════════════
+   API
+════════════════════════════════════════════════════════ */
+async function apiFetch(path, method, body) {
   try {
-    var saved = JSON.parse(localStorage.getItem('VoirAnime_avatar') || 'null');
-    if (saved && saved.img) {
-      var imgs = document.querySelectorAll('.nav-avatar-img');
-      var fallbacks = document.querySelectorAll('.nav-avatar-fallback');
-      imgs.forEach(function(img) { img.src = saved.img; img.style.display = 'block'; });
-      fallbacks.forEach(function(f) { f.style.display = 'none'; });
+    const opts = { method: method || 'GET', headers: { 'Content-Type': 'application/json' } };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(path, opts);
+    return await res.json();
+  } catch (_) { return null; }
+}
+
+/* ════════════════════════════════════════════════════════
+   PERSISTANCE LOCALE
+════════════════════════════════════════════════════════ */
+const LS_KEY = 'gp_v4';
+
+function saveLSState() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      goldStock, pixelsPlaced, piUsername, piCountry, ts: Date.now(), style: _pixelStyle, title: _pseudoTitle,
+    }));
+  } catch (_) {}
+}
+
+function loadLSState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    if (typeof s.goldStock === 'number') goldStock = Math.min(GOLD_MAX, s.goldStock);
+    pixelsPlaced = s.placed || s.pixelsPlaced || 0;
+    if (s.piUsername) piUsername = s.piUsername;
+    if (s.piCountry)  piCountry  = s.piCountry;
+  } catch (_) {}
+}
+
+/* ════════════════════════════════════════════════════════
+   PI SDK AUTH
+════════════════════════════════════════════════════════ */
+function openPiAuth() {
+  if (piConnected) { showToast('Connecté : @' + piUsername); return; }
+  if (!window.Pi)  { showToast('Pi SDK indisponible'); return; }
+  Pi.init({ version: '2.0', sandbox: true });
+  Pi.authenticate(['username'], authOK, authErr);
+}
+
+function authOK(result) {
+  piConnected = true;
+  piUsername  = result.user.username;
+  const btn   = document.getElementById('btn-profile');
+  if (btn) { btn.textContent = '👤'; btn.classList.add('connected'); }
+  showToast('✅ @' + piUsername);
+  saveLSState();
+  // Pays
+  const saved = localStorage.getItem('gp_country_' + piUsername);
+  if (saved) piCountry = saved;
+  else openCountryModal();
+}
+
+function authErr(err) { console.error('[Pi]', err); showToast('Erreur connexion Pi'); }
+
+/* ════════════════════════════════════════════════════════
+   PAYS
+════════════════════════════════════════════════════════ */
+function openCountryModal() {
+  const grid = document.getElementById('country-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  COUNTRIES.forEach(c => {
+    const btn = document.createElement('div');
+    btn.className   = 'country-btn' + (c.code === piCountry ? ' on' : '');
+    btn.textContent = c.flag + ' ' + c.name;
+    btn.addEventListener('click', () => {
+      piCountry = c.code;
+      localStorage.setItem('gp_country_' + piUsername, c.code);
+      apiFetch('/api/pixelwar/player/country', 'POST', { username: piUsername, country: c.code });
+      closeModal('modal-country');
+      showToast('🌍 ' + c.flag + ' ' + c.name);
+    });
+    grid.appendChild(btn);
+  });
+  openModal('modal-country');
+}
+
+/* ════════════════════════════════════════════════════════
+   CLASSEMENT
+════════════════════════════════════════════════════════ */
+let _lbTab = 'players';
+function switchLbTab(t) {
+  _lbTab = t;
+  ['players','countries'].forEach(x => {
+    document.getElementById('lb-tab-'   + x).classList.toggle('on', x === t);
+    document.getElementById('lb-panel-' + x).classList.toggle('on', x === t);
+  });
+}
+
+async function openLB() {
+  openModal('modal-lb');
+  const medals = ['🥇','🥈','🥉'];
+  const [pd, cd] = await Promise.all([
+    apiFetch('/api/pixelwar/leaderboard'),
+    apiFetch('/api/pixelwar/leaderboard/countries'),
+  ]);
+
+  const pl = document.getElementById('lb-list-players');
+  pl.innerHTML = '';
+  const players = pd?.leaderboard || [];
+  players.forEach((e, i) => {
+    const isMe = e.user === '@' + piUsername;
+    const d = document.createElement('div');
+    d.className = 'lb-row';
+    d.innerHTML = `<span class="lb-rank">${medals[i] || '#'+(i+1)}</span>`
+      + `<span class="lb-name" style="${isMe ? 'color:var(--gold);font-weight:700' : ''}">${e.user}${isMe ? ' ★' : ''}</span>`
+      + `<span class="lb-px">${e.pixels||0}px · ${e.covered||0}⚔</span>`;
+    pl.appendChild(d);
+  });
+  if (!players.length) pl.innerHTML = '<div style="font-size:.54rem;color:var(--dim);padding:10px 0;text-align:center">Aucune donnée</div>';
+
+  const cl = document.getElementById('lb-list-countries');
+  cl.innerHTML = '';
+  const countries = cd?.leaderboard || [];
+  countries.forEach((e, i) => {
+    const found = COUNTRIES.find(c => c.code === e.country);
+    const d = document.createElement('div');
+    d.className = 'lb-row';
+    d.innerHTML = `<span class="lb-rank">${medals[i] || '#'+(i+1)}</span>`
+      + `<span class="lb-name">${found ? found.flag+' '+found.name : e.country}</span>`
+      + `<span class="lb-px">${e.pixels||0}px</span>`;
+    cl.appendChild(d);
+  });
+  if (!countries.length) cl.innerHTML = '<div style="font-size:.54rem;color:var(--dim);padding:10px 0;text-align:center">Aucune donnée</div>';
+}
+
+/* ════════════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════════════ */
+let _toastT = null;
+function showToast(msg, ms) {
+  const el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('on');
+  clearTimeout(_toastT);
+  _toastT = setTimeout(() => el.classList.remove('on'), ms || 2400);
+}
+
+/* ════════════════════════════════════════════════════════
+   MODALES
+════════════════════════════════════════════════════════ */
+function openModal(id)  { document.getElementById(id)?.classList.add('open'); }
+function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
+
+/* ════════════════════════════════════════════════════════
+   NOTIFICATIONS
+════════════════════════════════════════════════════════ */
+let _notifOn = localStorage.getItem('gp_notif') === '1';
+
+function updateNotifBtn() {
+  const btn = document.getElementById('btn-notif');
+  if (btn) { btn.textContent = _notifOn ? '🔔' : '🔕'; btn.classList.toggle('connected', _notifOn); }
+  /* Toggle dans Settings */
+  const tr = document.getElementById('toggle-notif');
+  if (tr) tr.classList.toggle('on', _notifOn);
+}
+
+async function toggleNotif() {
+  if (_notifOn) {
+    _notifOn = false;
+    localStorage.setItem('gp_notif', '0');
+    updateNotifBtn();
+    showToast('🔕 Notifications désactivées');
+    return;
+  }
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') { showToast('Notifications refusées'); return; }
+    if ('serviceWorker' in navigator)
+      await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+    if (window._fcmMsg && window._fcmVapid) {
+      const { getToken } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js');
+      const tok = await getToken(window._fcmMsg, { vapidKey: window._fcmVapid });
+      if (tok) localStorage.setItem('gp_fcm_token', tok);
     }
-  } catch(e) {}
+    _notifOn = true;
+    localStorage.setItem('gp_notif', '1');
+    updateNotifBtn();
+    showToast('🔔 Notifications activées !');
+  } catch(e) { showToast('Notifications non disponibles'); }
+}
+
+/* ════════════════════════════════════════════════════════
+   RÉGLAGES — DROITIER / GAUCHER
+════════════════════════════════════════════════════════ */
+let _leftHand = localStorage.getItem('gp_lh') === '1';
+
+function _applyHandedness() {
+  const ga = document.getElementById('game-area');
+  const tg = document.getElementById('toggle-hand');
+  if (ga) ga.style.flexDirection = _leftHand ? 'row-reverse' : 'row';
+  if (tg) tg.classList.toggle('on', _leftHand);
+}
+
+function toggleHandedness() {
+  _leftHand = !_leftHand;
+  localStorage.setItem('gp_lh', _leftHand ? '1' : '0');
+  _applyHandedness();
+  showToast(_leftHand ? '🤛 Mode Gaucher' : '🤜 Mode Droitier');
+}
+
+/* ════════════════════════════════════════════════════════
+   SENTINELLE
+   Détecte pixels proches / écrasements.
+   Bascule btn-sentinel idle ↔ alert.
+════════════════════════════════════════════════════════ */
+const SENTINEL = (() => {
+  const AGG_MS    = 8000;   // agrégation 8s
+  const CD_MS     = 45000;  // cooldown par zone
+  const ZONE_R    = 12;     // rayon en cellules
+
+  let _log     = [];
+  _log.sorted  = false;
+  let _myPx    = {};   // "col,row" → true
+  let _pending = {};   // zoneKey → { events, timer, col, row, isAttack }
+  let _cd      = {};   // zoneKey → timestamp
+  let _lastPos = null;
+
+  function registerMyPixel(col, row)   { _myPx[col + ',' + row] = true; }
+  function unregisterMyPixel(col, row) { delete _myPx[col + ',' + row]; }
+
+  function checkIncoming(col, row, attacker) {
+    if (!piConnected) return;
+    const key   = col + ',' + row;
+    const isHit = !!_myPx[key];
+    let isNear  = false;
+    if (!isHit) {
+      outer:
+      for (let dc = -1; dc <= 1; dc++) {
+        for (let dr = -1; dr <= 1; dr++) {
+          if (!dc && !dr) continue;
+          if (_myPx[(col+dc) + ',' + (row+dr)]) { isNear = true; break outer; }
+        }
+      }
+    }
+    if (!isHit && !isNear) return;
+
+    const zk  = Math.floor(col/ZONE_R) + ':' + Math.floor(row/ZONE_R);
+    const now = Date.now();
+    if (_cd[zk] && now - _cd[zk] < CD_MS) return;
+
+    if (!_pending[zk]) _pending[zk] = { events:[], timer:null, col, row, isAttack: false };
+    _pending[zk].events.push({ col, row, attacker, type: isHit ? 'attack' : 'approach' });
+    if (isHit) _pending[zk].isAttack = true;
+
+    clearTimeout(_pending[zk].timer);
+    _pending[zk].timer = setTimeout(() => _flush(zk), AGG_MS);
+  }
+
+  function _flush(zk) {
+    const p = _pending[zk]; if (!p) return;
+    delete _pending[zk];
+    _cd[zk] = Date.now();
+
+    const count    = p.events.length;
+    const attacker = p.events[0].attacker || '?';
+    const msg      = p.isAttack
+      ? `🛡️ ATTAQUE ! ${attacker} écrase ${count > 1 ? count + ' pixels' : 'ton pixel'} !`
+      : `👁️ ${attacker} s'approche de ton œuvre !`;
+
+    _lastPos = { col: p.col, row: p.row };
+    _log.unshift({ msg, col: p.col, row: p.row, ts: Date.now(), isAttack: p.isAttack, read: false });
+    if (_log.length > 40) _log.pop();
+
+    _showSentToast(msg);
+    _badge();
+  }
+
+  function _showSentToast(msg) {
+    const el = document.getElementById('sentinel-toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('on');
+    clearTimeout(_showSentToast._t);
+    _showSentToast._t = setTimeout(() => el.classList.remove('on'), 5500);
+  }
+
+  function _badge() {
+    const btn   = document.getElementById('btn-sentinel');
+    const badge = document.getElementById('sentinel-badge');
+    if (btn) {
+      btn.classList.remove('sentinel-idle');
+      btn.classList.add('sentinel-alert', 'alert');
+    }
+    if (badge) {
+      const n = _log.filter(e => !e.read).length;
+      badge.textContent = n > 9 ? '9+' : String(n);
+      badge.classList.add('show');
+    }
+  }
+
+  function onToastClick() {
+    const el = document.getElementById('sentinel-toast');
+    if (el) el.classList.remove('on');
+    // CANVAS REMOVED
+    // if (_lastPos && typeof GP !== 'undefined') GP.zoomToCell(_lastPos.col, _lastPos.row);
+  }
+
+  function openLog() {
+    // Réinitialiser alerte
+    const btn   = document.getElementById('btn-sentinel');
+    const badge = document.getElementById('sentinel-badge');
+    if (btn)   { btn.classList.remove('sentinel-alert','alert'); btn.classList.add('sentinel-idle'); }
+    if (badge) badge.classList.remove('show');
+    _log.forEach(e => e.read = true);
+
+    const list = document.getElementById('sentinel-log-list');
+    if (!list) { openModal('modal-sentinel'); return; }
+    list.innerHTML = '';
+    if (!_log.length) {
+      list.innerHTML = '<div style="font-size:.52rem;color:var(--dim);text-align:center;padding:12px 0">Aucune alerte</div>';
+    } else {
+      _log.forEach(e => {
+        const ago = Math.round((Date.now() - e.ts) / 1000);
+        const t   = ago < 60 ? ago + 's' : Math.round(ago/60) + 'min';
+        const d   = document.createElement('div');
+        d.className = 'sl-item';
+        d.innerHTML = `<span class="sl-ico">${e.isAttack ? '⚔️' : '👁️'}</span>`
+          + `<span class="sl-msg">${e.msg}</span>`
+          + `<span class="sl-time">${t}</span>`;
+        d.addEventListener('click', () => {
+          closeModal('modal-sentinel');
+          // CANVAS REMOVED
+          // if (typeof GP !== 'undefined') GP.zoomToCell(e.col, e.row);
+        });
+        list.appendChild(d);
+      });
+    }
+    openModal('modal-sentinel');
+  }
+
+  return { checkIncoming, registerMyPixel, unregisterMyPixel, openLog, onToastClick };
 })();
+
+/* ════════════════════════════════════════════════════════
+   PLEIN ÉCRAN + ORIENTATION (Spécial Pi Browser)
+════════════════════════════════════════════════════════ */
+let _forceUnblock = false;
+
+function checkOrientation() {
+  if (!gameStarted || _forceUnblock) return;
+  
+  // 1. Détection hybride fiable (innerWidth vs innerHeight + media match)
+  const isLandscape = window.innerWidth > window.innerHeight || 
+                      window.matchMedia("(orientation: landscape)").matches;
+                      
+  if (!isLandscape) {
+    document.body.classList.add('portrait-blocked');
+  } else {
+    document.body.classList.remove('portrait-blocked');
+  }
+}
+
+// 2. Écoute des évènements (Mise à jour dynamique de la fenêtre)
+window.addEventListener('resize', checkOrientation);
+window.addEventListener('orientationchange', checkOrientation);
+
+async function requestFullscreen() {
+  try {
+    const el = document.documentElement;
+    // Tenter toutes les versions vendor du plein écran au tap (3. Plein Écran)
+    const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen;
+    if (req) await req.call(el).catch(() => {});
+    
+    if (screen.orientation?.lock) {
+       await screen.orientation.lock('landscape').catch(() => {});
+    }
+  } catch (_) {}
+}
+
+/* ════════════════════════════════════════════════════════
+   START GAME
+════════════════════════════════════════════════════════ */
+async function startGame() {
+  // Masquer écran welcome
+  document.getElementById('screen-welcome').classList.add('hidden');
+  
+  // Exécuter la demande plein écran (Légitime car originaire d'un clic UX)
+  await requestFullscreen();
+  gameStarted = true;
+  document.body.classList.add('game-active');
+  
+  // On amorce la barrière portrait 
+  checkOrientation();
+
+  // 4. Fallback intelligent (Timeout d'urgence)
+  // Même si l'orientation échoue (clavier ouvert, Pi Browser forcé), on le laisse jouer
+  setTimeout(() => {
+    _forceUnblock = true;
+    document.body.classList.remove('portrait-blocked');
+    
+    // 5. Overlay Display:None obligatoire pour tuer le noeud fantôme
+    const plock = document.getElementById('portrait-lock');
+    if (plock) plock.style.setProperty('display', 'none', 'important');
+  }, 2500);
+
+  loadLSState();
+  _checkDevMode(); // 3. Injection stock illimité si Mode DEV actif
+  updateStockUI();
+  document.getElementById('app').classList.add('visible');
+  await GP.startEngine();
+  showToast('✦ Bienvenue sur Gold Pixel !');
+}
+
+/* ════════════════════════════════════════════════════════
+   INIT DOM
+════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════
+   BOUTIQUE — Shop Pi
+   Aucun avantage gameplay. Tout est cosmétique / soutien.
+════════════════════════════════════════════════════════ */
+
+/* ── État boutique ── */
+let _shopUnlocked  = JSON.parse(localStorage.getItem('gp_shop') || '{}');
+  // { neon:true, pastel:true, supporter:true, ... }
+let _pixelStyle    = localStorage.getItem('gp_style') || 'default';
+let _pseudoTitle   = localStorage.getItem('gp_title') || '';
+let _isSentinelPro = !!_shopUnlocked.sentinel_premium;
+let _favZones      = JSON.parse(localStorage.getItem('gp_favzones') || '[]');
+  // [{ label, panX, panY, scale }]
+
+function _saveShop() { localStorage.setItem('gp_shop', JSON.stringify(_shopUnlocked)); }
+
+/* ── Onglets ── */
+function shopTab(tab) {
+  document.querySelectorAll('.shop-tab')   .forEach(t => t.classList.toggle('on', t.dataset.tab === tab));
+  document.querySelectorAll('.shop-panel') .forEach(p => p.classList.toggle('on', p.id === 'shop-panel-' + tab));
+  if (tab === 'social')   _renderBadges();
+  if (tab === 'confort')  _renderFavZones();
+  if (tab === 'don')      _loadSupporters();
+}
+
+/* ── DON ── */
+async function shopBuy(type) {
+  if (!window.Pi || !piConnected) {
+    showToast('Connecte-toi à Pi pour acheter'); openPiAuth(); return;
+  }
+  const ITEMS = {
+    don_1:    { price: 1,   label: 'Don 1 Pi',     isDon: true  },
+    don_2:    { price: 2,   label: 'Don 2 Pi',     isDon: true  },
+    don_5:    { price: 5,   label: 'Don 5 Pi',     isDon: true  },
+    don_libre:{ price: parseFloat(document.getElementById('don-libre-amount')?.value || '1'), label: 'Don libre', isDon: true },
+    pack_styles: { price: 2.5, label: 'Pack 2 palettes', isDon: false, isBundle: true },
+    neon:          { price: 0.5, label: 'Style Néon',          isDon: false },
+    pastel:        { price: 0.5, label: 'Style Pastel',        isDon: false },
+    metal:         { price: 1,   label: 'Style Métal',         isDon: false },
+    glitch:        { price: 1,   label: 'Style Glitch',        isDon: false },
+    ink:           { price: 1,   label: 'Style Ink',           isDon: false },
+    signature:     { price: 1,   label: 'Signature pixel',     isDon: false },
+    sentinel_premium: { price: 2, label: 'Sentinelle Premium', isDon: false },
+  };
+  const item = ITEMS[type];
+  if (!item || item.price <= 0) return;
+
+  Pi.createPayment(
+    { amount: item.price, memo: 'Gold Pixel — ' + item.label, metadata: { type, username: piUsername } },
+    {
+      onReadyForServerApproval: id =>
+        apiFetch('/api/pixelwar/shop/approve', 'POST', { paymentId: id }),
+      onReadyForServerCompletion: (id, txid) =>
+        apiFetch('/api/pixelwar/shop/complete', 'POST', { paymentId: id, txid, type, username: piUsername })
+        .then(d => {
+          if (!d?.ok) return;
+          if (item.isDon) {
+            _shopUnlocked.supporter = true;
+            _saveShop(); _applyBadgeSupporter();
+            showToast('❤️ Merci pour ton soutien ! Badge Supporter activé ★');
+          } else if (item.isBundle) {
+            _shopUnlocked.neon = true; _shopUnlocked.ink = true;
+            _saveShop(); _applyCosmetique('neon');
+            showToast('⭐ Pack 2 palettes déverrouillé !');
+            _refreshShopChips();
+          } else {
+            _shopUnlocked[type] = true;
+            _saveShop(); _applyCosmetique(type);
+            showToast('✅ ' + item.label + ' déverrouillé !');
+          }
+          closeModal('modal-shop');
+        }),
+      onCancel: () => showToast('Achat annulé'),
+      onError:  () => showToast('Erreur paiement Pi'),
+    }
+  );
+}
+
+function buyCosmetique(type) {
+  if (_shopUnlocked[type]) { applyPixelStyle(type); return; }
+  shopBuy(type);
+}
+
+/* ── Styles pixel ── */
+function applyPixelStyle(style) {
+  if (style !== 'default' && !_shopUnlocked[style]) {
+    showToast('🔒 Achète ce style d\'abord'); return;
+  }
+  _pixelStyle = style;
+  localStorage.setItem('gp_style', style);
+  document.querySelectorAll('.cosmetique-card').forEach(c => c.classList.remove('active-style'));
+  document.getElementById('style-' + style)?.classList.add('active-style');
+  showToast('🎨 Style ' + style + ' activé');
+}
+
+function _applyCosmetique(type) {
+  const card = document.getElementById('style-' + type);
+  if (card) { card.classList.remove('locked'); card.querySelector('.cos-lock')?.remove(); }
+  if (type === 'sentinel_premium') {
+    _isSentinelPro = true;
+    document.getElementById('sentinel-premium')?.classList.remove('locked');
+    document.getElementById('sentinel-premium')?.querySelector('.cos-lock')?.remove();
+  }
+  applyPixelStyle(type);
+}
+
+function _initShopUI() {
+  // Déverrouiller les items déjà achetés
+  Object.keys(_shopUnlocked).forEach(k => {
+    if (!_shopUnlocked[k]) return;
+    const lockId = k + '-lock';
+    const lockEl = document.getElementById(lockId);
+    if (lockEl) lockEl.remove();
+    const card = document.getElementById('style-' + k);
+    if (card) card.classList.remove('locked');
+  });
+  // Chips style actif
+  _refreshShopChips();
+  // Badge supporter
+  if (_shopUnlocked.supporter) _applyBadgeSupporter();
+  // Titre pseudo
+  const ti = document.getElementById('pseudo-title-input');
+  if (ti && _pseudoTitle) ti.value = _pseudoTitle;
+}
+
+function _refreshShopChips() {
+  ['default','neon','ink'].forEach(s => {
+    const el = document.getElementById('chip-' + s);
+    if (!el) return;
+    const isUnlocked = s === 'default' || !!_shopUnlocked[s];
+    el.classList.toggle('chip-locked',   !isUnlocked);
+    el.classList.toggle('chip-active',    s === _pixelStyle);
+  });
+}
+
+/* ── Badge Supporter ── */
+function _applyBadgeSupporter() {
+  // Halo visuel sur le logo pseudo dans la topbar
+  const profBtn = document.getElementById('btn-profile');
+  if (profBtn) profBtn.style.boxShadow = '0 0 10px rgba(255,215,0,.7)';
+  // Mettre à jour badge-card
+  const s = document.getElementById('badge-supporter-status');
+  if (s) { s.textContent = '✅ Obtenu'; s.classList.remove('locked-badge'); s.classList.add('unlocked-badge'); }
+}
+
+/* ── Badges ── */
+function _renderBadges() {
+  // Builder : 100 pixels
+  if (pixelsPlaced >= 100) {
+    const s = document.getElementById('badge-builder-status');
+    if (s) { s.textContent = '✅ Obtenu'; s.classList.remove('locked-badge'); s.classList.add('unlocked-badge'); }
+  }
+  if (_shopUnlocked.supporter) {
+    const s = document.getElementById('badge-supporter-status');
+    if (s) { s.textContent = '✅ Obtenu'; s.classList.remove('locked-badge'); s.classList.add('unlocked-badge'); }
+  }
+  // Titre pseudo
+  const inp = document.getElementById('pseudo-title-input');
+  if (inp) inp.value = _pseudoTitle;
+}
+
+/* ── Pseudo personnalisé ── */
+function applyPseudoTitle() {
+  const inp = document.getElementById('pseudo-title-input');
+  if (!inp) return;
+  _pseudoTitle = inp.value.trim().slice(0, 20);
+  localStorage.setItem('gp_title', _pseudoTitle);
+  showToast(_pseudoTitle ? '✅ Titre appliqué : ' + _pseudoTitle : '✅ Titre supprimé');
+}
+
+/* ── Zones favorites ── */
+function saveFavZone() {
+  if (_favZones.length >= 5) { showToast('📌 5 zones max — supprime-en une'); return; }
+  // CANVAS REMOVED
+  const ts   = Date.now();
+  _favZones.push({ label: 'Zone #' + (ts % 1000), ts, cx: 500, cy: 300 });
+  localStorage.setItem('gp_favzones', JSON.stringify(_favZones));
+  _renderFavZones();
+  showToast('📌 Zone sauvegardée');
+}
+
+function _renderFavZones() {
+  const list = document.getElementById('fav-zones-list');
+  if (!list) return;
+  list.innerHTML = '';
+  if (!_favZones.length) {
+    list.innerHTML = '<div class="fav-empty">Aucune zone sauvegardée.<br>Navigue vers une zone et clique "Sauvegarder".</div>';
+    return;
+  }
+  _favZones.forEach((z, i) => {
+    const d   = document.createElement('div');
+    d.className = 'fav-zone-row';
+    d.innerHTML = `<span class="fav-ico">📌</span>`
+      + `<span class="fav-label">${z.label}</span>`
+      + `<button class="fav-go" onclick="teleportFav(${i})">→ Aller</button>`
+      + `<button class="fav-del" onclick="deleteFav(${i})">✕</button>`;
+    list.appendChild(d);
+  });
+}
+
+function teleportFav(i) {
+  const z = _favZones[i]; if (!z) return;
+  // CANVAS REMOVED
+  closeModal('modal-shop');
+  showToast('📌 Téléportation vers ' + z.label);
+}
+
+function deleteFav(i) {
+  _favZones.splice(i, 1);
+  localStorage.setItem('gp_favzones', JSON.stringify(_favZones));
+  _renderFavZones();
+}
+
+/* ── Liste supporters (optionnel) ── */
+async function _loadSupporters() {
+  const list = document.getElementById('supporters-list');
+  if (!list) return;
+  list.innerHTML = '<div style="font-size:.48rem;color:var(--dim);text-align:center;padding:6px 0">Chargement…</div>';
+  try {
+    const d = await apiFetch('/api/pixelwar/supporters', 'GET');
+    const supporters = d?.supporters || [];
+    if (!supporters.length) {
+      list.innerHTML = '<div class="no-supporters">Sois le premier à soutenir ! ❤️</div>'; return;
+    }
+    list.innerHTML = '';
+    supporters.slice(0, 10).forEach(s => {
+      const d2 = document.createElement('div');
+      d2.className = 'supporter-item';
+      d2.innerHTML = `<span class="sup-star">★</span><span class="sup-name">@${s.username}</span>`;
+      list.appendChild(d2);
+    });
+  } catch(_) {
+    list.innerHTML = '<div class="no-supporters">Sois le premier à soutenir ! ❤️</div>';
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  updateNotifBtn();
+  _applyHandedness();
+
+  /* ── Exposition sur window pour gp-engine.js ── */
+  window.COLORS       = COLORS;
+  window.GOLD_COLOR   = GOLD_COLOR;
+
+  Object.defineProperties(window, {
+    activeColor:    { get: () => activeColor,    set: v => { activeColor    = v; }, configurable: true },
+    goldStock:      { get: () => goldStock,      set: v => { goldStock      = v; }, configurable: true },
+    pixelsPlaced:   { get: () => pixelsPlaced,   set: v => { pixelsPlaced   = v; }, configurable: true },
+    piUsername:     { get: () => piUsername,     set: v => { piUsername     = v; }, configurable: true },
+    piConnected:    { get: () => piConnected,    set: v => { piConnected    = v; }, configurable: true },
+    GOLD_MAX_ACTIVE:{ get: () => GOLD_MAX_ACTIVE,set: v => { GOLD_MAX_ACTIVE= v; }, configurable: true },
+    STOCK_CAP:      { get: () => 60,             configurable: true }, // compat gp-engine rollback
+  });
+
+  window.apiFetch      = apiFetch;
+  window.showToast     = showToast;
+  window.updateStockUI = updateStockUI;
+  window.saveLSState   = saveLSState;
+  window.getRechargeS  = getRechargeS;
+  window.SENTINEL      = SENTINEL;
+
+  _initShopUI();
+  /* Masquer l'écran de chargement et afficher le welcome */
+  setTimeout(() => {
+    document.getElementById('screen-loading').classList.add('hidden');
+    document.getElementById('screen-welcome').classList.remove('hidden');
+  }, 600);
+});
 </script>
+
 </body>
 </html>
