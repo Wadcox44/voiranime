@@ -1827,57 +1827,63 @@
     var grid = el('upcomingGrid');
     if (!grid) return;
 
-    // Collecter les IDs uniques (favoris + watching + planToWatch, pas completed)
     var favs      = getFavs();
     var watchList = getWatchList();
     var idSet     = new Set();
 
-    favs.forEach(function(f) { if (f.id) idSet.add(String(f.id)); });
+    favs.forEach(function(f) {
+      var id = f.id || f.mal_id;
+      if (id) idSet.add(String(id));
+    });
     Object.keys(watchList).forEach(function(id) {
       var entry = watchList[id];
-      if (entry.status !== 'completed') idSet.add(id);
+      if (entry && entry.status !== 'completed') idSet.add(String(id));
     });
 
-    var ids = Array.from(idSet).slice(0, 20); // max 20 pour limiter les requêtes
+    var ids = Array.from(idSet).slice(0, 20); // max 20
 
     if (ids.length === 0) {
       grid.innerHTML = '<div class="upcoming-empty">Ajoute des animes à tes favoris ou à ta liste pour voir les prochaines sorties !</div>';
       return;
     }
 
-    grid.innerHTML = '<div class="upcoming-loader"><div class="sk-spin"></div>Chargement de tes prochaines sorties…</div>';
-
     _upcomingData = [];
     var fetched   = 0;
 
+    function updateLoader() {
+      grid.innerHTML = '<div class="upcoming-loader"><div class="sk-spin"></div>Chargement de tes favoris (' + fetched + '/' + ids.length + ')…</div>';
+    }
+    updateLoader();
+
     for (var i = 0; i < ids.length; i++) {
-      if (_currentSortiesTab !== 'favoris') return; // Annuler si on a changé d'onglet
+      if (_currentSortiesTab !== 'favoris') return;
       var id = ids[i];
       try {
-        var encoded = encodeURIComponent('/anime/' + id);
-        var res  = await fetch('/api/jikan?path=' + encoded);
+        var res  = await fetch('/api/jikan?path=' + encodeURIComponent('/anime/' + id));
+        if (!res.ok) throw new Error('Status ' + res.status);
         var data = await res.json();
         var anime = data.data;
-        if (!anime) { fetched++; continue; }
 
-        var nextMs = _getNextAirMs(anime);
-        _upcomingData.push({
-          anime: anime,
-          nextMs: nextMs !== null ? Date.now() + nextMs : null
-        });
-        fetched++;
-
-        // Affichage progressif
-        _renderUpcomingGrid();
-
+        if (anime) {
+          var nextMs = _getNextAirMs(anime);
+          _upcomingData.push({
+            anime: anime,
+            nextMs: nextMs !== null ? Date.now() + nextMs : null
+          });
+        }
       } catch(e) {
-        fetched++;
+        console.warn('[Sorties] Error fetching ID ' + id, e);
       }
-      if (i < ids.length - 1) await new Promise(function(r) { setTimeout(r, 600); });
+      fetched++;
+      updateLoader();
+      if (_upcomingData.length > 0) _renderUpcomingGrid();
+
+      // Rate-limit Jikan plus prudent
+      if (i < ids.length - 1) await new Promise(function(r) { setTimeout(r, 1000); });
     }
 
     if (_upcomingData.length === 0) {
-      grid.innerHTML = '<div class="upcoming-empty">Aucune sortie à venir trouvée.</div>';
+      grid.innerHTML = '<div class="upcoming-empty">Aucune sortie à venir trouvée pour tes favoris.</div>';
     }
   }
 
