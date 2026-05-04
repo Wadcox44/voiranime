@@ -615,6 +615,7 @@
       </div>
     </div>
   </div>
+  <div id="profileSubscriptionCard" style="flex-shrink:0"></div>
 </div>
 
 <!-- BARRE D'ONGLETS STICKY -->
@@ -988,42 +989,20 @@
     const wEl = el('statWatchingCount');  if (wEl) wEl.textContent  = watching.length;
     const cEl = el('statCompletedCount'); if (cEl) cEl.textContent  = completed.length;
 
-    // ⏱ Heures / Jours actifs / Progression — PREMIUM UNIQUEMENT
+    // ⏱ Calculs toujours effectués (données locales de l'utilisateur)
     const totalMins = completed.reduce((acc, a) => acc + (a.episodes||0)*(a.duration||24), 0);
     const now2 = new Date();
     const monthStart2 = new Date(now2.getFullYear(), now2.getMonth(), 1).getTime();
     const histAll = getHistory();
     const activeDays2 = new Set(histAll.filter(h=>(h.ts||0)>=monthStart2).map(h=>new Date(h.ts).toDateString())).size;
 
-    if (window.VA_isPremium && window.VA_isPremium()) {
-      // Premium : afficher les vraies valeurs + masquer les ⭐
-      const hEl2 = el('statHoursCount');
-      if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
-      const dEl2 = el('statActiveDaysCount');
-      if (dEl2) dEl2.textContent = activeDays2 || 0;
-      ['hoursLockIcon','daysLockIcon','progressLockIcon'].forEach(function(lockId) {
-        var ic = el(lockId); if (ic) ic.style.display = 'none';
-      });
-      [el('statHoursCount'), el('statActiveDaysCount'), el('statProgressCount')].forEach(function(se) {
-        if (!se) return;
-        var p = se.closest('.stat-compact');
-        if (p) { p.style.cursor = ''; p.onclick = null; p.removeAttribute('title'); }
-      });
-      // Progression async
-      (async function() {
-        try {
-          const r = await fetch('/api/jikan?path=' + encodeURIComponent('/anime?limit=1&page=1'));
-          const d = await r.json();
-          const total = d.pagination?.items?.total || 24000;
-          const pct = +(completed.length / total * 100).toFixed(1);
-          const pEl2 = el('statProgressCount'); if (pEl2) pEl2.textContent = pct + '%';
-        } catch {
-          const pEl2 = el('statProgressCount');
-          if (pEl2) pEl2.textContent = completed.length > 0 ? completed.length + ' vus' : '—';
-        }
-      })();
-    }
-    // Non-premium : stats restent '—' avec ⭐ → onclick ouvre popup premium
+    // Heures de visionnage — affichées pour tous (calculées depuis les données locales)
+    const hEl2 = el('statHoursCount');
+    if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
+
+    // Jours actifs ce mois — affichés pour tous (données locales)
+    const dEl2 = el('statActiveDaysCount');
+    if (dEl2) dEl2.textContent = activeDays2 || 0;
 
     // ── Phrases humaines sous chaque groupe ──────────────────────────────
     // Groupe 1 : Activité
@@ -1233,16 +1212,13 @@
      Affichage immédiat. Mise à jour si Pi auth disponible.
   ──────────────────────────────────────────────────────────────────────── */
   function renderSubscriptionStatus() {
-    // Le bouton hero premium a été supprimé — seul l'onglet Abonnement gère le statut
+    var card = el('profileSubscriptionCard');
+    _buildPremiumBtn(card, null); // bouton par défaut immédiat
     function _tryPremium() {
       if (window.VA_onPremiumReady) {
         window.VA_onPremiumReady(function(status) {
+          _buildPremiumBtn(card, status);
           _buildAboPanel(status);
-          // Dot vert sur onglet Abonnement si premium actif
-          if (status && status.isPremium) {
-            var dot = document.getElementById('ptabPremiumDot');
-            if (dot) dot.classList.add('visible');
-          }
         });
       } else { setTimeout(_tryPremium, 500); }
     }
@@ -1637,9 +1613,11 @@
     var grid = el('upcomingGrid');
     if (!grid) return;
 
+    // Nettoyer les timers live précédents
     _upcomingTimers.forEach(function(t) { clearInterval(t); });
     _upcomingTimers = [];
 
+    // Filtrer selon sélection
     var now   = Date.now();
     var week  = now + 7  * 86400000;
     var month = now + 30 * 86400000;
@@ -1649,150 +1627,145 @@
       if (_upcomingFilter === 'month') return item.nextMs <= month;
       return true;
     });
+
+    // Trier par proximité
     filtered.sort(function(a, b) { return a.nextMs - b.nextMs; });
 
     if (filtered.length === 0) {
-      grid.innerHTML = '<div class="upcoming-empty">Aucune sortie pour cette période.</div>';
+      grid.innerHTML = '<div class="upcoming-empty">Aucune sortie à venir pour cette période.<br>Ajoute des animes en cours à tes favoris !</div>';
       return;
     }
 
-    // Séparer en cours (Currently Airing) et à venir
-    var airing   = filtered.filter(function(i) { return i.anime.status === 'Currently Airing'; });
-    var upcoming = filtered.filter(function(i) { return i.anime.status !== 'Currently Airing'; });
-
     grid.innerHTML = '';
+    filtered.forEach(function(item, idx) {
+      var typeInfo = _upcomingTypeInfo(item.anime);
+      var cardCls  = item.anime.status === 'Currently Airing' ? 'airing' : (item.anime.type === 'Movie' ? 'movie' : 'upcoming');
+      var img      = (item.anime.images && item.anime.images.jpg && (item.anime.images.jpg.image_url || '')) || '';
+      var title    = item.anime.title_english || item.anime.title || '?';
+      var animeId  = item.anime.mal_id;
 
-    function buildSection(title, color, items, offset) {
-      if (items.length === 0) return;
-      var header = document.createElement('div');
-      header.style.cssText = 'font-size:0.65rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:' + color + ';margin:12px 0 6px;padding:0 2px;';
-      header.textContent = title;
-      if (grid.children.length === 0) header.style.marginTop = '0';
-      grid.appendChild(header);
+      var card = document.createElement('a');
+      card.href      = 'anime.html?id=' + animeId;
+      card.className = 'upcoming-card ' + cardCls;
+      card.innerHTML =
+        '<img class="upcoming-thumb" src="' + img + '" alt="' + title + '">' +
+        '<div class="upcoming-info">' +
+          '<div class="upcoming-title">' + title + '</div>' +
+          '<div class="upcoming-type ' + typeInfo.cls + '">' + typeInfo.label + '</div>' +
+        '</div>' +
+        '<div class="upcoming-countdown">' +
+          '<div class="upc-time" id="upcTime_' + idx + '">--</div>' +
+          '<div class="upc-label" id="upcLabel_' + idx + '">chargement…</div>' +
+        '</div>';
+      grid.appendChild(card);
 
-      items.forEach(function(item, i) {
-        var idx = offset + i;
-        var typeInfo = _upcomingTypeInfo(item.anime);
-        var cardCls  = item.anime.status === 'Currently Airing' ? 'airing' : (item.anime.type === 'Movie' ? 'movie' : 'upcoming');
-        var img      = (item.anime.images && item.anime.images.jpg && (item.anime.images.jpg.image_url || '')) || '';
-        var title_a  = item.anime.title_english || item.anime.title || '?';
-        var animeId  = item.anime.mal_id;
-
-        var card = document.createElement('a');
-        card.href      = 'anime.html?id=' + animeId;
-        card.className = 'upcoming-card ' + cardCls;
-        card.innerHTML =
-          '<img class="upcoming-thumb" src="' + img + '" alt="' + title_a + '">' +
-          '<div class="upcoming-info">' +
-            '<div class="upcoming-title">' + title_a + '</div>' +
-            '<div class="upcoming-type ' + typeInfo.cls + '">' + typeInfo.label + '</div>' +
-          '</div>' +
-          '<div class="upcoming-countdown">' +
-            '<div class="upc-time" id="upcTime_' + idx + '">--</div>' +
-            '<div class="upc-label" id="upcLabel_' + idx + '">…</div>' +
-          '</div>';
-        grid.appendChild(card);
-
-        // Countdown live
-        var ms0 = item.nextMs - now;
-        function makeUpdate(item_, idx_) {
-          return function() {
-            var msNow = item_.nextMs - Date.now();
-            var fmt   = _formatUpcomingTime(msNow);
-            var timeEl  = el('upcTime_' + idx_);
-            var labelEl = el('upcLabel_' + idx_);
-            if (timeEl)  { timeEl.textContent = fmt.text; timeEl.className = 'upc-time ' + (fmt.cls || ''); }
-            if (labelEl) {
-              var days_   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-              var daysFR  = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-              var bDay    = item_.anime.broadcast && item_.anime.broadcast.day;
-              var bTime   = item_.anime.broadcast && item_.anime.broadcast.time;
-              var epIdx_  = bDay ? days_.findIndex(function(d){ return bDay.toLowerCase().startsWith(d.toLowerCase()); }) : -1;
-              var dayLbl  = epIdx_ >= 0 ? daysFR[epIdx_] : '';
-              labelEl.textContent = bDay && bTime ? (dayLbl + ' ' + bTime + ' JST') : 'Date connue';
-            }
-          };
+      // Countdown live pour cet item
+      var ms0 = item.nextMs - Date.now();
+      function updateCard() {
+        var msNow = item.nextMs - Date.now();
+        var fmt   = _formatUpcomingTime(msNow);
+        var timeEl  = el('upcTime_' + idx);
+        var labelEl = el('upcLabel_' + idx);
+        if (timeEl)  { timeEl.textContent = fmt.text; timeEl.className = 'upc-time ' + (fmt.cls || ''); }
+        if (labelEl) {
+          var days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+          var daysFR = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+          var bDay   = item.anime.broadcast && item.anime.broadcast.day;
+          var bTime  = item.anime.broadcast && item.anime.broadcast.time;
+          var epIdx  = bDay ? days.findIndex(function(d){ return bDay.toLowerCase().startsWith(d.toLowerCase()); }) : -1;
+          var dayLbl = epIdx >= 0 ? daysFR[epIdx] : '';
+          labelEl.textContent = bDay && bTime ? (dayLbl + ' ' + bTime + ' JST') : 'Date connue';
         }
-        var upd = makeUpdate(item, idx);
-        upd();
-        var interval = ms0 < 3600000 ? 1000 : 60000;
-        _upcomingTimers.push(setInterval(upd, interval));
-      });
-    }
-
-    buildSection('📡 En cours de diffusion', '#4ade80', airing, 0);
-    buildSection('🔜 Prochaines sorties',    '#a78bfa', upcoming, airing.length);
+      }
+      updateCard();
+      // Rafraîchissement 1x/sec si < 1h, sinon 1x/min
+      var interval = ms0 < 3600000 ? 1000 : 60000;
+      _upcomingTimers.push(setInterval(updateCard, interval));
+    });
   }
 
   async function renderUpcomingReleases() {
-    // Accessible à tous — pas de guard premium
-    var inner  = document.getElementById('upcomingSectionInner');
-    var teaser = document.getElementById('upcomingTeaserPanel');
-    if (inner)  inner.style.display  = '';
-    if (teaser) teaser.style.display = 'none';
-    _fetchUpcomingData();
+    var section = el('upcomingSection');
+    if (!section) return;
+
+    // Guard premium
+    function _tryRender() {
+      if (window.VA_onPremiumReady) {
+        window.VA_onPremiumReady(function(status) {
+          var inner  = document.getElementById('upcomingSectionInner');
+          var teaser = document.getElementById('upcomingTeaserPanel');
+          if (!status || !status.isPremium) {
+            if (inner)  inner.style.display  = 'none';
+            if (teaser) teaser.style.display = 'block';
+            return;
+          }
+          if (inner)  inner.style.display  = '';
+          if (teaser) teaser.style.display = 'none';
+          if (section) section.style.display = 'none'; // legacy hidden
+          _fetchUpcomingData();
+        });
+      } else {
+        setTimeout(_tryRender, 500);
+      }
+    }
+    _tryRender();
   }
 
   async function _fetchUpcomingData() {
     var grid = el('upcomingGrid');
     if (!grid) return;
 
-    grid.innerHTML = '<div class="upcoming-loader"><div class="sk-spin"></div>Chargement des sorties…</div>';
-    _upcomingData = [];
-
-    // ── 1. Chercher dans les favoris / watchlist perso ──────────────────
+    // Collecter les IDs uniques (favoris + watching + planToWatch, pas completed)
     var favs      = getFavs();
     var watchList = getWatchList();
     var idSet     = new Set();
+
     favs.forEach(function(f) { if (f.id) idSet.add(String(f.id)); });
     Object.keys(watchList).forEach(function(id) {
-      if (watchList[id].status !== 'completed') idSet.add(id);
+      var entry = watchList[id];
+      if (entry.status !== 'completed') idSet.add(id);
     });
-    var ids = Array.from(idSet).slice(0, 15);
 
-    for (var i = 0; i < ids.length; i++) {
-      try {
-        var res  = await fetch('/api/jikan?path=' + encodeURIComponent('/anime/' + ids[i]));
-        var data = await res.json();
-        var anime = data.data;
-        if (!anime) continue;
-        var nextMs = _getNextAirMs(anime);
-        if (nextMs !== null) _upcomingData.push({ anime: anime, nextMs: Date.now() + nextMs, source: 'perso' });
-        if (_upcomingData.length > 0) _renderUpcomingGrid();
-      } catch(e) {}
-      if (i < ids.length - 1) await new Promise(function(r) { setTimeout(r, 700); });
+    var ids = Array.from(idSet).slice(0, 20); // max 20 pour limiter les requêtes
+
+    if (ids.length === 0) {
+      grid.innerHTML = '<div class="upcoming-empty">Ajoute des animes à tes favoris ou à ta liste pour voir les prochaines sorties !</div>';
+      return;
     }
 
-    // ── 2. Toujours compléter avec la saison en cours ───────────────────
-    try {
-      var resCur = await fetch('/api/jikan?path=' + encodeURIComponent('/seasons/now?limit=20'));
-      var dataCur = await resCur.json();
-      (dataCur.data || []).forEach(function(anime) {
-        var alreadyIn = _upcomingData.some(function(d) { return d.anime.mal_id === anime.mal_id; });
-        if (!alreadyIn) {
-          var nextMs = _getNextAirMs(anime);
-          if (nextMs !== null) _upcomingData.push({ anime: anime, nextMs: Date.now() + nextMs, source: 'season' });
-        }
-      });
-      if (_upcomingData.length > 0) _renderUpcomingGrid();
-    } catch(e) {}
+    grid.innerHTML = '<div class="upcoming-loader"><div class="sk-spin"></div>Chargement de tes prochaines sorties…</div>';
 
-    // ── 3. Ajouter les animes qui vont bientôt commencer ────────────────
-    try {
-      var resUp = await fetch('/api/jikan?path=' + encodeURIComponent('/seasons/upcoming?limit=15'));
-      var dataUp = await resUp.json();
-      (dataUp.data || []).forEach(function(anime) {
-        var alreadyIn = _upcomingData.some(function(d) { return d.anime.mal_id === anime.mal_id; });
-        if (!alreadyIn) {
-          var nextMs = _getNextAirMs(anime);
-          if (nextMs !== null) _upcomingData.push({ anime: anime, nextMs: Date.now() + nextMs, source: 'upcoming' });
+    _upcomingData = [];
+    var fetched   = 0;
+
+    for (var i = 0; i < ids.length; i++) {
+      var id = ids[i];
+      try {
+        var encoded = encodeURIComponent('/anime/' + id);
+        var res  = await fetch('/api/jikan?path=' + encoded);
+        var data = await res.json();
+        var anime = data.data;
+        if (!anime) { fetched++; continue; }
+
+        // Garder uniquement si sortie à venir connue
+        var nextMs = _getNextAirMs(anime);
+        if (nextMs !== null) {
+          _upcomingData.push({ anime: anime, nextMs: Date.now() + nextMs });
         }
-      });
-      _renderUpcomingGrid();
-    } catch(e) {}
+        fetched++;
+
+        // Affichage progressif : mettre à jour après chaque fetch
+        if (_upcomingData.length > 0) _renderUpcomingGrid();
+
+      } catch(e) {
+        fetched++;
+      }
+      // Rate-limit : attente entre requêtes
+      if (i < ids.length - 1) await new Promise(function(r) { setTimeout(r, 900); });
+    }
 
     if (_upcomingData.length === 0) {
-      grid.innerHTML = '<div class="upcoming-empty">Aucune sortie à venir disponible pour le moment.</div>';
+      grid.innerHTML = '<div class="upcoming-empty">Aucune sortie à venir trouvée.<br>Les animes que tu suis sont peut-être tous terminés.</div>';
     }
   }
 
@@ -1941,14 +1914,6 @@
   /* ════ ADAPTATION renderPremiumStats → panel Perso ════ */
   // Wrapper : après renderPremiumStats on redirige vers les panels perso
   var _origRenderPremiumStats = null;
-
-
-  /* Exposer dans le scope global (requis pour onclick inline) */
-  window.switchTab         = switchTab;
-  window.avmSwitch         = avmSwitch;
-  window.avmCancelPhoto    = avmCancelPhoto;
-  window.avmConfirmPhoto   = avmConfirmPhoto;
-  window.setUpcomingFilter = setUpcomingFilter;
 
   /* ── Init ── */
   renderStats();
