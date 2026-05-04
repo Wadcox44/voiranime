@@ -578,10 +578,11 @@ if (!imgSrc) {
 
   /* ── 7. Navbar active link + Section tracking ── */
   const navLinks = document.querySelectorAll('.nav-link');
-  const path     = location.pathname.split('/').pop() || 'index.html';
+  const _raw  = location.pathname.split('/').pop() || 'index.html';
+  const path  = _raw.includes('.') ? _raw : _raw + '.html';
   navLinks.forEach(l => {
     const href = l.getAttribute('href');
-    l.classList.toggle('active', href === path || (path === '' && href === 'index.html'));
+    l.classList.toggle('active', href === path || (path === 'index.html' && href === 'index.html'));
   });
 
   // Track section visible → met le nav-link correspondant en section-active
