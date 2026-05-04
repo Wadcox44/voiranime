@@ -989,42 +989,20 @@
     const wEl = el('statWatchingCount');  if (wEl) wEl.textContent  = watching.length;
     const cEl = el('statCompletedCount'); if (cEl) cEl.textContent  = completed.length;
 
-    // ⏱ Heures / Jours actifs / Progression — PREMIUM UNIQUEMENT
+    // ⏱ Calculs toujours effectués (données locales de l'utilisateur)
     const totalMins = completed.reduce((acc, a) => acc + (a.episodes||0)*(a.duration||24), 0);
     const now2 = new Date();
     const monthStart2 = new Date(now2.getFullYear(), now2.getMonth(), 1).getTime();
     const histAll = getHistory();
     const activeDays2 = new Set(histAll.filter(h=>(h.ts||0)>=monthStart2).map(h=>new Date(h.ts).toDateString())).size;
 
-    if (window.VA_isPremium && window.VA_isPremium()) {
-      // Premium : afficher les vraies valeurs + masquer les ⭐
-      const hEl2 = el('statHoursCount');
-      if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
-      const dEl2 = el('statActiveDaysCount');
-      if (dEl2) dEl2.textContent = activeDays2 || 0;
-      ['hoursLockIcon','daysLockIcon','progressLockIcon'].forEach(function(lockId) {
-        var ic = el(lockId); if (ic) ic.style.display = 'none';
-      });
-      [el('statHoursCount'), el('statActiveDaysCount'), el('statProgressCount')].forEach(function(se) {
-        if (!se) return;
-        var p = se.closest('.stat-compact');
-        if (p) { p.style.cursor = ''; p.onclick = null; p.removeAttribute('title'); }
-      });
-      // Progression async
-      (async function() {
-        try {
-          const r = await fetch('/api/jikan?path=' + encodeURIComponent('/anime?limit=1&page=1'));
-          const d = await r.json();
-          const total = d.pagination?.items?.total || 24000;
-          const pct = +(completed.length / total * 100).toFixed(1);
-          const pEl2 = el('statProgressCount'); if (pEl2) pEl2.textContent = pct + '%';
-        } catch {
-          const pEl2 = el('statProgressCount');
-          if (pEl2) pEl2.textContent = completed.length > 0 ? completed.length + ' vus' : '—';
-        }
-      })();
-    }
-    // Non-premium : stats restent '—' avec ⭐ → onclick ouvre popup premium
+    // Heures de visionnage — affichées pour tous (données locales)
+    const hEl2 = el('statHoursCount');
+    if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
+
+    // Jours actifs ce mois — affichés pour tous (données locales)
+    const dEl2 = el('statActiveDaysCount');
+    if (dEl2) dEl2.textContent = activeDays2 || 0;
 
     // ── Phrases humaines sous chaque groupe ──────────────────────────────
     // Groupe 1 : Activité
@@ -1936,6 +1914,13 @@
   /* ════ ADAPTATION renderPremiumStats → panel Perso ════ */
   // Wrapper : après renderPremiumStats on redirige vers les panels perso
   var _origRenderPremiumStats = null;
+
+  /* Exposer dans le scope global (requis pour onclick inline) */
+  window.switchTab         = switchTab;
+  window.avmSwitch         = avmSwitch;
+  window.avmCancelPhoto    = avmCancelPhoto;
+  window.avmConfirmPhoto   = avmConfirmPhoto;
+  window.setUpcomingFilter = setUpcomingFilter;
 
   /* ── Init ── */
   renderStats();
