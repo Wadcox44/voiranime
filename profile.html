@@ -430,21 +430,21 @@
     }
     .profile-tabs {
       display: flex;
-      justify-content: space-between;
-      width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
       max-width: 1160px;
       margin: 0 auto;
     }
     .profile-tabs::-webkit-scrollbar { display: none; }
     .ptab {
-      display: flex; align-items: center; justify-content: center; gap: 4px;
-      flex: 1; min-width: 0;
-      padding: 10px 4px 9px;
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 11px 16px 10px;
       border: none; border-bottom: 2px solid transparent;
       background: transparent; color: var(--muted);
-      font-family: var(--font); font-size: 0.72rem; font-weight: 600;
+      font-family: var(--font); font-size: 0.8rem; font-weight: 600;
       cursor: pointer; white-space: nowrap;
       transition: color 0.15s, border-color 0.15s;
+      flex-shrink: 0;
     }
     .ptab:hover { color: var(--text2); }
     .ptab.active { color: var(--text); border-bottom-color: #a78bfa; }
@@ -641,10 +641,10 @@
       </div>
       <div class="stat-group-phrase" id="phraseActivite">Commence à explorer le catalogue !</div>
       <div class="stat-group-cells cols-3">
-        <a href="history.html" class="stat-cell" style="text-decoration:none">
+        <div class="stat-cell" style="cursor:pointer" onclick="openHistoryPanel()">
           <div class="stat-cell-num" id="statHistCount" style="color:var(--violet)">0</div>
           <div class="stat-cell-label">Visités</div>
-        </a>
+        </div>
         <a href="favorites.html" class="stat-cell" style="text-decoration:none">
           <div class="stat-cell-num" id="statFavCount" style="color:var(--pink)">0</div>
           <div class="stat-cell-label">Favoris</div>
@@ -989,42 +989,20 @@
     const wEl = el('statWatchingCount');  if (wEl) wEl.textContent  = watching.length;
     const cEl = el('statCompletedCount'); if (cEl) cEl.textContent  = completed.length;
 
-    // ⏱ Heures / Jours actifs / Progression — PREMIUM UNIQUEMENT
+    // ⏱ Calculs toujours effectués (données locales de l'utilisateur)
     const totalMins = completed.reduce((acc, a) => acc + (a.episodes||0)*(a.duration||24), 0);
     const now2 = new Date();
     const monthStart2 = new Date(now2.getFullYear(), now2.getMonth(), 1).getTime();
     const histAll = getHistory();
     const activeDays2 = new Set(histAll.filter(h=>(h.ts||0)>=monthStart2).map(h=>new Date(h.ts).toDateString())).size;
 
-    if (window.VA_isPremium && window.VA_isPremium()) {
-      // Premium : afficher les vraies valeurs + masquer les ⭐
-      const hEl2 = el('statHoursCount');
-      if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
-      const dEl2 = el('statActiveDaysCount');
-      if (dEl2) dEl2.textContent = activeDays2 || 0;
-      ['hoursLockIcon','daysLockIcon','progressLockIcon'].forEach(function(lockId) {
-        var ic = el(lockId); if (ic) ic.style.display = 'none';
-      });
-      [el('statHoursCount'), el('statActiveDaysCount'), el('statProgressCount')].forEach(function(se) {
-        if (!se) return;
-        var p = se.closest('.stat-compact');
-        if (p) { p.style.cursor = ''; p.onclick = null; p.removeAttribute('title'); }
-      });
-      // Progression async
-      (async function() {
-        try {
-          const r = await fetch('/api/jikan?path=' + encodeURIComponent('/anime?limit=1&page=1'));
-          const d = await r.json();
-          const total = d.pagination?.items?.total || 24000;
-          const pct = +(completed.length / total * 100).toFixed(1);
-          const pEl2 = el('statProgressCount'); if (pEl2) pEl2.textContent = pct + '%';
-        } catch {
-          const pEl2 = el('statProgressCount');
-          if (pEl2) pEl2.textContent = completed.length > 0 ? completed.length + ' vus' : '—';
-        }
-      })();
-    }
-    // Non-premium : stats restent '—' avec ⭐ → onclick ouvre popup premium
+    // Heures de visionnage — affichées pour tous (données locales)
+    const hEl2 = el('statHoursCount');
+    if (hEl2) hEl2.textContent = Math.round(totalMins/60) + 'h';
+
+    // Jours actifs ce mois — affichés pour tous (données locales)
+    const dEl2 = el('statActiveDaysCount');
+    if (dEl2) dEl2.textContent = activeDays2 || 0;
 
     // ── Phrases humaines sous chaque groupe ──────────────────────────────
     // Groupe 1 : Activité
@@ -1937,12 +1915,72 @@
   // Wrapper : après renderPremiumStats on redirige vers les panels perso
   var _origRenderPremiumStats = null;
 
+
+  /* ════ PANEL HISTORIQUE VISITÉS ════ */
+  function openHistoryPanel() {
+    var panel = document.getElementById('historyPanel');
+    var grid  = document.getElementById('historyPanelGrid');
+    var title = document.getElementById('historyPanelTitle');
+    if (!panel || !grid) return;
+
+    var hist = getHistory();
+    // Dédupliquer par id, garder la visite la plus récente
+    var seen = {};
+    var deduped = [];
+    hist.forEach(function(h) {
+      if (h && h.id && !seen[h.id]) { seen[h.id] = true; deduped.push(h); }
+    });
+    deduped.sort(function(a, b) { return (b.ts || 0) - (a.ts || 0); });
+
+    if (title) title.textContent = 'Animes visités (' + deduped.length + ')';
+
+    grid.innerHTML = '';
+    if (deduped.length === 0) {
+      var empty = document.createElement('div');
+      empty.className = 'profile-empty';
+      empty.style.gridColumn = '1/-1';
+      empty.innerHTML = '<div class="profile-empty-icon">📚</div>Aucun anime visité pour le moment.';
+      grid.appendChild(empty);
+    } else {
+      deduped.forEach(function(a) {
+        var card = document.createElement('a');
+        card.className = 'profile-anime-card';
+        card.href = 'anime.html?id=' + a.id;
+        var img = document.createElement('img');
+        img.className = 'profile-card-img';
+        img.loading = 'lazy';
+        img.alt = a.title || 'Anime';
+        img.src = a.img || a.image_url || '';
+        img.onerror = function() { this.src = 'https://placehold.co/225x318/0f0e1a/555?text=?'; };
+        var body = document.createElement('div');
+        body.className = 'profile-card-body';
+        var tDiv = document.createElement('div');
+        tDiv.className = 'profile-card-title';
+        tDiv.textContent = a.title || 'Anime';
+        body.appendChild(tDiv);
+        card.appendChild(img);
+        card.appendChild(body);
+        grid.appendChild(card);
+      });
+    }
+    panel.style.transform = 'translateY(0)';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeHistoryPanel() {
+    var panel = document.getElementById('historyPanel');
+    if (panel) panel.style.transform = 'translateY(100%)';
+    document.body.style.overflow = '';
+  }
+
   /* Exposer dans le scope global (requis pour onclick inline) */
   window.switchTab         = switchTab;
   window.avmSwitch         = avmSwitch;
   window.avmCancelPhoto    = avmCancelPhoto;
   window.avmConfirmPhoto   = avmConfirmPhoto;
   window.setUpcomingFilter = setUpcomingFilter;
+  window.openHistoryPanel  = openHistoryPanel;
+  window.closeHistoryPanel = closeHistoryPanel;
 
   /* ── Init ── */
   renderStats();
@@ -2021,5 +2059,19 @@ document.addEventListener('DOMContentLoaded', function(){
   } catch(e) {}
 })();
 </script>
+
+<!-- ══ PANEL HISTORIQUE VISITÉS ══ -->
+<div id="historyPanel" style="position:fixed;inset:0;z-index:9500;background:var(--bg);display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.32s cubic-bezier(0.4,0,0.2,1);">
+  <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--ink1);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:10;flex-shrink:0;">
+    <button onclick="closeHistoryPanel()" style="background:rgba(255,255,255,0.05);border:1px solid var(--b2);color:var(--text);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <h2 id="historyPanelTitle" style="margin:0;font-size:1.05rem;font-weight:700;color:var(--text)">Animes visités</h2>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:16px;">
+    <div class="profile-grid" id="historyPanelGrid"></div>
+  </div>
+</div>
+
 </body>
 </html>
