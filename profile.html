@@ -2003,12 +2003,12 @@
     grid.innerHTML = '<div class="upcoming-loader"><div class="sk-spin"></div>Chargement de la saison actuelle…</div>';
 
     try {
-      var res = await fetch('/api/jikan?path=' + encodeURIComponent('/seasons/now?limit=20'));
+      var res = await fetch('/api/jikan?path=' + encodeURIComponent('/seasons/now'));
       if (myToken !== _sortiesFetchToken) return;
       if (!res.ok) throw new Error('Status ' + res.status);
       var data = await res.json();
       if (myToken !== _sortiesFetchToken) return;
-      var list = data.data || [];
+      var list = (data.data || []).slice(0, 20);  // limite côté client
 
       // Mémoriser dans le cache et alimenter aussi le cache /anime/{id} pour réutilisation
       _globalCache = { ts: Date.now(), data: list };
@@ -2021,7 +2021,7 @@
       _renderUpcomingGrid();
     } catch(e) {
       if (myToken !== _sortiesFetchToken) return;
-      grid.innerHTML = '<div class="upcoming-empty">Erreur lors du chargement des sorties globales.</div>';
+      grid.innerHTML = '<div class="upcoming-empty">Erreur lors du chargement des sorties globales.<br><span style="font-size:0.7rem;opacity:0.7">' + (e && e.message ? _escape(e.message) : 'Erreur inconnue') + '</span></div>';
     }
   }
 
