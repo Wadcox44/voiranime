@@ -426,8 +426,7 @@
 
     /* ════ SYSTÈME D'ONGLETS ════ */
     .profile-tabs-wrap {
-      position: sticky;
-      top: var(--nav-h, 56px);
+      position: relative;
       z-index: 90;
       background: var(--ink1);
       border-bottom: 1px solid var(--b1);
@@ -1857,32 +1856,6 @@
     _launchSubscription(plan);
   }
 
-  function _buildSubCard() {}
-  function _buildPremiumBtn() {}
-  function _buildAboPanel() {}
-
-  // Lance le paiement Pi
-  var _piReady = false;
-
-  (function initPiSDK() {
-    if (typeof window.Pi === 'undefined') return;
-    try {
-      window.Pi.init({ version: '2.0', sandbox: true });
-      _piReady = true;
-    } catch(e) { console.warn('[Pi init]', e); }
-  })();
-
-  function _showPiError(msg) {
-    // Affiche l'erreur dans #premPiError si présent, sinon dans un toast
-    var errEl = el('premPiError');
-    if (errEl) {
-      errEl.innerHTML = '<div class="prem-pi-error">' + msg + '</div>';
-      setTimeout(function() { if (errEl) errEl.innerHTML = ''; }, 5000);
-    } else {
-      showToast(msg);
-    }
-  }
-
   function _launchSubscription(plan) {
     var planDef = PREM_PLANS[plan];
     if (!planDef) return;
@@ -1901,10 +1874,10 @@
       try { return JSON.parse(localStorage.getItem('pi_user')); } catch(e) { return null; }
     })();
 
-    // Paiement incomplet — même logique que soutenir.html
+    // 1. Authentification & Gestion des paiements incomplets
     window.Pi.authenticate(['payments', 'username'], function onIncomplete(payment) {
       if (!payment || !payment.identifier) return;
-      fetch('https://voir-anime.vercel.app/api/pi-complete', {
+      fetch('/api/pi-complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1916,69 +1889,84 @@
         }),
       }).catch(function() {});
     })
-    .then(function(auth) {
-      window.Pi.createPayment(
-        {
-          amount:   planDef.amount,
-          memo:     'VoirAnime ' + planDef.label,
-          metadata: { app: 'voiranime', type: 'subscription', plan: plan },
-        },
-        {
-          onReadyForServerApproval: function(paymentId) {
-            fetch('https://voir-anime.vercel.app/api/pi-approve', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ paymentId: paymentId, plan: plan }),
-            }).catch(function() {});
-          },
-          onReadyForServerCompletion: function(paymentId, txid) {
-            fetch('https://voir-anime.vercel.app/api/pi-complete', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                paymentId: paymentId,
-                txid: txid,
-                piUserId: piUser && piUser.uid,
-                plan: plan,
-                piUsername: auth.user && auth.user.username,
-              }),
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-              if (data.premium && data.premium.isPremium) {
-                window.VA_clearPremiumCache && window.VA_clearPremiumCache();
-                closePlanPicker();
-                renderSubscriptionStatus();
-                showToast('\u2705 Abonnement Premium activ\u00e9 ! Bienvenue \uD83C\uDF89');
-              }
-            })
-            .catch(function() { alert('Paiement re\u00e7u \u2014 activation en cours\u2026'); });
-          },
-          onCancel: function() {},
-          onError:  function(e) { console.error('[sub]', e); },
+    .then(async function(auth) {
+      try {
+        // 2. Création du paiement côté SERVEUR (plus sécurisé)
+        // Note: Le fichier fourni est api/pi-create-payement.js
+        const createRes = await fetch('/api/pi-create-payement', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount:   planDef.amount,
+            memo:     'VoirAnime ' + planDef.label,
+            metadata: { app: 'voiranime', type: 'subscription', plan: plan, piUserId: piUser && piUser.uid }
+          })
+        });
+
+        if (!createRes.ok) throw new Error("Erreur serveur lors de la création du paiement");
+        const paymentData = await createRes.json();
+
+        if (!paymentData || !paymentData.identifier) {
+          throw new Error("Identifiant de paiement manquant");
         }
-      );
+
+        // 3. Lancement du paiement SDK avec l'identifier reçu
+        window.Pi.createPayment(
+          {
+            paymentId: paymentData.identifier
+          },
+          {
+            onReadyForServerApproval: function(paymentId) {
+              fetch('/api/pi-approve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  paymentId: paymentId,
+                  plan: plan,
+                  piUserId: piUser && piUser.uid,
+                  piUsername: auth.user && auth.user.username
+                }),
+              }).catch(function() {});
+            },
+            onReadyForServerCompletion: function(paymentId, txid) {
+              fetch('/api/pi-complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  paymentId: paymentId,
+                  txid: txid,
+                  piUserId: piUser && piUser.uid,
+                  plan: plan,
+                  piUsername: auth.user && auth.user.username,
+                }),
+              })
+              .then(function(r) { return r.json(); })
+              .then(function(data) {
+                if (data.premium && (data.premium.isPremium || data.premium.ok)) {
+                  window.VA_clearPremiumCache && window.VA_clearPremiumCache();
+                  closePlanPicker();
+                  renderSubscriptionStatus();
+                  showToast('✅ Abonnement Premium activé ! Bienvenue 🎉');
+                } else if (data.ok) {
+                   window.VA_clearPremiumCache && window.VA_clearPremiumCache();
+                   renderSubscriptionStatus();
+                   showToast('✅ Paiement confirmé !');
+                } else {
+                   _showPiError(data.message || "Erreur d'activation");
+                }
+              })
+              .catch(function() { showToast('Paiement reçu — activation en cours…'); });
+            },
+            onCancel: function() {},
+            onError:  function(e) { console.error('[sub]', e); _showPiError("Erreur SDK Pi : " + (e.message || "inconnue")); },
+          }
+        );
+      } catch (err) {
+        console.error('[payment creation]', err);
+        _showPiError("Impossible de créer le paiement : " + err.message);
+      }
     })
     .catch(function(e) { console.error('[pi auth]', e); });
-  }
-
-  function _confirmCancel() {
-    var piUser = (function() {
-      try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
-    })();
-    if (!piUser || !piUser.uid) { showToast('Connexion Pi requise'); return; }
-    if (!confirm("Annuler l'abonnement ?\nTu gardes l'accès jusqu'à la date d'expiration.")) return;
-    fetch('/api/premium', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'cancel', piUserId: piUser.uid }),
-    }).then(function(r) { return r.json(); }).then(function(data) {
-      if (data.ok) {
-        window.VA_clearPremiumCache && window.VA_clearPremiumCache();
-        renderSubscriptionStatus();
-        showToast('Annulation enregistrée — accès jusqu\'à expiration');
-      }
-    }).catch(function() { showToast('Erreur réseau — réessaie'); });
   }
 
     /* ── Stats Premium ── */
