@@ -602,24 +602,23 @@
        ═══════════════════════════════════════════════════════════════════ */
 
     /* Onglets profile (Stats / Sorties / Perso / Abonnement) :
-       sur mobile, basculer du scroll horizontal vers une répartition équitable.
+       sur mobile, basculer du scroll horizontal vers une répartition par espacement uniforme.
        Pas d'overflow:hidden sur .ptab pour ne pas couper le ptab-dot (rond vert). */
     @media (max-width: 768px) {
       .profile-tabs {
         overflow-x: visible !important;
         width: 100%;
-        justify-content: space-around;
+        justify-content: space-between !important;
       }
       .ptab {
-        flex: 1 1 0;
+        flex: 0 1 auto;
         min-width: 0;
-        padding: 11px 2px 10px;
+        padding: 11px 4px 10px;
         font-size: 0.72rem;
         gap: 3px;
-        justify-content: center;
         white-space: nowrap;
       }
-      .profile-tabs-wrap { padding: 0 6px; }
+      .profile-tabs-wrap { padding: 0 12px; }
     }
     @media (max-width: 380px) {
       .ptab { font-size: 0.66rem; }
@@ -648,17 +647,32 @@
       white-space: nowrap;
     }
 
-    /* Cartes : forcer le respect de la largeur du parent */
-    .upcoming-grid { width: 100%; max-width: 100%; display: block; }
-    .upcoming-grid > .upcoming-card + .upcoming-card { margin-top: 10px; }
-    .upcoming-card { max-width: 100%; width: 100%; display: flex; }
-    .upcoming-info { min-width: 0; flex: 1 1 0; overflow: hidden; }
+    /* Cartes : forcer le respect de la largeur du parent — TOUS LES CAS */
+    .upcoming-grid {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      gap: 10px !important;
+    }
+    .upcoming-card {
+      max-width: 100% !important;
+      width: 100% !important;
+      display: flex !important;
+      box-sizing: border-box !important;
+      min-width: 0 !important;
+    }
+    .upcoming-info {
+      min-width: 0 !important;
+      flex: 1 1 0 !important;
+      overflow: hidden !important;
+    }
     .upcoming-countdown { min-width: 0; flex-shrink: 0; max-width: 45%; }
     .upcoming-title {
-      max-width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      max-width: 100% !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
     }
     .upcoming-type {
       max-width: 100%;
