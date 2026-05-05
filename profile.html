@@ -362,7 +362,7 @@
     }
 
     /* ── Prochaines sorties Premium ── */
-    .upcoming-grid { display: flex; flex-direction: column; gap: 10px; }
+    .upcoming-grid { display: block; }
     .upcoming-card {
       display: flex; align-items: center; gap: 12px;
       background: var(--ink3); border: 1px solid var(--b1);
@@ -602,27 +602,27 @@
        ═══════════════════════════════════════════════════════════════════ */
 
     /* Onglets profile (Stats / Sorties / Perso / Abonnement) :
-       sur mobile, basculer du scroll horizontal vers une répartition équitable,
-       avec ellipsis si nécessaire pour que tout tienne sans coupure. */
+       sur mobile, basculer du scroll horizontal vers une répartition équitable.
+       Pas d'overflow:hidden sur .ptab pour ne pas couper le ptab-dot (rond vert). */
     @media (max-width: 768px) {
       .profile-tabs {
         overflow-x: visible !important;
         width: 100%;
+        justify-content: space-around;
       }
       .ptab {
         flex: 1 1 0;
         min-width: 0;
-        padding: 11px 4px 10px;
-        font-size: 0.74rem;
+        padding: 11px 2px 10px;
+        font-size: 0.72rem;
         gap: 3px;
         justify-content: center;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: nowrap;
       }
-      .profile-tabs-wrap { padding: 0 8px; }
+      .profile-tabs-wrap { padding: 0 6px; }
     }
     @media (max-width: 380px) {
-      .ptab { font-size: 0.68rem; padding: 11px 2px 10px; }
+      .ptab { font-size: 0.66rem; }
     }
 
     /* Panel Sorties — anti-overflow strict */
@@ -649,8 +649,9 @@
     }
 
     /* Cartes : forcer le respect de la largeur du parent */
-    .upcoming-grid { width: 100%; max-width: 100%; }
-    .upcoming-card { max-width: 100%; width: 100%; }
+    .upcoming-grid { width: 100%; max-width: 100%; display: block; }
+    .upcoming-grid > .upcoming-card + .upcoming-card { margin-top: 10px; }
+    .upcoming-card { max-width: 100%; width: 100%; display: flex; }
     .upcoming-info { min-width: 0; flex: 1 1 0; overflow: hidden; }
     .upcoming-countdown { min-width: 0; flex-shrink: 0; max-width: 45%; }
     .upcoming-title {
