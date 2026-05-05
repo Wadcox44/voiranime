@@ -597,10 +597,25 @@
     .upc-status.finished { color: var(--muted); background: rgba(255,255,255,0.05); }
     .upc-status.unknown { color: #fbbf24; background: rgba(251,191,36,0.1); }
 
-    /* Responsive Sorties : éviter overflow et coupures sur petit écran */
+    /* ── Anti-overflow Sorties (toutes tailles d'écran) ──
+       Empêche les flex items de déborder leur conteneur quand leur contenu est large. */
+    #panel-sorties { overflow-x: hidden; }
+    .sorties-sub-tabs { max-width: 100%; box-sizing: border-box; }
+    .stab { min-width: 0; }
+    .upcoming-card { box-sizing: border-box; max-width: 100%; }
+    .upcoming-info { min-width: 0; }
+    .upcoming-countdown { min-width: 0; max-width: 50%; }
+    .upcoming-title { word-break: break-word; }
+    .upc-time, .upc-label, .upc-status { max-width: 100%; }
+
+    /* Responsive Sorties : ajustements progressifs */
+    @media (max-width: 768px) {
+      .sorties-sub-tabs { width: 100%; }
+      .stab { flex: 1 1 0; padding: 7px 12px; }
+    }
     @media (max-width: 480px) {
-      .sorties-sub-tabs { width: 100%; gap: 4px; }
-      .stab { flex: 1; padding: 7px 12px; font-size: 0.74rem; }
+      .sorties-sub-tabs { gap: 4px; }
+      .stab { padding: 7px 10px; font-size: 0.74rem; }
       .upcoming-card { padding: 8px 10px; gap: 10px; }
       .upcoming-thumb { width: 38px; height: 52px; }
       .upcoming-title { font-size: 0.8rem; }
