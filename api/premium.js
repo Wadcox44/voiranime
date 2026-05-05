@@ -25,17 +25,18 @@ const db = getFirestore();
 
 /* ── Plans disponibles ─────────────────────────────────────────────────────
    Pour ajouter un plan : ajouter une entrée ici — le reste s'adapte auto
+   Prix alignés sur l'UI client (profile.html PREM_PLANS) — Offre de lancement
 ──────────────────────────────────────────────────────────────────────────── */
 const PLANS = {
   monthly: {
     label:       'Monthly',
-    amount:      1.99,
+    amount:      2.49,
     durationMs:  30 * 24 * 3600 * 1000,   // 30 jours
     durationDays: 30,
   },
   annual: {
     label:       'Annual',
-    amount:      19.99,
+    amount:      24.99,
     durationMs:  365 * 24 * 3600 * 1000,  // 365 jours
     durationDays: 365,
   },
