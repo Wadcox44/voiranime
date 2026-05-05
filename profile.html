@@ -8,6 +8,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
   <style>
+    /* ── Override style.css : overflow-x clip au lieu de hidden ──
+       overflow-x: hidden sur <html> casse position:sticky des descendants.
+       overflow-x: clip empêche le scroll horizontal SANS créer de contexte
+       qui invalide le sticky. */
+    html { overflow-x: clip !important; }
+
     /* Logo néon */
     .nav-logo{text-decoration:none;display:inline-flex;align-items:center}
     .logo-glitch{display:inline-block;font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:-.5px;transform:skewX(-6deg);position:relative;user-select:none}
