@@ -711,6 +711,188 @@
       .upc-label { display: none; }
     }
 
+    /* ════ PANEL PREMIUM — REFONTE COMPLÈTE ════ */
+
+    /* Statut badge */
+    .prem-status-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;
+    }
+    .prem-status-badge.active {
+      background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.35); color: #4ade80;
+    }
+    .prem-status-badge.inactive {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--b1); color: var(--muted);
+    }
+    .prem-status-dot {
+      width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    }
+    .prem-status-dot.active { background: #4ade80; box-shadow: 0 0 6px #4ade8099; }
+    .prem-status-dot.inactive { background: var(--muted); }
+
+    /* Bloc statut principal */
+    .prem-status-block {
+      background: var(--ink3); border: 1px solid var(--b1); border-radius: 16px;
+      padding: 20px 18px; margin-bottom: 12px;
+    }
+    .prem-status-row {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px; margin-bottom: 14px;
+    }
+    .prem-expiry {
+      font-size: 0.78rem; color: var(--text2); margin-top: 8px; line-height: 1.5;
+    }
+    .prem-expiry strong { color: var(--text); }
+    .prem-plan-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25);
+      border-radius: 10px; padding: 8px 14px; font-size: 0.82rem; font-weight: 700;
+      color: var(--text); margin-top: 10px;
+    }
+    .prem-plan-pill span { color: var(--muted); font-weight: 400; font-size: 0.75rem; }
+
+    /* Boutons actions abonné */
+    .prem-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .prem-btn {
+      flex: 1; min-width: 120px;
+      padding: 10px 16px; border-radius: 10px; border: none;
+      font-family: var(--font); font-size: 0.8rem; font-weight: 700;
+      cursor: pointer; transition: all 0.18s; display: inline-flex;
+      align-items: center; justify-content: center; gap: 6px;
+    }
+    .prem-btn-extend {
+      background: linear-gradient(135deg,#a78bfa,#818cf8); color: #fff;
+      box-shadow: 0 4px 14px rgba(167,139,250,0.3);
+    }
+    .prem-btn-extend:hover { opacity: 0.88; transform: translateY(-1px); }
+    .prem-btn-cancel {
+      background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #f87171;
+    }
+    .prem-btn-cancel:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); }
+
+    /* CTA non-abonné */
+    .prem-cta-block {
+      background: linear-gradient(135deg,rgba(167,139,250,0.08),rgba(34,211,238,0.05));
+      border: 1px solid rgba(167,139,250,0.2); border-radius: 16px;
+      padding: 24px 18px; margin-bottom: 12px; text-align: center;
+    }
+    .prem-cta-title {
+      font-size: 1.1rem; font-weight: 900; letter-spacing: -0.3px;
+      margin-bottom: 6px; color: var(--text);
+    }
+    .prem-cta-sub {
+      font-size: 0.8rem; color: var(--muted); margin-bottom: 20px; line-height: 1.5;
+    }
+
+    /* Grille de plans */
+    .prem-plans-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
+    }
+    @media (max-width: 360px) { .prem-plans-grid { grid-template-columns: 1fr; } }
+    .prem-plan-card {
+      background: var(--ink3); border: 1px solid var(--b1); border-radius: 14px;
+      padding: 16px 14px; cursor: pointer; transition: all 0.2s;
+      position: relative; overflow: hidden;
+    }
+    .prem-plan-card:hover { border-color: rgba(167,139,250,0.5); transform: translateY(-2px); }
+    .prem-plan-card.featured {
+      border-color: rgba(167,139,250,0.4);
+      background: linear-gradient(135deg,rgba(167,139,250,0.1),rgba(129,140,248,0.06));
+    }
+    .prem-plan-badge {
+      position: absolute; top: 0; right: 0;
+      background: linear-gradient(135deg,#a78bfa,#818cf8);
+      color: #fff; font-size: 0.58rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.08em; padding: 3px 8px; border-radius: 0 14px 0 8px;
+    }
+    .prem-plan-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
+    .prem-plan-price { font-size: 1.6rem; font-weight: 900; letter-spacing: -1px; color: var(--text); line-height: 1; }
+    .prem-plan-price sup { font-size: 0.75rem; font-weight: 700; vertical-align: super; }
+    .prem-plan-period { font-size: 0.68rem; color: var(--muted); margin-top: 3px; margin-bottom: 12px; }
+    .prem-plan-saving { font-size: 0.65rem; font-weight: 700; color: #4ade80; display: inline-block; margin-bottom: 8px; }
+    .prem-plan-btn {
+      width: 100%; padding: 9px; border: none; border-radius: 9px;
+      font-family: var(--font); font-size: 0.78rem; font-weight: 700;
+      cursor: pointer; transition: all 0.18s;
+      background: var(--ink4); color: var(--text2); border: 1px solid var(--b2);
+    }
+    .prem-plan-btn:hover { background: rgba(167,139,250,0.15); border-color: rgba(167,139,250,0.4); color: var(--text); }
+    .prem-plan-btn.featured-btn {
+      background: linear-gradient(135deg,#a78bfa,#818cf8); color: #fff; border: none;
+      box-shadow: 0 4px 12px rgba(167,139,250,0.3);
+    }
+    .prem-plan-btn.featured-btn:hover { opacity: 0.88; }
+
+    /* Social proof */
+    .prem-social-proof {
+      text-align: center; font-size: 0.72rem; color: var(--muted);
+      padding: 8px 0; margin-bottom: 12px;
+    }
+    .prem-social-proof strong { color: var(--text2); }
+
+    /* Accordion avantages */
+    .prem-accordion { display: flex; flex-direction: column; gap: 8px; }
+    .prem-acc-item {
+      background: var(--ink3); border: 1px solid var(--b1); border-radius: 14px; overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .prem-acc-item:hover { border-color: var(--b2); }
+    .prem-acc-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; cursor: pointer; user-select: none;
+      gap: 10px;
+    }
+    .prem-acc-title { font-size: 0.84rem; font-weight: 700; color: var(--text); }
+    .prem-acc-icon { font-size: 1rem; flex-shrink: 0; }
+    .prem-acc-chevron {
+      color: var(--muted); font-size: 0.7rem; transition: transform 0.25s; flex-shrink: 0;
+    }
+    .prem-acc-item.open .prem-acc-chevron { transform: rotate(180deg); }
+    .prem-acc-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .prem-acc-item.open .prem-acc-body { max-height: 400px; }
+    .prem-acc-inner { padding: 0 16px 14px; display: flex; flex-direction: column; gap: 8px; }
+    .prem-acc-perk {
+      display: flex; align-items: center; gap: 9px;
+      font-size: 0.8rem; color: var(--text2);
+    }
+    .prem-acc-perk-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--violet); flex-shrink: 0;
+    }
+
+    /* Pi error message */
+    .prem-pi-error {
+      margin-top: 8px; padding: 8px 12px; border-radius: 8px;
+      background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2);
+      color: #f59e0b; font-size: 0.78rem; font-weight: 600; text-align: center;
+    }
+
+    /* Plan-picker modal (overlay simple) */
+    .prem-plan-picker {
+      position: fixed; inset: 0; z-index: 9800;
+      background: rgba(0,0,0,0.72); backdrop-filter: blur(6px);
+      display: flex; align-items: flex-end; justify-content: center;
+      padding: 0;
+    }
+    .prem-plan-picker-box {
+      background: var(--ink2); border: 1px solid var(--b1);
+      border-radius: 20px 20px 0 0; width: 100%; max-width: 480px;
+      padding: 20px 20px 32px; animation: slideUp 0.28s cubic-bezier(0.4,0,0.2,1);
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .prem-picker-handle {
+      width: 40px; height: 4px; border-radius: 2px;
+      background: var(--b2); margin: 0 auto 16px;
+    }
+    .prem-picker-title {
+      font-size: 1rem; font-weight: 800; text-align: center;
+      margin-bottom: 16px; color: var(--text);
+    }
+    .prem-picker-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
   </style>
   <script src="js/i18n.js"></script>
   <script src="featuresManager.js"></script>
@@ -777,7 +959,6 @@
       </div>
     </div>
   </div>
-  <div id="profileSubscriptionCard" style="flex-shrink:0"></div>
 </div>
 
 <!-- BARRE D'ONGLETS STICKY -->
@@ -787,7 +968,7 @@
     <button class="ptab"        id="ptab-sorties" onclick="switchTab('sorties')" role="tab">📅 Sorties</button>
     <button class="ptab"        id="ptab-perso"   onclick="switchTab('perso')"   role="tab">✦ Perso</button>
     <button class="ptab"        id="ptab-abo"     onclick="switchTab('abo')"     role="tab">
-      <span class="ptab-dot" id="ptabPremiumDot"></span>⭐ Abonnement
+      <span class="ptab-dot" id="ptabPremiumDot"></span>⭐ Premium
     </button>
   </div>
 </div>
@@ -950,23 +1131,76 @@
   </div>
 </div>
 
-<!-- ══ PANEL : ABONNEMENT ══ -->
+<!-- ══ PANEL : PREMIUM ══ -->
 <div class="profile-panel" id="panel-abo" role="tabpanel">
-  <div style="background:var(--ink3);border:1px solid var(--b1);border-radius:14px;padding:18px 16px;margin-bottom:14px">
-    <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:10px">Statut</div>
-    <div id="aboStatusBlock"><span style="color:var(--muted);font-size:0.82rem">Chargement…</span></div>
-  </div>
-  <div style="background:var(--ink3);border:1px solid var(--b1);border-radius:14px;padding:18px 16px">
-    <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:12px">Avantages Premium</div>
-    <div style="display:flex;flex-direction:column;gap:9px">
-      <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Favoris illimités</div>
-      <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>3× plus de recommandations personnalisées</div>
-      <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Alertes de nouvelles sorties + compte à rebours en direct</div>
-      <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Stats avancées (top animes, genres préférés)</div>
-      <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Badge Premium exclusif ⭐</div>
-      <div style="display:flex;align-items:center;gap:10px;font-size:0.82rem;color:var(--text2)"><span style="color:#4ade80">✓</span>Accès anticipé aux nouvelles fonctionnalités</div>
+
+  <!-- Bloc statut principal (construit par JS) -->
+  <div id="premPanelMain">
+    <div class="prem-status-block">
+      <span style="color:var(--muted);font-size:0.82rem">Chargement…</span>
     </div>
   </div>
+
+  <!-- Social proof (masqué par défaut, affiché si abonnes > 50) -->
+  <div class="prem-social-proof" id="premSocialProof" style="display:none"></div>
+
+  <!-- Accordion avantages -->
+  <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin:18px 0 10px">Avantages Premium</div>
+  <div class="prem-accordion">
+
+    <!-- 1 : Potentiel -->
+    <div class="prem-acc-item" id="premAcc1">
+      <div class="prem-acc-header" onclick="toggleAcc('premAcc1')">
+        <span class="prem-acc-icon">🚀</span>
+        <span class="prem-acc-title">Débloquez tout votre potentiel</span>
+        <span class="prem-acc-chevron">▼</span>
+      </div>
+      <div class="prem-acc-body">
+        <div class="prem-acc-inner">
+          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Favoris illimités (vs 20 en gratuit)</div>
+          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Stats avancées — top animes, genres préférés</div>
+          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Recommandations personnalisées ×3</div>
+          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Badge Premium exclusif ⭐</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2 : En avance -->
+    <div class="prem-acc-item" id="premAcc2">
+      <div class="prem-acc-header" onclick="toggleAcc('premAcc2')">
+        <span class="prem-acc-icon">⚡</span>
+        <span class="prem-acc-title">Soyez toujours en avance</span>
+        <span class="prem-acc-chevron">▼</span>
+      </div>
+      <div class="prem-acc-body">
+        <div class="prem-acc-inner">
+          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Alertes de nouvelles sorties en temps réel</div>
+          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Compte à rebours live jusqu'à chaque épisode</div>
+          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Accès anticipé aux nouvelles fonctionnalités</div>
+          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Sorties globales de la saison en cours</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 : Expérience -->
+    <div class="prem-acc-item" id="premAcc3">
+      <div class="prem-acc-header" onclick="toggleAcc('premAcc3')">
+        <span class="prem-acc-icon">🎨</span>
+        <span class="prem-acc-title">Une expérience 100% à votre image</span>
+        <span class="prem-acc-chevron">▼</span>
+      </div>
+      <div class="prem-acc-body">
+        <div class="prem-acc-inner">
+          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Réorganiser votre liste à volonté</div>
+          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Avatar personnalisé parmi des dizaines de persos</div>
+          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>News personnalisées selon vos goûts</div>
+          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Support prioritaire</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
 </div>
 
 <!-- MODAL AVATAR AVEC ONGLETS + UPLOAD -->
@@ -1376,149 +1610,237 @@
     if (e.target === el('avatarModal')) el('avatarModal').style.display = 'none';
   });
 
-  /* ── Section Abonnement Premium ─────────────────────────────────────────
-     Construite directement sans dépendance externe.
-     Affichage immédiat. Mise à jour si Pi auth disponible.
-  ──────────────────────────────────────────────────────────────────────── */
+  /* ════ SECTION PREMIUM — REFONTE COMPLÈTE ════
+     Prix : Mensuel 2,49 Pi | Annuel 24,99 Pi
+     Architecture orientée conversion et gestion simplifiée.
+  ════════════════════════════════════════════════ */
+
+  var PREM_PLANS = {
+    monthly: { amount: 2.49,  label: 'Premium Mensuel — Offre de lancement', period: 'par mois',  saving: '' },
+    annual:  { amount: 24.99, label: 'Premium Annuel — Offre de lancement',  period: 'par an',    saving: '2 mois offerts' }
+  };
+
   function renderSubscriptionStatus() {
-    var card = el('profileSubscriptionCard');
-    _buildPremiumBtn(card, null); // bouton par défaut immédiat
     function _tryPremium() {
       if (window.VA_onPremiumReady) {
         window.VA_onPremiumReady(function(status) {
-          _buildPremiumBtn(card, status);
-          _buildAboPanel(status);
+          _buildPremiumPanel(status);
+          _fetchSocialProof();
         });
       } else { setTimeout(_tryPremium, 500); }
     }
     _tryPremium();
   }
 
-  function _buildSubCard(card, status) {
-    var isPremium = status && status.isPremium;
-    var isExpired = status && status.subscriptionStatus === 'expired';
+  function _buildPremiumPanel(status) {
+    var main = el('premPanelMain');
+    if (!main) return;
+
+    var isPremium  = status && status.isPremium;
+    var days       = (status && status.daysLeft) || 0;
+    var plan       = (status && status.plan) || 'monthly';
+    var expiresAt  = status && status.expiresAt;
+
+    var dot = el('ptabPremiumDot');
+    if (dot) dot.classList.toggle('visible', isPremium);
 
     if (isPremium) {
-      var planLabel  = status.plan === 'annual' ? 'Annuel' : 'Mensuel';
-      var renewPrice = status.plan === 'annual' ? '19.99 Pi/an' : '1.99 Pi/mois';
-      var days       = status.daysLeft || 0;
-      var urgency    = days <= 3 ? 'sub-card-urgent' : days <= 7 ? 'sub-card-warning' : '';
+      var planLabel  = plan === 'annual' ? 'Premium Annuel' : 'Premium Mensuel';
+      var planPrice  = plan === 'annual' ? '24,99 Pi/an' : '2,49 Pi/mois';
+      var expDateStr = expiresAt
+        ? new Date(expiresAt).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
+        : '—';
+      var urgColor   = days <= 3 ? '#f87171' : days <= 7 ? '#fbbf24' : '#4ade80';
+      var urgNotice  = (days > 0 && days <= 7)
+        ? '<div style="margin-top:6px;font-size:0.72rem;color:'+urgColor+';font-weight:600">⚠ Expire dans '+days+' jour'+(days>1?'s':'')+'</div>'
+        : (days === 0 ? '<div style="margin-top:6px;font-size:0.72rem;color:#f87171;font-weight:600">⚠ Expire aujourd\'hui</div>' : '');
 
-      var renewalNotice = days <= 7 && days > 0
-        ? '<div style="font-size:0.7rem;color:#f59e0b;margin-bottom:6px">⚠ Expire dans ' + days + ' jour' + (days>1?'s':'') + ' — pensez à renouveler</div>'
-        : (days === 0 ? '<div style="font-size:0.7rem;color:#ef4444;margin-bottom:6px">⚠ Expire aujourd\'hui</div>' : '');
-      var html = '<div class="sub-card sub-card-premium ' + urgency + '">'        + '<div class="sub-card-header">'        + '<span class="sub-card-badge">&#11088; Premium actif</span>'        + '<span class="sub-card-plan">' + planLabel + ' &middot; ' + renewPrice + '</span>'        + '</div>'        + renewalNotice
-        + '<button id="subPerksToggle" style="background:none;border:none;color:var(--muted);font-size:0.72rem;cursor:pointer;font-family:var(--font);padding:2px 0;text-align:left;">Voir les avantages ▼</button>'
-        + '<div id="subPerksBody" class="sub-card-perks" style="display:none">'
-        + '<span class="sub-perk active">&#10084; Favoris illimit&eacute;s</span>'
-        + '<span class="sub-perk active">&#128202; Stats d&eacute;taill&eacute;es</span>'
-        + '<span class="sub-perk active">&#9889; Acc&egrave;s anticip&eacute;</span>'
-        + '<span class="sub-perk active">&#8597; R&eacute;organiser</span>'
+      main.innerHTML =
+        '<div class="prem-status-block">'
+        + '<div class="prem-status-row">'
+          + '<span class="prem-status-badge active"><span class="prem-status-dot active"></span>Actif</span>'
+          + '<div class="prem-plan-pill">⭐ '+planLabel+' <span>· '+planPrice+'</span></div>'
         + '</div>'
-        + '<div class="sub-card-actions">'
-        + '<button class="sub-card-btn sub-card-btn-renew" id="subRenewBtn">Renouveler</button>'
-        + '<button class="sub-card-btn sub-card-btn-cancel" id="subCancelBtn">Annuler</button>'
+        + '<div class="prem-expiry">Expire le&nbsp;<strong>'+expDateStr+'</strong></div>'
+        + urgNotice
+        + '<div class="prem-actions">'
+          + '<button class="prem-btn prem-btn-extend" id="premExtendBtn">➡ Prolonger l\'abonnement</button>'
+          + '<button class="prem-btn prem-btn-cancel" id="premCancelBtn">Annuler</button>'
         + '</div>'
         + '</div>';
 
-      card.innerHTML = html;
-
-      var renewBtn  = document.getElementById('subRenewBtn');
-      var cancelBtn = document.getElementById('subCancelBtn');
-      var perksToggle = document.getElementById('subPerksToggle');
-      var perksBody   = document.getElementById('subPerksBody');
-      if (renewBtn)  renewBtn.addEventListener('click',  function() { _launchSubscription(status.plan || 'monthly'); });
-      if (cancelBtn) cancelBtn.addEventListener('click', function() { _confirmCancel(); });
-      if (perksToggle && perksBody) {
-        perksToggle.addEventListener('click', function() {
-          var open = perksBody.style.display !== 'none';
-          perksBody.style.display = open ? 'none' : 'flex';
-          perksToggle.textContent = open ? 'Voir les avantages ▼' : 'Masquer ▲';
-        });
-      }
+      var extendBtn = el('premExtendBtn');
+      var cancelBtn = el('premCancelBtn');
+      if (extendBtn) extendBtn.addEventListener('click', function() { showPlanPicker(); });
+      if (cancelBtn) cancelBtn.addEventListener('click', _confirmCancel);
 
     } else {
-      // ── Vue offres (Free ou expiré) ──
-      var expiredHtml = isExpired
-        ? '<span class="sub-expired-tag">Abonn. expir&eacute;</span>'
-        : '<span class="sub-upgrade-title">&#11088; Passer Premium</span>';
+      main.innerHTML =
+        '<div class="prem-cta-block">'
+        + '<div class="prem-cta-title">⭐ Débloquez toute l\'expérience VoirAnime</div>'
+        + '<div class="prem-cta-sub">Premium — Offre de lancement.<br>Accès immédiat à toutes les fonctionnalités exclusives.</div>'
+        + '<div class="prem-status-badge inactive" style="display:inline-flex;margin-bottom:16px"><span class="prem-status-dot inactive"></span>Inactif</div>'
+        + '<div class="prem-plans-grid">'
 
-      var html = '<div class="sub-card sub-offers-card">'
-        + '<div class="sub-offers-title-row">' + expiredHtml + '</div>'
+          + '<div class="prem-plan-card" id="planCardMonthly">'
+            + '<div class="prem-plan-label">Mensuel</div>'
+            + '<div class="prem-plan-price"><sup>π</sup>2<small style="font-size:0.95rem">,49</small></div>'
+            + '<div class="prem-plan-period">par mois</div>'
+            + '<button class="prem-plan-btn" id="planBtnMonthly">S\'abonner</button>'
+          + '</div>'
 
-        // Tableau 3 colonnes : Fonctionnalité / Gratuit / Premium
-        + '<table style="width:100%;border-collapse:collapse;font-size:0.74rem;margin-bottom:12px">'        + '<thead><tr>'        + '<th style="text-align:left;padding:5px 6px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--b1)">Fonctionnalité</th>'        + '<th style="text-align:center;padding:5px 6px;color:var(--text2);font-weight:700;border-bottom:1px solid var(--b1)">Gratuit</th>'        + '<th style="text-align:center;padding:5px 6px;color:#22d3ee;font-weight:700;border-bottom:1px solid var(--b1)">⭐ Premium<br><span style=\'font-size:0.62rem;color:var(--muted);font-weight:400\'>1.99π/mois · 19.99π/an<br>🔥 Offre de lancement</span></th>'        + '</tr></thead><tbody>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">❤ Favoris</td><td style="text-align:center;color:var(--muted)">20 max</td><td style="text-align:center;color:#4ade80">✓ Illimités</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">📊 Stats détaillées</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">⚡ Accès anticipé</td><td style="text-align:center;color:var(--muted)">+15j</td><td style="text-align:center;color:#4ade80">✓ Immédiat</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">↕ Réorganiser</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '<tr><td style="padding:5px 6px;color:var(--text2)">🔔 News perso</td><td style="text-align:center;color:#ef4444">✕</td><td style="text-align:center;color:#4ade80">✓</td></tr>'        + '</tbody></table>'
+          + '<div class="prem-plan-card featured" id="planCardAnnual">'
+            + '<div class="prem-plan-badge">Meilleur</div>'
+            + '<div class="prem-plan-label">Annuel</div>'
+            + '<div class="prem-plan-price"><sup>π</sup>24<small style="font-size:0.95rem">,99</small></div>'
+            + '<div class="prem-plan-period">par an</div>'
+            + '<div class="prem-plan-saving">2 mois offerts</div>'
+            + '<button class="prem-plan-btn featured-btn" id="planBtnAnnual">S\'abonner</button>'
+          + '</div>'
 
-        // Plans
-        + '<div class="sub-offers-grid">'
-        + '<div class="sub-offer-item">'
-        + '<div class="sub-launch-badge">&#128293; Offre de lancement</div>'
-        + '<div class="sub-offer-name">Mensuel</div>'
-        + '<div class="sub-offer-price">1.99 <span class="sub-offer-currency">Pi</span></div>'
-        + '<div class="sub-offer-period">par mois</div>'
-        + '<button class="sub-offer-btn" data-plan="monthly">S\'abonner</button>'
         + '</div>'
-        + '<div class="sub-offer-item sub-offer-featured">'
-        + '<div class="sub-offer-badge-top">Meilleure offre</div>'
-        + '<div class="sub-launch-badge sub-launch-badge-sm">&#128293; Offre de lancement</div>'
-        + '<div class="sub-offer-name">Annuel</div>'
-        + '<div class="sub-offer-price">19.99 <span class="sub-offer-currency">Pi</span></div>'
-        + '<div class="sub-offer-period">par an <span class="sub-offer-saving">2 mois offerts</span></div>'
-        + '<button class="sub-offer-btn sub-offer-btn-featured" data-plan="annual">S\'abonner</button>'
-        + '</div>'
-        + '</div>'
+        + '<div id="premPiError"></div>'
         + '</div>';
 
-      card.innerHTML = html;
-
-      card.querySelectorAll('.sub-offer-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() { _launchSubscription(btn.dataset.plan); });
+      ['Monthly','Annual'].forEach(function(k) {
+        var plan = k.toLowerCase();
+        var btn  = el('planBtn'+k);
+        var card = el('planCard'+k);
+        if (btn)  btn.addEventListener('click',  function(e) { e.stopPropagation(); _triggerPayment(plan); });
+        if (card) card.addEventListener('click', function()  { _triggerPayment(plan); });
       });
     }
   }
 
+  function showPlanPicker() {
+    var ex = el('premPlanPickerOverlay');
+    if (ex) ex.remove();
+    var overlay = document.createElement('div');
+    overlay.id = 'premPlanPickerOverlay';
+    overlay.className = 'prem-plan-picker';
+    overlay.innerHTML =
+      '<div class="prem-plan-picker-box">'
+      + '<div class="prem-picker-handle"></div>'
+      + '<div class="prem-picker-title">Choisir un plan</div>'
+      + '<div class="prem-picker-plans">'
+        + '<div class="prem-plan-card" id="pickerCardMonthly">'
+          + '<div class="prem-plan-label">Mensuel</div>'
+          + '<div class="prem-plan-price"><sup>π</sup>2<small style="font-size:0.95rem">,49</small></div>'
+          + '<div class="prem-plan-period">par mois</div>'
+          + '<button class="prem-plan-btn" id="pickerBtnMonthly">Choisir</button>'
+        + '</div>'
+        + '<div class="prem-plan-card featured" id="pickerCardAnnual">'
+          + '<div class="prem-plan-badge">Meilleur</div>'
+          + '<div class="prem-plan-label">Annuel</div>'
+          + '<div class="prem-plan-price"><sup>π</sup>24<small style="font-size:0.95rem">,99</small></div>'
+          + '<div class="prem-plan-period">par an</div>'
+          + '<div class="prem-plan-saving">2 mois offerts</div>'
+          + '<button class="prem-plan-btn featured-btn" id="pickerBtnAnnual">Choisir</button>'
+        + '</div>'
+      + '</div>'
+      + '<button id="pickerCancelBtn" style="width:100%;margin-top:12px;padding:10px;border:1px solid var(--b1);background:transparent;border-radius:10px;color:var(--muted);font-family:var(--font);font-size:0.82rem;cursor:pointer">Annuler</button>'
+      + '</div>';
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) closePlanPicker(); });
+    document.body.appendChild(overlay);
 
-  // Lance le paiement Pi — logique identique à soutenir.html (qui fonctionne)
+    ['Monthly','Annual'].forEach(function(k) {
+      var plan = k.toLowerCase();
+      var btn  = el('pickerBtn'+k);
+      var card = el('pickerCard'+k);
+      if (btn)  btn.addEventListener('click', function(e) { e.stopPropagation(); _triggerPayment(plan); closePlanPicker(); });
+      if (card) card.addEventListener('click', function()  { _triggerPayment(plan); closePlanPicker(); });
+    });
+    var cancelBtn = el('pickerCancelBtn');
+    if (cancelBtn) cancelBtn.addEventListener('click', closePlanPicker);
+  }
+
+  function closePlanPicker() {
+    var o = el('premPlanPickerOverlay');
+    if (o) o.remove();
+  }
+
+  function toggleAcc(id) {
+    var item = el(id);
+    if (!item) return;
+    item.classList.toggle('open');
+  }
+
+  function _fetchSocialProof() {
+    fetch('/api/premium?action=count')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) {
+        if (!data) return;
+        var count = data.count || data.total || 0;
+        if (count > 50) {
+          var sp = el('premSocialProof');
+          if (sp) {
+            sp.innerHTML = '❤️ <strong>Plus de '+count+' passionés</strong> ont choisi l\'abonnement Premium';
+            sp.style.display = '';
+          }
+        }
+      })
+      .catch(function() {});
+  }
+
+  function _confirmCancel() {
+    var piUser = (function() {
+      try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
+    })();
+    if (!piUser || !piUser.uid) { showToast('Connexion Pi requise'); return; }
+    if (!confirm("Annuler l'abonnement ?\nTu gardes l'accès jusqu'à la date d'expiration.")) return;
+    fetch('/api/premium', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'cancel', piUserId: piUser.uid }),
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (data.ok) {
+        window.VA_clearPremiumCache && window.VA_clearPremiumCache();
+        renderSubscriptionStatus();
+        showToast('Annulation enregistrée — accès jusqu\'à expiration');
+      }
+    }).catch(function() { showToast('Erreur réseau — réessaie'); });
+  }
+
+  function _triggerPayment(plan) {
+    _launchSubscription(plan);
+  }
+
+  function _buildSubCard() {}
+  function _buildPremiumBtn() {}
+  function _buildAboPanel() {}
+
+  // Lance le paiement Pi
   var _piReady = false;
 
-  // Init Pi SDK dès que possible (même logique que soutenir.html)
   (function initPiSDK() {
-    if (typeof window.Pi === 'undefined') return; // pas dans Pi Browser — silencieux
+    if (typeof window.Pi === 'undefined') return;
     try {
       window.Pi.init({ version: '2.0', sandbox: true });
       _piReady = true;
-    } catch(e) {
-      console.warn('[Pi init]', e);
-    }
+    } catch(e) { console.warn('[Pi init]', e); }
   })();
 
+  function _showPiError(msg) {
+    // Affiche l'erreur dans #premPiError si présent, sinon dans un toast
+    var errEl = el('premPiError');
+    if (errEl) {
+      errEl.innerHTML = '<div class="prem-pi-error">' + msg + '</div>';
+      setTimeout(function() { if (errEl) errEl.innerHTML = ''; }, 5000);
+    } else {
+      showToast(msg);
+    }
+  }
+
   function _launchSubscription(plan) {
-    var PLANS = {
-      monthly: { amount: 1.99,  label: 'Premium Mensuel' },
-      annual:  { amount: 19.99, label: 'Premium Annuel'  }
-    };
-    var planDef = PLANS[plan];
+    var planDef = PREM_PLANS[plan];
     if (!planDef) return;
 
-    // Même logique de fallback que soutenir.html
     if (!_piReady || typeof window.Pi === 'undefined') {
       if (typeof window.Pi !== 'undefined') {
         try { window.Pi.init({ version: '2.0', sandbox: true }); _piReady = true; } catch(e) {}
       }
       if (!_piReady) {
-        // Pas dans Pi Browser — afficher un message propre (pas un alert bloquant)
-        var card = el('profileSubscriptionCard');
-        if (card) {
-          var msg = card.querySelector('.sub-pi-error');
-          if (!msg) {
-            msg = document.createElement('div');
-            msg.className = 'sub-pi-error';
-            card.appendChild(msg);
-          }
-          msg.textContent = "⚠️ Ouvre VoirAnime dans le Pi Browser pour t'abonner.";
-          msg.style.cssText = 'color:#f59e0b;font-size:0.78rem;font-weight:600;padding:8px 0;text-align:center;';
-          setTimeout(function() { if (msg.parentNode) msg.parentNode.removeChild(msg); }, 5000);
-        }
+        _showPiError("⚠️ Ouvre VoirAnime dans le Pi Browser pour t'abonner.");
         return;
       }
     }
@@ -1573,8 +1895,9 @@
             .then(function(data) {
               if (data.premium && data.premium.isPremium) {
                 window.VA_clearPremiumCache && window.VA_clearPremiumCache();
+                closePlanPicker();
                 renderSubscriptionStatus();
-                alert('\u2705 Abonnement Premium activ\u00e9 ! Bienvenue \uD83C\uDF89');
+                showToast('\u2705 Abonnement Premium activ\u00e9 ! Bienvenue \uD83C\uDF89');
               }
             })
             .catch(function() { alert('Paiement re\u00e7u \u2014 activation en cours\u2026'); });
@@ -1588,21 +1911,22 @@
   }
 
   function _confirmCancel() {
-    const piUser = window.piAuth?.getUser?.() || (() => {
+    var piUser = (function() {
       try { return JSON.parse(localStorage.getItem('pi_user')); } catch { return null; }
     })();
-    if (!piUser?.uid) return;
-    if (!confirm("Annuler l'abonnement ? Tu gardes l\'accès jusqu'à expiration.")) return;
+    if (!piUser || !piUser.uid) { showToast('Connexion Pi requise'); return; }
+    if (!confirm("Annuler l'abonnement ?\nTu gardes l'accès jusqu'à la date d'expiration.")) return;
     fetch('/api/premium', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'cancel', piUserId: piUser.uid }),
-    }).then(r => r.json()).then(data => {
+    }).then(function(r) { return r.json(); }).then(function(data) {
       if (data.ok) {
         window.VA_clearPremiumCache && window.VA_clearPremiumCache();
         renderSubscriptionStatus();
+        showToast('Annulation enregistrée — accès jusqu\'à expiration');
       }
-    }).catch(() => {});
+    }).catch(function() { showToast('Erreur réseau — réessaie'); });
   }
 
     /* ── Stats Premium ── */
