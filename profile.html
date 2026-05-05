@@ -484,29 +484,6 @@
     }
     .profile-hero-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
 
-    /* ════ BOUTON PREMIUM COMPACT ════ */
-    .premium-hero-btn {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 4px 10px; border-radius: 16px; cursor: pointer;
-      font-family: var(--font); font-size: 0.7rem; font-weight: 700;
-      border: 1px solid; transition: all 0.18s; text-decoration: none;
-      white-space: nowrap; line-height: 1.4;
-    }
-    .premium-hero-btn.active {
-      background: rgba(167,139,250,0.12); border-color: rgba(167,139,250,0.35); color: var(--text);
-    }
-    .premium-hero-btn.inactive {
-      background: rgba(167,139,250,0.08); border-color: rgba(167,139,250,0.2); color: var(--violet);
-      animation: premPulse 2.4s ease-in-out infinite;
-    }
-    .premium-hero-btn.expiring {
-      background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.35); color: #fbbf24;
-      animation: premPulseOrange 1.6s ease-in-out infinite;
-    }
-    @keyframes premPulse { 0%,100%{box-shadow:0 0 0 0 transparent} 50%{box-shadow:0 0 0 4px rgba(167,139,250,0.18)} }
-    @keyframes premPulseOrange { 0%,100%{box-shadow:0 0 0 0 transparent} 50%{box-shadow:0 0 0 4px rgba(251,191,36,0.22)} }
-    .phb-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-
     /* ════ PSTATS CÔTE À CÔTE ════ */
     .pstats-side {
       display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start;
@@ -829,49 +806,118 @@
     }
     .prem-social-proof strong { color: var(--text2); }
 
-    /* Accordion avantages — STYLE MAQUETTE */
-    .prem-accordion { display: flex; flex-direction: column; gap: 12px; }
-    .prem-acc-item {
-      background: var(--ink3); border: 1px solid var(--b1); border-radius: 20px; overflow: hidden;
-      transition: all 0.2s;
+    /* ════ MENU DÉROULANT « DÉTAILS DES AVANTAGES » ════
+       1 wrapper cliquable -> dévoile 3 cartes toujours visibles d'un coup */
+    .prem-perks-wrap {
+      margin-top: 24px;
+      display: flex; flex-direction: column; gap: 12px;
     }
-    .prem-acc-item:hover { border-color: rgba(167,139,250,0.3); }
-    .prem-acc-header {
-      display: flex; align-items: center; padding: 20px; cursor: pointer; user-select: none; gap: 16px;
+    .prem-perks-toggle {
+      display: flex; align-items: center; gap: 12px;
+      width: 100%;
+      padding: 16px 20px;
+      background: var(--ink3);
+      border: 1px solid var(--b1);
+      border-radius: 16px;
+      color: var(--text);
+      font-family: var(--font);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
     }
-    .prem-acc-icon-box {
-      width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.05);
-      display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;
+    .prem-perks-toggle:hover { border-color: rgba(167,139,250,0.35); background: rgba(167,139,250,0.04); }
+    .prem-perks-toggle-icon {
+      font-size: 1.05rem; color: var(--text2); flex-shrink: 0;
     }
-    .prem-acc-header-text { flex: 1; }
-    .prem-acc-title { font-size: 0.95rem; font-weight: 800; color: var(--text); display: block; margin-bottom: 2px; }
-    .prem-acc-sub { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
-    .prem-acc-chevron {
-      color: var(--muted); font-size: 0.75rem; transition: transform 0.25s; opacity: 0.7;
+    .prem-perks-toggle-label {
+      flex: 1; text-align: left;
+      font-size: 0.95rem; font-weight: 800; letter-spacing: -0.2px;
     }
-    .prem-acc-item.open .prem-acc-chevron { transform: rotate(180deg); }
-    .prem-acc-body {
-      max-height: 0; overflow: hidden;
-      transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1);
+    .prem-perks-toggle-chevron {
+      font-size: 0.7rem; color: var(--muted); opacity: 0.7;
+      transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+      flex-shrink: 0;
     }
-    .prem-acc-item.open .prem-acc-body { max-height: 500px; }
-    .prem-acc-inner { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 12px; }
-    .prem-acc-inner::before {
-      content: ""; display: block; height: 1px; background: var(--b1); margin-bottom: 4px;
+    .prem-perks-wrap.open .prem-perks-toggle-chevron { transform: rotate(180deg); }
+    .prem-perks-wrap.open .prem-perks-toggle { border-color: rgba(167,139,250,0.3); }
+
+    .prem-perks-content {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.32s cubic-bezier(0.4,0,0.2,1);
     }
-    .prem-acc-perk {
-      display: flex; align-items: center; justify-content: space-between; gap: 10px;
-      font-size: 0.85rem; color: var(--text2); font-weight: 500;
+    .prem-perks-wrap.open .prem-perks-content { grid-template-rows: 1fr; }
+    .prem-perks-content-inner {
+      overflow: hidden;
+      display: flex; flex-direction: column; gap: 12px;
     }
-    .prem-acc-perk-left { display: flex; align-items: center; gap: 10px; }
-    .prem-acc-check { color: #4ade80; font-size: 0.85rem; flex-shrink: 0; font-weight: 900; }
-    .prem-acc-badge {
-      padding: 3px 10px; border-radius: 10px; font-size: 0.65rem; font-weight: 800;
-      text-transform: uppercase; letter-spacing: 0.05em;
+
+    /* Cartes individuelles (toujours dépliées une fois le wrapper ouvert) */
+    .prem-perk-card {
+      background: var(--ink3);
+      border: 1px solid var(--b1);
+      border-radius: 20px;
+      padding: 20px;
+      transition: border-color 0.2s;
     }
-    .prem-acc-badge.green { background: rgba(74,222,128,0.12); color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
-    .prem-acc-badge.blue  { background: rgba(34,211,238,0.12); color: #22d3ee; border: 1px solid rgba(34,211,238,0.2); }
-    .prem-acc-badge.purple { background: rgba(167,139,250,0.12); color: #a78bfa; border: 1px solid rgba(167,139,250,0.2); }
+    .prem-perk-card:hover { border-color: rgba(167,139,250,0.25); }
+    .prem-perk-card-header {
+      display: flex; align-items: center; gap: 14px;
+      margin-bottom: 16px;
+    }
+    .prem-perk-icon-box {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; flex-shrink: 0;
+    }
+    .prem-perk-icon-violet { background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.18); }
+    .prem-perk-icon-amber  { background: rgba(251,191,36,0.10); border: 1px solid rgba(251,191,36,0.18); }
+    .prem-perk-icon-teal   { background: rgba(34,211,238,0.10); border: 1px solid rgba(34,211,238,0.18); }
+    .prem-perk-header-text { flex: 1; min-width: 0; }
+    .prem-perk-title {
+      font-size: 0.98rem; font-weight: 800; color: var(--text);
+      letter-spacing: -0.3px; margin-bottom: 3px;
+    }
+    .prem-perk-sub {
+      font-size: 0.78rem; color: var(--muted); font-weight: 500;
+    }
+    .prem-perk-list { display: flex; flex-direction: column; gap: 0; }
+    .prem-perk-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px;
+      font-size: 0.86rem; color: var(--text2); font-weight: 500;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--b1);
+    }
+    .prem-perk-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .prem-perk-row:first-child { padding-top: 0; }
+    .prem-perk-row-left {
+      display: flex; align-items: center; gap: 10px;
+      min-width: 0; flex: 1;
+    }
+    .prem-perk-check {
+      color: #4ade80; font-weight: 900; font-size: 0.9rem; flex-shrink: 0;
+    }
+    .prem-perk-badge {
+      flex-shrink: 0;
+      padding: 4px 11px; border-radius: 12px;
+      font-size: 0.65rem; font-weight: 800;
+      text-transform: capitalize; letter-spacing: 0.02em;
+    }
+    .prem-perk-badge.green  { background: rgba(74,222,128,0.12); color: #4ade80; border: 1px solid rgba(74,222,128,0.22); }
+    .prem-perk-badge.blue   { background: rgba(34,211,238,0.12); color: #22d3ee; border: 1px solid rgba(34,211,238,0.22); }
+    .prem-perk-badge.purple { background: rgba(167,139,250,0.14); color: #a78bfa; border: 1px solid rgba(167,139,250,0.22); }
+
+    @media (max-width: 480px) {
+      .prem-perk-card { padding: 16px 14px; }
+      .prem-perk-card-header { gap: 12px; margin-bottom: 12px; }
+      .prem-perk-icon-box { width: 40px; height: 40px; font-size: 1.2rem; }
+      .prem-perk-title { font-size: 0.92rem; }
+      .prem-perk-sub { font-size: 0.74rem; }
+      .prem-perk-row { font-size: 0.82rem; padding: 9px 0; }
+      .prem-perks-toggle { padding: 14px 16px; }
+      .prem-perks-toggle-label { font-size: 0.9rem; }
+    }
 
     /* Pi error message */
     .prem-pi-error {
@@ -904,6 +950,17 @@
     .prem-picker-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
   </style>
+  <!-- Pi Network SDK (requis pour les paiements d'abonnement) -->
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <script>
+    // Init Pi SDK le plus tôt possible (sandbox: true tant qu'on est en testnet)
+    try {
+      if (typeof Pi !== 'undefined') {
+        Pi.init({ version: '2.0', sandbox: true });
+        window._piReady = true;
+      }
+    } catch(e) { console.warn('[pi-sdk] init failed:', e); }
+  </script>
   <script src="js/i18n.js"></script>
   <script src="featuresManager.js"></script>
   <script src="premiumManager.js"></script>
@@ -1082,7 +1139,7 @@
       <div style="font-size:2rem;margin-bottom:10px">📅</div>
       <div style="font-weight:700;color:var(--text);margin-bottom:6px">Prochaines sorties</div>
       <div style="font-size:0.8rem;color:var(--muted);margin-bottom:18px">Suis tes animes et reçois les dates de diffusion en temps réel.</div>
-      <a href="premium.html" style="display:inline-flex;align-items:center;gap:6px;padding:9px 20px;background:linear-gradient(135deg,#a78bfa,#818cf8);color:#fff;border-radius:20px;font-size:0.8rem;font-weight:700;text-decoration:none">⭐ Passer Premium</a>
+      <a href="#" onclick="event.preventDefault();switchTab('abo');" style="display:inline-flex;align-items:center;gap:6px;padding:9px 20px;background:linear-gradient(135deg,#a78bfa,#818cf8);color:#fff;border-radius:20px;font-size:0.8rem;font-weight:700;text-decoration:none;cursor:pointer">⭐ Passer Premium</a>
     </div>
   </div>
 </div>
@@ -1154,102 +1211,95 @@
   <!-- Social proof (masqué par défaut, affiché si abonnes > 50) -->
   <div class="prem-social-proof" id="premSocialProof" style="display:none"></div>
 
-  <!-- Accordion avantages -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px;padding:0 4px">
-    <div style="display:flex;align-items:center;gap:8px">
-      <span style="font-size:1.1rem">◌</span>
-      <span style="font-size:0.95rem;font-weight:800;color:var(--text)">Détails des avantages</span>
-    </div>
-    <span style="font-size:0.8rem;color:var(--muted);opacity:0.6">▲</span>
-  </div>
+  <!-- Menu déroulant unique : Détails des avantages -->
+  <div class="prem-perks-wrap" id="premPerksWrap">
+    <button type="button" class="prem-perks-toggle" id="premPerksToggle" aria-expanded="false" aria-controls="premPerksContent">
+      <span class="prem-perks-toggle-icon">◌</span>
+      <span class="prem-perks-toggle-label">Détails des avantages</span>
+      <span class="prem-perks-toggle-chevron" aria-hidden="true">▼</span>
+    </button>
 
-  <div class="prem-accordion">
+    <div class="prem-perks-content" id="premPerksContent">
+      <div class="prem-perks-content-inner">
 
-    <!-- 1 : Débloquez tout votre potentiel -->
-    <div class="prem-acc-item" id="premAcc1">
-      <div class="prem-acc-header" onclick="toggleAcc('premAcc1')">
-        <div class="prem-acc-icon-box">⭐</div>
-        <div class="prem-acc-header-text">
-          <span class="prem-acc-title">1. Débloquez tout votre potentiel</span>
-          <span class="prem-acc-sub">Accès complet à votre expérience anime</span>
+        <!-- Carte 1 : Débloquez tout votre potentiel -->
+        <div class="prem-perk-card">
+          <div class="prem-perk-card-header">
+            <div class="prem-perk-icon-box prem-perk-icon-violet">⭐</div>
+            <div class="prem-perk-header-text">
+              <div class="prem-perk-title">1. Débloquez tout votre potentiel</div>
+              <div class="prem-perk-sub">Accès complet à votre expérience anime</div>
+            </div>
+          </div>
+          <div class="prem-perk-list">
+            <div class="prem-perk-row">
+              <div class="prem-perk-row-left"><span class="prem-perk-check">✓</span>Favoris illimités</div>
+              <span class="prem-perk-badge green">Illimités</span>
+            </div>
+            <div class="prem-perk-row">
+              <div class="prem-perk-row-left"><span class="prem-perk-check">✓</span>Recommandations personnalisées selon vos goûts</div>
+              <span class="prem-perk-badge purple">x3</span>
+            </div>
+            <div class="prem-perk-row">
+              <div class="prem-perk-row-left"><span class="prem-perk-check">✓</span>Stats avancées (genres, animes préférés, tendances)</div>
+            </div>
+            <div class="prem-perk-row">
+              <div class="prem-perk-row-left"><span class="prem-perk-check">✓</span>Suivi détaillé de votre progression</div>
+            </div>
+          </div>
         </div>
-        <span class="prem-acc-chevron">▼</span>
-      </div>
-      <div class="prem-acc-body">
-        <div class="prem-acc-inner">
-          <div class="prem-acc-perk">
-            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Favoris illimités</div>
-            <span class="prem-acc-badge green">Illimités</span>
-          </div>
-          <div class="prem-acc-perk">
-            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Recommandations personnalisées selon vos goûts</div>
-            <span class="prem-acc-badge purple">x3</span>
-          </div>
-          <div class="prem-acc-perk">
-            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Stats avancées (genres, animes préférés, tendances)</div>
-          </div>
-          <div class="prem-acc-perk">
-            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Suivi détaillé de votre progression</div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- 2 : Soyez toujours en avance -->
-    <div class="prem-acc-item" id="premAcc2">
-      <div class="prem-acc-header" onclick="toggleAcc('premAcc2')">
-        <div class="prem-acc-icon-box">🔔</div>
-        <div class="prem-acc-header-text">
-          <span class="prem-acc-title">2. Soyez toujours en avance</span>
-          <span class="prem-acc-sub">Alertes et notifications intelligentes</span>
+        <!-- Carte 2 : Soyez toujours en avance -->
+        <div class="prem-perk-card">
+          <div class="prem-perk-card-header">
+            <div class="prem-perk-icon-box prem-perk-icon-amber">🔔</div>
+            <div class="prem-perk-header-text">
+              <div class="prem-perk-title">2. Soyez toujours en avance</div>
+              <div class="prem-perk-sub">Alertes et notifications intelligentes</div>
+            </div>
+          </div>
+          <div class="prem-perk-list">
+            <div class="prem-perk-row">
+              <div class="prem-perk-row-left"><span class="prem-perk-check">✓</span>Alerte dès l'annonce + compte à rebours</div>
+              <span class="prem-perk-badge blue">Temps réel</span>
+            </div>
+            <div class="prem-perk-row">
+              <div class="prem-perk-row-left"><span class="prem-perk-check">✓</span>Notifications basées sur vos goûts + tendances</div>
+            </div>
+            <div class="prem-perk-row">
+              <div class="prem-perk-row-left"><span class="prem-perk-check">✓</span>News personnalisées selon votre profil</div>
+            </div>
+            <div class="prem-perk-row">
+              <div class="prem-perk-row-left"><span class="prem-perk-check">✓</span>Accès anticipé aux nouveautés</div>
+              <span class="prem-perk-badge blue">Early access</span>
+            </div>
+          </div>
         </div>
-        <span class="prem-acc-chevron">▼</span>
-      </div>
-      <div class="prem-acc-body">
-        <div class="prem-acc-inner">
-          <div class="prem-acc-perk">
-            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Alerte dès l'annonce + compte à rebours</div>
-            <span class="prem-acc-badge blue">Temps réel</span>
-          </div>
-          <div class="prem-acc-perk">
-            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Notifications basées sur vos goûts + tendances</div>
-          </div>
-          <div class="prem-acc-perk">
-            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>News personnalisées selon votre profil</div>
-          </div>
-          <div class="prem-acc-perk">
-            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Accès anticipé aux nouveautés</div>
-            <span class="prem-acc-badge blue">Early access</span>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- 3 : Une expérience 100% à votre image -->
-    <div class="prem-acc-item" id="premAcc3">
-      <div class="prem-acc-header" onclick="toggleAcc('premAcc3')">
-        <div class="prem-acc-icon-box">✦</div>
-        <div class="prem-acc-header-text">
-          <span class="prem-acc-title">3. Une expérience 100% à votre image</span>
-          <span class="prem-acc-sub">Personnalisation complète</span>
+        <!-- Carte 3 : Une expérience 100% à votre image -->
+        <div class="prem-perk-card">
+          <div class="prem-perk-card-header">
+            <div class="prem-perk-icon-box prem-perk-icon-teal">✦</div>
+            <div class="prem-perk-header-text">
+              <div class="prem-perk-title">3. Une expérience 100% à votre image</div>
+              <div class="prem-perk-sub">Personnalisation complète</div>
+            </div>
+          </div>
+          <div class="prem-perk-list">
+            <div class="prem-perk-row">
+              <div class="prem-perk-row-left"><span class="prem-perk-check">✓</span>Organisez et triez votre liste librement</div>
+            </div>
+            <div class="prem-perk-row">
+              <div class="prem-perk-row-left"><span class="prem-perk-check">✓</span>Personnalisez votre profil et votre thème</div>
+            </div>
+            <div class="prem-perk-row">
+              <div class="prem-perk-row-left"><span class="prem-perk-check">✓</span>Badge Premium exclusif ⭐</div>
+            </div>
+          </div>
         </div>
-        <span class="prem-acc-chevron">▼</span>
-      </div>
-      <div class="prem-acc-body">
-        <div class="prem-acc-inner">
-          <div class="prem-acc-perk">
-            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Organisez et triez votre liste librement</div>
-          </div>
-          <div class="prem-acc-perk">
-            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Personnalisez votre profil et votre thème</div>
-          </div>
-          <div class="prem-acc-perk">
-            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Badge Premium exclusif ⭐</div>
-          </div>
-        </div>
+
       </div>
     </div>
-
   </div>
 
 </div>
@@ -1718,6 +1768,7 @@
           + '<button class="prem-btn prem-btn-extend" id="premExtendBtn">➡ Prolonger l\'abonnement</button>'
           + '<button class="prem-btn prem-btn-cancel" id="premCancelBtn">Annuler</button>'
         + '</div>'
+        + '<div id="premPiError"></div>'
         + '</div>';
 
       var extendBtn = el('premExtendBtn');
@@ -1810,10 +1861,13 @@
     if (o) o.remove();
   }
 
-  function toggleAcc(id) {
-    var item = el(id);
-    if (!item) return;
-    item.classList.toggle('open');
+  /* Toggle du menu déroulant unique « Détails des avantages » */
+  function togglePerks() {
+    var wrap = el('premPerksWrap');
+    var btn  = el('premPerksToggle');
+    if (!wrap) return;
+    var isOpen = wrap.classList.toggle('open');
+    if (btn) btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
   }
 
   function _fetchSocialProof() {
@@ -1852,121 +1906,179 @@
     }).catch(function() { showToast('Erreur réseau — réessaie'); });
   }
 
+  /* Affichage d'une erreur Pi sous le CTA (ou en toast si pas de container) */
+  function _showPiError(msg) {
+    var box = el('premPiError');
+    if (box) {
+      box.innerHTML = '<div class="prem-pi-error">' + msg + '</div>';
+      setTimeout(function() {
+        if (box) box.innerHTML = '';
+      }, 5000);
+    } else {
+      showToast(msg);
+    }
+  }
+
+  /* Garantie que le SDK Pi est prêt (déjà initialisé dans <head>, ici on re-tente si besoin) */
+  function _ensurePiReady() {
+    if (window._piReady) return true;
+    if (typeof window.Pi === 'undefined') return false;
+    try {
+      window.Pi.init({ version: '2.0', sandbox: true });
+      window._piReady = true;
+      return true;
+    } catch(e) {
+      console.warn('[pi] init retry failed:', e);
+      return false;
+    }
+  }
+
   function _triggerPayment(plan) {
     _launchSubscription(plan);
+  }
+
+  /* ── Flux de paiement abonnement Pi (U2A) ──
+     Pattern identique à la page Soutenir : Pi.createPayment({amount, memo, metadata}, callbacks).
+     PAS d'appel à /api/pi-create-payement (qui sert aux paiements A2U app-to-user).
+     Le SDK obtient lui-même l'identifier auprès des serveurs Pi.
+  */
+  var _subPaying = false;
+
+  function _setPlanButtonsBusy(busy) {
+    document.querySelectorAll('.prem-plan-btn').forEach(function(b) {
+      b.disabled = !!busy;
+      b.style.opacity = busy ? '0.6' : '';
+      b.style.cursor  = busy ? 'wait' : '';
+    });
+    var ext = el('premExtendBtn');
+    if (ext) {
+      ext.disabled = !!busy;
+      ext.style.opacity = busy ? '0.6' : '';
+    }
   }
 
   function _launchSubscription(plan) {
     var planDef = PREM_PLANS[plan];
     if (!planDef) return;
+    if (_subPaying) return; // anti double-clic
 
-    if (!_piReady || typeof window.Pi === 'undefined') {
-      if (typeof window.Pi !== 'undefined') {
-        try { window.Pi.init({ version: '2.0', sandbox: true }); _piReady = true; } catch(e) {}
-      }
-      if (!_piReady) {
-        _showPiError("⚠️ Ouvre VoirAnime dans le Pi Browser pour t'abonner.");
-        return;
-      }
+    if (!_ensurePiReady()) {
+      _showPiError("⚠️ Ouvre VoirAnime dans le Pi Browser pour t'abonner.");
+      return;
     }
 
+    _subPaying = true;
+    _setPlanButtonsBusy(true);
+
+    function _resetPaying() {
+      _subPaying = false;
+      _setPlanButtonsBusy(false);
+    }
+
+    // Récupération du user Pi local (utile pour les métadonnées et l'activation)
     var piUser = (window.piAuth && window.piAuth.getUser && window.piAuth.getUser()) || (function() {
       try { return JSON.parse(localStorage.getItem('pi_user')); } catch(e) { return null; }
     })();
 
-    // 1. Authentification & Gestion des paiements incomplets
+    // 1. Authentification + gestion des paiements incomplets
     window.Pi.authenticate(['payments', 'username'], function onIncomplete(payment) {
       if (!payment || !payment.identifier) return;
       fetch('/api/pi-complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          paymentId: payment.identifier,
-          txid: payment.transaction && payment.transaction.txid,
-          piUserId: piUser && piUser.uid,
-          plan: plan,
+          paymentId:  payment.identifier,
+          txid:       payment.transaction && payment.transaction.txid,
+          piUserId:   piUser && piUser.uid,
+          plan:       plan,
           piUsername: payment.user && payment.user.username,
         }),
       }).catch(function() {});
     })
-    .then(async function(auth) {
-      try {
-        // 2. Création du paiement côté SERVEUR (plus sécurisé)
-        // Note: Le fichier fourni est api/pi-create-payement.js
-        const createRes = await fetch('/api/pi-create-payement', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            amount:   planDef.amount,
-            memo:     'VoirAnime ' + planDef.label,
-            metadata: { app: 'voiranime', type: 'subscription', plan: plan, piUserId: piUser && piUser.uid }
+    .then(function(auth) {
+      // Persister le user Pi (même pattern que soutenir.html) — utile pour cancel ultérieur
+      try { localStorage.setItem('pi_user', JSON.stringify((auth && auth.user) || {})); } catch(e) {}
+      // Mettre à jour notre référence locale au cas où piUser était null avant
+      if (auth && auth.user) piUser = auth.user;
+
+      // 2. Création du paiement U2A — le SDK gère l'aller-retour avec les serveurs Pi
+      var paymentData = {
+        amount:   planDef.amount,
+        memo:     'VoirAnime ' + planDef.label,
+        metadata: {
+          app:      'voiranime',
+          type:     'subscription',
+          plan:     plan,
+          piUserId: piUser && piUser.uid,
+        },
+      };
+
+      var callbacks = {
+        onReadyForServerApproval: function(paymentId) {
+          fetch('/api/pi-approve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              paymentId:  paymentId,
+              plan:       plan,
+              piUserId:   piUser && piUser.uid,
+              piUsername: (auth && auth.user && auth.user.username) || (piUser && piUser.username) || null,
+            }),
+          }).catch(function() {});
+        },
+        onReadyForServerCompletion: function(paymentId, txid) {
+          fetch('/api/pi-complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              paymentId:  paymentId,
+              txid:       txid,
+              piUserId:   piUser && piUser.uid,
+              plan:       plan,
+              piUsername: (auth && auth.user && auth.user.username) || (piUser && piUser.username) || null,
+            }),
           })
-        });
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            if (data && data.premium && (data.premium.isPremium || data.premium.ok)) {
+              window.VA_clearPremiumCache && window.VA_clearPremiumCache();
+              closePlanPicker();
+              renderSubscriptionStatus();
+              showToast('✅ Abonnement Premium activé ! Bienvenue 🎉');
+            } else if (data && data.ok) {
+              window.VA_clearPremiumCache && window.VA_clearPremiumCache();
+              closePlanPicker();
+              renderSubscriptionStatus();
+              showToast('✅ Paiement confirmé !');
+            } else {
+              _showPiError((data && data.message) || "Erreur d'activation — réessaie ou contacte le support");
+            }
+          })
+          .catch(function() {
+            // Le paiement a abouti côté blockchain mais l'API VoirAnime est injoignable.
+            // L'idempotency côté serveur permettra de finaliser plus tard.
+            showToast('Paiement reçu — activation en cours…');
+          })
+          .finally(function() { _resetPaying(); });
+        },
+        onCancel: function() {
+          // l'utilisateur a annulé — pas de message d'erreur, juste réactiver les boutons
+          _resetPaying();
+        },
+        onError:  function(e) {
+          console.error('[sub] Pi error:', e);
+          _showPiError("Erreur SDK Pi : " + ((e && e.message) || "inconnue"));
+          _resetPaying();
+        },
+      };
 
-        if (!createRes.ok) throw new Error("Erreur serveur lors de la création du paiement");
-        const paymentData = await createRes.json();
-
-        if (!paymentData || !paymentData.identifier) {
-          throw new Error("Identifiant de paiement manquant");
-        }
-
-        // 3. Lancement du paiement SDK avec l'identifier reçu
-        window.Pi.createPayment(
-          {
-            paymentId: paymentData.identifier
-          },
-          {
-            onReadyForServerApproval: function(paymentId) {
-              fetch('/api/pi-approve', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  paymentId: paymentId,
-                  plan: plan,
-                  piUserId: piUser && piUser.uid,
-                  piUsername: auth.user && auth.user.username
-                }),
-              }).catch(function() {});
-            },
-            onReadyForServerCompletion: function(paymentId, txid) {
-              fetch('/api/pi-complete', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  paymentId: paymentId,
-                  txid: txid,
-                  piUserId: piUser && piUser.uid,
-                  plan: plan,
-                  piUsername: auth.user && auth.user.username,
-                }),
-              })
-              .then(function(r) { return r.json(); })
-              .then(function(data) {
-                if (data.premium && (data.premium.isPremium || data.premium.ok)) {
-                  window.VA_clearPremiumCache && window.VA_clearPremiumCache();
-                  closePlanPicker();
-                  renderSubscriptionStatus();
-                  showToast('✅ Abonnement Premium activé ! Bienvenue 🎉');
-                } else if (data.ok) {
-                   window.VA_clearPremiumCache && window.VA_clearPremiumCache();
-                   renderSubscriptionStatus();
-                   showToast('✅ Paiement confirmé !');
-                } else {
-                   _showPiError(data.message || "Erreur d'activation");
-                }
-              })
-              .catch(function() { showToast('Paiement reçu — activation en cours…'); });
-            },
-            onCancel: function() {},
-            onError:  function(e) { console.error('[sub]', e); _showPiError("Erreur SDK Pi : " + (e.message || "inconnue")); },
-          }
-        );
-      } catch (err) {
-        console.error('[payment creation]', err);
-        _showPiError("Impossible de créer le paiement : " + err.message);
-      }
+      window.Pi.createPayment(paymentData, callbacks);
     })
-    .catch(function(e) { console.error('[pi auth]', e); });
+    .catch(function(e) {
+      console.error('[pi auth]', e);
+      _showPiError("Authentification Pi échouée : " + ((e && e.message) || "inconnue"));
+      _resetPaying();
+    });
   }
 
     /* ── Stats Premium ── */
@@ -2621,69 +2733,6 @@
     avmCancelPhoto();
   }
 
-  /* ════ BOUTON PREMIUM COMPACT ════ */
-  function _buildPremiumBtn(container, status) {
-    if (!container) return;
-    var isPremium = status && status.isPremium;
-    var days      = (status && status.daysLeft) || 0;
-    var plan      = status && status.plan;
-    var planLabel = plan === 'annual' ? 'Annuel' : 'Mensuel';
-    var expiresAt = status && status.expiresAt;
-    var btn = document.createElement('a');
-    btn.href = 'premium.html';
-    if (isPremium) {
-      var expDate  = expiresAt ? new Date(expiresAt).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}) : '';
-      var dotColor = days <= 3 ? '#f87171' : days <= 7 ? '#fbbf24' : '#4ade80';
-      var btnCls   = days <= 7 ? 'premium-hero-btn expiring' : 'premium-hero-btn active';
-      btn.className = btnCls;
-      btn.title     = expDate ? 'Expire le ' + expDate : '';
-      btn.innerHTML = '<span class="phb-dot" style="background:' + dotColor + ';box-shadow:0 0 4px ' + dotColor + '80"></span>'
-        + '⭐ Premium'
-        + (days > 0 && days <= 14 ? '<span style="font-size:0.62rem;color:var(--muted);margin-left:2px">· ' + days + 'j</span>' : '');
-      // Dot vert sur onglet Abonnement
-      var dot = document.getElementById('ptabPremiumDot');
-      if (dot) dot.classList.add('visible');
-    } else {
-      btn.className = 'premium-hero-btn inactive';
-      btn.innerHTML = '🔒 Premium';
-    }
-    container.innerHTML = '';
-    container.appendChild(btn);
-  }
-
-  function _buildAboPanel(status) {
-    var block = document.getElementById('aboStatusBlock');
-    if (!block) return;
-    var isPremium = status && status.isPremium;
-    var days      = (status && status.daysLeft) || 0;
-    var plan      = status && status.plan;
-    var expiresAt = status && status.expiresAt;
-    var planLabel = plan === 'annual' ? 'Annuel' : 'Mensuel';
-    var renewPrice = plan === 'annual' ? '19,99 Pi/an' : '1,99 Pi/mois';
-    if (isPremium) {
-      var expDate  = expiresAt ? new Date(expiresAt).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}) : '—';
-      var urgColor = days <= 3 ? '#f87171' : days <= 7 ? '#fbbf24' : '#4ade80';
-      block.innerHTML =
-        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">'
-        + '<div>'
-          + '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">'
-            + '<span style="background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);color:#4ade80;border-radius:20px;padding:3px 10px;font-size:0.72rem;font-weight:700">⭐ Premium actif</span>'
-            + (days <= 7 ? '<span style="color:' + urgColor + ';font-size:0.7rem">Expire dans ' + days + ' jours</span>' : '')
-          + '</div>'
-          + '<div style="font-size:0.78rem;color:var(--text2)">Plan <b>' + planLabel + '</b> · ' + renewPrice + '</div>'
-          + '<div style="font-size:0.72rem;color:var(--muted);margin-top:3px">Expire le ' + expDate + '</div>'
-        + '</div>'
-        + '<a href="premium.html" style="display:inline-flex;align-items:center;padding:8px 16px;background:var(--ink4);border:1px solid var(--b2);border-radius:10px;font-size:0.78rem;font-weight:600;color:var(--text2);text-decoration:none">Gérer →</a>'
-      + '</div>';
-    } else {
-      block.innerHTML =
-        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">'
-        + '<div style="font-size:0.78rem;color:var(--muted)">Passe Premium pour débloquer toutes les fonctionnalités.</div>'
-        + '<a href="premium.html" style="display:inline-flex;padding:8px 16px;background:linear-gradient(135deg,#a78bfa,#818cf8);color:#fff;border-radius:10px;font-size:0.78rem;font-weight:700;text-decoration:none">⭐ Passer Premium</a>'
-      + '</div>';
-    }
-  }
-
   /* ════ ADAPTATION renderPremiumStats → panel Perso ════ */
   // Wrapper : après renderPremiumStats on redirige vers les panels perso
   var _origRenderPremiumStats = null;
@@ -2755,6 +2804,13 @@
   window.openHistoryPanel  = openHistoryPanel;
   window.closeHistoryPanel = closeHistoryPanel;
   window.switchSortiesTab  = switchSortiesTab;
+  window.togglePerks       = togglePerks;
+
+  /* Brancher le bouton d'ouverture du menu « Détails des avantages » */
+  (function() {
+    var btn = el('premPerksToggle');
+    if (btn) btn.addEventListener('click', togglePerks);
+  })();
 
   /* ── Init ── */
   renderStats();
