@@ -1625,6 +1625,48 @@
   var _globalCache = null;     // cache mémoire { ts, data } pour la saison actuelle
   var GLOBAL_CACHE_TTL = 5 * 60 * 1000;  // 5 minutes
 
+  // Cache persistant localStorage (24h) pour réduire drastiquement les hits Jikan entre sessions
+  var ANIME_LS_PREFIX = 'VA_animeC_';
+  var ANIME_LS_TTL = 24 * 60 * 60 * 1000;  // 24h
+
+  function _animeFromStorage(id) {
+    try {
+      var raw = localStorage.getItem(ANIME_LS_PREFIX + id);
+      if (!raw) return null;
+      var obj = JSON.parse(raw);
+      if (!obj || !obj.ts || (Date.now() - obj.ts) > ANIME_LS_TTL) {
+        localStorage.removeItem(ANIME_LS_PREFIX + id);
+        return null;
+      }
+      return obj.data;
+    } catch (e) { return null; }
+  }
+  function _animeToStorage(id, data) {
+    try {
+      localStorage.setItem(ANIME_LS_PREFIX + id, JSON.stringify({ ts: Date.now(), data: data }));
+    } catch (e) {
+      // Quota dépassé : on purge les plus vieilles entrées du cache anime
+      try {
+        var entries = [];
+        for (var k = 0; k < localStorage.length; k++) {
+          var key = localStorage.key(k);
+          if (key && key.indexOf(ANIME_LS_PREFIX) === 0) {
+            try {
+              var v = JSON.parse(localStorage.getItem(key));
+              entries.push({ key: key, ts: (v && v.ts) || 0 });
+            } catch (_) { entries.push({ key: key, ts: 0 }); }
+          }
+        }
+        entries.sort(function(a, b) { return a.ts - b.ts; });
+        // Supprimer la moitié la plus ancienne
+        entries.slice(0, Math.ceil(entries.length / 2)).forEach(function(e) {
+          localStorage.removeItem(e.key);
+        });
+        localStorage.setItem(ANIME_LS_PREFIX + id, JSON.stringify({ ts: Date.now(), data: data }));
+      } catch (_) { /* tant pis */ }
+    }
+  }
+
   function switchSortiesTab(tabId) {
     if (tabId !== 'favoris' && tabId !== 'global') return;
     if (tabId === _currentSortiesTab) return;  // évite re-fetch inutile
@@ -1908,7 +1950,7 @@
       if (entry && entry.status !== 'completed') idSet.add(String(id));
     });
 
-    var ids = Array.from(idSet).slice(0, 20); // max 20
+    var ids = Array.from(idSet);  // pas de cap : on gère via cache + batchs
 
     if (ids.length === 0) {
       grid.innerHTML = '<div class="upcoming-empty">Ajoute des animes à tes favoris ou à ta liste pour voir les prochaines sorties !</div>';
@@ -1916,64 +1958,79 @@
     }
 
     _upcomingData = [];
-    var fetched   = 0;
-    var loaderEl  = null;
 
-    function showLoader() {
-      grid.innerHTML = '<div class="upcoming-loader" id="sortiesLoader"><div class="sk-spin"></div><span id="sortiesLoaderTxt">Chargement de tes favoris (0/' + ids.length + ')…</span></div>';
-      loaderEl = el('sortiesLoaderTxt');
-    }
-    function updateLoaderText() {
-      if (loaderEl) loaderEl.textContent = 'Chargement de tes favoris (' + fetched + '/' + ids.length + ')…';
-    }
-    showLoader();
-
-    // 1) Servir d'abord depuis le cache (sans hit Jikan) pour un affichage instantané
-    var fromCache = 0;
+    // ── 1) Hydrater depuis le cache (mémoire d'abord, puis localStorage) ─────
+    var toFetch = [];
     ids.forEach(function(id) {
-      if (_animeCache[id]) {
-        _upcomingData.push({ anime: _animeCache[id], nextMs: _getNextAirMs(_animeCache[id]) });
-        fromCache++;
+      var cached = _animeCache[id] || _animeFromStorage(id);
+      if (cached) {
+        _animeCache[id] = cached;
+        _upcomingData.push({ anime: cached, nextMs: _getNextAirMs(cached) });
+      } else {
+        toFetch.push(id);
       }
     });
-    if (fromCache > 0) {
-      fetched = fromCache;
-      // Render initial avec les données en cache (le loader sera remplacé)
+
+    // Affichage immédiat de ce qu'on a en cache
+    if (_upcomingData.length > 0) {
       _renderUpcomingGrid();
+    } else {
+      grid.innerHTML = '<div class="upcoming-loader" id="sortiesLoader"><div class="sk-spin"></div><span id="sortiesLoaderTxt">Chargement de tes favoris (0/' + ids.length + ')…</span></div>';
     }
 
-    // 2) Fetcher les manquants
-    for (var i = 0; i < ids.length; i++) {
-      // Race-guard : si l'utilisateur a switché d'onglet, on stoppe immédiatement
-      if (myToken !== _sortiesFetchToken) return;
-      var id = ids[i];
-      if (_animeCache[id]) continue;  // déjà servi depuis le cache
+    // Tout est dans le cache : on a fini
+    if (toFetch.length === 0) return;
 
+    // ── 2) Fetcher les manquants par batchs parallèles ─────
+    var BATCH_SIZE = 3;             // Jikan accepte ~3 req/s
+    var BATCH_DELAY_MS = 1100;      // marge de sécurité au-dessus de la limite officielle
+    var fetchedCount = ids.length - toFetch.length;
+
+    function updateLoaderText() {
+      var loaderEl = el('sortiesLoaderTxt');
+      if (loaderEl) loaderEl.textContent = 'Chargement de tes favoris (' + fetchedCount + '/' + ids.length + ')…';
+    }
+    updateLoaderText();
+
+    async function fetchOne(id) {
       try {
-        var res  = await fetch('/api/jikan?path=' + encodeURIComponent('/anime/' + id));
-        if (myToken !== _sortiesFetchToken) return;
-        if (!res.ok) throw new Error('Status ' + res.status);
+        var res = await fetch('/api/jikan?path=' + encodeURIComponent('/anime/' + id));
+        if (myToken !== _sortiesFetchToken) return null;
+        if (!res.ok) return null;
         var data = await res.json();
-        if (myToken !== _sortiesFetchToken) return;
-        var anime = data.data;
-
+        if (myToken !== _sortiesFetchToken) return null;
+        var anime = data && data.data;
         if (anime) {
           _animeCache[id] = anime;
-          _upcomingData.push({ anime: anime, nextMs: _getNextAirMs(anime) });
+          _animeToStorage(id, anime);
+          return anime;
         }
-      } catch(e) { /* silencieux : l'item est simplement omis */ }
+      } catch (e) { /* silencieux : item omis */ }
+      return null;
+    }
 
-      fetched++;
+    for (var i = 0; i < toFetch.length; i += BATCH_SIZE) {
+      if (myToken !== _sortiesFetchToken) return;
+      var batch = toFetch.slice(i, i + BATCH_SIZE);
+      var results = await Promise.all(batch.map(fetchOne));
+      if (myToken !== _sortiesFetchToken) return;
 
-      // Si on a déjà du contenu à montrer, on rerend sans flasher le loader
+      results.forEach(function(anime) {
+        if (anime) _upcomingData.push({ anime: anime, nextMs: _getNextAirMs(anime) });
+      });
+      fetchedCount += batch.length;
+
+      // Rendu progressif après chaque batch
       if (_upcomingData.length > 0) {
         _renderUpcomingGrid();
       } else {
         updateLoaderText();
       }
 
-      // Rate-limit Jikan : 1s entre 2 vrais hits réseau
-      if (i < ids.length - 1) await new Promise(function(r) { setTimeout(r, 1000); });
+      // Délai entre batchs (sauf après le dernier)
+      if (i + BATCH_SIZE < toFetch.length) {
+        await new Promise(function(r) { setTimeout(r, BATCH_DELAY_MS); });
+      }
     }
 
     if (myToken !== _sortiesFetchToken) return;
