@@ -8,12 +8,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
   <style>
-    /* ── Garde-fou anti-débordement horizontal global (mobile) ──
-       Empêche n'importe quel élément de la page de provoquer un scroll latéral.
-       'clip' est préféré à 'hidden' car il n'interfère pas avec position:sticky.
-       Hidden est gardé en fallback pour les navigateurs qui ne supportent pas clip. */
-    html, body { max-width: 100%; overflow-x: hidden; overflow-x: clip; }
-
     /* Logo néon */
     .nav-logo{text-decoration:none;display:inline-flex;align-items:center}
     .logo-glitch{display:inline-block;font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:-.5px;transform:skewX(-6deg);position:relative;user-select:none}
@@ -603,25 +597,86 @@
     .upc-status.finished { color: var(--muted); background: rgba(255,255,255,0.05); }
     .upc-status.unknown { color: #fbbf24; background: rgba(251,191,36,0.1); }
 
-    /* ── Anti-overflow Sorties (toutes tailles d'écran) ──
-       Empêche les flex items de déborder leur conteneur quand leur contenu est large. */
-    #panel-sorties { overflow-x: hidden; }
-    .sorties-sub-tabs { max-width: 100%; box-sizing: border-box; }
-    .stab { min-width: 0; }
-    .upcoming-card { box-sizing: border-box; max-width: 100%; }
-    .upcoming-info { min-width: 0; }
-    .upcoming-countdown { min-width: 0; max-width: 50%; }
-    .upcoming-title { word-break: break-word; }
-    .upc-time, .upc-label, .upc-status { max-width: 100%; }
+    /* ═══════════════════════════════════════════════════════════════════
+       FIX RESPONSIVE — onglets profile + section Sorties [v4]
+       ═══════════════════════════════════════════════════════════════════ */
 
-    /* Responsive Sorties : ajustements progressifs */
+    /* Onglets profile (Stats / Sorties / Perso / Abonnement) :
+       sur mobile, basculer du scroll horizontal vers une répartition équitable,
+       avec ellipsis si nécessaire pour que tout tienne sans coupure. */
     @media (max-width: 768px) {
-      .sorties-sub-tabs { width: 100%; }
-      .stab { flex: 1 1 0; padding: 7px 12px; }
+      .profile-tabs {
+        overflow-x: visible !important;
+        width: 100%;
+      }
+      .ptab {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 11px 4px 10px;
+        font-size: 0.74rem;
+        gap: 3px;
+        justify-content: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .profile-tabs-wrap { padding: 0 8px; }
     }
+    @media (max-width: 380px) {
+      .ptab { font-size: 0.68rem; padding: 11px 2px 10px; }
+    }
+
+    /* Panel Sorties — anti-overflow strict */
+    #panel-sorties { overflow-x: hidden; }
+    #panel-sorties, #panel-sorties * { box-sizing: border-box; }
+
+    /* Sub-tabs Favoris / Global : grid 50/50 forcé */
+    .sorties-sub-tabs {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 4px;
+      width: 100%;
+      max-width: 100%;
+      padding: 4px;
+    }
+    .stab {
+      min-width: 0;
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Cartes : forcer le respect de la largeur du parent */
+    .upcoming-grid { width: 100%; max-width: 100%; }
+    .upcoming-card { max-width: 100%; width: 100%; }
+    .upcoming-info { min-width: 0; flex: 1 1 0; overflow: hidden; }
+    .upcoming-countdown { min-width: 0; flex-shrink: 0; max-width: 45%; }
+    .upcoming-title {
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .upcoming-type {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .upc-time, .upc-label, .upc-status {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Filtres : permettre le wrap sur petit écran */
+    .upcoming-filters { flex-wrap: wrap; max-width: 100%; }
+
+    /* Ajustements polices / paddings sur petit écran */
     @media (max-width: 480px) {
-      .sorties-sub-tabs { gap: 4px; }
-      .stab { padding: 7px 10px; font-size: 0.74rem; }
+      .stab { padding: 7px 8px; font-size: 0.72rem; }
       .upcoming-card { padding: 8px 10px; gap: 10px; }
       .upcoming-thumb { width: 38px; height: 52px; }
       .upcoming-title { font-size: 0.8rem; }
@@ -629,11 +684,10 @@
       .upc-time { font-size: 0.78rem; }
       .upc-label { font-size: 0.58rem; }
       .upc-status { font-size: 0.6rem; padding: 2px 6px; }
-      .upcoming-filters { gap: 5px; }
       .uf-btn { padding: 4px 9px; font-size: 0.66rem; }
     }
     @media (max-width: 360px) {
-      .upc-label { display: none; } /* sur très petit écran, on garde juste le countdown */
+      .upc-label { display: none; }
     }
 
   </style>
