@@ -830,38 +830,49 @@
     }
     .prem-social-proof strong { color: var(--text2); }
 
-    /* Accordion avantages */
-    .prem-accordion { display: flex; flex-direction: column; gap: 8px; }
+    /* Accordion avantages — STYLE MAQUETTE */
+    .prem-accordion { display: flex; flex-direction: column; gap: 12px; }
     .prem-acc-item {
-      background: var(--ink3); border: 1px solid var(--b1); border-radius: 14px; overflow: hidden;
-      transition: border-color 0.2s;
+      background: var(--ink3); border: 1px solid var(--b1); border-radius: 20px; overflow: hidden;
+      transition: all 0.2s;
     }
-    .prem-acc-item:hover { border-color: var(--b2); }
+    .prem-acc-item:hover { border-color: rgba(167,139,250,0.3); }
     .prem-acc-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 16px; cursor: pointer; user-select: none;
-      gap: 10px;
+      display: flex; align-items: center; padding: 20px; cursor: pointer; user-select: none; gap: 16px;
     }
-    .prem-acc-title { font-size: 0.84rem; font-weight: 700; color: var(--text); }
-    .prem-acc-icon { font-size: 1rem; flex-shrink: 0; }
+    .prem-acc-icon-box {
+      width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.05);
+      display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;
+    }
+    .prem-acc-header-text { flex: 1; }
+    .prem-acc-title { font-size: 0.95rem; font-weight: 800; color: var(--text); display: block; margin-bottom: 2px; }
+    .prem-acc-sub { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
     .prem-acc-chevron {
-      color: var(--muted); font-size: 0.7rem; transition: transform 0.25s; flex-shrink: 0;
+      color: var(--muted); font-size: 0.75rem; transition: transform 0.25s; opacity: 0.7;
     }
     .prem-acc-item.open .prem-acc-chevron { transform: rotate(180deg); }
     .prem-acc-body {
       max-height: 0; overflow: hidden;
       transition: max-height 0.3s cubic-bezier(0.4,0,0.2,1);
     }
-    .prem-acc-item.open .prem-acc-body { max-height: 400px; }
-    .prem-acc-inner { padding: 0 16px 14px; display: flex; flex-direction: column; gap: 8px; }
+    .prem-acc-item.open .prem-acc-body { max-height: 500px; }
+    .prem-acc-inner { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+    .prem-acc-inner::before {
+      content: ""; display: block; height: 1px; background: var(--b1); margin-bottom: 4px;
+    }
     .prem-acc-perk {
-      display: flex; align-items: center; gap: 9px;
-      font-size: 0.8rem; color: var(--text2);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      font-size: 0.85rem; color: var(--text2); font-weight: 500;
     }
-    .prem-acc-perk-dot {
-      width: 5px; height: 5px; border-radius: 50%;
-      background: var(--violet); flex-shrink: 0;
+    .prem-acc-perk-left { display: flex; align-items: center; gap: 10px; }
+    .prem-acc-check { color: #4ade80; font-size: 0.85rem; flex-shrink: 0; font-weight: 900; }
+    .prem-acc-badge {
+      padding: 3px 10px; border-radius: 10px; font-size: 0.65rem; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.05em;
     }
+    .prem-acc-badge.green { background: rgba(74,222,128,0.12); color: #4ade80; border: 1px solid rgba(74,222,128,0.2); }
+    .prem-acc-badge.blue  { background: rgba(34,211,238,0.12); color: #22d3ee; border: 1px solid rgba(34,211,238,0.2); }
+    .prem-acc-badge.purple { background: rgba(167,139,250,0.12); color: #a78bfa; border: 1px solid rgba(167,139,250,0.2); }
 
     /* Pi error message */
     .prem-pi-error {
@@ -1145,56 +1156,97 @@
   <div class="prem-social-proof" id="premSocialProof" style="display:none"></div>
 
   <!-- Accordion avantages -->
-  <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin:18px 0 10px">Avantages Premium</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px;padding:0 4px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span style="font-size:1.1rem">◌</span>
+      <span style="font-size:0.95rem;font-weight:800;color:var(--text)">Détails des avantages</span>
+    </div>
+    <span style="font-size:0.8rem;color:var(--muted);opacity:0.6">▲</span>
+  </div>
+
   <div class="prem-accordion">
 
-    <!-- 1 : Potentiel -->
+    <!-- 1 : Débloquez tout votre potentiel -->
     <div class="prem-acc-item" id="premAcc1">
       <div class="prem-acc-header" onclick="toggleAcc('premAcc1')">
-        <span class="prem-acc-icon">🚀</span>
-        <span class="prem-acc-title">Débloquez tout votre potentiel</span>
+        <div class="prem-acc-icon-box">⭐</div>
+        <div class="prem-acc-header-text">
+          <span class="prem-acc-title">1. Débloquez tout votre potentiel</span>
+          <span class="prem-acc-sub">Accès complet à votre expérience anime</span>
+        </div>
         <span class="prem-acc-chevron">▼</span>
       </div>
       <div class="prem-acc-body">
         <div class="prem-acc-inner">
-          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Favoris illimités (vs 20 en gratuit)</div>
-          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Stats avancées — top animes, genres préférés</div>
-          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Recommandations personnalisées ×3</div>
-          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Badge Premium exclusif ⭐</div>
+          <div class="prem-acc-perk">
+            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Favoris illimités</div>
+            <span class="prem-acc-badge green">Illimités</span>
+          </div>
+          <div class="prem-acc-perk">
+            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Recommandations personnalisées selon vos goûts</div>
+            <span class="prem-acc-badge purple">x3</span>
+          </div>
+          <div class="prem-acc-perk">
+            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Stats avancées (genres, animes préférés, tendances)</div>
+          </div>
+          <div class="prem-acc-perk">
+            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Suivi détaillé de votre progression</div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- 2 : En avance -->
+    <!-- 2 : Soyez toujours en avance -->
     <div class="prem-acc-item" id="premAcc2">
       <div class="prem-acc-header" onclick="toggleAcc('premAcc2')">
-        <span class="prem-acc-icon">⚡</span>
-        <span class="prem-acc-title">Soyez toujours en avance</span>
+        <div class="prem-acc-icon-box">🔔</div>
+        <div class="prem-acc-header-text">
+          <span class="prem-acc-title">2. Soyez toujours en avance</span>
+          <span class="prem-acc-sub">Alertes et notifications intelligentes</span>
+        </div>
         <span class="prem-acc-chevron">▼</span>
       </div>
       <div class="prem-acc-body">
         <div class="prem-acc-inner">
-          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Alertes de nouvelles sorties en temps réel</div>
-          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Compte à rebours live jusqu'à chaque épisode</div>
-          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Accès anticipé aux nouvelles fonctionnalités</div>
-          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Sorties globales de la saison en cours</div>
+          <div class="prem-acc-perk">
+            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Alerte dès l'annonce + compte à rebours</div>
+            <span class="prem-acc-badge blue">Temps réel</span>
+          </div>
+          <div class="prem-acc-perk">
+            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Notifications basées sur vos goûts + tendances</div>
+          </div>
+          <div class="prem-acc-perk">
+            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>News personnalisées selon votre profil</div>
+          </div>
+          <div class="prem-acc-perk">
+            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Accès anticipé aux nouveautés</div>
+            <span class="prem-acc-badge blue">Early access</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- 3 : Expérience -->
+    <!-- 3 : Une expérience 100% à votre image -->
     <div class="prem-acc-item" id="premAcc3">
       <div class="prem-acc-header" onclick="toggleAcc('premAcc3')">
-        <span class="prem-acc-icon">🎨</span>
-        <span class="prem-acc-title">Une expérience 100% à votre image</span>
+        <div class="prem-acc-icon-box">✦</div>
+        <div class="prem-acc-header-text">
+          <span class="prem-acc-title">3. Une expérience 100% à votre image</span>
+          <span class="prem-acc-sub">Personnalisation complète</span>
+        </div>
         <span class="prem-acc-chevron">▼</span>
       </div>
       <div class="prem-acc-body">
         <div class="prem-acc-inner">
-          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Réorganiser votre liste à volonté</div>
-          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Avatar personnalisé parmi des dizaines de persos</div>
-          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>News personnalisées selon vos goûts</div>
-          <div class="prem-acc-perk"><div class="prem-acc-perk-dot"></div>Support prioritaire</div>
+          <div class="prem-acc-perk">
+            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Organisez et triez votre liste librement</div>
+          </div>
+          <div class="prem-acc-perk">
+            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Personnalisez votre profil et votre thème</div>
+          </div>
+          <div class="prem-acc-perk">
+            <div class="prem-acc-perk-left"><span class="prem-acc-check">✓</span>Badge Premium exclusif ⭐</div>
+          </div>
         </div>
       </div>
     </div>
