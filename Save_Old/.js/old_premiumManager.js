@@ -66,50 +66,19 @@
     else _callbacks.push(cb);
   };
 
-  /* ── CTA Upgrade ── */
-  window.VA_showUpgradePrompt = function(msg) {
-    var existing = document.getElementById('va-upgrade-prompt');
-    if (existing) existing.remove();
-
-    var overlay = document.createElement('div');
-    overlay.id = 'va-upgrade-prompt';
-    overlay.style.cssText = [
-      'position:fixed', 'inset:0', 'z-index:9999',
-      'background:rgba(8,7,15,0.85)', 'backdrop-filter:blur(8px)',
-      'display:flex', 'align-items:center', 'justify-content:center',
-      'padding:24px'
-    ].join(';');
-
-    overlay.innerHTML = [
-      '<div style="background:var(--ink3);border:1px solid rgba(167,139,250,0.4);border-radius:20px;',
-      'padding:32px 28px;max-width:420px;width:100%;text-align:center;position:relative">',
-      '<button onclick="document.getElementById(\'va-upgrade-prompt\').remove()" ',
-      'style="position:absolute;top:12px;right:16px;background:none;border:none;',
-      'color:var(--muted);font-size:1.2rem;cursor:pointer;font-family:var(--font)">✕</button>',
-      '<div style="font-size:2rem;margin-bottom:12px">⭐</div>',
-      '<div style="font-size:1.15rem;font-weight:800;color:var(--text);margin-bottom:8px">',
-      'Fonctionnalité Premium</div>',
-      '<p style="font-size:0.88rem;color:var(--text2);line-height:1.6;margin-bottom:20px">',
-      (msg || 'Cette fonctionnalité est réservée aux abonnés Premium.'), '</p>',
-      '<a href="soutenir.html?tab=premium" ',
-      'style="display:inline-flex;align-items:center;gap:8px;',
-      'background:linear-gradient(135deg,#a78bfa,#818cf8);color:#fff;',
-      'font-family:var(--font);font-weight:700;font-size:0.95rem;',
-      'padding:11px 24px;border-radius:12px;text-decoration:none;',
-      'transition:opacity 0.2s" onmouseover="this.style.opacity=\'0.88\'" ',
-      'onmouseout="this.style.opacity=\'1\'">',
-      'Découvrir Premium →</a>',
-      '<p style="font-size:0.75rem;color:var(--muted);margin-top:12px">',
-      'À partir de 1.99 Pi/mois</p>',
-      '</div>'
-    ].join('');
-
-    overlay.addEventListener('click', function(e) {
-      if (e.target === overlay) overlay.remove();
-    });
-
-    document.body.appendChild(overlay);
+  /* ── CTA Upgrade — redirection directe vers premium.html ── */
+  window.VA_showUpgradePrompt = function(msg, features) {
+    window.location.href = 'premium.html';
   };
+
+  /* Features listées dans le popup */
+  var _PREMIUM_FEATURES = [
+    '📊 Stats avancées & genres préférés',
+    '🔥 Recommandations personnalisées',
+    '❤️ Favoris illimités',
+    '⚡ Accès anticipé aux nouveautés',
+    '↕️ Réorganisation de ta liste',
+  ];
 
   /* ── Badge Premium navbar ── */
   function _injectPremiumBadge() {
