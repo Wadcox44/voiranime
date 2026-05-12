@@ -23,9 +23,54 @@
   const ADMIN_KEY    = 'VA_ADMIN_MODE';        // localStorage flag ou username match
   const ADMIN_USERS  = ['WadCox44', 'wadcox']; // piUsernames admins autorisés
 
+  /* ── Magic link URL : ?va_admin=on / off ──────────────────────
+     Activation    : https://voir-anime.vercel.app/?va_admin=on
+     Désactivation : https://voir-anime.vercel.app/?va_admin=off
+
+     Sécurité (option B) :
+     ?va_admin=on ne fonctionne QUE si le piUsername connecté
+     est dans ADMIN_USERS. Un visiteur lambda ne peut rien activer,
+     même en connaissant l'URL.
+  ────────────────────────────────────────────────────────────── */
+  (function _handleMagicLink() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const val    = params.get('va_admin');
+      if (!val) return;
+
+      // Nettoie toujours l'URL, même si la vérification échoue
+      // → aucune trace du param dans l'historique navigateur
+      params.delete('va_admin');
+      const clean = window.location.pathname + (params.toString() ? '?' + params : '');
+      history.replaceState(null, '', clean);
+
+      if (val === 'on') {
+        // Double facteur : vérifie le piUsername connecté
+        let piUsername = null;
+        try {
+          const u = JSON.parse(localStorage.getItem('pi_user') || 'null');
+          piUsername = u && u.username ? u.username : null;
+        } catch (_) {}
+
+        if (!piUsername || !ADMIN_USERS.includes(piUsername)) {
+          // Échec silencieux — aucun message, aucun indice
+          return;
+        }
+        localStorage.setItem(ADMIN_KEY, 'true');
+
+      } else if (val === 'off') {
+        // Désactivation : nettoie uniquement son propre localStorage
+        localStorage.removeItem(ADMIN_KEY);
+        localStorage.removeItem('VA_PREVIEW_PREMIUM');
+        window.location.reload();
+      }
+
+    } catch (_) {}
+  })();
+
   /* ── Vérifie si on est admin ── */
   function _isAdmin() {
-    // Flag local explicite (posé manuellement en console ou par admin.html futur)
+    // Flag posé par magic link ou console
     if (localStorage.getItem(ADMIN_KEY) === 'true') return true;
     // Ou piUsername dans la liste blanche
     try {
