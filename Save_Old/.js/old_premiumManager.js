@@ -58,7 +58,8 @@
     try { sessionStorage.removeItem(CACHE_KEY); } catch(e) {}
     _premiumData = null;
     _ready       = false;
-    _callbacks   = [];
+    // ⚠ NE PAS vider _callbacks ici — premiumPreview.js en a besoin
+    // _callbacks = [];   ← ligne originale supprimée intentionnellement
   };
 
   window.VA_onPremiumReady = function(cb) {
@@ -172,7 +173,6 @@
         if (!background) {
           _resolve();
         } else if (wasReady && data.isPremium !== wasPremium) {
-          // Statut changé en arrière-plan → notifier les callbacks déjà enregistrés
           _callbacks.forEach(function(cb) { try { cb(data); } catch(e) {} });
         }
         if (VA_isPremium()) { _injectPremiumBadge(); _applyGuards(); }
