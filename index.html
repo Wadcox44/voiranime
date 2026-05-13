@@ -487,25 +487,7 @@
 <script type="module" src="main.js"></script>
 
 <script>
-/* Tilt 3D cards */
-(function(){
-  var lastCard = null;
-  document.addEventListener('mousemove', function(e){
-    var card = e.target.closest('.anime-card');
-    if(!card){ if(lastCard){ lastCard.style.transform=''; lastCard=null; } return; }
-    var r = card.getBoundingClientRect();
-    var dx = (e.clientX - r.left - r.width/2)  / (r.width/2);
-    var dy = (e.clientY - r.top  - r.height/2) / (r.height/2);
-    card.style.transform = 'translateY(-8px) scale(1.05) rotateY('+( dx*6)+'deg) rotateX('+(-dy*4)+'deg)';
-    lastCard = card;
-  });
-  document.addEventListener('mouseleave', function(e){
-    if (!e.target || typeof e.target.closest !== 'function') return;
-    var card = e.target.closest('.anime-card');
-    if(card) card.style.transform='';
-  }, true);
-
-  /* Mood pills — UI only */
+/* Mood pills — UI only */
   var row = document.getElementById('moodRow');
   if(row) row.addEventListener('click', function(e){
     var pill = e.target.closest('.mood-pill');
