@@ -23,7 +23,7 @@
 
   const CONFIG = {
     mode:     'session',
-    duration: 5000,
+    duration: 3500,
   };
 
   const KEYS = {
@@ -55,6 +55,8 @@
       'background:#000',
       'display:flex', 'align-items:center', 'justify-content:center',
       'overflow:hidden',
+      'transform:none',
+      'animation:none',
     ].join(';');
 
     ov.innerHTML = `
