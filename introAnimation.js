@@ -23,7 +23,7 @@
 
   const CONFIG = {
     mode:     'session',
-    duration: 3500,
+    duration: 5000,
   };
 
   const KEYS = {
