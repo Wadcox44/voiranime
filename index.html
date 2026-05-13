@@ -719,150 +719,6 @@
 
 })();
 </script>
-
-<script>
-/* ════════════════════════════════════════
-   HERO PORTAL ENGINE
-   Particules · Parallax souris · Aura · Surprise
-   ════════════════════════════════════════ */
-(function(){
-  /* ── Canvas particules ── */
-  const canvas = document.getElementById('heroParticles');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let W, H, particles = [];
-
-  function resize(){
-    W = canvas.width  = canvas.offsetWidth  || window.innerWidth;
-    H = canvas.height = canvas.offsetHeight || window.innerHeight * 0.92;
-  }
-  window.addEventListener('resize', resize, {passive:true});
-  resize();
-
-  function spawnParticles(){
-    particles = [];
-    const n = Math.min(90, Math.floor(W * H / 14000));
-    for(let i = 0; i < n; i++){
-      particles.push({
-        x:  Math.random() * W,
-        y:  Math.random() * H,
-        r:  0.4 + Math.random() * 1.6,
-        vx: (Math.random() - 0.5) * 0.15,
-        vy: -0.04 - Math.random() * 0.2,
-        o:  0.08 + Math.random() * 0.42,
-        h:  [280, 315, 200, 260][Math.floor(Math.random() * 4)],
-      });
-    }
-  }
-  spawnParticles();
-  window.addEventListener('resize', spawnParticles, {passive:true});
-
-  let mx = 0.5, my = 0.5;
-  document.getElementById('hero')?.addEventListener('mousemove', e => {
-    const r = e.currentTarget.getBoundingClientRect();
-    mx = (e.clientX - r.left) / r.width;
-    my = (e.clientY - r.top)  / r.height;
-  }, {passive:true});
-
-  (function tick(){
-    ctx.clearRect(0, 0, W, H);
-    for(const p of particles){
-      p.x += p.vx + (mx - 0.5) * 0.1;
-      p.y += p.vy + (my - 0.5) * 0.05;
-      if(p.y < -4) p.y = H + 4;
-      if(p.x < -4) p.x = W + 4;
-      if(p.x > W + 4) p.x = -4;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${p.h},75%,70%,${p.o})`;
-      ctx.fill();
-    }
-    requestAnimationFrame(tick);
-  })();
-
-  /* ── Parallax souris ── */
-  const heroBg     = document.getElementById('heroBg');
-  const posterWrap = document.getElementById('heroPosterWrap');
-  const heroAura   = document.getElementById('heroAura');
-
-  const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-  
-  // Parallax uniquement desktop — désactivé sur touch ET sur écrans < 1025px
-  const isDesktop = !isTouch && window.innerWidth > 1024;
-
-  if (isDesktop) {
-  document.getElementById('hero')?.addEventListener('mousemove', e => {
-    const r  = e.currentTarget.getBoundingClientRect();
-    const dx = (e.clientX - r.left  - r.width  / 2) / r.width;
-    const dy = (e.clientY - r.top   - r.height / 2) / r.height;
-    if(heroBg)     heroBg.style.transform     = `translate(${dx*-16}px,${dy*-9}px) scale(1.07)`;
-    if(posterWrap) posterWrap.style.transform = `translateY(-50%) translate(${dx*14}px,${dy*8}px) rotateY(${dx*6}deg) rotateX(${-dy*3}deg)`;
-    if(heroAura)   heroAura.style.transform   = `translate(${dx*22}px,${dy*14}px)`;
-  }, {passive:true});
-
-  document.getElementById('hero')?.addEventListener('mouseleave', () => {
-    if(heroBg)     heroBg.style.transform     = 'translate(0,0) scale(1.07)';
-    if(posterWrap) posterWrap.style.transform = 'translateY(-50%)';
-    if(heroAura)   heroAura.style.transform   = 'translate(0,0)';
-  }, {passive:true});
-  } // end isDesktop
-
-  /* ── Découverte aléatoire ── */
-  document.getElementById('heroSurpriseBtn')?.addEventListener('click', () => {
-    const pool = window._heroAnimesPool;
-    if(!pool || pool.length < 2) return;
-    let idx;
-    do { idx = Math.floor(Math.random() * pool.length); }
-    while(idx === (window._heroCurrentIndex || 0));
-    window._heroCurrentIndex = idx;
-    if(window._renderHero) window._renderHero(pool[idx]);
-    if(window._updateHeroDots) window._updateHeroDots();
-    // Flash visuel
-    const flash = document.createElement('div');
-    flash.style.cssText = 'position:fixed;inset:0;z-index:9000;background:#020617;opacity:.4;pointer-events:none;transition:opacity .4s';
-    document.body.appendChild(flash);
-    requestAnimationFrame(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 420); });
-  });
-
-})();
-  /* ── Carousel : flèches + swipe ── */
-(function () {
-  const SCROLL_AMOUNT = 900; // px scrollés par clic
-
-  // --- Flèches ---
-  document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.carousel-btn');
-    if (!btn) return;
-    const id = btn.dataset.carousel;
-    const track = document.getElementById('carousel-' + id);
-    if (!track) return;
-    const dir = btn.classList.contains('prev') ? -1 : 1;
-    track.scrollBy({ left: dir * SCROLL_AMOUNT, behavior: 'smooth' });
-  });
-
-  // --- Drag souris (desktop uniquement) ---
-  document.querySelectorAll('.carousel').forEach(function (track) {
-    let startX = 0, startScroll = 0, dragging = false;
-
-    track.addEventListener('mousedown', function (e) {
-      startX = e.pageX;
-      startScroll = track.scrollLeft;
-      dragging = true;
-      track.style.cursor = 'grabbing';
-      track.style.userSelect = 'none';
-    });
-    window.addEventListener('mousemove', function (e) {
-      if (!dragging) return;
-      track.scrollLeft = startScroll - (e.pageX - startX);
-    });
-    window.addEventListener('mouseup', function () {
-      dragging = false;
-      track.style.cursor = '';
-      track.style.userSelect = '';
-    });
-  });
-})();
-</script>
 <script>
 (function() {
   function tryInitNotifs() {
@@ -919,6 +775,45 @@
       fallbacks.forEach(function(f) { f.style.display = 'none'; });
     }
   } catch(e) {}
+})();
+</script>
+<script>
+/* ── Carousel : flèches + swipe ── */
+(function () {
+  const SCROLL_AMOUNT = 900; // px scrollés par clic
+
+  // --- Flèches ---
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.carousel-btn');
+    if (!btn) return;
+    const id = btn.dataset.carousel;
+    const track = document.getElementById('carousel-' + id);
+    if (!track) return;
+    const dir = btn.classList.contains('prev') ? -1 : 1;
+    track.scrollBy({ left: dir * SCROLL_AMOUNT, behavior: 'smooth' });
+  });
+
+  // --- Drag souris (desktop uniquement) ---
+  document.querySelectorAll('.carousel').forEach(function (track) {
+    let startX = 0, startScroll = 0, dragging = false;
+
+    track.addEventListener('mousedown', function (e) {
+      startX = e.pageX;
+      startScroll = track.scrollLeft;
+      dragging = true;
+      track.style.cursor = 'grabbing';
+      track.style.userSelect = 'none';
+    });
+    window.addEventListener('mousemove', function (e) {
+      if (!dragging) return;
+      track.scrollLeft = startScroll - (e.pageX - startX);
+    });
+    window.addEventListener('mouseup', function () {
+      dragging = false;
+      track.style.cursor = '';
+      track.style.userSelect = '';
+    });
+  });
 })();
 </script>
 </body>
