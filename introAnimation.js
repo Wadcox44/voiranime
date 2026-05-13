@@ -98,8 +98,8 @@
 
     let W, H;
     function resize() {
-      W = cv.width  = cv.offsetWidth  || window.innerWidth;
-      H = cv.height = cv.offsetHeight || window.innerHeight;
+      W = cv.width  = window.innerWidth;
+      H = cv.height = window.innerHeight;
     }
     resize();
     window.addEventListener('resize', resize, { passive: true });
@@ -243,7 +243,8 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', _autoplay);
   } else {
-    requestAnimationFrame(_autoplay);
+    // Délai minimal pour garantir que le body est prêt à recevoir l'overlay
+    setTimeout(_autoplay, 0);
   }
 
 })();
