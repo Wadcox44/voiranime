@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    introAnimation.js — VoirAnime
-   Intro cinématique : fade in pur, CSS uniquement, robuste mobile.
+   Intro : pétales sakura + frappe katana horizontale + logo zoom.
 
    Mode    : 'session' → une fois par session (recommandé)
              'once'    → une seule fois à vie
@@ -18,7 +18,7 @@
 
   var CONFIG = {
     mode:     'session',
-    duration: 5000,
+    duration: 4500,
   };
 
   var KEYS = {
@@ -38,158 +38,89 @@
     if (CONFIG.mode === 'session') sessionStorage.setItem(KEYS.session, '1');
   }
 
-  /* ── Injection CSS ────────────────────────────────────────────
-     Tout est géré en CSS pour éviter les problèmes de canvas
-     sur Pi Browser et Safari mobile.
-  ────────────────────────────────────────────────────────────── */
+  function _easeOut(t)  { return 1 - Math.pow(1 - t, 4); }
+  function _smooth(t)   { return t * t * (3 - 2 * t); }
+
+  /* ── Injection CSS ── */
   function _injectStyles() {
     if (document.getElementById('va-intro-styles')) return;
-    var style = document.createElement('style');
-    style.id = 'va-intro-styles';
-    style.textContent = [
-
-      /* Overlay plein écran — isolé du body */
+    var s = document.createElement('style');
+    s.id = 'va-intro-styles';
+    s.textContent = [
       '#va-intro-overlay {',
-        'position: fixed !important;',
-        'top: 0 !important;',
-        'left: 0 !important;',
-        'right: 0 !important;',
-        'bottom: 0 !important;',
-        'width: 100% !important;',
-        'height: 100% !important;',
-        'z-index: 999999 !important;',
-        'background: #000 !important;',
-        'display: flex !important;',
-        'align-items: center !important;',
-        'justify-content: center !important;',
-        'overflow: hidden !important;',
-        'transform: none !important;',
-        'animation: none !important;',
-        'margin: 0 !important;',
-        'padding: 0 !important;',
-        'cursor: pointer;',
-        'opacity: 1;',
-        'transition: opacity 0.5s ease;',
+        'position:fixed !important;',
+        'top:0 !important; left:0 !important;',
+        'right:0 !important; bottom:0 !important;',
+        'width:100% !important; height:100% !important;',
+        'z-index:999999 !important;',
+        'background:#000 !important;',
+        'overflow:hidden !important;',
+        'transform:none !important;',
+        'animation:none !important;',
+        'margin:0 !important; padding:0 !important;',
+        'cursor:pointer;',
+        'transition:opacity 0.5s ease;',
       '}',
-
-      /* Halo violet — fond animé */
-      '#va-intro-halo {',
-        'position: absolute;',
-        'top: 50%;',
-        'left: 50%;',
-        'width: 70vw;',
-        'height: 70vw;',
-        'max-width: 500px;',
-        'max-height: 500px;',
-        'border-radius: 50%;',
-        'transform: translate(-50%, -50%) scale(0);',
-        'background: radial-gradient(circle, rgba(55,25,130,0.5) 0%, rgba(20,8,55,0.2) 50%, transparent 70%);',
-        'pointer-events: none;',
-        'transition: transform 1.8s cubic-bezier(0.16,1,0.3,1), opacity 1.8s ease;',
-        'opacity: 0;',
+      '#va-intro-canvas {',
+        'position:absolute; inset:0;',
+        'width:100%; height:100%;',
+        'pointer-events:none;',
       '}',
-      '#va-intro-halo.visible {',
-        'transform: translate(-50%, -50%) scale(1);',
-        'opacity: 1;',
-      '}',
-
-      /* Halo cyan secondaire */
-      '#va-intro-halo2 {',
-        'position: absolute;',
-        'top: 50%;',
-        'left: 50%;',
-        'width: 50vw;',
-        'height: 50vw;',
-        'max-width: 380px;',
-        'max-height: 380px;',
-        'border-radius: 50%;',
-        'transform: translate(-50%, -50%) scale(0);',
-        'background: radial-gradient(circle, rgba(10,80,120,0.25) 0%, transparent 70%);',
-        'pointer-events: none;',
-        'transition: transform 1.4s cubic-bezier(0.16,1,0.3,1) 0.6s, opacity 1.4s ease 0.6s;',
-        'opacity: 0;',
-      '}',
-      '#va-intro-halo2.visible {',
-        'transform: translate(-50%, -50%) scale(1);',
-        'opacity: 1;',
-      '}',
-
-      /* Logo — centré absolu */
       '#va-intro-logo {',
-        'position: relative;',
-        'z-index: 2;',
-        'text-align: center;',
-        'opacity: 0;',
-        'pointer-events: none;',
-        'transform: scale(0.88);',
-        'filter: blur(8px);',
-        'transition: opacity 1.6s cubic-bezier(0.16,1,0.3,1), transform 1.6s cubic-bezier(0.16,1,0.3,1), filter 1.4s ease;',
+        'position:absolute;',
+        'left:50%; top:50%;',
+        'transform:translate(-50%,-50%) scale(1.2);',
+        'text-align:center;',
+        'z-index:10;',
+        'pointer-events:none;',
+        'opacity:0;',
+        'filter:blur(4px);',
+        'white-space:nowrap;',
+        'will-change:opacity,transform,filter;',
       '}',
       '#va-intro-logo.visible {',
-        'opacity: 1;',
-        'transform: scale(1);',
-        'filter: blur(0px);',
+        'opacity:1;',
+        'transform:translate(-50%,-50%) scale(1);',
+        'filter:blur(0px);',
+        'transition:opacity 1.2s cubic-bezier(0.16,1,0.3,1),',
+          'transform 1.3s cubic-bezier(0.16,1,0.3,1),',
+          'filter 1.1s ease;',
       '}',
-
-      /* Wordmark */
       '#va-intro-wordmark {',
-        'font-family: Outfit, system-ui, -apple-system, sans-serif;',
-        'font-size: clamp(1.8rem, 7vw, 3rem);',
-        'font-weight: 900;',
-        'letter-spacing: -0.5px;',
-        'display: inline-block;',
-        'transform: skewX(-4deg);',
-        'line-height: 1;',
+        'font-family:Outfit,system-ui,-apple-system,sans-serif;',
+        'font-size:clamp(1.8rem,7vw,3rem);',
+        'font-weight:900;',
+        'letter-spacing:-0.5px;',
+        'display:inline-block;',
+        'transform:skewX(-4deg);',
+        'line-height:1;',
       '}',
-
-      '#va-intro-voir {',
-        'color: #ffffff;',
-        'display: inline-block;',
-        'transition: text-shadow 1.2s ease;',
-      '}',
-      '#va-intro-voir.glow {',
-        'text-shadow: 0 0 40px rgba(255,255,255,0.25);',
-      '}',
-
+      '#va-intro-voir  { color:#ffffff; display:inline-block; }',
       '#va-intro-anime {',
-        'color: #22d3ee;',
-        'display: inline-block;',
-        'transition: text-shadow 1.2s ease;',
+        'color:#22d3ee; display:inline-block;',
+        'transition:text-shadow 1s ease;',
       '}',
-      '#va-intro-anime.glow {',
-        'text-shadow: 0 0 40px rgba(34,211,238,0.6), 0 0 80px rgba(34,211,238,0.2);',
-      '}',
-
-      /* Tagline */
       '#va-intro-tagline {',
-        'display: block;',
-        'font-family: Outfit, system-ui, -apple-system, sans-serif;',
-        'font-size: 0.58rem;',
-        'font-weight: 500;',
-        'letter-spacing: 0.32em;',
-        'text-transform: uppercase;',
-        'color: rgba(255,255,255,0);',
-        'margin-top: 13px;',
-        'transition: color 1.4s ease;',
+        'display:block;',
+        'font-family:Outfit,system-ui,-apple-system,sans-serif;',
+        'font-size:0.56rem;',
+        'font-weight:500;',
+        'letter-spacing:0.3em;',
+        'text-transform:uppercase;',
+        'color:rgba(255,255,255,0.24);',
+        'margin-top:12px;',
       '}',
-      '#va-intro-tagline.visible {',
-        'color: rgba(255,255,255,0.22);',
-      '}',
-
     ].join('\n');
-
-    document.head.appendChild(style);
+    document.head.appendChild(s);
   }
 
-  /* ── Construction de l'overlay ─────────────────────────────── */
+  /* ── Construction overlay ── */
   function _buildOverlay() {
     var ov = document.createElement('div');
     ov.id = 'va-intro-overlay';
     ov.setAttribute('aria-hidden', 'true');
-
     ov.innerHTML = [
-      '<div id="va-intro-halo"></div>',
-      '<div id="va-intro-halo2"></div>',
+      '<canvas id="va-intro-canvas"></canvas>',
       '<div id="va-intro-logo">',
         '<div id="va-intro-wordmark">',
           '<span id="va-intro-voir">Voir</span>',
@@ -198,90 +129,213 @@
         '<span id="va-intro-tagline">Découvre autrement</span>',
       '</div>',
     ].join('');
-
     return ov;
   }
 
-  /* ── Séquence d'animation ──────────────────────────────────── */
-  function _runSequence(ov, onDone) {
-    var dur = CONFIG.duration;
+  /* ── Séquence ── */
+  function _run(ov, onDone) {
+    var cv      = document.getElementById('va-intro-canvas');
+    var ctx     = cv.getContext('2d');
+    var logo    = document.getElementById('va-intro-logo');
+    var anime   = document.getElementById('va-intro-anime');
 
-    /* Timing relatif (ms) */
-    var T = {
-      halo:    0,
-      logo:    Math.round(dur * 0.22),
-      glow:    Math.round(dur * 0.52),
-      tagline: Math.round(dur * 0.68),
-      fadeOut: Math.round(dur * 0.94),
-    };
+    var W, H;
+    function resize() {
+      W = cv.width  = window.innerWidth;
+      H = cv.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
 
-    var timers = [];
+    /* Pétales */
+    var petals = (function() {
+      var arr = [];
+      for (var i = 0; i < 32; i++) {
+        arr.push({
+          x: Math.random() * window.innerWidth,
+          y: -20 - Math.random() * window.innerHeight * 0.5,
+          r: 2 + Math.random() * 2.8,
+          vx: (Math.random() - 0.5) * 0.7,
+          vy: 1.3 + Math.random() * 1.6,
+          rot: Math.random() * Math.PI * 2,
+          vrot: (Math.random() - 0.5) * 0.05,
+          o: 0, maxO: 0.25 + Math.random() * 0.32,
+          born: Math.random() * 250,
+          hue: 338 + Math.random() * 25,
+        });
+      }
+      return arr;
+    })();
 
-    function later(fn, ms) {
-      timers.push(setTimeout(fn, ms));
+    var dur     = CONFIG.duration;
+    var start   = performance.now();
+    var animId  = null;
+    var logoShown = false;
+    var timers  = [];
+
+    var T_BLADE  = 300;
+    var T_IMPACT = 720;
+    var T_LOGO   = 1020;
+    var T_GLOW   = 2200;
+
+    function tick(now) {
+      var el = now - start;
+      var p  = Math.min(el / dur, 1);
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, H);
+
+      /* Fond rose/nuit */
+      var bg = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W * 0.65);
+      bg.addColorStop(0, 'rgba(30,4,42,' + Math.min(el/600, 0.5) + ')');
+      bg.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+
+      /* Pétales */
+      petals.forEach(function(pt) {
+        if (el < pt.born) return;
+        pt.y += pt.vy;
+        pt.x += pt.vx + Math.sin(el * 0.001 + pt.rot) * 0.3;
+        pt.rot += pt.vrot;
+        pt.o = Math.min(pt.o + 0.008, pt.maxO);
+        if (pt.y > H + 12) { pt.y = -12; pt.x = Math.random() * W; pt.o = 0; pt.born = el + 150; }
+        ctx.save();
+        ctx.translate(pt.x, pt.y);
+        ctx.rotate(pt.rot);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, pt.r, pt.r * 1.65, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'hsla(' + pt.hue + ',72%,82%,' + pt.o + ')';
+        ctx.fill();
+        ctx.restore();
+      });
+
+      /* Lame horizontale */
+      if (el >= T_BLADE && el < T_IMPACT + 150) {
+        var bp  = _easeOut(Math.min((el - T_BLADE) / 400, 1));
+        var cx  = (-W * 0.05) + (W * 1.1) * bp;
+        var cy  = H / 2;
+        var trl = W * 0.38;
+        var tx  = Math.max(-W * 0.05, cx - trl);
+
+        /* traîne large */
+        var tg = ctx.createLinearGradient(tx, 0, cx, 0);
+        tg.addColorStop(0,    'rgba(200,230,255,0)');
+        tg.addColorStop(0.5,  'rgba(220,240,255,0.07)');
+        tg.addColorStop(0.85, 'rgba(255,255,255,0.25)');
+        tg.addColorStop(1,    'rgba(255,255,255,0)');
+        ctx.fillStyle = tg;
+        ctx.fillRect(tx, cy - 10, cx - tx, 20);
+
+        /* fils de lame */
+        [[0, 0.95], [3, 0.5], [-3, 0.35]].forEach(function(l) {
+          var off = l[0], alpha = l[1];
+          var lg2 = ctx.createLinearGradient(tx, 0, cx, 0);
+          lg2.addColorStop(0,   'rgba(200,230,255,0)');
+          lg2.addColorStop(0.6, 'rgba(255,255,255,' + (alpha * 0.5) + ')');
+          lg2.addColorStop(1,   'rgba(255,255,255,' + alpha + ')');
+          ctx.beginPath();
+          ctx.moveTo(tx, cy + off);
+          ctx.lineTo(cx, cy + off);
+          ctx.strokeStyle = lg2;
+          ctx.lineWidth = off === 0 ? 1.5 : 0.6;
+          ctx.stroke();
+        });
+
+        /* éclat au front */
+        if (bp < 0.98) {
+          var eg = ctx.createRadialGradient(cx, cy, 0, cx, cy, 28);
+          eg.addColorStop(0,    'rgba(255,255,255,0.95)');
+          eg.addColorStop(0.35, 'rgba(220,240,255,0.45)');
+          eg.addColorStop(1,    'rgba(255,255,255,0)');
+          ctx.fillStyle = eg;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 28, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      /* Flash d'impact */
+      if (el >= T_IMPACT) {
+        var fp = _smooth(Math.min((el - T_IMPACT) / 160, 1));
+        if (fp < 1) {
+          ctx.fillStyle = 'rgba(255,255,255,' + (fp * (1 - fp) * 4) + ')';
+          ctx.fillRect(0, 0, W, H);
+        }
+      }
+
+      /* Ligne de coupure persistante */
+      if (el >= T_IMPACT) {
+        var la = 1 - _smooth(Math.min((el - T_IMPACT) / 950, 1));
+        if (la > 0) {
+          var lc = ctx.createLinearGradient(0, 0, W, 0);
+          lc.addColorStop(0,   'rgba(220,240,255,0)');
+          lc.addColorStop(0.2, 'rgba(255,255,255,' + (la * 0.7) + ')');
+          lc.addColorStop(0.8, 'rgba(220,240,255,' + (la * 0.7) + ')');
+          lc.addColorStop(1,   'rgba(220,240,255,0)');
+          ctx.strokeStyle = lc;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(0, H / 2);
+          ctx.lineTo(W, H / 2);
+          ctx.stroke();
+        }
+
+        /* écartement subtil */
+        var sp   = _easeOut(Math.min((el - T_IMPACT) / 600, 1));
+        var fade = 1 - _smooth(Math.min((el - T_IMPACT) / 900, 1));
+        if (fade > 0 && sp > 0) {
+          var gap = sp * 10 * fade;
+          ctx.fillStyle = 'rgba(200,230,255,' + (fade * 0.12) + ')';
+          ctx.fillRect(0, H / 2 - gap, W, gap * 2);
+        }
+      }
+
+      /* Logo */
+      if (el >= T_LOGO && !logoShown) {
+        logoShown = true;
+        logo.classList.add('visible');
+      }
+
+      /* Glow cyan */
+      if (el >= T_GLOW) {
+        var gp = _smooth(Math.min((el - T_GLOW) / 600, 1));
+        anime.style.textShadow = '0 0 35px rgba(34,211,238,' + (0.55 * gp) + '),0 0 70px rgba(34,211,238,' + (0.18 * gp) + ')';
+      }
+
+      if (p < 1) {
+        animId = requestAnimationFrame(tick);
+      } else {
+        window.removeEventListener('resize', resize);
+        onDone();
+      }
     }
 
-    /* Halos */
-    later(function () {
-      var h = document.getElementById('va-intro-halo');
-      var h2 = document.getElementById('va-intro-halo2');
-      if (h)  h.classList.add('visible');
-      if (h2) h2.classList.add('visible');
-    }, T.halo);
-
-    /* Logo */
-    later(function () {
-      var logo = document.getElementById('va-intro-logo');
-      if (logo) logo.classList.add('visible');
-    }, T.logo);
-
-    /* Glow */
-    later(function () {
-      var voir  = document.getElementById('va-intro-voir');
-      var anime = document.getElementById('va-intro-anime');
-      if (voir)  voir.classList.add('glow');
-      if (anime) anime.classList.add('glow');
-    }, T.glow);
-
-    /* Tagline */
-    later(function () {
-      var tag = document.getElementById('va-intro-tagline');
-      if (tag) tag.classList.add('visible');
-    }, T.tagline);
-
-    /* Fade out overlay */
-    later(function () {
-      ov.style.opacity = '0';
-    }, T.fadeOut);
-
-    /* Teardown */
-    later(function () {
-      timers.forEach(clearTimeout);
-      onDone();
-    }, dur);
+    animId = requestAnimationFrame(tick);
 
     return function cancel() {
-      timers.forEach(clearTimeout);
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', resize);
     };
   }
 
   /* ── Teardown ── */
   function _teardown(ov) {
-    setTimeout(function () {
+    ov.style.opacity = '0';
+    setTimeout(function() {
       if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
-      document.documentElement.style.overflow = '';
       var s = document.getElementById('va-intro-styles');
       if (s && s.parentNode) s.parentNode.removeChild(s);
       document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
-    }, 100);
+    }, 520);
   }
 
   /* ── Play ── */
   function play() {
-    return new Promise(function (resolve) {
+    return new Promise(function(resolve) {
       _injectStyles();
-
       var ov = _buildOverlay();
       document.documentElement.appendChild(ov);
       document.documentElement.style.overflow = 'hidden';
@@ -295,32 +349,31 @@
         resolve();
       }
 
-      /* Skip sur tap / clic */
-      ov.addEventListener('click', function () {
+      ov.addEventListener('click', function() {
         if (cancelFn) cancelFn();
-        ov.style.opacity = '0';
-        setTimeout(done, 520);
+        _teardown(ov);
+        _markPlayed();
+        resolve();
       });
 
-      /* Skip clavier */
       function onKey(e) {
         if (e.key === 'Escape') {
           document.removeEventListener('keydown', onKey);
           if (cancelFn) cancelFn();
-          ov.style.opacity = '0';
-          setTimeout(done, 520);
+          _teardown(ov);
+          _markPlayed();
+          resolve();
         }
       }
       document.addEventListener('keydown', onKey);
 
-      /* Failsafe */
-      var failsafe = setTimeout(function () {
+      var failsafe = setTimeout(function() {
         document.removeEventListener('keydown', onKey);
         if (cancelFn) cancelFn();
         done();
       }, CONFIG.duration + 1500);
 
-      cancelFn = _runSequence(ov, function () {
+      cancelFn = _run(ov, function() {
         clearTimeout(failsafe);
         document.removeEventListener('keydown', onKey);
         done();
@@ -331,9 +384,9 @@
   /* ── API publique ── */
   window.VA_Intro = {
     play:    play,
-    skip:    function () { var o = document.getElementById('va-intro-overlay'); if (o) o.click(); },
-    reset:   function () { localStorage.removeItem(KEYS.once); sessionStorage.removeItem(KEYS.session); },
-    setMode: function (m) { if (['always','once','session'].indexOf(m) >= 0) CONFIG.mode = m; },
+    skip:    function() { var o = document.getElementById('va-intro-overlay'); if (o) o.click(); },
+    reset:   function() { localStorage.removeItem(KEYS.once); sessionStorage.removeItem(KEYS.session); },
+    setMode: function(m) { if (['always','once','session'].indexOf(m) >= 0) CONFIG.mode = m; },
   };
 
   /* ── Auto-play ── */
