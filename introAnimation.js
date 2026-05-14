@@ -121,10 +121,14 @@
         'text-align: center;',
         'opacity: 0;',
         'pointer-events: none;',
-        'transition: opacity 1.4s cubic-bezier(0.16,1,0.3,1);',
+        'transform: scale(0.88);',
+        'filter: blur(8px);',
+        'transition: opacity 1.6s cubic-bezier(0.16,1,0.3,1), transform 1.6s cubic-bezier(0.16,1,0.3,1), filter 1.4s ease;',
       '}',
       '#va-intro-logo.visible {',
         'opacity: 1;',
+        'transform: scale(1);',
+        'filter: blur(0px);',
       '}',
 
       /* Wordmark */
@@ -208,7 +212,7 @@
       logo:    Math.round(dur * 0.22),
       glow:    Math.round(dur * 0.52),
       tagline: Math.round(dur * 0.68),
-      fadeOut: Math.round(dur * 0.88),
+      fadeOut: Math.round(dur * 0.94),
     };
 
     var timers = [];
