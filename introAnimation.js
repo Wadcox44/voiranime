@@ -1,15 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════
    introAnimation.js — VoirAnime
-   Intro cinématique : fade in pur, 3.5s, mobile first.
+   Intro cinématique : fade in pur, CSS uniquement, robuste mobile.
 
-   CONFIG :
-     mode    : 'session' → une fois par session (recommandé)
-               'once'    → une seule fois à vie
-               'always'  → à chaque chargement
-
-   Usage :
-     <script src="introAnimation.js"></script>
-     → démarre automatiquement.
+   Mode    : 'session' → une fois par session (recommandé)
+             'once'    → une seule fois à vie
+             'always'  → à chaque chargement
 
    API :
      VA_Intro.play()    → rejoue
@@ -21,12 +16,12 @@
 (function () {
   'use strict';
 
-  const CONFIG = {
+  var CONFIG = {
     mode:     'session',
-    duration: 3500,
+    duration: 5000,
   };
 
-  const KEYS = {
+  var KEYS = {
     once:    'VA_INTRO_SEEN',
     session: 'VA_INTRO_SESSION',
   };
@@ -43,158 +38,249 @@
     if (CONFIG.mode === 'session') sessionStorage.setItem(KEYS.session, '1');
   }
 
-  function smoothstep(t) { return t * t * (3 - 2 * t); }
+  /* ── Injection CSS ────────────────────────────────────────────
+     Tout est géré en CSS pour éviter les problèmes de canvas
+     sur Pi Browser et Safari mobile.
+  ────────────────────────────────────────────────────────────── */
+  function _injectStyles() {
+    if (document.getElementById('va-intro-styles')) return;
+    var style = document.createElement('style');
+    style.id = 'va-intro-styles';
+    style.textContent = [
 
-  /* ── Crée l'overlay ── */
+      /* Overlay plein écran — isolé du body */
+      '#va-intro-overlay {',
+        'position: fixed !important;',
+        'top: 0 !important;',
+        'left: 0 !important;',
+        'right: 0 !important;',
+        'bottom: 0 !important;',
+        'width: 100% !important;',
+        'height: 100% !important;',
+        'z-index: 999999 !important;',
+        'background: #000 !important;',
+        'display: flex !important;',
+        'align-items: center !important;',
+        'justify-content: center !important;',
+        'overflow: hidden !important;',
+        'transform: none !important;',
+        'animation: none !important;',
+        'margin: 0 !important;',
+        'padding: 0 !important;',
+        'cursor: pointer;',
+        'opacity: 1;',
+        'transition: opacity 0.5s ease;',
+      '}',
+
+      /* Halo violet — fond animé */
+      '#va-intro-halo {',
+        'position: absolute;',
+        'top: 50%;',
+        'left: 50%;',
+        'width: 70vw;',
+        'height: 70vw;',
+        'max-width: 500px;',
+        'max-height: 500px;',
+        'border-radius: 50%;',
+        'transform: translate(-50%, -50%) scale(0);',
+        'background: radial-gradient(circle, rgba(55,25,130,0.5) 0%, rgba(20,8,55,0.2) 50%, transparent 70%);',
+        'pointer-events: none;',
+        'transition: transform 1.8s cubic-bezier(0.16,1,0.3,1), opacity 1.8s ease;',
+        'opacity: 0;',
+      '}',
+      '#va-intro-halo.visible {',
+        'transform: translate(-50%, -50%) scale(1);',
+        'opacity: 1;',
+      '}',
+
+      /* Halo cyan secondaire */
+      '#va-intro-halo2 {',
+        'position: absolute;',
+        'top: 50%;',
+        'left: 50%;',
+        'width: 50vw;',
+        'height: 50vw;',
+        'max-width: 380px;',
+        'max-height: 380px;',
+        'border-radius: 50%;',
+        'transform: translate(-50%, -50%) scale(0);',
+        'background: radial-gradient(circle, rgba(10,80,120,0.25) 0%, transparent 70%);',
+        'pointer-events: none;',
+        'transition: transform 1.4s cubic-bezier(0.16,1,0.3,1) 0.6s, opacity 1.4s ease 0.6s;',
+        'opacity: 0;',
+      '}',
+      '#va-intro-halo2.visible {',
+        'transform: translate(-50%, -50%) scale(1);',
+        'opacity: 1;',
+      '}',
+
+      /* Logo — centré absolu */
+      '#va-intro-logo {',
+        'position: relative;',
+        'z-index: 2;',
+        'text-align: center;',
+        'opacity: 0;',
+        'pointer-events: none;',
+        'transition: opacity 1.4s cubic-bezier(0.16,1,0.3,1);',
+      '}',
+      '#va-intro-logo.visible {',
+        'opacity: 1;',
+      '}',
+
+      /* Wordmark */
+      '#va-intro-wordmark {',
+        'font-family: Outfit, system-ui, -apple-system, sans-serif;',
+        'font-size: clamp(1.8rem, 7vw, 3rem);',
+        'font-weight: 900;',
+        'letter-spacing: -0.5px;',
+        'display: inline-block;',
+        'transform: skewX(-4deg);',
+        'line-height: 1;',
+      '}',
+
+      '#va-intro-voir {',
+        'color: #ffffff;',
+        'display: inline-block;',
+        'transition: text-shadow 1.2s ease;',
+      '}',
+      '#va-intro-voir.glow {',
+        'text-shadow: 0 0 40px rgba(255,255,255,0.25);',
+      '}',
+
+      '#va-intro-anime {',
+        'color: #22d3ee;',
+        'display: inline-block;',
+        'transition: text-shadow 1.2s ease;',
+      '}',
+      '#va-intro-anime.glow {',
+        'text-shadow: 0 0 40px rgba(34,211,238,0.6), 0 0 80px rgba(34,211,238,0.2);',
+      '}',
+
+      /* Tagline */
+      '#va-intro-tagline {',
+        'display: block;',
+        'font-family: Outfit, system-ui, -apple-system, sans-serif;',
+        'font-size: 0.58rem;',
+        'font-weight: 500;',
+        'letter-spacing: 0.32em;',
+        'text-transform: uppercase;',
+        'color: rgba(255,255,255,0);',
+        'margin-top: 13px;',
+        'transition: color 1.4s ease;',
+      '}',
+      '#va-intro-tagline.visible {',
+        'color: rgba(255,255,255,0.22);',
+      '}',
+
+    ].join('\n');
+
+    document.head.appendChild(style);
+  }
+
+  /* ── Construction de l'overlay ─────────────────────────────── */
   function _buildOverlay() {
-    const ov = document.createElement('div');
+    var ov = document.createElement('div');
     ov.id = 'va-intro-overlay';
     ov.setAttribute('aria-hidden', 'true');
-    ov.style.cssText = [
-      'position:fixed', 'inset:0', 'z-index:999999',
-      'background:#000',
-      'display:flex', 'align-items:center', 'justify-content:center',
-      'overflow:hidden',
-      'transform:none',
-      'animation:none',
-    ].join(';');
 
-    ov.innerHTML = `
-      <canvas id="va-intro-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></canvas>
-      <div id="va-intro-logo" style="
-        position:relative;z-index:10;text-align:center;
-        opacity:0;pointer-events:none;will-change:opacity;
-      ">
-        <div style="
-          font-family:'Outfit',system-ui,sans-serif;
-          font-size:clamp(1.8rem,6vw,3rem);
-          font-weight:900;letter-spacing:-0.5px;
-          display:inline-block;transform:skewX(-4deg);
-          line-height:1;
-        ">
-          <span id="va-intro-voir"  style="color:#fff;display:inline-block">Voir</span><span
-                id="va-intro-anime" style="color:#22d3ee;display:inline-block">Anime</span>
-        </div>
-        <div id="va-intro-tagline" style="
-          font-family:'Outfit',system-ui,sans-serif;
-          font-size:0.58rem;font-weight:500;
-          letter-spacing:0.32em;text-transform:uppercase;
-          color:rgba(255,255,255,0);
-          margin-top:13px;display:block;
-          will-change:opacity;
-        "></div>
-      </div>
-    `;
+    ov.innerHTML = [
+      '<div id="va-intro-halo"></div>',
+      '<div id="va-intro-halo2"></div>',
+      '<div id="va-intro-logo">',
+        '<div id="va-intro-wordmark">',
+          '<span id="va-intro-voir">Voir</span>',
+          '<span id="va-intro-anime">Anime</span>',
+        '</div>',
+        '<span id="va-intro-tagline">Découvre autrement</span>',
+      '</div>',
+    ].join('');
 
     return ov;
   }
 
-  /* ── Séquence ── */
-  function _run(ov, onDone) {
-    const cv      = document.getElementById('va-intro-canvas');
-    const ctx     = cv.getContext('2d');
-    const logo    = document.getElementById('va-intro-logo');
-    const voir    = document.getElementById('va-intro-voir');
-    const anime   = document.getElementById('va-intro-anime');
-    const tagline = document.getElementById('va-intro-tagline');
+  /* ── Séquence d'animation ──────────────────────────────────── */
+  function _runSequence(ov, onDone) {
+    var dur = CONFIG.duration;
 
-    let W, H;
-    function resize() {
-      W = cv.width  = window.innerWidth;
-      H = cv.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize, { passive: true });
+    /* Timing relatif (ms) */
+    var T = {
+      halo:    0,
+      logo:    Math.round(dur * 0.22),
+      glow:    Math.round(dur * 0.52),
+      tagline: Math.round(dur * 0.68),
+      fadeOut: Math.round(dur * 0.88),
+    };
 
-    setTimeout(() => { tagline.textContent = 'Découvre autrement'; }, 100);
+    var timers = [];
 
-    const dur   = CONFIG.duration;
-    const start = performance.now();
-    let animId  = null;
-    let taglineShown = false;
-
-    function tick(now) {
-      const p = Math.min((now - start) / dur, 1);
-      ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = '#000';
-      ctx.fillRect(0, 0, W, H);
-
-      /* Halo violet — respire en premier */
-      const hp = smoothstep(Math.min(Math.max(p / 0.45, 0), 1));
-      if (hp > 0) {
-        const r = Math.max(W, H) * 0.6 * hp;
-        const g = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, r);
-        g.addColorStop(0,    `rgba(55,25,130,${0.22 * hp})`);
-        g.addColorStop(0.55, `rgba(20,8,55,${0.1 * hp})`);
-        g.addColorStop(1,    'rgba(0,0,0,0)');
-        ctx.fillStyle = g;
-        ctx.fillRect(0, 0, W, H);
-      }
-
-      /* Halo cyan discret, plus tardif */
-      const cp = smoothstep(Math.min(Math.max((p - 0.4) / 0.4, 0), 1));
-      if (cp > 0) {
-        const r2 = Math.max(W, H) * 0.38 * cp;
-        const g2 = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, r2);
-        g2.addColorStop(0, `rgba(10,80,120,${0.1 * cp})`);
-        g2.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = g2;
-        ctx.fillRect(0, 0, W, H);
-      }
-
-      /* Logo — fade in pur très lent */
-      const lp = smoothstep(Math.min(Math.max((p - 0.20) / 0.40, 0), 1));
-      if (lp > 0) {
-        logo.style.opacity = lp.toFixed(4);
-      }
-
-      /* Glow sur le logo, après lui */
-      const gp = smoothstep(Math.min(Math.max((p - 0.50) / 0.30, 0), 1));
-      if (gp > 0) {
-        voir.style.textShadow  = `0 0 ${50 * gp}px rgba(255,255,255,${0.14 * gp})`;
-        anime.style.textShadow = `0 0 ${45 * gp}px rgba(34,211,238,${0.45 * gp}),0 0 ${90 * gp}px rgba(34,211,238,${0.12 * gp})`;
-      }
-
-      /* Tagline */
-      if (p >= 0.68 && !taglineShown) {
-        taglineShown = true;
-        tagline.style.transition = `color ${dur * 0.28}ms ease`;
-        tagline.style.color = 'rgba(255,255,255,0.22)';
-      }
-
-      if (p < 1) {
-        animId = requestAnimationFrame(tick);
-      } else {
-        window.removeEventListener('resize', resize);
-        onDone(animId);
-      }
+    function later(fn, ms) {
+      timers.push(setTimeout(fn, ms));
     }
 
-    animId = requestAnimationFrame(tick);
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener('resize', resize);
+    /* Halos */
+    later(function () {
+      var h = document.getElementById('va-intro-halo');
+      var h2 = document.getElementById('va-intro-halo2');
+      if (h)  h.classList.add('visible');
+      if (h2) h2.classList.add('visible');
+    }, T.halo);
+
+    /* Logo */
+    later(function () {
+      var logo = document.getElementById('va-intro-logo');
+      if (logo) logo.classList.add('visible');
+    }, T.logo);
+
+    /* Glow */
+    later(function () {
+      var voir  = document.getElementById('va-intro-voir');
+      var anime = document.getElementById('va-intro-anime');
+      if (voir)  voir.classList.add('glow');
+      if (anime) anime.classList.add('glow');
+    }, T.glow);
+
+    /* Tagline */
+    later(function () {
+      var tag = document.getElementById('va-intro-tagline');
+      if (tag) tag.classList.add('visible');
+    }, T.tagline);
+
+    /* Fade out overlay */
+    later(function () {
+      ov.style.opacity = '0';
+    }, T.fadeOut);
+
+    /* Teardown */
+    later(function () {
+      timers.forEach(clearTimeout);
+      onDone();
+    }, dur);
+
+    return function cancel() {
+      timers.forEach(clearTimeout);
     };
   }
 
   /* ── Teardown ── */
   function _teardown(ov) {
-    ov.style.transition = 'opacity 0.5s ease';
-    ov.style.opacity    = '0';
-    setTimeout(() => {
-      ov.remove();
+    setTimeout(function () {
+      if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
+      var s = document.getElementById('va-intro-styles');
+      if (s && s.parentNode) s.parentNode.removeChild(s);
       document.body.style.overflow = '';
-    }, 520);
+    }, 100);
   }
 
   /* ── Play ── */
   function play() {
-    return new Promise(resolve => {
+    return new Promise(function (resolve) {
+      _injectStyles();
+
+      var ov = _buildOverlay();
+      document.body.appendChild(ov);
       document.body.style.overflow = 'hidden';
 
-      const ov   = _buildOverlay();
-      document.body.appendChild(ov);
-      let stopFn = null;
+      var cancelFn = null;
 
       function done() {
         _markPlayed();
@@ -202,26 +288,32 @@
         resolve();
       }
 
-      ov.addEventListener('click', () => {
-        if (stopFn) stopFn();
-        done();
+      /* Skip sur tap / clic */
+      ov.addEventListener('click', function () {
+        if (cancelFn) cancelFn();
+        ov.style.opacity = '0';
+        setTimeout(done, 520);
       });
 
+      /* Skip clavier */
       function onKey(e) {
         if (e.key === 'Escape') {
           document.removeEventListener('keydown', onKey);
-          if (stopFn) stopFn();
-          done();
+          if (cancelFn) cancelFn();
+          ov.style.opacity = '0';
+          setTimeout(done, 520);
         }
       }
       document.addEventListener('keydown', onKey);
 
-      const failsafe = setTimeout(() => {
-        if (stopFn) stopFn();
+      /* Failsafe */
+      var failsafe = setTimeout(function () {
+        document.removeEventListener('keydown', onKey);
+        if (cancelFn) cancelFn();
         done();
-      }, CONFIG.duration + 1200);
+      }, CONFIG.duration + 1500);
 
-      stopFn = _run(ov, () => {
+      cancelFn = _runSequence(ov, function () {
         clearTimeout(failsafe);
         document.removeEventListener('keydown', onKey);
         done();
@@ -231,10 +323,10 @@
 
   /* ── API publique ── */
   window.VA_Intro = {
-    play,
-    skip:    () => { const ov = document.getElementById('va-intro-overlay'); if (ov) ov.click(); },
-    reset:   () => { localStorage.removeItem(KEYS.once); sessionStorage.removeItem(KEYS.session); },
-    setMode: (m) => { if (['always','once','session'].includes(m)) CONFIG.mode = m; },
+    play:    play,
+    skip:    function () { var o = document.getElementById('va-intro-overlay'); if (o) o.click(); },
+    reset:   function () { localStorage.removeItem(KEYS.once); sessionStorage.removeItem(KEYS.session); },
+    setMode: function (m) { if (['always','once','session'].indexOf(m) >= 0) CONFIG.mode = m; },
   };
 
   /* ── Auto-play ── */
@@ -245,8 +337,7 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', _autoplay);
   } else {
-    // Délai minimal pour garantir que le body est prêt à recevoir l'overlay
-    setTimeout(_autoplay, 0);
+    setTimeout(_autoplay, 50);
   }
 
 })();
