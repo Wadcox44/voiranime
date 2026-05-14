@@ -265,8 +265,10 @@
   function _teardown(ov) {
     setTimeout(function () {
       if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
+      document.documentElement.style.overflow = '';
       var s = document.getElementById('va-intro-styles');
       if (s && s.parentNode) s.parentNode.removeChild(s);
+      document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
     }, 100);
   }
@@ -277,7 +279,8 @@
       _injectStyles();
 
       var ov = _buildOverlay();
-      document.body.appendChild(ov);
+      document.documentElement.appendChild(ov);
+      document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
 
       var cancelFn = null;
