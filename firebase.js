@@ -317,4 +317,44 @@ export async function voteDuel(animeIdA, animeIdB, winner) {
   }
 }
 
+/* ══════════════════════════════════════
+   TOP DUEL WINNERS
+   Lit stats/duels/battles et agrège les votes gagnants par anime
+══════════════════════════════════════ */
+
+/**
+ * getTopDuelWinners(n)
+ * Retourne les animes avec le plus de votes dans les duels.
+ * Pour chaque bataille, l'anime avec le plus de votes est le "gagnant".
+ */
+export async function getTopDuelWinners(n = 10) {
+  try {
+    const battlesQ  = query(
+      collection(db, 'stats', 'duels', 'battles'),
+      limit(200)
+    );
+    const snap = await getDocs(battlesQ);
+
+    const wins = {};
+    snap.forEach(d => {
+      const { animeA, animeB, votesA = 0, votesB = 0 } = d.data();
+      if (!animeA || !animeB) return;
+
+      // Cumule les votes pour chaque anime (pas juste le gagnant)
+      if (!wins[animeA]) wins[animeA] = { animeId: animeA, votes: 0 };
+      if (!wins[animeB]) wins[animeB] = { animeId: animeB, votes: 0 };
+      wins[animeA].votes += votesA;
+      wins[animeB].votes += votesB;
+    });
+
+    return Object.values(wins)
+      .sort((a, b) => b.votes - a.votes)
+      .slice(0, n);
+
+  } catch (e) {
+    console.warn('[VoirAnime Firebase] getTopDuelWinners error:', e.message);
+    return [];
+  }
+}
+
 export { db };

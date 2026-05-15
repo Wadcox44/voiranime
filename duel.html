@@ -220,9 +220,41 @@
      SCRIPT (inline JS conservé)
 ════════════════════════════════ -->
 <script type="module">
-import { trackView, voteDuel, getDuelData, getTopAnime, getTopDuelWinners } from './firebase.js';
+import { trackView, voteDuel, getDuelData, getTopAnime } from './firebase.js';
 
 const API = 'https://api.jikan.moe/v4';
+
+/* ── getTopDuelWinners : init Firestore indépendante ── */
+async function getTopDuelWinners(n = 10) {
+  try {
+    const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const { getFirestore, collection, query, limit, getDocs } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    const cfg = {
+      apiKey: "AIzaSyALvccfFRQkjkoTzoQdDcpASg-3UjoYFi8",
+      authDomain: "voir-anime.firebaseapp.com",
+      projectId: "voir-anime",
+    };
+    const app  = getApps().length ? getApps()[0] : initializeApp(cfg);
+    const db2  = getFirestore(app);
+    const snap = await getDocs(query(collection(db2, 'stats', 'duels', 'battles'), limit(200)));
+    const wins = {};
+    snap.forEach(d => {
+      const { animeA, animeB, votesA = 0, votesB = 0 } = d.data();
+      if (!animeA || !animeB) return;
+      if (!wins[animeA]) wins[animeA] = { animeId: animeA, votes: 0 };
+      if (!wins[animeB]) wins[animeB] = { animeId: animeB, votes: 0 };
+      wins[animeA].votes += votesA;
+      wins[animeB].votes += votesB;
+    });
+    return Object.values(wins).sort((a, b) => b.votes - a.votes).slice(0, n);
+  } catch (e) {
+    console.warn('[Duel] getTopDuelWinners error:', e);
+    return [];
+  }
+}
+
+/* getTopDuelWinners — inline pour éviter les problèmes d'import */
+
 
 const state = {
   animePool:   [],
