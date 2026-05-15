@@ -193,12 +193,7 @@
     <button class="duel-lb-toggle" id="leaderboardToggle">Afficher ▼</button>
   </div>
   <div class="duel-lb-body hidden" id="leaderboardBody">
-    <!-- Podium global -->
-    <div class="duel-global-podium" id="globalPodium" style="display:none">
-      <h3 style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:.08em">🏅 Podium global</h3>
-      <div class="global-podium-grid" id="globalPodiumGrid"></div>
-      <hr style="border:none;border-top:1px solid var(--b2);margin:16px 0"/>
-    </div>
+
     <div class="duel-lb-grid" id="leaderboardGrid">
       <p class="duel-lb-empty" data-i18n="duel.lb_empty">Joue quelques duels pour voir le classement !</p>
     </div>
@@ -623,9 +618,7 @@ function showResults(winnerSide, votesA, votesB) {
   const winnerId    = winner.mal_id;
   const winnerTitle = winner.title_english || winner.title || '—';
 
-  // Compte les victoires historiques
-  const history = getDuelHistory();
-  const wins = history.filter(d => String(d.winnerId) === String(winnerId)).length + 1;
+  const wins = 1; // nombre de votes affiché via Firebase leaderboard
 
   el('winnerTitle').textContent = winnerTitle;
   el('winnerWins').textContent  = `${wins} victoire${wins > 1 ? 's' : ''}`;
@@ -635,8 +628,7 @@ function showResults(winnerSide, votesA, votesB) {
   setTimeout(() => el('duelWinnerBlock').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 300);
 
   // Sauvegarde historique
-  addDuelToHistory(state.currentA, state.currentB, winnerSide, pctA, pctB);
-  buildGlobalPodium();
+
 }
 
 function nextDuel() {
@@ -786,34 +778,7 @@ async function loadLeaderboard() {
   } catch (e) { console.warn('[Duel] loadLeaderboard error:', e); }
 }
 
-/* ──────────────────────────────────────
-   HISTORIQUE DUELS — localStorage
-────────────────────────────────────── */
-const DUEL_HISTORY_KEY = 'VoirAnime_duelHistory';
-const DUEL_TTL_MS      = 7 * 24 * 60 * 60 * 1000; // 1 semaine
 
-function getDuelHistory() {
-  try { return JSON.parse(localStorage.getItem(DUEL_HISTORY_KEY) || '[]'); } catch { return []; }
-}
-
-function saveDuelHistory(h) {
-  localStorage.setItem(DUEL_HISTORY_KEY, JSON.stringify(h));
-}
-
-function addDuelToHistory(animeA, animeB, winnerSide, pctA, pctB) {
-  const history = getDuelHistory();
-  history.unshift({
-    id:        `${animeA.mal_id}_${animeB.mal_id}_${Date.now()}`,
-    animeA:    { id: animeA.mal_id, title: animeA.title_english || animeA.title, img: animeA.images?.jpg?.large_image_url || '' },
-    animeB:    { id: animeB.mal_id, title: animeB.title_english || animeB.title, img: animeB.images?.jpg?.large_image_url || '' },
-    winnerId:  winnerSide === 'A' ? animeA.mal_id : animeB.mal_id,
-    pctA, pctB,
-    createdAt: Date.now(),
-    expiresAt: Date.now() + DUEL_TTL_MS,
-  });
-  // Garde les 50 derniers duels
-  saveDuelHistory(history.slice(0, 50));
-}
 
 function getTimeLeft(expiresAt) {
   const diff = expiresAt - Date.now();
@@ -831,39 +796,7 @@ function getTimeLeft(expiresAt) {
 ────────────────────────────────────── */
 
 
-/* ──────────────────────────────────────
-   PODIUM GLOBAL
-────────────────────────────────────── */
-function buildGlobalPodium() {
-  const history = getDuelHistory();
-  if (history.length === 0) return;
 
-  // Compte les victoires par anime
-  const wins = {};
-  history.forEach(d => {
-    const wid = String(d.winnerId);
-    if (!wins[wid]) {
-      const winner = d.animeA.id === d.winnerId ? d.animeA : d.animeB;
-      wins[wid] = { id: wid, title: winner.title, img: winner.img, count: 0 };
-    }
-    wins[wid].count++;
-  });
-
-  const sorted = Object.values(wins).sort((a, b) => b.count - a.count).slice(0, 3);
-  const medals = ['🥇', '🥈', '🥉'];
-
-  const grid = el('globalPodiumGrid');
-  grid.innerHTML = sorted.map((a, i) => `
-    <a href="anime.html?id=${a.id}" class="global-podium-item">
-      <div class="global-podium-medal">${medals[i]}</div>
-      <img src="${a.img}" alt="${a.title}" onerror="this.src='https://placehold.co/80x110/111118/555?text=?'"/>
-      <div class="global-podium-title">${a.title}</div>
-      <div class="global-podium-wins">${a.count} victoire${a.count > 1 ? 's' : ''}</div>
-    </a>
-  `).join('');
-
-  el('globalPodium').style.display = '';
-}
 
 function initEvents() {
   el('voteBtnA').addEventListener('click', () => handleVote('A'));
@@ -881,7 +814,7 @@ function initEvents() {
     const body = el('leaderboardBody');
     body.classList.toggle('hidden');
     el('leaderboardToggle').textContent = body.classList.contains('hidden') ? 'Afficher ▼' : 'Masquer ▲';
-    if (!body.classList.contains('hidden')) { loadLeaderboard(); buildGlobalPodium(); }
+    if (!body.classList.contains('hidden')) { loadLeaderboard(); }
   });
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT') return;
