@@ -999,7 +999,7 @@ main { flex: 1; }
   background: var(--pink);
   border-color: var(--pink);
 }
-.card-fav-btn.active svg { fill: currentColor; }
+.card-fav-btn.active svg { fill: #fff; stroke: #fff; }
 
 /* Barre de progression */
 .progress-bar-wrap {
@@ -2465,11 +2465,11 @@ body {
 }
 .card-fav-btn.active {
   opacity: 1;
-  background: var(--pink-dim);
+  background: var(--pink);
   border-color: var(--pink);
   box-shadow: var(--glow-pink-sm);
 }
-.card-fav-btn.active svg { fill: var(--pink); stroke: var(--pink); }
+.card-fav-btn.active svg { fill: #fff; stroke: #fff; }
 
 /* Barre de progression */
 .progress-bar-wrap {
@@ -3699,10 +3699,10 @@ a:active {
   /* Boutons carousel masqués */
   .carousel-btn { display: flex !important; opacity: 1 !important; pointer-events: all !important; width: 28px; height: 56px; font-size: 1rem; }
 
-  /* Carousel mobile : scroll libre et fluide — pan-y indispensable pour ne pas bloquer le scroll vertical */
+  /* Carousel mobile : scroll libre et fluide */
   .carousel {
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
+    touch-action: pan-x;
     padding-bottom: 16px;
   }
 }
