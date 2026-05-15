@@ -3702,7 +3702,7 @@ a:active {
   /* Carousel mobile : scroll libre et fluide */
   .carousel {
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
+    touch-action: pan-y;
     padding-bottom: 16px;
   }
 }
