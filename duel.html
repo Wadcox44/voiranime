@@ -453,6 +453,7 @@ function renderDuel(animeA, animeB) {
   el('resultA').classList.add('hidden');
   el('resultB').classList.add('hidden');
   el('duelWinnerBlock').classList.add('hidden');
+  document.getElementById('voteAlreadyOverlay')?.remove();
   el('voteBtnA').disabled = false;
   el('voteBtnB').disabled = false;
   el('vsBadge').textContent = 'VS';
@@ -477,31 +478,27 @@ function restoreVoteState(winnerSide) {
   state.voted      = true;
   state.winnerSide = winnerSide;
 
-  const loserSide  = winnerSide === 'A' ? 'B' : 'A';
-  const winnerCard = el(`duelCard${winnerSide}`);
-  const loserCard  = el(`duelCard${loserSide}`);
-
-  winnerCard.classList.add('winner');
-  loserCard.classList.add('loser');
+  // Désactive les boutons et les cartes
   el('voteBtnA').disabled = true;
   el('voteBtnB').disabled = true;
-  el('vsBadge').textContent = '⚔';
-  el('vsBadge').classList.add('voted');
 
-  // Affiche les résultats sans refaire le vote Firebase
-  el('resultA').classList.remove('hidden');
-  el('resultB').classList.remove('hidden');
-
-  const winner = winnerSide === 'A' ? state.currentA : state.currentB;
-  const winnerId    = winner.mal_id;
-  const winnerTitle = winner.title_english || winner.title || '—';
-  const history     = getDuelHistory();
-  const wins        = history.filter(d => String(d.winnerId) === String(winnerId)).length + 1;
-
-  el('winnerTitle').textContent = winnerTitle;
-  el('winnerWins').textContent  = `${wins} victoire${wins > 1 ? 's' : ''}`;
-  el('winnerLink').href         = `anime.html?id=${winnerId}`;
-  el('duelWinnerBlock').classList.remove('hidden');
+  // Affiche un overlay "Vote déjà comptabilisé" sur l'arène
+  const arena = el('duelArena');
+  const overlay = document.createElement('div');
+  overlay.id = 'voteAlreadyOverlay';
+  overlay.style.cssText = `
+    position:absolute;inset:0;z-index:50;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    background:rgba(8,7,15,0.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    border-radius:16px;pointer-events:all;
+  `;
+  overlay.innerHTML = `
+    <div style="font-size:1.6rem">✅</div>
+    <div style="font-size:0.95rem;font-weight:800;color:#fff;text-align:center;line-height:1.3">Vote déjà comptabilisé</div>
+    <div style="font-size:0.75rem;color:rgba(255,255,255,0.5);text-align:center">Tu as déjà voté cette semaine</div>
+  `;
+  arena.style.position = 'relative';
+  arena.appendChild(overlay);
 }
 
 function fillCard(side, anime) {
