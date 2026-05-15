@@ -472,21 +472,48 @@ function showNoVideo() {
    CAROUSEL NAV (recommendations)
 ────────────────────────────────────── */
 function initCarouselButtons() {
-  document.querySelectorAll('.carousel-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id       = btn.dataset.carousel;
-      const carousel = el(`carousel-${id}`);
-      if (!carousel) return;
+  // Event delegation — fonctionne même pour les carousels ajoutés dynamiquement (franchise, reco)
+  if (window._carouselBtnInit) return;
+  window._carouselBtnInit = true;
 
-      carousel.style.scrollSnapType = 'none';
-      const firstCard = carousel.querySelector('.anime-card');
-      const cardWidth = firstCard ? (firstCard.offsetWidth + 14) : 172;
-      const step      = cardWidth * 3;
-      carousel.scrollBy({ left: btn.classList.contains('prev') ? -step : step, behavior: 'smooth' });
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.carousel-btn');
+    if (!btn) return;
 
-      clearTimeout(btn._snapTimer);
-      btn._snapTimer = setTimeout(() => { carousel.style.scrollSnapType = ''; }, 400);
-    });
+    const id       = btn.dataset.carousel;
+    const carousel = document.getElementById('carousel-' + id);
+    if (!carousel) return;
+
+    const firstCard = carousel.querySelector('.anime-card');
+    const gap       = parseFloat(getComputedStyle(carousel).gap) || 14;
+    const cardWidth = firstCard ? firstCard.getBoundingClientRect().width + gap : 172;
+    const step      = cardWidth * 3;
+    const dir       = btn.classList.contains('prev') ? -1 : 1;
+    const target    = Math.max(0, carousel.scrollLeft + step * dir);
+
+    carousel.style.scrollSnapType = 'none';
+    carousel.style.scrollBehavior = 'auto';
+
+    const start_pos = carousel.scrollLeft;
+    const distance  = target - start_pos;
+    const duration  = 280;
+    let startTime   = null;
+
+    function ease(t) { return t < 0.5 ? 2*t*t : -1+(4-2*t)*t; }
+
+    function animate(ts) {
+      if (!startTime) startTime = ts;
+      const progress = Math.min((ts - startTime) / duration, 1);
+      carousel.scrollLeft = start_pos + distance * ease(progress);
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        carousel.style.scrollSnapType = '';
+        carousel.style.scrollBehavior = '';
+      }
+    }
+
+    requestAnimationFrame(animate);
   });
 }
 
@@ -848,15 +875,7 @@ async function loadFranchise(animeId) {
       });
     });
 
-    // Bind carousel buttons
-    container.querySelectorAll('.carousel-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id  = btn.dataset.carousel;
-        const car = document.getElementById(`carousel-${id}`);
-        if (!car) return;
-        car.scrollBy({ left: btn.classList.contains('prev') ? -800 : 800, behavior: 'smooth' });
-      });
-    });
+    // Les boutons carousel sont gérés par event delegation dans initCarouselButtons()
 
   } catch (e) {
     console.warn('[Franchise] Erreur:', e);
