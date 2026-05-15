@@ -510,3 +510,50 @@
   word-break: break-word;
 }
 .global-podium-wins { font-size: 0.58rem; color: var(--muted); }
+
+/* ── Bloc gagnant compact post-vote ── */
+.duel-winner-block {
+  padding: 0 32px 24px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.duel-winner-block.hidden { display: none; }
+.duel-winner-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--ink3);
+  border: 1px solid var(--b2);
+  border-radius: 14px;
+  padding: 16px 20px;
+}
+.duel-winner-badge {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+.duel-winner-info {
+  flex: 1;
+  min-width: 0;
+}
+.duel-winner-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+.duel-winner-title {
+  font-size: 1rem;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+.duel-winner-wins {
+  font-size: 0.75rem;
+  color: var(--cyan, #22d3ee);
+  font-weight: 600;
+  margin-top: 2px;
+}
