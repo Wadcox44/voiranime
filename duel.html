@@ -220,7 +220,7 @@
      SCRIPT (inline JS conservé)
 ════════════════════════════════ -->
 <script type="module">
-import { trackView, voteDuel, getDuelData, getTopAnime } from './firebase.js';
+import { trackView, voteDuel, getDuelData, getTopAnime, getTopDuelWinners } from './firebase.js';
 
 const API = 'https://api.jikan.moe/v4';
 
@@ -713,25 +713,42 @@ function showMilestone(text) {
 
 async function loadLeaderboard() {
   try {
-    const top = await getTopAnime(10);
+    const top = await getTopDuelWinners(10);
     if (!top.length) return;
     const grid = el('leaderboardGrid');
     grid.innerHTML = '';
-    top.forEach((item, i) => {
+    // Enrichit avec titre + image depuis Jikan
+    const enriched = [];
+    for (let i = 0; i < top.length; i++) {
+      const item = top[i];
+      let title = item.title || null;
+      let img   = item.img   || null;
+      if (!title || !img) {
+        try {
+          const data = await jikanFetch(`/anime/${item.animeId}`);
+          const a = data?.data;
+          if (a) {
+            title = a.title_english || a.title || `#${item.animeId}`;
+            img   = a.images?.jpg?.large_image_url || a.images?.jpg?.image_url || '';
+          }
+        } catch { }
+        if (i < top.length - 1) await sleep(400);
+      }
+      enriched.push({ ...item, title, img });
+    }
+
+    grid.innerHTML = '';
+    enriched.forEach((item, i) => {
       const div = document.createElement('a');
       div.className = 'lb-item';
       div.href = `anime.html?id=${item.animeId}`;
-      // Récupérer l'image depuis le cache Jikan si dispo
-      const cachedImg = item.img || '';
       div.innerHTML = `
         <span class="lb-rank">#${i + 1}</span>
-        ${cachedImg
-          ? `<img src="${cachedImg}" alt="Anime #${item.animeId}" loading="lazy"
-                  onerror="this.src='https://placehold.co/90x135/0f0e1a/555?text=?'"/>`
-          : `<img src="https://placehold.co/90x135/0f0e1a/555?text=${item.animeId}"
-                  alt="Anime #${item.animeId}"/>`}
-        <span class="lb-title">Anime #${item.animeId}</span>
-        <span class="lb-stats">👁 ${item.views}</span>`;
+        <img src="${item.img || 'https://placehold.co/90x135/0f0e1a/555?text=?'}"
+             alt="${item.title || `Anime #${item.animeId}`}" loading="lazy"
+             onerror="this.src='https://placehold.co/90x135/0f0e1a/555?text=?'"/>
+        <span class="lb-title">${item.title || `Anime #${item.animeId}`}</span>
+        <span class="lb-stats">🏆 ${item.votes} vote${item.votes > 1 ? 's' : ''}</span>`;
       grid.appendChild(div);
     });
   } catch (e) { console.warn('[Duel] loadLeaderboard error:', e); }
