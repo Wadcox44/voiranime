@@ -205,6 +205,7 @@ function buildFranchiseCard(anime, isCurrent = false, seasonNum = null) {
 
   const card = document.createElement('article');
   card.className = 'anime-card' + (isCurrent ? ' franchise-current' : '');
+  card.style.touchAction = 'pan-y';
 
   card.innerHTML = `
     <div class="card-thumb">
@@ -256,6 +257,7 @@ function buildRecoCard(anime, isCurrent = false) {
 
   const card = document.createElement('article');
   card.className = 'anime-card' + (isCurrent ? ' franchise-current' : '');
+  card.style.touchAction = 'pan-y';
 
   card.innerHTML = `
     <div class="card-thumb">
