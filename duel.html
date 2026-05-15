@@ -32,8 +32,8 @@
 </head>
 <body class="page-duel">
 
-<!-- Canvas confetti (z-index au-dessus de tout) -->
-<canvas id="confettiCanvas" style="position:fixed;inset:0;z-index:8000;pointer-events:none;"></canvas>
+<!-- Canvas burst particules -->
+<canvas id="burstCanvas" style="position:fixed;inset:0;z-index:8000;pointer-events:none;"></canvas>
 
 <!-- Flash overlay au vote -->
 <div id="voteFlash" style="position:fixed;inset:0;z-index:7999;pointer-events:none;opacity:0;"></div>
@@ -304,10 +304,9 @@ function initSoundToggle() {
    CONFETTIS (canvas pur, zero lib)
 ────────────────────────────────────── */
 const confetti = (() => {
-  const canvas  = document.getElementById('confettiCanvas');
-  const ctx2d   = canvas?.getContext('2d');
-  let particles = [];
-  let raf       = null;
+  const canvas = document.getElementById('burstCanvas');
+  const ctx2d  = canvas?.getContext('2d');
+  let raf      = null;
 
   function resize() {
     if (!canvas) return;
@@ -317,56 +316,96 @@ const confetti = (() => {
   window.addEventListener('resize', resize);
   resize();
 
-  const COLORS = ['#ff4fd8','#7c4dff','#4cc9f0','#ffd166','#ff2d78','#fff'];
-
-  function spawn(n = 80) {
-    for (let i = 0; i < n; i++) {
-      particles.push({
-        x:   Math.random() * canvas.width,
-        y:   -10 - Math.random() * 40,
-        vx:  (Math.random() - 0.5) * 6,
-        vy:  2 + Math.random() * 4,
-        rot: Math.random() * Math.PI * 2,
-        vr:  (Math.random() - 0.5) * 0.3,
-        w:   6 + Math.random() * 8,
-        h:   3 + Math.random() * 4,
-        col: COLORS[Math.floor(Math.random() * COLORS.length)],
-        life: 1,
-        dec:  0.008 + Math.random() * 0.006,
-      });
-    }
-  }
-
-  function tick() {
-    if (!ctx2d) return;
-    ctx2d.clearRect(0, 0, canvas.width, canvas.height);
-    particles = particles.filter(p => p.life > 0);
-
-    for (const p of particles) {
-      p.x   += p.vx;
-      p.y   += p.vy;
-      p.vy  += 0.12; // gravity
-      p.vx  *= 0.99;
-      p.rot += p.vr;
-      p.life -= p.dec;
-
-      ctx2d.save();
-      ctx2d.globalAlpha = Math.max(0, p.life);
-      ctx2d.translate(p.x, p.y);
-      ctx2d.rotate(p.rot);
-      ctx2d.fillStyle = p.col;
-      ctx2d.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-      ctx2d.restore();
-    }
-
-    if (particles.length > 0) raf = requestAnimationFrame(tick);
-    else raf = null;
-  }
-
   return {
-    burst(n = 80) {
-      spawn(n);
-      if (!raf) raf = requestAnimationFrame(tick);
+    burst(n = 100, originEl = null) {
+      if (!ctx2d || !canvas) return;
+
+      // Origine : centre de la carte gagnante, ou centre écran
+      let cx = canvas.width / 2;
+      let cy = canvas.height / 2;
+      if (originEl) {
+        const rect = originEl.getBoundingClientRect();
+        cx = rect.left + rect.width / 2;
+        cy = rect.top  + rect.height / 2;
+      }
+
+      const COLORS_A = ['#22d3ee', '#38bdf8', '#67e8f9', '#fff'];
+      const COLORS_B = ['#a78bfa', '#818cf8', '#c4b5fd', '#fff'];
+      const COLORS   = [...COLORS_A, ...COLORS_B];
+
+      const dots  = [];
+      const rings = [
+        { r: 0, life: 1, color: '#22d3ee' },
+        { r: 0, life: 1, color: '#a78bfa', delay: 6 },
+      ];
+
+      for (let i = 0; i < n; i++) {
+        const angle = (i / n) * Math.PI * 2 + (Math.random() - .5) * .4;
+        const speed = 3 + Math.random() * 9;
+        dots.push({
+          x: cx, y: cy,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          r:  2 + Math.random() * 3.5,
+          life: 1,
+          decay: 0.018 + Math.random() * 0.022,
+          color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        });
+      }
+
+      let frame = 0;
+      if (raf) cancelAnimationFrame(raf);
+
+      function tick() {
+        ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Anneaux
+        rings.forEach(rg => {
+          if (rg.delay && frame < rg.delay) return;
+          rg.r    += 7;
+          rg.life -= 0.045;
+          if (rg.life > 0) {
+            ctx2d.save();
+            ctx2d.globalAlpha = rg.life * 0.55;
+            ctx2d.strokeStyle = rg.color;
+            ctx2d.lineWidth   = 2.5;
+            ctx2d.beginPath();
+            ctx2d.arc(cx, cy, rg.r, 0, Math.PI * 2);
+            ctx2d.stroke();
+            ctx2d.restore();
+          }
+        });
+
+        // Points
+        let alive = false;
+        dots.forEach(d => {
+          d.x    += d.vx;
+          d.y    += d.vy;
+          d.vx   *= 0.92;
+          d.vy   *= 0.92;
+          d.life -= d.decay;
+          if (d.life > 0) {
+            alive = true;
+            ctx2d.save();
+            ctx2d.globalAlpha = d.life;
+            ctx2d.fillStyle   = d.color;
+            ctx2d.beginPath();
+            ctx2d.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+            ctx2d.fill();
+            ctx2d.restore();
+          }
+        });
+
+        frame++;
+        if (alive || rings.some(r => r.life > 0)) {
+          raf = requestAnimationFrame(tick);
+        } else {
+          ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+          raf = null;
+        }
+      }
+
+      raf = requestAnimationFrame(tick);
     }
   };
 })();
@@ -528,9 +567,9 @@ async function handleVote(winnerSide) {
     votesB = winnerSide === 'B' ? 1 : 0;
   }
 
-  // Confettis + son victoire après 200ms
+  // Burst particules centré sur la carte gagnante + son victoire
   setTimeout(() => {
-    confetti.burst(100);
+    confetti.burst(100, winnerCard);
     soundWin();
   }, 200);
 
