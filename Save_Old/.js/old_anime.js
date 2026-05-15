@@ -639,12 +639,13 @@ function renderDetail(anime) {
       Voir bande annonce
     </a>` : '';
 
-  el('animeQuickStats').innerHTML = stats.map(s => `
-    <div class="stat-item">
-      <div class="stat-value">${s.val}</div>
-      <div class="stat-label">${s.label}</div>
-    </div>
-  `).join('') + ytBtnHtml;
+  el('animeQuickStats').innerHTML = `
+    <a href="${ytSearchUrl}" target="_blank" rel="noopener" class="stat-yt-btn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M23 7s-.3-2-1.2-2.8c-1.1-1.2-2.4-1.2-3-1.3C16.1 2.8 12 2.8 12 2.8s-4.1 0-6.8.2c-.6.1-1.9.1-3 1.3C1.3 5 1 7 1 7S.7 9.2.7 11.3v2c0 2.1.3 4.3.3 4.3s.3 2 1.2 2.8c1.1 1.2 2.6 1.1 3.3 1.2C7.5 21.8 12 22 12 22s4.1 0 6.8-.4c.6-.1 1.9-.1 3-1.3.9-.8 1.2-2.8 1.2-2.8s.3-2.2.3-4.3v-2C23.3 9.2 23 7 23 7zM9.7 15.5V8.4l8.1 3.6-8.1 3.5z"/>
+      </svg>
+      Voir la bande-annonce
+    </a>`;
 
   // Watch buttons
   const titleEnc   = encodeURIComponent(title);
