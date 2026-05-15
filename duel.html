@@ -478,8 +478,8 @@ function restoreVoteState(winnerSide) {
   state.winnerSide = winnerSide;
 
   const loserSide  = winnerSide === 'A' ? 'B' : 'A';
-  const winnerCard = el(\`duelCard\${winnerSide}\`);
-  const loserCard  = el(\`duelCard\${loserSide}\`);
+  const winnerCard = el(`duelCard${winnerSide}`);
+  const loserCard  = el(`duelCard${loserSide}`);
 
   winnerCard.classList.add('winner');
   loserCard.classList.add('loser');
@@ -499,8 +499,8 @@ function restoreVoteState(winnerSide) {
   const wins        = history.filter(d => String(d.winnerId) === String(winnerId)).length + 1;
 
   el('winnerTitle').textContent = winnerTitle;
-  el('winnerWins').textContent  = \`\${wins} victoire\${wins > 1 ? 's' : ''}\`;
-  el('winnerLink').href         = \`anime.html?id=\${winnerId}\`;
+  el('winnerWins').textContent  = `${wins} victoire${wins > 1 ? 's' : ''}`;
+  el('winnerLink').href         = `anime.html?id=${winnerId}`;
   el('duelWinnerBlock').classList.remove('hidden');
 }
 
