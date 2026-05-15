@@ -241,7 +241,8 @@ function buildFranchiseCard(anime, isCurrent = false, seasonNum = null) {
     const added = await toggleFav(id, title, img);
     const btn = e.currentTarget;
     btn.classList.toggle('active', added);
-    btn.querySelector('svg').setAttribute('fill', added ? 'currentColor' : 'none');
+    const svg = btn.querySelector('svg');
+    if (svg) { svg.setAttribute('fill', added ? 'currentColor' : 'none'); svg.setAttribute('stroke', added ? 'var(--pink)' : 'currentColor'); }
   });
 
   return card;
@@ -293,7 +294,8 @@ function buildRecoCard(anime, isCurrent = false) {
     const added = await toggleFav(id, title, img);
     const btn = e.currentTarget;
     btn.classList.toggle('active', added);
-    btn.querySelector('svg').setAttribute('fill', added ? 'currentColor' : 'none');
+    const svg = btn.querySelector('svg');
+    if (svg) { svg.setAttribute('fill', added ? 'currentColor' : 'none'); svg.setAttribute('stroke', added ? 'var(--pink)' : 'currentColor'); }
   });
 
   return card;

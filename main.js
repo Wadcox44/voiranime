@@ -365,7 +365,7 @@ function updateFavUI() {
     const active = isFav(id);
     btn.classList.toggle('active', active);
     const svg = btn.querySelector('svg');
-    if (svg) svg.setAttribute('fill', active ? 'currentColor' : 'none');
+    if (svg) { svg.setAttribute('fill', active ? 'currentColor' : 'none'); svg.setAttribute('stroke', active ? 'var(--pink)' : 'currentColor'); }
   });
 }
 
@@ -476,7 +476,7 @@ function buildCard(anime, opts = {}) {
     const btn   = e.currentTarget;
     btn.classList.toggle('active', added);
     const svg = btn.querySelector('svg');
-    if (svg) svg.setAttribute('fill', added ? 'currentColor' : 'none');
+    if (svg) { svg.setAttribute('fill', added ? 'currentColor' : 'none'); svg.setAttribute('stroke', added ? 'var(--pink)' : 'currentColor'); }
   });
 
   return card;
