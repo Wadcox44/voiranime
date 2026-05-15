@@ -805,7 +805,7 @@ main { flex: 1; }
 }
 
 /* Carousel wrapper */
-.carousel-wrapper { position: relative; }
+.carousel-wrapper { position: relative; overflow: hidden; }
 
 .carousel {
   display: flex;
@@ -813,7 +813,8 @@ main { flex: 1; }
   overflow-x: auto;
   touch-action: pan-y; /* scroll vertical libre sur mobile */
   overflow-y: visible;
-  padding: 12px 2px 24px;
+  padding: 12px 2px 4px;
+  margin-bottom: 20px;
   scrollbar-width: none;
   -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
@@ -823,7 +824,6 @@ main { flex: 1; }
 .carousel::-webkit-scrollbar { display: none; }
 
 /* ── Carousel buttons ── */
-.carousel-wrapper { position: relative; }
 
 .carousel-btn {
   position: absolute;
@@ -844,6 +844,7 @@ main { flex: 1; }
   cursor: pointer;
   opacity: 1;
   pointer-events: all;
+  touch-action: manipulation; /* empêche les boutons de bloquer le scroll vertical de la page */
   transition: background .2s, color .2s, border-color .2s, transform .2s;
 }
 .carousel-btn.prev {
@@ -866,6 +867,7 @@ main { flex: 1; }
   .carousel-btn {
     opacity: 1 !important;
     pointer-events: all !important;
+    touch-action: manipulation !important;
     width: 32px;
     height: 64px;
     font-size: 1.2rem;
@@ -1542,7 +1544,7 @@ main { flex: 1; }
   .content-section { padding: 8px 14px 12px; }
   .anime-card { width: 140px; }
   .anime-card:hover { transform: scale(1.03) translateY(-3px); }
-  .carousel-btn { display: flex; opacity: 1; pointer-events: all; width: 32px; height: 64px; font-size: 1.1rem; }
+  .carousel-btn { display: flex; opacity: 1; pointer-events: all; touch-action: manipulation; width: 32px; height: 64px; font-size: 1.1rem; }
   .trailer-controls { left: 12px; right: 12px; bottom: 16px; }
   .anime-content { padding: 0 14px 40px; }
   .anime-aside-col { grid-template-columns: 1fr; }
@@ -3453,7 +3455,7 @@ a:active {
   .card-thumb-overlay  { opacity: 0.7; }
   .card-play-icon      { transform: scale(1); opacity: 1; }
   .card-score-badge    { opacity: 1; transform: none; }
-  .carousel-btn        { opacity: 1; pointer-events: all; }
+  .carousel-btn        { opacity: 1; pointer-events: all; touch-action: manipulation; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3697,7 +3699,7 @@ a:active {
   .card-sub   { font-size: 0.64rem; }
 
   /* Boutons carousel masqués */
-  .carousel-btn { display: flex !important; opacity: 1 !important; pointer-events: all !important; width: 28px; height: 56px; font-size: 1rem; }
+  .carousel-btn { display: flex !important; opacity: 1 !important; pointer-events: all !important; touch-action: manipulation !important; width: 28px; height: 56px; font-size: 1rem; }
 
   /* Carousel mobile : scroll libre et fluide */
   .carousel {
@@ -4043,7 +4045,7 @@ a:active {
 @media (max-width: 768px) {
   /* Agrandit les zones tactiles minimum 44px */
   .card-fav-btn  { width: 36px; height: 36px; opacity: 1; transform: scale(1); }
-  .carousel-btn  { display: flex !important; opacity: 1 !important; pointer-events: all !important; }
+  .carousel-btn  { display: flex !important; opacity: 1 !important; pointer-events: all !important; touch-action: manipulation !important; }
   .nav-fav-btn   { padding: 10px 14px; }
   .back-link     { padding: 8px 12px; }
 
