@@ -238,10 +238,15 @@ async function getTopDuelWinners(n = 10) {
       if (!animeA || !animeB) return;
       if (!wins[animeA]) wins[animeA] = { animeId: animeA, votes: 0 };
       if (!wins[animeB]) wins[animeB] = { animeId: animeB, votes: 0 };
-      wins[animeA].votes += votesA;
-      wins[animeB].votes += votesB;
+      // Compte 1 victoire pour l'anime qui a remporté ce duel
+      if (votesA > votesB)      wins[animeA].votes += 1;
+      else if (votesB > votesA) wins[animeB].votes += 1;
+      // Égalité : personne ne gagne
     });
-    return Object.values(wins).sort((a, b) => b.votes - a.votes).slice(0, n);
+    return Object.values(wins)
+      .filter(a => a.votes > 0)
+      .sort((a, b) => b.votes - a.votes)
+      .slice(0, n);
   } catch (e) {
     console.warn('[Duel] getTopDuelWinners error:', e);
     return [];
@@ -760,7 +765,7 @@ async function loadLeaderboard() {
           <img src="${item.img || 'https://placehold.co/90x135/0f0e1a/555?text=?'}"
                alt="${item.title || `Anime #${item.animeId}`}" loading="lazy"
                onerror="this.src='https://placehold.co/90x135/0f0e1a/555?text=?'"/>
-          <span class="lb-votes-overlay">🏆 ${item.votes}</span>
+          <span class="lb-votes-overlay">🏆 ${item.votes} vic.</span>
         </div>
         <span class="lb-title">${item.title || `Anime #${item.animeId}`}</span>`;
       grid.appendChild(div);
