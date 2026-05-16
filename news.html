@@ -304,14 +304,14 @@
     .news-card{
       display: flex;
       gap: 14px;
-      padding: 14px 0;
+
       border-bottom: 1px solid rgba(255,255,255,.06);
       text-decoration: none;
       cursor: pointer;
       transition: background .18s;
       border-radius: 10px;
-      padding: 12px 10px;
-      margin: 0 -10px;
+      padding: 12px 4px;
+
       opacity: 0;
       transform: translateY(10px);
       animation: card-in .35s ease forwards;
@@ -425,8 +425,8 @@
     .sk-card{
       display: flex;
       gap: 14px;
-      padding: 12px 10px;
-      margin: 0 -10px;
+      padding: 12px 4px;
+
       border-bottom: 1px solid rgba(255,255,255,.05);
     }
     .sk-thumb{
@@ -714,7 +714,7 @@
     <div class="news-spotlight-skeleton" id="spotlightSkeleton" style="min-height:200px"></div>
 
     <!-- Spotlight (masqué jusqu'au chargement) -->
-    <a class="news-spotlight" id="newsSpotlight" href="#" target="_blank" rel="noopener" style="display:none">
+    <div class="news-spotlight" id="newsSpotlight" style="display:none">
       <div class="news-spotlight-bg"></div>
       <img class="news-spotlight-img" id="spotlightImg" src="" alt="" loading="lazy" onerror="this.style.display='none'"/>
       <div class="news-spotlight-overlay"></div>
@@ -923,7 +923,8 @@
     document.getElementById('spotlightTitle').textContent  = article.title || '';
     document.getElementById('spotlightExcerpt').textContent = excerpt;
     document.getElementById('spotlightDate').textContent   = timeAgo(article.pubDate);
-    spotEl.href = article.link || '#';
+    spotEl.dataset.link = article.link || '';
+    spotEl.onclick = function() { var u = spotEl.dataset.link; if (u) window.open(u, '_blank', 'noopener,noreferrer'); };
 
     var imgEl = document.getElementById('spotlightImg');
     if (img) {
@@ -963,13 +964,17 @@
         ? '<img class="news-card-thumb" src="' + img + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
         : '<div class="news-card-thumb-placeholder">' + icon + '</div>';
 
-      var card = document.createElement('a');
-      card.href = a.link || '#';
-      card.target = '_blank';
-      card.rel = 'noopener';
+      var card = document.createElement('div');
       card.className = 'news-card';
       card.style.animationDelay = Math.min((i) * 0.055, 0.45) + 's';
       card.dataset.articleIdx = String(startIdx + i);
+      card.dataset.link = a.link || '';
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', function(ev) {
+        if (ev.target.closest('.news-reaction-btn')) return;
+        var url = card.dataset.link;
+        if (url) window.open(url, '_blank', 'noopener,noreferrer');
+      });
 
       card.innerHTML =
         thumbHtml +
