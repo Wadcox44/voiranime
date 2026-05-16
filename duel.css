@@ -421,6 +421,16 @@
   white-space: nowrap;
   text-align: center;
 }
+.lb-wins-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 99px;
+  margin-right: 2px;
+}
 
 /* Podium */
 .duel-podium-section {
