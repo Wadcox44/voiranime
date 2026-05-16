@@ -20,60 +20,6 @@
     @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(34,211,238,.4),0 0 10px rgba(34,211,238,.2)}50%{text-shadow:0 0 8px rgba(34,211,238,.9),0 0 20px rgba(34,211,238,.5),0 0 36px rgba(167,139,250,.3)}}
     @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(34,211,238,.6),0 0 14px rgba(167,139,250,.3)}50%{text-shadow:0 0 10px #22d3ee,0 0 24px rgba(34,211,238,.7),0 0 40px rgba(167,139,250,.45)}}
 
-    /* ── Page ── */
-    .visited-page {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 0 16px 60px;
-    }
-
-    .visited-header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 24px 0 20px;
-      border-bottom: 1px solid rgba(255,255,255,.07);
-      margin-bottom: 20px;
-    }
-    .visited-back {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      border: 1px solid rgba(255,255,255,.1);
-      background: rgba(255,255,255,.04);
-      color: var(--text, #eceaf8);
-      text-decoration: none;
-      flex-shrink: 0;
-      transition: background .18s, border-color .18s;
-    }
-    .visited-back:hover { background: rgba(167,139,250,.12); border-color: rgba(167,139,250,.35); }
-    .visited-title-wrap { flex: 1; }
-    .visited-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: clamp(1.2rem, 4vw, 1.6rem);
-      font-weight: 900;
-      color: var(--text, #eceaf8);
-      letter-spacing: -.03em;
-      line-height: 1;
-    }
-    .visited-title span { color: #a78bfa; }
-    .visited-count {
-      font-size: .75rem;
-      color: rgba(255,255,255,.35);
-      margin-top: 4px;
-    }
-
-    /* ── Sort bar ── */
-    .visited-sort {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 18px;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .visited-sort::-webkit-scrollbar { display: none; }
     .vsort-btn {
       flex-shrink: 0;
       font-family: 'Outfit', sans-serif;
@@ -93,98 +39,29 @@
       color: #c4b5fd;
     }
     .vsort-btn:hover { background: rgba(167,139,250,.1); border-color: rgba(167,139,250,.25); }
-
-    /* ── Grid ── */
-    .visited-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-      gap: 14px;
-    }
-
-    .visited-card {
-      text-decoration: none;
+    .visited-sort {
       display: flex;
-      flex-direction: column;
       gap: 6px;
-      opacity: 0;
-      transform: translateY(8px);
-      animation: card-in .3s ease forwards;
+      padding: 0 48px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
     }
-    @keyframes card-in { to { opacity: 1; transform: translateY(0); } }
-
-    .visited-card-img-wrap {
-      position: relative;
-      border-radius: 10px;
-      overflow: hidden;
-      aspect-ratio: 2/3;
-      background: rgba(255,255,255,.05);
-    }
-    .visited-card-img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      display: block;
-      transition: transform .25s;
-    }
-    .visited-card:hover .visited-card-img { transform: scale(1.04); }
-    .visited-card-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(180deg, transparent 55%, rgba(0,0,0,.75) 100%);
-      opacity: 0;
-      transition: opacity .2s;
-    }
-    .visited-card:hover .visited-card-overlay { opacity: 1; }
-
-    .visited-card-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: .72rem;
-      font-weight: 600;
-      color: rgba(255,255,255,.75);
-      line-height: 1.35;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .visited-card:hover .visited-card-title { color: #fff; }
-
+    .visited-sort::-webkit-scrollbar { display: none; }
     .visited-card-date {
       font-size: .62rem;
       color: rgba(255,255,255,.28);
+      padding: 0 8px 6px;
     }
-
-    /* ── Empty ── */
-    .visited-empty {
-      text-align: center;
-      padding: 60px 20px;
-      color: rgba(255,255,255,.35);
+    @media (max-width: 768px) {
+      .visited-sort { padding: 0 16px 16px; }
     }
-    .visited-empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
-    .visited-empty-title {
-      font-family: 'Outfit', sans-serif;
-      font-size: 1rem;
-      font-weight: 700;
-      color: rgba(255,255,255,.55);
-      margin-bottom: 8px;
+    /* Override grid pour éviter le débordement */
+    .subpage-grid {
+      grid-template-columns: repeat(3, 1fr) !important;
+      padding: 0 12px !important;
     }
-    .visited-empty p { font-size: .82rem; line-height: 1.6; }
-    .visited-empty a {
-      display: inline-block;
-      margin-top: 16px;
-      padding: 8px 20px;
-      border-radius: 20px;
-      background: rgba(167,139,250,.15);
-      border: 1px solid rgba(167,139,250,.35);
-      color: #c4b5fd;
-      text-decoration: none;
-      font-family: 'Outfit', sans-serif;
-      font-size: .78rem;
-      font-weight: 700;
-      transition: all .18s;
-    }
-    .visited-empty a:hover { background: rgba(167,139,250,.25); }
-
-    @media (max-width: 480px) {
-      .visited-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; }
+    @media (min-width: 480px) {
+      .subpage-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)) !important; }
     }
   </style>
 </head>
@@ -219,31 +96,25 @@
   </ul>
 </nav>
 
-<!-- PAGE -->
-<div class="visited-page">
+<!-- PAGE VISITÉS -->
+<div class="subpage-header">
+  <a href="profile.html" class="subpage-back">← Profil</a>
+  <h1 class="subpage-title">📚 Animes visités</h1>
+  <div class="subpage-meta" id="visitedMeta"></div>
+</div>
 
-  <div class="visited-header">
-    <a href="profile.html" class="visited-back" aria-label="Retour au profil">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-        <path d="M19 12H5M12 5l-7 7 7 7"/>
-      </svg>
-    </a>
-    <div class="visited-title-wrap">
-      <div class="visited-title">Animes <span>visités</span></div>
-      <div class="visited-count" id="visitedCount">Chargement…</div>
-    </div>
-  </div>
+<!-- Tri -->
+<div class="visited-sort" id="visitedSort">
+  <button class="vsort-btn active" data-sort="recent">Plus récents</button>
+  <button class="vsort-btn" data-sort="alpha">A → Z</button>
+  <button class="vsort-btn" data-sort="oldest">Plus anciens</button>
+</div>
 
-  <!-- Tri -->
-  <div class="visited-sort" id="visitedSort">
-    <button class="vsort-btn active" data-sort="recent">Plus récents</button>
-    <button class="vsort-btn" data-sort="alpha">A → Z</button>
-    <button class="vsort-btn" data-sort="oldest">Plus anciens</button>
-  </div>
-
-  <!-- Grille -->
-  <div class="visited-grid" id="visitedGrid"></div>
-
+<div class="subpage-grid" id="visitedGrid"></div>
+<div class="subpage-empty hidden" id="visitedEmpty">
+  <div class="subpage-empty-icon">📚</div>
+  <p>Aucun anime visité pour le moment.</p>
+  <a href="index.html" class="subpage-cta">Explorer le catalogue →</a>
 </div>
 
 <footer class="site-footer">
@@ -316,7 +187,7 @@
       var imgSrc = a.img || a.image_url || '';
       card.innerHTML =
         '<div class="visited-card-img-wrap">' +
-          '<img class="visited-card-img" src="' + imgSrc + '" alt="' + (a.title || '') + '" loading="lazy" ' +
+          '<img class="subpage-card-img" src="' + imgSrc + '" alt="' + (a.title || '') + '" loading="lazy" ' +
                'onerror="this.src=\'https://placehold.co/225x318/0f0e1a/555?text=?\'">' +
           '<div class="visited-card-overlay"></div>' +
         '</div>' +
