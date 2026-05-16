@@ -1079,7 +1079,7 @@
     if (loadMore) loadMore.style.display = 'none';
 
     var rssUrl   = RSS_FEEDS[source] || RSS_FEEDS['all'];
-    var endpoint = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl) + '&count=50';
+    var endpoint = 'https://voir-anime.vercel.app/api/rss-proxy?url=' + encodeURIComponent(rssUrl) + '&count=50';
 
     fetch(endpoint)
       .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
