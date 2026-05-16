@@ -1144,11 +1144,45 @@
 
   /* ── Trending tags dynamiques ── */
   var KNOWN_FRANCHISES = [
-    'One Piece','Demon Slayer','Chainsaw Man','Jujutsu Kaisen','My Hero Academia',
-    'Attack on Titan','Dragon Ball','Bleach','Naruto','Boruto','Black Clover',
-    'Vinland Saga','Oshi no Ko','Spy x Family','Frieren','Dungeon Meshi','Solo Leveling',
-    'Re:Zero','Tokyo Ghoul','Fullmetal Alchemist','Sword Art Online','Hunter x Hunter',
-    'Death Note','Code Geass','Overlord','Mushoku Tensei','Tensura','That Time I Got Reincarnated',
+    // Big 3 & classiques
+    'One Piece','Naruto','Bleach','Dragon Ball','Fullmetal Alchemist','Death Note',
+    'Hunter x Hunter','Code Geass','Sword Art Online','Tokyo Ghoul','Fairy Tail',
+    'Attack on Titan','Shingeki no Kyojin','Boruto','Soul Eater','Inuyasha',
+    'Cowboy Bebop','Neon Genesis Evangelion','Evangelion','Trigun','Rurouni Kenshin',
+    // Shonen populaires
+    'Demon Slayer','Kimetsu no Yaiba','My Hero Academia','Boku no Hero',
+    'Jujutsu Kaisen','Chainsaw Man','Black Clover','Haikyuu','Kuroko no Basket',
+    'Promised Neverland','Dr. Stone','Fire Force','Enen no Shouboutai',
+    'Toriko','Beelzebub','Katekyo Hitman Reborn','Magi','Blue Exorcist',
+    'Noragami','Akame ga Kill','Seven Deadly Sins','Nanatsu no Taizai',
+    'Vinland Saga','Ranking of Kings','Mashle','Blue Lock','Undead Unluck',
+    'Dandadan','Sakamoto Days','Witch Watch',
+    // Isekai & fantaisie
+    'Mushoku Tensei','Re:Zero','Overlord','Sword Art Online','That Time I Got Reincarnated',
+    'Tensura','Slime','KonoSuba','Shield Hero','Rising of the Shield Hero',
+    'Isekai Quartet','Jobless Reincarnation','Tanya the Evil','Log Horizon',
+    'Arifureta','Cautious Hero','Classroom of the Elite','No Game No Life',
+    'Grimgar','In Another World With My Smartphone','Isekai Cheat Magician',
+    'Solo Leveling','Dungeon Meshi','Delicious in Dungeon','Frieren','Sousou no Frieren',
+    'Spy x Family','Oshi no Ko','Bocchi the Rock','Lycoris Recoil',
+    // Romance / Slice of life
+    'Toradora','Clannad','Angel Beats','Your Lie in April','Shigatsu wa Kimi no Uso',
+    'A Silent Voice','Koe no Katachi','Your Name','Kimi no Na wa',
+    'Weathering With You','I Want to Eat Your Pancreas','Anohana',
+    'Oregairu','Monogatari','Bakemonogatari','Nisekoi','Rent-a-Girlfriend',
+    'Kanojo mo Kanojo','Domestic Girlfriend','Citrus',
+    // Seinen / Josei
+    'Berserk','Vinland Saga','Kingdom','Golden Kamuy','Vagabond',
+    'Gantz','Punpun','Goodnight Punpun','JoJo','JoJo's Bizarre Adventure',
+    'Made in Abyss','Psycho-Pass','Parasyte','Kiseijuu','Monster',
+    'Pluto','Dungeon Meshi','Witch Hat Atelier',
+    // Mecha & sci-fi
+    'Gundam','Mobile Suit Gundam','Macross','Tengen Toppa Gurren Lagann',
+    'Code Geass','Darling in the FranXX','Aldnoah Zero','86','Eighty Six',
+    'Legend of the Galactic Heroes','Eureka Seven','Rahxephon',
+    // Studios (pour articles sur les studios)
+    'MAPPA','Ufotable','Bones','Madhouse','Toei Animation','Sunrise','Kyoto Animation',
+    'KyoAni','A-1 Pictures','CloverWorks','Wit Studio','TRIGGER','Shaft',
   ];
 
   function buildTrendingTags(articles) {
