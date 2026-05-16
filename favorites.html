@@ -246,6 +246,14 @@
     }
     .watch-filter-btn:hover { border-color: var(--pink); color: var(--pink); }
     .watch-filter-btn.active { background: var(--pink); border-color: var(--pink); color: #fff; }
+    /* Fix débordement grille sur mobile */
+    .subpage-grid {
+      grid-template-columns: repeat(3, 1fr) !important;
+      padding: 0 12px !important;
+    }
+    @media (min-width: 480px) {
+      .subpage-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)) !important; }
+    }
   </style>
  <script src="js/i18n.js"></script>
   <script src="featuresManager.js"></script>

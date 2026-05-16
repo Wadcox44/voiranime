@@ -55,6 +55,14 @@
     @media (max-width: 768px) {
       .visited-sort { padding: 0 16px 16px; }
     }
+    /* Override grid pour éviter le débordement */
+    .subpage-grid {
+      grid-template-columns: repeat(3, 1fr) !important;
+      padding: 0 12px !important;
+    }
+    @media (min-width: 480px) {
+      .subpage-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)) !important; }
+    }
   </style>
 </head>
 <body>
@@ -179,7 +187,7 @@
       var imgSrc = a.img || a.image_url || '';
       card.innerHTML =
         '<div class="visited-card-img-wrap">' +
-          '<img class="visited-card-img" src="' + imgSrc + '" alt="' + (a.title || '') + '" loading="lazy" ' +
+          '<img class="subpage-card-img" src="' + imgSrc + '" alt="' + (a.title || '') + '" loading="lazy" ' +
                'onerror="this.src=\'https://placehold.co/225x318/0f0e1a/555?text=?\'">' +
           '<div class="visited-card-overlay"></div>' +
         '</div>' +
