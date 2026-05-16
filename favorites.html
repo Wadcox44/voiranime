@@ -473,5 +473,16 @@ if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
 })();
 </script>
 
+<script>
+(function() {
+  try {
+    var saved = JSON.parse(localStorage.getItem('VoirAnime_avatar') || 'null');
+    if (saved && saved.img) {
+      document.querySelectorAll('.nav-avatar-img').forEach(function(img) { img.src = saved.img; img.style.display = 'block'; });
+      document.querySelectorAll('.nav-avatar-fallback').forEach(function(f) { f.style.display = 'none'; });
+    }
+  } catch(_) {}
+})();
+</script>
 </body>
 </html>
