@@ -246,28 +246,37 @@
     }
     .watch-filter-btn:hover { border-color: var(--pink); color: var(--pink); }
     .watch-filter-btn.active { background: var(--pink); border-color: var(--pink); color: #fff; }
-    /* Bouton retirer des favoris */
+    /* Bouton retirer des favoris — même style que catalogue */
+    .subpage-card { position: relative; }
     .fav-remove-btn {
       position: absolute;
-      top: 5px; right: 5px;
-      width: 26px; height: 26px;
+      top: 8px; right: 8px;
+      width: 32px; height: 32px;
       border-radius: 50%;
-      background: rgba(0,0,0,.65);
-      border: 1px solid rgba(255,255,255,.15);
-      color: #ff4fd8;
-      font-size: .8rem;
+      background: rgba(8,7,15,0.72);
+      border: 2px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.5);
       display: flex;
       align-items: center;
       justify-content: center;
+      opacity: 1;
+      transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
       cursor: pointer;
-      opacity: 0;
-      transition: opacity .2s, transform .18s, background .18s;
+      backdrop-filter: blur(4px);
       z-index: 10;
-      line-height: 1;
     }
-    .subpage-card:hover .fav-remove-btn { opacity: 1; }
-    .fav-remove-btn:hover { background: rgba(255,79,216,.3); transform: scale(1.15); }
-    .subpage-card { position: relative; }
+    .fav-remove-btn svg { width: 14px; height: 14px; }
+    .fav-remove-btn:hover {
+      background: rgba(220,38,38,0.25);
+      border-color: #ef4444;
+      color: #ef4444;
+      transform: scale(1.15);
+    }
+    .fav-remove-btn.active {
+      background: rgba(220,38,38,0.2);
+      border-color: #ef4444;
+      color: #ef4444;
+    }
     /* Fix débordement grille sur mobile */
     .subpage-grid {
       grid-template-columns: repeat(3, 1fr) !important;
@@ -372,7 +381,12 @@
         <img src="${f.img||''}" alt="${f.title}"
              onerror="this.src='https://placehold.co/130x195/0f0e1a/555?text=?'"
              class="subpage-card-img"/>
-        <button class="fav-remove-btn" title="Retirer des favoris">♥</button>
+        <button class="fav-remove-btn active" title="Retirer des favoris">
+          <svg width="14" height="14" viewBox="0 0 24 24"
+               fill="#ef4444" stroke="#ef4444" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </button>
         <div class="subpage-card-body">
           <div class="subpage-card-title">${f.title}</div>
         </div>`;
