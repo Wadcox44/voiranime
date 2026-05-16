@@ -85,6 +85,9 @@
 }
   .section-badge { display: none !important; }
   </style>
+  <!-- Cache le body immédiatement pour éviter le flash avant l'intro animation -->
+  <style>body{visibility:hidden}</style>
+
   <script src="js/i18n.js"></script>
   <script src="featuresManager.js"></script>
   <script src="premiumManager.js"></script>
@@ -484,6 +487,7 @@
 <!-- ════════════════════════════════
      SCRIPTS
 ════════════════════════════════ -->
+<script>document.body.style.visibility='visible'</script>
 <script src="introAnimation.js"></script>
 <script type="module" src="main.js"></script>
 
