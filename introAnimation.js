@@ -390,14 +390,15 @@
   };
 
   /* ── Auto-play ── */
-  function _autoplay() {
-    if (_shouldPlay()) play();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', _autoplay);
+  /* Joue immédiatement — l'overlay est injecté sur <html>
+     donc pas besoin d'attendre <body> ou DOMContentLoaded.
+     Le body reste invisible (via CSS dans le <head>) jusqu'à la fin de l'intro. */
+  if (_shouldPlay()) {
+    play().then(function() {
+      document.body.style.visibility = 'visible';
+    });
   } else {
-    setTimeout(_autoplay, 50);
+    document.body.style.visibility = 'visible';
   }
 
 })();
