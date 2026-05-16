@@ -745,17 +745,9 @@
       <span class="news-filter-pill" data-source="otakunews">Otaku USA</span>
     </div>
 
-    <!-- Trending bar -->
-    <div class="news-trending" id="newsTrending">
+    <!-- Trending bar — générée dynamiquement depuis les articles -->
+    <div class="news-trending" id="newsTrending" style="display:none">
       <span class="news-trending-label">🔥 Trending</span>
-      <span class="news-trend-tag" data-filter="OnePiece">#OnePiece</span>
-      <span class="news-trend-tag" data-filter="Demon Slayer">#DemonSlayer</span>
-      <span class="news-trend-tag" data-filter="Chainsaw Man">#ChainsawMan</span>
-      <span class="news-trend-tag" data-filter="Jujutsu Kaisen">#JujutsuKaisen</span>
-      <span class="news-trend-tag" data-filter="My Hero Academia">#MHA</span>
-      <span class="news-trend-tag" data-filter="Attack on Titan">#AoT</span>
-      <span class="news-trend-tag" data-filter="Dragon Ball">#DragonBall</span>
-      <span class="news-trend-tag" data-filter="Bleach">#Bleach</span>
     </div>
 
     <!-- Section label -->
@@ -1109,6 +1101,9 @@
           if (btn) { btn.disabled = false; btn.textContent = 'Charger plus d\'articles ↓'; }
         }
 
+        // Trending tags dynamiques
+        buildTrendingTags(currentArticles);
+
         // Update dates every minute
         startDateRefresh();
       })
@@ -1147,6 +1142,80 @@
     }, 60000);
   }
 
+  /* ── Trending tags dynamiques ── */
+  var KNOWN_FRANCHISES = [
+    'One Piece','Demon Slayer','Chainsaw Man','Jujutsu Kaisen','My Hero Academia',
+    'Attack on Titan','Dragon Ball','Bleach','Naruto','Boruto','Black Clover',
+    'Vinland Saga','Oshi no Ko','Spy x Family','Frieren','Dungeon Meshi','Solo Leveling',
+    'Re:Zero','Tokyo Ghoul','Fullmetal Alchemist','Sword Art Online','Hunter x Hunter',
+    'Death Note','Code Geass','Overlord','Mushoku Tensei','Tensura','That Time I Got Reincarnated',
+  ];
+
+  function buildTrendingTags(articles) {
+    var trendBar = document.getElementById('newsTrending');
+    if (!trendBar) return;
+
+    // Compter les mentions de chaque franchise dans les titres
+    var counts = {};
+    articles.forEach(function(a) {
+      var text = ((a.title || '') + ' ' + (a.description || '')).toLowerCase();
+      KNOWN_FRANCHISES.forEach(function(f) {
+        if (text.includes(f.toLowerCase())) {
+          counts[f] = (counts[f] || 0) + 1;
+        }
+      });
+    });
+
+    // Garder les franchises mentionnées, triées par fréquence
+    var found = Object.keys(counts)
+      .filter(function(f) { return counts[f] > 0; })
+      .sort(function(a, b) { return counts[b] - counts[a]; })
+      .slice(0, 8);
+
+    if (!found.length) { trendBar.style.display = 'none'; return; }
+
+    // Construire les tags
+    trendBar.innerHTML = '<span class="news-trending-label">🔥 Trending</span>';
+    found.forEach(function(franchise) {
+      var tag = document.createElement('span');
+      tag.className = 'news-trend-tag';
+      tag.dataset.filter = franchise;
+      tag.textContent = '#' + franchise.replace(/[^a-zA-Z0-9]/g, '');
+      tag.title = franchise + ' (' + counts[franchise] + ' article' + (counts[franchise] > 1 ? 's' : '') + ')';
+      trendBar.appendChild(tag);
+    });
+    trendBar.style.display = 'flex';
+
+    // Re-attacher les handlers
+    attachTrendingHandlers();
+  }
+
+  function attachTrendingHandlers() {
+    document.querySelectorAll('.news-trend-tag').forEach(function(tag) {
+      tag.addEventListener('click', function() {
+        var wasActive = tag.classList.contains('active');
+        document.querySelectorAll('.news-trend-tag').forEach(function(t) { t.classList.remove('active'); });
+        var feed = document.getElementById('newsFeedGlobal');
+        if (wasActive) {
+          feed.innerHTML = '';
+          renderCards(currentArticles.slice(0, PAGE_SIZE), feed, 0);
+          return;
+        }
+        tag.classList.add('active');
+        var keyword = (tag.dataset.filter || '').toLowerCase();
+        var filtered = currentArticles.filter(function(a) {
+          return ((a.title || '') + ' ' + (a.description || '')).toLowerCase().includes(keyword);
+        });
+        feed.innerHTML = '';
+        if (!filtered.length) {
+          feed.innerHTML = '<div class="news-empty"><p>Aucun article pour <strong>' + tag.dataset.filter + '</strong></p></div>';
+        } else {
+          renderCards(filtered, feed, 0);
+        }
+      });
+    });
+  }
+
   /* ── Filtres source ── */
   document.querySelectorAll('.news-filter-pill').forEach(function(pill) {
     pill.addEventListener('click', function() {
@@ -1158,31 +1227,7 @@
     });
   });
 
-  /* ── Trending tags — filtrer les articles par mot-clé ── */
-  document.querySelectorAll('.news-trend-tag').forEach(function(tag) {
-    tag.addEventListener('click', function() {
-      var wasActive = tag.classList.contains('active');
-      document.querySelectorAll('.news-trend-tag').forEach(function(t) { t.classList.remove('active'); });
-      if (wasActive) {
-        // Désactiver le filtre
-        renderCards(currentArticles.slice(0, PAGE_SIZE), document.getElementById('newsFeedGlobal'), 0, true);
-        return;
-      }
-      tag.classList.add('active');
-      var keyword = (tag.dataset.filter || '').toLowerCase();
-      var filtered = currentArticles.filter(function(a) {
-        return (a.title || '').toLowerCase().includes(keyword)
-          || (a.description || '').toLowerCase().includes(keyword);
-      });
-      var feed = document.getElementById('newsFeedGlobal');
-      feed.innerHTML = '';
-      if (!filtered.length) {
-        feed.innerHTML = '<div class="news-empty"><p>Aucun article trouvé pour <strong>' + tag.textContent + '</strong></p></div>';
-      } else {
-        renderCards(filtered, feed, 0);
-      }
-    });
-  });
+
 
   /* ── Tabs ── */
   document.querySelectorAll('.news-tab').forEach(function(tab) {
