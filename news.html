@@ -43,6 +43,8 @@
       max-width: 860px;
       margin: 0 auto;
       padding: 0 16px 60px;
+      overflow-x: hidden;
+      width: 100%;
     }
 
     /* ── Page header ── */
@@ -238,6 +240,8 @@
       padding: 0 0 4px;
       margin-bottom: 4px;
       scrollbar-width: none;
+      max-width: 100%;
+      min-width: 0;
     }
     .news-filters-row::-webkit-scrollbar{ display: none; }
     .news-filter-pill{
@@ -714,7 +718,7 @@
     <div class="news-spotlight-skeleton" id="spotlightSkeleton" style="min-height:200px"></div>
 
     <!-- Spotlight (masqué jusqu'au chargement) -->
-    <div class="news-spotlight" id="newsSpotlight" style="display:none">
+    <a class="news-spotlight" id="newsSpotlight" href="#" target="_blank" rel="noopener noreferrer" style="display:none">
       <div class="news-spotlight-bg"></div>
       <img class="news-spotlight-img" id="spotlightImg" src="" alt="" loading="lazy" onerror="this.style.display='none'"/>
       <div class="news-spotlight-overlay"></div>
@@ -923,8 +927,9 @@
     document.getElementById('spotlightTitle').textContent  = article.title || '';
     document.getElementById('spotlightExcerpt').textContent = excerpt;
     document.getElementById('spotlightDate').textContent   = timeAgo(article.pubDate);
-    spotEl.dataset.link = article.link || '';
-    spotEl.onclick = function() { var u = spotEl.dataset.link; if (u) window.open(u, '_blank', 'noopener,noreferrer'); };
+    spotEl.href = article.link || '#';
+    spotEl._clickBound || (spotEl._clickBound=true, spotEl.addEventListener('click', function(ev){ev.stopImmediatePropagation();}));
+    spotEl.addEventListener('click', function(ev) { ev.stopImmediatePropagation(); }, { once: false });
 
     var imgEl = document.getElementById('spotlightImg');
     if (img) {
@@ -964,16 +969,17 @@
         ? '<img class="news-card-thumb" src="' + img + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
         : '<div class="news-card-thumb-placeholder">' + icon + '</div>';
 
-      var card = document.createElement('div');
+      var card = document.createElement('a');
+      card.href = a.link || '#';
+      card.target = '_blank';
+      card.rel = 'noopener noreferrer';
       card.className = 'news-card';
       card.style.animationDelay = Math.min((i) * 0.055, 0.45) + 's';
       card.dataset.articleIdx = String(startIdx + i);
-      card.dataset.link = a.link || '';
-      card.style.cursor = 'pointer';
+      // Empêche le script de transition de capturer ce clic externe
       card.addEventListener('click', function(ev) {
-        if (ev.target.closest('.news-reaction-btn')) return;
-        var url = card.dataset.link;
-        if (url) window.open(url, '_blank', 'noopener,noreferrer');
+        if (ev.target.closest('.news-reaction-btn')) { ev.preventDefault(); return; }
+        ev.stopImmediatePropagation();
       });
 
       card.innerHTML =
@@ -1073,7 +1079,7 @@
     if (loadMore) loadMore.style.display = 'none';
 
     var rssUrl   = RSS_FEEDS[source] || RSS_FEEDS['all'];
-    var endpoint = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl);
+    var endpoint = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl) + '&count=50';
 
     fetch(endpoint)
       .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
