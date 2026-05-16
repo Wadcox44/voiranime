@@ -3,60 +3,652 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VoirAnime — Ton portail anime</title>
+  <title>VoirAnime — News Anime</title>
   <link rel="stylesheet" href="style.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
   <style>
-    /* Logo néon */
+    /* ── Logo néon (identique aux autres pages) ── */
     .nav-logo{text-decoration:none;display:inline-flex;align-items:center}
     .logo-glitch{display:inline-block;font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:-.5px;transform:skewX(-6deg);position:relative;user-select:none}
     .logo-glitch::before,.logo-glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:0;pointer-events:none}
-    .logo-glitch::before{color:#22d3ee;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%)}
-    .logo-glitch::after{color:#a78bfa;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%)}
-    /* Glitch permanent — déclenché automatiquement toutes les 5s */
-    .logo-glitch::before{animation:va-gr-auto 5s steps(2) infinite;opacity:1}
-    .logo-glitch::after{animation:va-gb-auto 5s steps(2) .06s infinite;opacity:1}
-    /* Glitch actif = les 0.4s au début de chaque cycle (8% de 5s) */
-    @keyframes va-gr-auto{
-      0%{transform:translate(-2px,1px);opacity:1}
-      4%{transform:translate(2px,-1px);opacity:1}
-      8%{transform:translate(-1px,2px);opacity:1}
-      8.1%,100%{transform:translate(0,0);opacity:0}
-    }
-    @keyframes va-gb-auto{
-      0%{transform:translate(2px,-1px);opacity:1}
-      4%{transform:translate(-2px,1px);opacity:1}
-      8%{transform:translate(1px,-2px);opacity:1}
-      8.1%,100%{transform:translate(0,0);opacity:0}
-    }
-    /* Glow pulsant permanent sur les deux mots */
+    .logo-glitch::before{color:#22d3ee;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%);animation:va-gr-auto 5s steps(2) infinite;opacity:1}
+    .logo-glitch::after{color:#a78bfa;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%);animation:va-gb-auto 5s steps(2) .06s infinite;opacity:1}
+    @keyframes va-gr-auto{0%{transform:translate(-2px,1px);opacity:1}4%{transform:translate(2px,-1px);opacity:1}8%{transform:translate(-1px,2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
+    @keyframes va-gb-auto{0%{transform:translate(2px,-1px);opacity:1}4%{transform:translate(-2px,1px);opacity:1}8%{transform:translate(1px,-2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
     .logo-voir{color:#fff;animation:va-gw 2.6s ease-in-out infinite}
     .logo-anime{color:#22d3ee;animation:va-gp 2.6s ease-in-out infinite .4s}
     @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(34,211,238,.4),0 0 10px rgba(34,211,238,.2)}50%{text-shadow:0 0 8px rgba(34,211,238,.9),0 0 20px rgba(34,211,238,.5),0 0 36px rgba(167,139,250,.3)}}
     @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(34,211,238,.6),0 0 14px rgba(167,139,250,.3)}50%{text-shadow:0 0 10px #22d3ee,0 0 24px rgba(34,211,238,.7),0 0 40px rgba(167,139,250,.45)}}
-    /* Boost glow au hover */
     .nav-logo:hover .logo-voir{text-shadow:0 0 10px #fff,0 0 20px #ff4fd8,0 0 40px rgba(124,77,255,.6)}
     .nav-logo:hover .logo-anime{text-shadow:0 0 12px #ff4fd8,0 0 28px #ff4fd8,0 0 50px rgba(124,77,255,.7)}
     @media(max-width:480px){.logo-glitch{font-size:1.2rem}}
 
-    /* Séparateur néon */
-    .section-divider{height:1px;background:linear-gradient(to right,transparent,rgba(124,77,255,.18) 30%,rgba(255,79,216,.18) 70%,transparent);margin:4px 48px}
+    /* ══════════════════════════════════════
+       NEWS PAGE — DESIGN SYSTEM
+    ══════════════════════════════════════ */
+    :root{
+      --news-accent: #7c4dff;
+      --news-cyan: #22d3ee;
+      --news-pink: #ff4fd8;
+      --news-hot: #ff4d4d;
+      --news-new: #22d3ee;
+      --news-top: #ffd700;
+      --news-today: #06d6a0;
+      --news-breaking: #ff3030;
+    }
 
-    /* Mood pills */
-    .mood-section{padding:12px 48px 24px;max-width:1600px;margin:0 auto;width:100%}
-    .mood-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
-    .mood-row::-webkit-scrollbar{display:none}
-    .mood-pill{flex-shrink:0;display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:24px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.04);cursor:pointer;transition:all .22s;white-space:nowrap;font-family:'Outfit',sans-serif}
-    .mood-pill:hover{background:rgba(124,77,255,.12);border-color:rgba(124,77,255,.3);transform:translateY(-2px)}
-    .mood-pill.active{background:rgba(255,79,216,.14);border-color:rgba(255,79,216,.4)}
-    .mood-pill-icon{font-size:15px;line-height:1}
-    .mood-pill-label{font-size:.78rem;font-weight:600;color:#a8a6c4}
-    .mood-pill:hover .mood-pill-label,.mood-pill.active .mood-pill-label{color:#eceaf8}
+    /* ── Page wrapper ── */
+    .news-page{
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 16px 60px;
+    }
 
-    @media(max-width:768px){
-      .mood-section{padding:10px 16px 20px}
-      .section-divider{margin:4px 16px}
+    /* ── Page header ── */
+    .news-page-header{
+      padding: 28px 0 18px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .news-page-title{
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(1.4rem, 4vw, 1.9rem);
+      font-weight: 900;
+      color: var(--text1, #fff);
+      letter-spacing: -.03em;
+      line-height: 1;
+    }
+    .news-page-title span{ color: var(--news-cyan); }
+    .news-live-dot{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--news-hot);
+      border: 1px solid rgba(255,48,48,.3);
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(255,48,48,.07);
+    }
+    .news-live-dot::before{
+      content:'';
+      width: 6px; height: 6px;
+      background: var(--news-hot);
+      border-radius: 50%;
+      animation: blink-dot 1.2s step-start infinite;
+    }
+    @keyframes blink-dot{0%,100%{opacity:1}50%{opacity:0}}
+
+    /* ── Tabs ── */
+    .news-tabs{
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+    .news-tab{
+      font-family: 'Outfit', sans-serif;
+      font-size: .8rem;
+      font-weight: 700;
+      padding: 7px 18px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.04);
+      color: var(--text2, #a8a6c4);
+      cursor: pointer;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .news-tab.active{
+      background: rgba(124,77,255,.18);
+      border-color: rgba(124,77,255,.45);
+      color: #c4b5fd;
+    }
+    .news-tab-premium{ position: relative; }
+    .news-premium-lock{ font-size: .75rem; }
+
+    /* ── Spotlight / Hero ── */
+    .news-spotlight{
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      cursor: pointer;
+      min-height: 200px;
+      background: linear-gradient(135deg, #0f0823 0%, #1a1040 40%, #0d1625 100%);
+      border: 1px solid rgba(124,77,255,.2);
+      transition: transform .2s, border-color .2s;
+    }
+    .news-spotlight:hover{ transform: translateY(-2px); border-color: rgba(124,77,255,.45); }
+    .news-spotlight-bg{
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(255,255,255,.018) 0, rgba(255,255,255,.018) 1px, transparent 1px, transparent 36px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.018) 0, rgba(255,255,255,.018) 1px, transparent 1px, transparent 36px);
+      z-index: 0;
+    }
+    .news-spotlight-img{
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: .22;
+      z-index: 0;
+    }
+    .news-spotlight-overlay{
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(10,5,30,.95) 50%, rgba(10,5,30,.4) 100%);
+      z-index: 1;
+    }
+    .news-spotlight-content{
+      position: relative;
+      z-index: 2;
+      padding: 24px 22px;
+    }
+    .news-spotlight-eyebrow{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .news-spotlight-source-tag{
+      font-size: .64rem;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--news-cyan);
+    }
+    .news-spotlight-title{
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(1rem, 3.5vw, 1.35rem);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.3;
+      margin-bottom: 8px;
+      max-width: 520px;
+    }
+    .news-spotlight-excerpt{
+      font-size: .8rem;
+      color: rgba(255,255,255,.5);
+      line-height: 1.6;
+      max-width: 460px;
+      margin-bottom: 14px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .news-spotlight-meta{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .news-spotlight-date{
+      font-size: .72rem;
+      color: rgba(255,255,255,.35);
+    }
+    .news-spotlight-cta{
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--news-accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: gap .18s;
+    }
+    .news-spotlight:hover .news-spotlight-cta{ gap: 8px; }
+
+    /* ── Badges ── */
+    .nbadge{
+      display: inline-block;
+      font-size: .6rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 10px;
+      vertical-align: middle;
+      line-height: 1.4;
+    }
+    .nbadge-breaking{
+      background: var(--news-breaking);
+      color: #fff;
+      animation: badge-pulse 2s ease-in-out infinite;
+    }
+    @keyframes badge-pulse{
+      0%,100%{ box-shadow: 0 0 0 0 rgba(255,48,48,.5); }
+      50%{ box-shadow: 0 0 0 5px rgba(255,48,48,0); }
+    }
+    .nbadge-hot{ background: rgba(255,77,77,.18); color: #ff6b6b; border: 1px solid rgba(255,77,77,.35); }
+    .nbadge-new{ background: rgba(34,211,238,.15); color: #22d3ee; border: 1px solid rgba(34,211,238,.3); }
+    .nbadge-top{ background: rgba(255,215,0,.12); color: #e6b800; border: 1px solid rgba(255,215,0,.3); }
+    .nbadge-today{ background: rgba(6,214,160,.12); color: #06d6a0; border: 1px solid rgba(6,214,160,.3); }
+
+    /* ── Source filters ── */
+    .news-filters-row{
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 0 4px;
+      margin-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .news-filters-row::-webkit-scrollbar{ display: none; }
+    .news-filter-pill{
+      flex-shrink: 0;
+      font-family: 'Outfit', sans-serif;
+      font-size: .73rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.04);
+      color: var(--text2, #a8a6c4);
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .news-filter-pill:hover{ background: rgba(124,77,255,.1); border-color: rgba(124,77,255,.25); }
+    .news-filter-pill.active{
+      background: rgba(124,77,255,.18);
+      border-color: rgba(124,77,255,.5);
+      color: #c4b5fd;
+    }
+
+    /* ── Trending bar ── */
+    .news-trending{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0 14px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .news-trending::-webkit-scrollbar{ display: none; }
+    .news-trending-label{
+      flex-shrink: 0;
+      font-size: .65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--news-hot);
+    }
+    .news-trend-tag{
+      flex-shrink: 0;
+      font-size: .7rem;
+      font-weight: 600;
+      padding: 4px 11px;
+      border-radius: 20px;
+      background: rgba(255,79,216,.07);
+      border: 1px solid rgba(255,79,216,.18);
+      color: var(--text2, #a8a6c4);
+      cursor: pointer;
+      transition: all .18s;
+    }
+    .news-trend-tag:hover{ background: rgba(255,79,216,.14); border-color: rgba(255,79,216,.35); color: #f5d0fe; }
+
+    /* ── Feed ── */
+    .news-feed{
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* ── Article card ── */
+    .news-card{
+      display: flex;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .18s;
+      border-radius: 10px;
+      padding: 12px 10px;
+      margin: 0 -10px;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: card-in .35s ease forwards;
+    }
+    .news-card:hover{
+      background: rgba(124,77,255,.06);
+    }
+    @keyframes card-in{
+      to{ opacity:1; transform:translateY(0); }
+    }
+
+    .news-card-thumb{
+      flex-shrink: 0;
+      width: 88px;
+      height: 64px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: rgba(255,255,255,.06);
+    }
+    .news-card-thumb-placeholder{
+      flex-shrink: 0;
+      width: 88px;
+      height: 64px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(124,77,255,.12), rgba(34,211,238,.08));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+
+    .news-card-body{
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .news-card-meta{
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .news-card-source{
+      font-size: .63rem;
+      font-weight: 800;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text2, #a8a6c4);
+    }
+    .news-card-title{
+      font-family: 'Outfit', sans-serif;
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--text1, #eceaf8);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .news-card:hover .news-card-title{ color: #fff; }
+    .news-card-excerpt{
+      font-size: .75rem;
+      color: var(--text2, #a8a6c4);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .news-card-bottom{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 2px;
+    }
+    .news-card-date{
+      font-size: .68rem;
+      color: rgba(255,255,255,.28);
+    }
+    .news-card-reactions{
+      display: flex;
+      gap: 8px;
+    }
+    .news-reaction-btn{
+      font-size: .68rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      color: rgba(255,255,255,.3);
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 10px;
+      transition: all .18s;
+      font-family: 'Outfit', sans-serif;
+    }
+    .news-reaction-btn:hover{ background: rgba(255,255,255,.07); color: rgba(255,255,255,.7); }
+    .news-reaction-btn.reacted{ color: var(--news-pink); }
+    .news-reaction-btn .react-emoji{ display: inline-block; transition: transform .18s; }
+    .news-reaction-btn:hover .react-emoji{ transform: scale(1.25); }
+
+    /* ── Skeleton shimmer ── */
+    .news-skeleton{
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .sk-card{
+      display: flex;
+      gap: 14px;
+      padding: 12px 10px;
+      margin: 0 -10px;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .sk-thumb{
+      flex-shrink: 0;
+      width: 88px; height: 64px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.06);
+      overflow: hidden;
+      position: relative;
+    }
+    .sk-thumb::after, .sk-line::after{
+      content:'';
+      position:absolute; inset:0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.06) 50%, transparent 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s ease infinite;
+    }
+    @keyframes shimmer{
+      0%{ background-position: 200% 0; }
+      100%{ background-position: -200% 0; }
+    }
+    .sk-body{ flex:1; display:flex; flex-direction:column; gap:8px; justify-content:center; }
+    .sk-line{
+      height: 12px;
+      border-radius: 6px;
+      background: rgba(255,255,255,.06);
+      position: relative;
+      overflow: hidden;
+    }
+    .sk-line.w90{ width:90% }
+    .sk-line.w70{ width:70% }
+    .sk-line.w45{ width:45% }
+
+    /* ── Spotlight skeleton ── */
+    .news-spotlight-skeleton{
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      min-height: 200px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.06);
+      position: relative;
+    }
+    .news-spotlight-skeleton::after{
+      content:'';
+      position:absolute; inset:0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.04) 50%, transparent 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.6s ease infinite;
+    }
+
+    /* ── Empty / Error ── */
+    .news-empty{
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text2, #a8a6c4);
+      font-size: .85rem;
+    }
+    .news-empty-kaomoji{ font-size: 2rem; margin-bottom: 10px; }
+    .news-retry-btn{
+      margin-top: 14px;
+      display: inline-block;
+      padding: 7px 18px;
+      border: 1px solid rgba(124,77,255,.35);
+      border-radius: 20px;
+      color: var(--news-accent);
+      font-family: 'Outfit', sans-serif;
+      font-size: .78rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: none;
+      transition: all .18s;
+    }
+    .news-retry-btn:hover{ background: rgba(124,77,255,.12); }
+
+    /* ── Panel hidden ── */
+    .news-panel{ }
+    .news-panel.hidden{ display: none; }
+
+    /* ── Premium gate ── */
+    .news-premium-gate{
+      text-align: center;
+      padding: 48px 24px;
+      border: 1px solid rgba(124,77,255,.2);
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(124,77,255,.05), rgba(34,211,238,.03));
+      margin-top: 8px;
+    }
+    .npg-icon{ font-size: 2.5rem; margin-bottom: 12px; }
+    .npg-title{
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text1, #eceaf8);
+      margin-bottom: 10px;
+    }
+    .npg-desc{
+      font-size: .82rem;
+      color: var(--text2, #a8a6c4);
+      line-height: 1.65;
+      max-width: 380px;
+      margin: 0 auto 22px;
+    }
+    .npg-plans{ display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 0 auto; }
+    .npg-cta{
+      padding: 11px 22px;
+      border-radius: 12px;
+      border: none;
+      font-family: 'Outfit', sans-serif;
+      font-size: .82rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(135deg, #7c4dff, #22d3ee);
+      color: #fff;
+      transition: opacity .18s, transform .18s;
+    }
+    .npg-cta:hover{ opacity: .88; transform: translateY(-1px); }
+    .npg-cta-annual{
+      background: rgba(124,77,255,.12);
+      color: #c4b5fd;
+      border: 1px solid rgba(124,77,255,.35);
+    }
+    .npg-saving{
+      font-size: .65rem;
+      background: rgba(6,214,160,.18);
+      color: var(--news-today);
+      padding: 2px 6px;
+      border-radius: 8px;
+      margin-left: 6px;
+    }
+
+    /* ── Perso content ── */
+    .news-perso-content.hidden{ display: none; }
+    .news-perso-section{ margin-bottom: 28px; }
+    .news-perso-title{
+      font-family: 'Outfit', sans-serif;
+      font-size: .85rem;
+      font-weight: 700;
+      color: var(--text1, #eceaf8);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .news-fav-alert{
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .news-fav-img{
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: rgba(255,255,255,.06);
+    }
+    .news-fav-info{ flex:1; }
+    .news-fav-title{ font-size: .82rem; font-weight: 600; color: var(--text1,#eceaf8); }
+    .news-fav-sub{ font-size: .7rem; color: var(--text2,#a8a6c4); }
+    .news-fav-badge{ font-size: 1rem; }
+
+    .news-calendar-grid{
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+    }
+    .news-cal-item{
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.07);
+      background: rgba(255,255,255,.03);
+    }
+    .news-cal-date{ font-size: .65rem; color: var(--news-cyan); font-weight: 700; margin-bottom: 3px; }
+    .news-cal-title{ font-size: .78rem; color: var(--text1,#eceaf8); font-weight: 600; }
+
+    /* ── Section label ── */
+    .news-section-label{
+      font-size: .65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--text2,#a8a6c4);
+      margin: 16px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .news-section-label::after{
+      content:'';
+      flex:1;
+      height:1px;
+      background: rgba(255,255,255,.07);
+    }
+
+    /* ── Load more ── */
+    .news-load-more{
+      display: flex;
+      justify-content: center;
+      padding: 20px 0 0;
+    }
+    .news-load-more-btn{
+      font-family: 'Outfit', sans-serif;
+      font-size: .78rem;
+      font-weight: 700;
+      padding: 9px 24px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.04);
+      color: var(--text2,#a8a6c4);
+      cursor: pointer;
+      transition: all .18s;
+    }
+    .news-load-more-btn:hover{ background: rgba(124,77,255,.12); border-color: rgba(124,77,255,.35); color: #c4b5fd; }
+    .news-load-more-btn:disabled{ opacity:.4; cursor:default; }
+
+    @media(max-width:600px){
+      .news-card-thumb, .news-card-thumb-placeholder{ width:72px; height:54px; }
+      .news-card-title{ font-size:.85rem; }
+      .news-spotlight-title{ font-size:1rem; }
+      .news-card-excerpt{ display:none; }
+      .news-spotlight-excerpt{ -webkit-line-clamp:2; }
     }
   </style>
   <script src="js/i18n.js"></script>
@@ -68,8 +660,6 @@
 <!-- NAVBAR -->
 <nav class="navbar scrolled" id="navbar">
   <div class="nav-top">
-
-    <!-- LEFT -->
     <div class="nav-left">
       <div class="nav-logo-wrap">
         <a href="index.html" class="nav-logo" aria-label="VoirAnime">
@@ -77,28 +667,19 @@
             <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
           </span>
         </a>
-        <span class="logo-tagline" data-i18n="nav.tagline">
-          Discover differently.
-        </span>
+        <span class="logo-tagline" data-i18n="nav.tagline">Découvre autrement.</span>
       </div>
     </div>
 
-    <!-- AVATAR -->
-    <a href="profile.html" class="nav-avatar-btn nav-avatar-left" id="navAvatarBtn" title="My profile">
-      <img class="nav-avatar-img" id="navAvatarImg"
-           src="" alt="Profile"
+    <a href="profile.html" class="nav-avatar-btn nav-avatar-left" id="navAvatarBtn" title="Mon profil">
+      <img class="nav-avatar-img" id="navAvatarImg" src="" alt="Profil"
            onerror="this.style.display='none';document.getElementById('navAvatarFallback_news').style.display='flex'"/>
       <div class="nav-avatar-fallback" id="navAvatarFallback_news">👤</div>
     </a>
 
-    <!-- RIGHT -->
-    <div class="nav-right">
-
-         </div>
-
+    <div class="nav-right"></div>
   </div>
 
-  <!-- LINKS -->
   <ul class="nav-links">
     <li><a href="index.html" class="nav-link" data-i18n="nav.home">Home</a></li>
     <li><a href="catalogue.html" class="nav-link" data-i18n="nav.catalogue">Catalogue</a></li>
@@ -106,18 +687,18 @@
     <li><a href="news.html" class="nav-link active">📰 News</a></li>
     <li><a href="soutenir.html" class="nav-link nav-link-support" data-i18n="nav.support">💜 Support</a></li>
   </ul>
-
 </nav>
 
-<!-- NEWS PAGE -->
+<!-- ════ NEWS PAGE ════ -->
 <div class="news-page">
 
-  <div class="news-header">
-    <h1 class="news-title">📰 News anime</h1>
-    <p class="news-subtitle">Actualités du monde de l'anime — sources sélectionnées</p>
+  <!-- Header -->
+  <div class="news-page-header">
+    <h1 class="news-page-title">Actu <span>Anime</span></h1>
+    <div class="news-live-dot">Live</div>
   </div>
 
-  <!-- Onglets Free / Premium -->
+  <!-- Tabs -->
   <div class="news-tabs">
     <button class="news-tab active" data-tab="global">🌍 Actu globale</button>
     <button class="news-tab news-tab-premium" data-tab="perso">
@@ -126,31 +707,84 @@
     </button>
   </div>
 
-  <!-- Onglet 1 : Actu globale (Free) -->
+  <!-- ── TAB GLOBAL ── -->
   <div class="news-panel" id="newsTabGlobal">
-    <div class="news-sources-bar">
-      <span class="news-source-tag active" data-source="all">Tous</span>
-      <span class="news-source-tag" data-source="crunchyroll">Crunchyroll</span>
-      <span class="news-source-tag" data-source="animenewsnetwork">ANN</span>
-      <span class="news-source-tag" data-source="otakunews">Otaku News</span>
+
+    <!-- Spotlight skeleton (affiché pendant le chargement) -->
+    <div class="news-spotlight-skeleton" id="spotlightSkeleton" style="min-height:200px"></div>
+
+    <!-- Spotlight (masqué jusqu'au chargement) -->
+    <a class="news-spotlight" id="newsSpotlight" href="#" target="_blank" rel="noopener" style="display:none">
+      <div class="news-spotlight-bg"></div>
+      <img class="news-spotlight-img" id="spotlightImg" src="" alt="" loading="lazy" onerror="this.style.display='none'"/>
+      <div class="news-spotlight-overlay"></div>
+      <div class="news-spotlight-content">
+        <div class="news-spotlight-eyebrow">
+          <span class="nbadge nbadge-breaking" id="spotlightBadge">Breaking</span>
+          <span class="news-spotlight-source-tag" id="spotlightSource"></span>
+        </div>
+        <div class="news-spotlight-title" id="spotlightTitle"></div>
+        <div class="news-spotlight-excerpt" id="spotlightExcerpt"></div>
+        <div class="news-spotlight-meta">
+          <span class="news-spotlight-date" id="spotlightDate"></span>
+          <span class="news-spotlight-cta">Lire l'article →</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Source filters -->
+    <div class="news-filters-row" id="newsFilters">
+      <span class="news-filter-pill active" data-source="all">Tous</span>
+      <span class="news-filter-pill" data-source="animenewsnetwork">ANN</span>
+      <span class="news-filter-pill" data-source="crunchyroll">Nautiljon (FR)</span>
+      <span class="news-filter-pill" data-source="otakunews">Otaku USA</span>
     </div>
+
+    <!-- Trending bar -->
+    <div class="news-trending" id="newsTrending">
+      <span class="news-trending-label">🔥 Trending</span>
+      <span class="news-trend-tag">#OnePiece</span>
+      <span class="news-trend-tag">#DemonSlayer</span>
+      <span class="news-trend-tag">#ChainsawMan</span>
+      <span class="news-trend-tag">#JujutsuKaisen</span>
+      <span class="news-trend-tag">#MyHeroAcademia</span>
+      <span class="news-trend-tag">#AttackOnTitan</span>
+      <span class="news-trend-tag">#DragonBall</span>
+      <span class="news-trend-tag">#Bleach</span>
+    </div>
+
+    <!-- Section label -->
+    <div class="news-section-label">Dernières actualités</div>
+
+    <!-- Feed -->
     <div class="news-feed" id="newsFeedGlobal">
-      <div class="news-loading">Chargement des articles…</div>
+      <div class="news-skeleton" id="newsSkeleton">
+        <div class="sk-card"><div class="sk-thumb"></div><div class="sk-body"><div class="sk-line w90"></div><div class="sk-line w70"></div><div class="sk-line w45"></div></div></div>
+        <div class="sk-card"><div class="sk-thumb"></div><div class="sk-body"><div class="sk-line w70"></div><div class="sk-line w90"></div><div class="sk-line w45"></div></div></div>
+        <div class="sk-card"><div class="sk-thumb"></div><div class="sk-body"><div class="sk-line w90"></div><div class="sk-line w60"></div><div class="sk-line w45"></div></div></div>
+        <div class="sk-card"><div class="sk-thumb"></div><div class="sk-body"><div class="sk-line w75"></div><div class="sk-line w90"></div><div class="sk-line w45"></div></div></div>
+        <div class="sk-card"><div class="sk-thumb"></div><div class="sk-body"><div class="sk-line w85"></div><div class="sk-line w65"></div><div class="sk-line w45"></div></div></div>
+      </div>
     </div>
+
+    <!-- Load more -->
+    <div class="news-load-more" id="newsLoadMore" style="display:none">
+      <button class="news-load-more-btn" id="newsLoadMoreBtn">Charger plus d'articles ↓</button>
+    </div>
+
   </div>
 
-  <!-- Onglet 2 : Alertes perso (Premium) -->
+  <!-- ── TAB PERSO (Premium) ── -->
   <div class="news-panel hidden" id="newsTabPerso">
     <div class="news-premium-gate" id="newsPersoGate">
       <div class="npg-icon">⭐</div>
       <div class="npg-title">News personnalisées — Premium</div>
       <div class="npg-desc">
-        Reçois des alertes quand tes animés favoris sortent de nouveaux épisodes,
-        des annonces de saisons, et un calendrier des sorties à venir.
+        Reçois des alertes quand tes animés favoris ont des annonces, de nouveaux épisodes ou des saisons confirmées. Plus un calendrier des sorties à venir.
       </div>
       <div class="npg-plans">
-        <button class="npg-cta" id="npgMonthly">Mensuel — 1.99 Pi/mois</button>
-        <button class="npg-cta npg-cta-annual" id="npgAnnual">Annuel — 19.99 Pi/an <span class="npg-saving">2 mois offerts</span></button>
+        <button class="npg-cta" id="npgMonthly">Mensuel — 1.99 Pi / mois</button>
+        <button class="npg-cta npg-cta-annual" id="npgAnnual">Annuel — 19.99 Pi / an <span class="npg-saving">2 mois offerts</span></button>
       </div>
     </div>
     <div class="news-perso-content hidden" id="newsPersoContent">
@@ -165,19 +799,355 @@
     </div>
   </div>
 
-</div>
+</div><!-- /news-page -->
 
+<footer class="site-footer">
+  <div class="footer-logo">Voir<span>Anime</span></div>
+  <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- ════ SCRIPTS ════ -->
 <script>
-(function() {
-  // ── Onglets ──
-  var tabs   = document.querySelectorAll('.news-tab');
-  var panels = document.querySelectorAll('.news-panel');
+(function () {
+  'use strict';
 
-  tabs.forEach(function(tab) {
+  /* ── Config sources RSS ── */
+  var RSS_FEEDS = {
+    'all':              'https://myanimelist.net/rss/news.xml',
+    'animenewsnetwork': 'https://www.animenewsnetwork.com/news/rss.xml',
+    'crunchyroll':      'https://www.nautiljon.com/actualite/rss.php',
+    'otakunews':        'https://www.otakuusamagazine.com/feed/'
+  };
+
+  var SOURCE_LABELS = {
+    'all':              'MyAnimeList',
+    'animenewsnetwork': 'ANN',
+    'crunchyroll':      'Nautiljon',
+    'otakunews':        'Otaku USA'
+  };
+
+  var SOURCE_ICONS = {
+    'all':              '📰',
+    'animenewsnetwork': '📡',
+    'crunchyroll':      '🇫🇷',
+    'otakunews':        '🇺🇸'
+  };
+
+  var currentSource = 'all';
+  var currentArticles = [];
+  var PAGE_SIZE = 10;
+  var currentPage = 0;
+  var reactions = {};
+
+  /* ── Utilitaires ── */
+  function timeAgo(dateStr) {
+    if (!dateStr) return '';
+    var d = new Date(dateStr);
+    if (isNaN(d)) return '';
+    var diff = (Date.now() - d.getTime()) / 1000;
+    if (diff < 60)  return 'À l\'instant';
+    if (diff < 3600) return 'il y a ' + Math.floor(diff / 60) + ' min';
+    if (diff < 86400) return 'il y a ' + Math.floor(diff / 3600) + 'h';
+    if (diff < 172800) return 'il y a ' + Math.floor(diff / 86400) + ' j';
+    return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
+  }
+
+  function getAgeHours(dateStr) {
+    if (!dateStr) return 999;
+    var d = new Date(dateStr);
+    if (isNaN(d)) return 999;
+    return (Date.now() - d.getTime()) / 3600000;
+  }
+
+  function getBadge(article) {
+    var age = getAgeHours(article.pubDate);
+    if (age < 0.5) return '<span class="nbadge nbadge-breaking">Breaking</span>';
+    if (age < 3)   return '<span class="nbadge nbadge-hot">🔥 Hot</span>';
+    if (age < 12)  return '<span class="nbadge nbadge-new">✨ New</span>';
+    if (age < 24)  return '<span class="nbadge nbadge-today">Today</span>';
+    return '';
+  }
+
+  function getSpotlightBadge(age) {
+    if (age < 1)  return { cls: 'nbadge-breaking', txt: 'Breaking' };
+    if (age < 6)  return { cls: 'nbadge-hot',      txt: '🔥 Hot' };
+    if (age < 24) return { cls: 'nbadge-new',       txt: '✨ New' };
+    return               { cls: 'nbadge-today',     txt: 'Today' };
+  }
+
+  function extractImg(article) {
+    if (article.thumbnail) return article.thumbnail;
+    if (article.enclosure && typeof article.enclosure === 'object')
+      return article.enclosure.link || article.enclosure.url || '';
+    var html = article.description || article.content || '';
+    var m = html.match(/<img[^>]+src=["']([^"']+)["']/);
+    return m ? m[1] : '';
+  }
+
+  function cleanExcerpt(article) {
+    var raw = (article.description || article.content || '').replace(/(<([^>]+)>)/gi, '');
+    var ta = document.createElement('textarea');
+    ta.innerHTML = raw;
+    var txt = ta.value.trim();
+    return txt.length > 160 ? txt.substring(0, 160) + '…' : txt;
+  }
+
+  function loadReactions() {
+    try { reactions = JSON.parse(localStorage.getItem('VA_news_reactions') || '{}'); } catch (_) { reactions = {}; }
+  }
+
+  function saveReactions() {
+    try { localStorage.setItem('VA_news_reactions', JSON.stringify(reactions)); } catch (_) {}
+  }
+
+  function getReactionKey(article, emoji) {
+    return (article.link || article.title || '') + '|' + emoji;
+  }
+
+  /* ── Spotlight ── */
+  function renderSpotlight(article, sourceName) {
+    var spotEl    = document.getElementById('newsSpotlight');
+    var skelEl    = document.getElementById('spotlightSkeleton');
+    if (!spotEl || !article) return;
+
+    var img   = extractImg(article);
+    var age   = getAgeHours(article.pubDate);
+    var badge = getSpotlightBadge(age);
+    var excerpt = cleanExcerpt(article);
+
+    document.getElementById('spotlightBadge').className   = 'nbadge ' + badge.cls;
+    document.getElementById('spotlightBadge').textContent  = badge.txt;
+    document.getElementById('spotlightSource').textContent = sourceName;
+    document.getElementById('spotlightTitle').textContent  = article.title || '';
+    document.getElementById('spotlightExcerpt').textContent = excerpt;
+    document.getElementById('spotlightDate').textContent   = timeAgo(article.pubDate);
+    spotEl.href = article.link || '#';
+
+    var imgEl = document.getElementById('spotlightImg');
+    if (img) {
+      imgEl.src = img;
+      imgEl.style.display = '';
+    } else {
+      imgEl.style.display = 'none';
+    }
+
+    if (skelEl) skelEl.style.display = 'none';
+    spotEl.style.display = '';
+    spotEl.style.opacity = '0';
+    spotEl.style.transition = 'opacity .4s, transform .2s';
+    requestAnimationFrame(function() {
+      spotEl.style.opacity = '1';
+    });
+  }
+
+  /* ── Render cards ── */
+  function renderCards(articles, container, startIdx) {
+    articles.forEach(function(a, i) {
+      var badge     = getBadge(a);
+      var img       = extractImg(a);
+      var excerpt   = cleanExcerpt(a);
+      var date      = timeAgo(a.pubDate);
+      var sourceName = SOURCE_LABELS[currentSource] || 'MAL';
+      var icon      = SOURCE_ICONS[currentSource] || '📰';
+
+      var rKey1 = getReactionKey(a, '🔥');
+      var rKey2 = getReactionKey(a, '😱');
+      var rKey3 = getReactionKey(a, '❤️');
+      var r1 = reactions[rKey1] || 0;
+      var r2 = reactions[rKey2] || 0;
+      var r3 = reactions[rKey3] || 0;
+
+      var thumbHtml = img
+        ? '<img class="news-card-thumb" src="' + img + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'
+        : '<div class="news-card-thumb-placeholder">' + icon + '</div>';
+
+      var card = document.createElement('a');
+      card.href = a.link || '#';
+      card.target = '_blank';
+      card.rel = 'noopener';
+      card.className = 'news-card';
+      card.style.animationDelay = Math.min((i) * 0.055, 0.45) + 's';
+      card.dataset.articleIdx = String(startIdx + i);
+
+      card.innerHTML =
+        thumbHtml +
+        '<div class="news-card-body">' +
+          '<div class="news-card-meta">' +
+            '<span class="news-card-source">' + sourceName + '</span>' +
+            badge +
+          '</div>' +
+          '<div class="news-card-title">' + (a.title || '') + '</div>' +
+          (excerpt ? '<div class="news-card-excerpt">' + excerpt + '</div>' : '') +
+          '<div class="news-card-bottom">' +
+            '<span class="news-card-date">' + date + '</span>' +
+            '<div class="news-card-reactions">' +
+              '<button class="news-reaction-btn' + (r1 ? ' reacted' : '') + '" data-rkey="' + rKey1 + '" data-emoji="🔥"><span class="react-emoji">🔥</span>' + (r1 || '') + '</button>' +
+              '<button class="news-reaction-btn' + (r2 ? ' reacted' : '') + '" data-rkey="' + rKey2 + '" data-emoji="😱"><span class="react-emoji">😱</span>' + (r2 || '') + '</button>' +
+              '<button class="news-reaction-btn' + (r3 ? ' reacted' : '') + '" data-rkey="' + rKey3 + '" data-emoji="❤️"><span class="react-emoji">❤️</span>' + (r3 || '') + '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+      container.appendChild(card);
+    });
+  }
+
+  /* ── Réactions ── */
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('.news-reaction-btn');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    var rkey = btn.dataset.rkey;
+    if (!rkey) return;
+
+    var wasReacted = btn.classList.contains('reacted');
+    var count = (reactions[rkey] || 0);
+
+    if (wasReacted) {
+      count = Math.max(0, count - 1);
+      btn.classList.remove('reacted');
+    } else {
+      count += 1;
+      btn.classList.add('reacted');
+      // pop animation
+      var emoji = btn.querySelector('.react-emoji');
+      if (emoji) {
+        emoji.style.transform = 'scale(1.5)';
+        setTimeout(function() { emoji.style.transform = ''; }, 250);
+      }
+    }
+
+    reactions[rkey] = count;
+    saveReactions();
+
+    var emojiEl = btn.querySelector('.react-emoji');
+    var txt = emojiEl ? emojiEl.outerHTML : '';
+    btn.innerHTML = txt + (count || '');
+  });
+
+  /* ── Load more ── */
+  document.getElementById('newsLoadMoreBtn')?.addEventListener('click', function() {
+    var feed = document.getElementById('newsFeedGlobal');
+    var btn  = this;
+    currentPage++;
+    var slice = currentArticles.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
+    if (!slice.length) { btn.disabled = true; btn.textContent = 'Tout est chargé ✓'; return; }
+    renderCards(slice, feed, currentPage * PAGE_SIZE);
+    if ((currentPage + 1) * PAGE_SIZE >= currentArticles.length) {
+      btn.disabled = true;
+      btn.textContent = 'Tout est chargé ✓';
+    }
+  });
+
+  /* ── Fetch & render ── */
+  function loadGlobalNews(source) {
+    currentSource = source;
+    currentPage   = 0;
+    currentArticles = [];
+
+    var feed = document.getElementById('newsFeedGlobal');
+    var spotSkel = document.getElementById('spotlightSkeleton');
+    var spotEl   = document.getElementById('newsSpotlight');
+    var loadMore = document.getElementById('newsLoadMore');
+
+    // Reset
+    feed.innerHTML = '';
+    var skel = document.createElement('div');
+    skel.className = 'news-skeleton';
+    skel.id = 'newsSkeleton';
+    for (var s = 0; s < 5; s++) {
+      skel.innerHTML += '<div class="sk-card"><div class="sk-thumb"></div><div class="sk-body"><div class="sk-line w90"></div><div class="sk-line w70"></div><div class="sk-line w45"></div></div></div>';
+    }
+    feed.appendChild(skel);
+    if (spotSkel) spotSkel.style.display = '';
+    if (spotEl)   spotEl.style.display = 'none';
+    if (loadMore) loadMore.style.display = 'none';
+
+    var rssUrl   = RSS_FEEDS[source] || RSS_FEEDS['all'];
+    var endpoint = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl);
+
+    fetch(endpoint)
+      .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function(data) {
+        if (!data || data.status !== 'ok') throw new Error('RSS error');
+        var articles = data.items || [];
+        if (!articles.length) throw new Error('empty');
+
+        // Supprimer skeleton
+        var skelEl = document.getElementById('newsSkeleton');
+        if (skelEl) skelEl.remove();
+
+        // Spotlight = premier article
+        renderSpotlight(articles[0], SOURCE_LABELS[source] || 'MAL');
+
+        // Sauvegarder les articles et rendre la première page
+        currentArticles = articles.slice(1); // skip le spotlight
+        var firstPage = currentArticles.slice(0, PAGE_SIZE);
+        renderCards(firstPage, feed, 0);
+
+        // Load more
+        if (currentArticles.length > PAGE_SIZE) {
+          if (loadMore) loadMore.style.display = 'flex';
+          var btn = document.getElementById('newsLoadMoreBtn');
+          if (btn) { btn.disabled = false; btn.textContent = 'Charger plus d\'articles ↓'; }
+        }
+
+        // Update dates every minute
+        startDateRefresh();
+      })
+      .catch(function(err) {
+        var skelEl = document.getElementById('newsSkeleton');
+        if (skelEl) skelEl.remove();
+        if (spotSkel) spotSkel.style.display = 'none';
+        feed.innerHTML =
+          '<div class="news-empty">' +
+            '<div class="news-empty-kaomoji">（；￣д￣）</div>' +
+            '<p>Flux RSS indisponible pour le moment.</p>' +
+            '<button class="news-retry-btn" onclick="loadGlobalNewsRetry(\'' + source + '\')">Réessayer</button>' +
+          '</div>';
+      });
+  }
+
+  window.loadGlobalNewsRetry = function(source) { loadGlobalNews(source); };
+
+  /* ── Refresh des dates toutes les 60s ── */
+  var dateRefreshInterval = null;
+  function startDateRefresh() {
+    if (dateRefreshInterval) return;
+    dateRefreshInterval = setInterval(function() {
+      document.querySelectorAll('.news-card-date').forEach(function(el) {
+        var idx = el.closest('.news-card')?.dataset?.articleIdx;
+        if (idx === undefined) return;
+        var i = parseInt(idx, 10);
+        var a = i === 0 ? null : currentArticles[i - 1];
+        if (!a && i === 0 && currentArticles.length) return;
+        if (a) el.textContent = timeAgo(a.pubDate);
+      });
+      var spotDate = document.getElementById('spotlightDate');
+      if (spotDate && currentArticles.length) {
+        // spotlight is articles[0] before slice, but we already rendered it — just update from articles[0]
+      }
+    }, 60000);
+  }
+
+  /* ── Filtres source ── */
+  document.querySelectorAll('.news-filter-pill').forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      document.querySelectorAll('.news-filter-pill').forEach(function(p) { p.classList.remove('active'); });
+      pill.classList.add('active');
+      loadGlobalNews(pill.dataset.source);
+    });
+  });
+
+  /* ── Tabs ── */
+  document.querySelectorAll('.news-tab').forEach(function(tab) {
     tab.addEventListener('click', function() {
       var target = tab.dataset.tab;
 
-      // Bloquer l'onglet perso si Free
       if (target === 'perso') {
         var isPremium = window.VA_isPremium && window.VA_isPremium();
         if (isPremium) {
@@ -187,174 +1157,67 @@
         }
       }
 
-      tabs.forEach(function(t) { t.classList.remove('active'); });
-      panels.forEach(function(p) { p.classList.add('hidden'); });
+      document.querySelectorAll('.news-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.news-panel').forEach(function(p) { p.classList.add('hidden'); });
       tab.classList.add('active');
-      document.getElementById('newsTab' + target.charAt(0).toUpperCase() + target.slice(1)).classList.remove('hidden');
+      var panelId = 'newsTab' + target.charAt(0).toUpperCase() + target.slice(1);
+      document.getElementById(panelId)?.classList.remove('hidden');
     });
   });
 
-  var currentSource = 'all';
-
-  function loadGlobalNews(source) {
-    var feed = document.getElementById('newsFeedGlobal');
-    if (!feed) return;
-    feed.innerHTML = '<div class="news-loading">Chargement des articles&#8230;</div>';
-
-    var RSS_FEEDS = {
-      'all': 'https://myanimelist.net/rss/news.xml',
-      'crunchyroll': 'https://www.nautiljon.com/actualite/rss.php', // CR RSS bloqué -> Nautiljon.com (Référence FR)
-      'animenewsnetwork': 'https://www.animenewsnetwork.com/news/rss.xml',
-      'otakunews': 'https://www.otakuusamagazine.com/feed/'
-    };
-
-    var rssUrl = RSS_FEEDS[source] || RSS_FEEDS['all'];
-    var endpoint = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl);
-
-    fetch(endpoint)
-      .then(function(r) {
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      })
-   .then(function(data) {
-
-  if (!data || data.status !== "ok") {
-    feed.innerHTML = '<div class="news-empty">Flux RSS indisponible</div>';
-    return;
-  }
-
-  var articles = data.items || [];
-
-  if (!articles.length) {
-    feed.innerHTML = '<div class="news-empty">Aucun article disponible pour le moment.</div>';
-    return;
-  }
-
-        var source_name = source === 'all' ? 'MyAnimeList' : (source === 'animenewsnetwork' ? 'ANN' : (source === 'otakunews' ? 'Otaku USA' : 'Nautiljon (FR)'));
-
-        var html = '';
-        articles.forEach(function(a) {
-          var date = a.pubDate ? new Date(a.pubDate).toLocaleDateString('fr-FR', {day:'numeric',month:'short',year:'numeric'}) : '';
-          
-          // Chercher une image dans le flux
-         var imgSrc = '';
-
-if (a.thumbnail) {
-  imgSrc = a.thumbnail;
-}
-else if (a.enclosure && typeof a.enclosure === 'object') {
-  imgSrc = a.enclosure.link || a.enclosure.url || '';
-}
-else if (a.description) {
-  var imgMatch = a.description.match(/<img[^>]+src=["']([^"']+)["']/);
-  if (imgMatch) imgSrc = imgMatch[1];
-}
-else if (a.content) {
-  var imgMatch2 = a.content.match(/<img[^>]+src=["']([^"']+)["']/);
-  if (imgMatch2) imgSrc = imgMatch2[1];
-}
-
-if (!imgSrc) {
-  imgSrc = 'https://via.placeholder.com/300x200?text=No+Image';
-}
-
-          var link = a.link || '#';
-          var title = a.title || '';
-          
-          // Purger le html pour obtenir un pur texte
-          var excerpt = (a.description || a.content || '').replace(/(<([^>]+)>)/gi, "").trim();
-          var decoder = document.createElement("textarea");
-          decoder.innerHTML = excerpt;
-          excerpt = decoder.value; // Decode HTML entities like &#8217;
-          if (excerpt.length > 120) excerpt = excerpt.substring(0, 120) + '…';
-
-          var imgHtml = imgSrc 
-             ? '<img class="news-article-img" src="' + imgSrc + '" alt="" loading="lazy" onerror="this.style.display=\'none\'"/>' 
-             : '<div class="news-article-img news-article-img-placeholder"></div>';
-
-          html += '<a href="' + link + '" target="_blank" rel="noopener" class="news-article-card">'
-            + imgHtml
-            + '<div class="news-article-body">'
-            + '<div class="news-article-source">' + source_name + '</div>'
-            + '<div class="news-article-title">' + title + '</div>'
-            + (excerpt ? '<div class="news-article-excerpt">' + excerpt + '</div>' : '')
-            + '<div class="news-article-date">' + date + '</div>'
-            + '</div>'
-            + '</a>';
-        });
-        feed.innerHTML = html;
-      })
-      .catch(function(e) {
-        feed.innerHTML = '<div class="news-empty">Erreur de chargement des flux RSS.<br><br> <button onclick="loadGlobalNews(\''+source+'\')" style="background:none;border:1px solid var(--b2);color:var(--pink);padding:4px 12px;border-radius:20px;cursor:pointer;font-family:inherit">Réessayer</button></div>';
-      });
-  }
-
-  // Filtres source
-  document.querySelectorAll('.news-source-tag').forEach(function(tag) {
-    tag.addEventListener('click', function() {
-      document.querySelectorAll('.news-source-tag').forEach(function(t) { t.classList.remove('active'); });
-      tag.classList.add('active');
-      currentSource = tag.dataset.source;
-      loadGlobalNews(currentSource);
-    });
-  });
-
-  // ── News perso Premium ──
+  /* ── News perso Premium ── */
   function loadPersoNews() {
     var favs = [];
-    try { favs = JSON.parse(localStorage.getItem('VoirAnime_favs') || '[]'); } catch {}
+    try { favs = JSON.parse(localStorage.getItem('VoirAnime_favs') || '[]'); } catch (_) {}
 
     var alertsEl = document.getElementById('newsFavAlerts');
     if (!favs.length) {
-      alertsEl.innerHTML = '<div class="news-empty">Ajoute des favoris pour recevoir des alertes.</div>';
+      alertsEl.innerHTML = '<div class="news-empty"><p>Ajoute des favoris pour recevoir des alertes.</p></div>';
     } else {
-      alertsEl.innerHTML = favs.slice(0,5).map(function(f) {
+      alertsEl.innerHTML = favs.slice(0, 5).map(function(f) {
         return '<div class="news-fav-alert">' +
-          '<img src="' + (f.img||'') + '" class="news-fav-img"/>' +
+          '<img src="' + (f.img || '') + '" class="news-fav-img" onerror="this.style.display=\'none\'"/>' +
           '<div class="news-fav-info"><div class="news-fav-title">' + f.title + '</div>' +
           '<div class="news-fav-sub">Alertes activées</div></div>' +
           '<span class="news-fav-badge">🔔</span>' +
-          '</div>';
+        '</div>';
+      }).join('');
+    }
+
+    var calEl = document.getElementById('newsCalendar');
+    if (calEl) {
+      var upcoming = [
+        { date: 'Lun 19 Mai', title: 'Demon Slayer Ep.12' },
+        { date: 'Mar 20 Mai', title: 'Jujutsu Kaisen Ep.8' },
+        { date: 'Ven 23 Mai', title: 'One Piece Ep.1120' },
+        { date: 'Sam 24 Mai', title: 'Chainsaw Man Ep.5' },
+      ];
+      calEl.innerHTML = upcoming.map(function(u) {
+        return '<div class="news-cal-item"><div class="news-cal-date">' + u.date + '</div><div class="news-cal-title">' + u.title + '</div></div>';
       }).join('');
     }
   }
 
-  // ── Boutons Premium dans le gate ──
+  /* ── Premium gate buttons ── */
   function _launchSubscriptionNews(plan) {
-    // Utilise premiumManager si disponible
-    if (window.VA_showSubscriptionModal) {
-      window.VA_showSubscriptionModal({ defaultPlan: plan });
-      return;
-    }
-    // Fallback : paiement Pi direct
-    var PLANS = {
-      monthly: { amount: 1.99, label: 'Premium Mensuel' },
-      annual:  { amount: 19.99, label: 'Premium Annuel' }
-    };
+    if (window.VA_showSubscriptionModal) { window.VA_showSubscriptionModal({ defaultPlan: plan }); return; }
+    var PLANS = { monthly: { amount: 1.99, label: 'Premium Mensuel' }, annual: { amount: 19.99, label: 'Premium Annuel' } };
     var planDef = PLANS[plan];
     if (!planDef) return;
-    if (typeof Pi === 'undefined') {
-      alert("Ouvre VoirAnime dans le Pi Browser pour t'abonner.");
-      return;
-    }
+    if (typeof Pi === 'undefined') { alert("Ouvre VoirAnime dans le Pi Browser pour t'abonner."); return; }
     var piUser = null;
-    try { piUser = JSON.parse(localStorage.getItem('pi_user')); } catch(e) {}
+    try { piUser = JSON.parse(localStorage.getItem('pi_user')); } catch(_) {}
     Pi.authenticate(['payments', 'username'], function() {})
       .then(function(auth) {
         Pi.createPayment(
           { amount: planDef.amount, memo: 'VoirAnime ' + planDef.label, metadata: { app: 'voiranime', type: 'subscription', plan: plan } },
           {
             onReadyForServerApproval: function(paymentId) {
-              fetch('https://voir-anime.vercel.app/api/pi-approve', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ paymentId: paymentId, plan: plan })
-              }).catch(function(){});
+              fetch('https://voir-anime.vercel.app/api/pi-approve', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ paymentId, plan }) }).catch(function(){});
             },
             onReadyForServerCompletion: function(paymentId, txid) {
-              fetch('https://voir-anime.vercel.app/api/pi-complete', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ paymentId: paymentId, txid: txid, piUserId: piUser && piUser.uid, plan: plan, piUsername: auth.user && auth.user.username })
-              }).then(function(r) { return r.json(); })
+              fetch('https://voir-anime.vercel.app/api/pi-complete', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ paymentId, txid, piUserId: piUser && piUser.uid, plan, piUsername: auth.user && auth.user.username }) })
+                .then(function(r) { return r.json(); })
                 .then(function(data) {
                   if (data.premium && data.premium.isPremium) {
                     document.getElementById('newsPersoGate').classList.add('hidden');
@@ -371,15 +1234,10 @@ if (!imgSrc) {
       }).catch(function(e) { console.error('[news pi auth]', e); });
   }
 
-  var npgMonthly = document.getElementById('npgMonthly');
-  var npgAnnual  = document.getElementById('npgAnnual');
-  if (npgMonthly) npgMonthly.addEventListener('click', function() { _launchSubscriptionNews('monthly'); });
-  if (npgAnnual)  npgAnnual.addEventListener('click',  function() { _launchSubscriptionNews('annual'); });
+  document.getElementById('npgMonthly')?.addEventListener('click', function() { _launchSubscriptionNews('monthly'); });
+  document.getElementById('npgAnnual')?.addEventListener('click',  function() { _launchSubscriptionNews('annual'); });
 
-  // ── Init ──
-  loadGlobalNews('all');
-
-  // Déverrouiller onglet Premium si applicable
+  /* ── Premium lock check ── */
   function checkPremiumTab() {
     if (window.VA_isPremium && window.VA_isPremium()) {
       var lock = document.getElementById('newsPremiumLock');
@@ -388,17 +1246,16 @@ if (!imgSrc) {
   }
   checkPremiumTab();
   setTimeout(checkPremiumTab, 2000);
+
+  /* ── Init ── */
+  loadReactions();
+  loadGlobalNews('all');
+
 })();
 </script>
 
-<footer class="site-footer">
-  <div class="footer-logo">Voir<span>Anime</span></div>
-  <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
-</footer>
-
-
+<!-- Transition cinématique entre pages -->
 <script>
-/* Transition cinématique entre pages */
 (function(){
   var overlay = document.createElement("div");
   overlay.className = "page-transition-overlay in";
@@ -421,379 +1278,69 @@ if (!imgSrc) {
 </script>
 
 <script>
-/* ════════════════════════════════════════
-   DESIGN SYSTEM BRIDGE
-   Scroll reveal · Token sync · Focus polish
-   ════════════════════════════════════════ */
+/* Design system bridge */
 (function(){
-
-  /* ── 1. Scroll Progress Bar ── */
   const bar = document.createElement('div');
   bar.className = 'scroll-progress';
   document.body.prepend(bar);
-
   window.addEventListener('scroll', () => {
-    const h   = document.documentElement;
-    const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
-    bar.style.width = Math.min(pct, 100) + '%';
+    const h = document.documentElement;
+    bar.style.width = Math.min((h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100, 100) + '%';
   }, { passive: true });
 
-  /* ── 2. Cursor Glow (desktop seulement) ── */
   if (window.matchMedia('(hover: hover)').matches) {
     const glow = document.createElement('div');
     glow.className = 'cursor-glow';
     document.body.appendChild(glow);
-
-    let glowX = 0, glowY = 0;
-    let raf = null;
+    let glowX = 0, glowY = 0, raf = null;
     document.addEventListener('mousemove', e => {
-      glowX = e.clientX;
-      glowY = e.clientY;
+      glowX = e.clientX; glowY = e.clientY;
       if (!raf) raf = requestAnimationFrame(() => {
-        glow.style.left = glowX + 'px';
-        glow.style.top  = glowY + 'px';
-        raf = null;
+        glow.style.left = glowX + 'px'; glow.style.top = glowY + 'px'; raf = null;
       });
     }, { passive: true });
-
     document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
     document.addEventListener('mouseenter', () => { glow.style.opacity = '1'; });
   }
 
-  /* ── 3. Scroll Reveal ── */
-  const revealEls = document.querySelectorAll(
-    '.content-section, .anime-du-jour, .zone-separator, .personal-zone, .adv-search-section, .mood-section'
-  );
-
-  if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('revealed');
-          io.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
-
-    revealEls.forEach((el, i) => {
-      el.classList.add('reveal-on-scroll');
-      el.style.transitionDelay = Math.min(i * 0.03, 0.18) + 's';
-      io.observe(el);
-    });
-  } else {
-    revealEls.forEach(el => el.classList.add('revealed'));
-  }
-
-  /* ── 4. Card Stagger — anime d'entrée au chargement des carousels ── */
-  function staggerCards(container) {
-    if (!container) return;
-    const cards = container.querySelectorAll('.anime-card');
-    cards.forEach((card, i) => {
-      card.style.animationDelay = Math.min(i * 0.045, 0.35) + 's';
-      card.classList.add('card-entering');
-    });
-  }
-
-  // Observer chaque carousel — stagger quand il entre dans la vue
-  document.querySelectorAll('.carousel').forEach(carousel => {
-    if (!('IntersectionObserver' in window)) return;
-    const ioC = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        staggerCards(carousel);
-        ioC.disconnect();
-      }
-    }, { threshold: 0.1 });
-    ioC.observe(carousel);
-  });
-
-  // MutationObserver — stagger les nouvelles cards ajoutées dynamiquement
-  const mutObs = new MutationObserver(mutations => {
-    mutations.forEach(m => {
-      m.addedNodes.forEach(node => {
-        if (node.nodeType !== 1) return;
-        if (node.classList?.contains('anime-card')) {
-          const siblings = node.parentElement?.querySelectorAll('.anime-card');
-          const idx      = Array.from(siblings || []).indexOf(node);
-          node.style.animationDelay = Math.min(idx * 0.04, 0.3) + 's';
-          node.classList.add('card-entering');
-        }
-      });
-    });
-  });
-  document.querySelectorAll('.carousel, .cat-grid, .search-results-grid').forEach(el => {
-    mutObs.observe(el, { childList: true });
-  });
-
-  /* ── 5. Mood Overlay — teinte de fond selon l'ambiance active ── */
-  const moodOverlay = document.createElement('div');
-  moodOverlay.className = 'page-mood-overlay';
-  document.body.insertBefore(moodOverlay, document.body.firstChild);
-
-  const MOOD_TINTS = {
-    action:        'radial-gradient(ellipse 80% 60% at 80% 20%, rgba(230,57,70,0.04) 0%, transparent 60%)',
-    romance:       'radial-gradient(ellipse 80% 60% at 20% 80%, rgba(255,79,216,0.05) 0%, transparent 60%)',
-    dark:          'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(40,0,80,0.08) 0%, transparent 70%)',
-    comedy:        'radial-gradient(ellipse 80% 60% at 50% 0%,  rgba(255,209,102,0.04) 0%, transparent 60%)',
-    scifi:         'radial-gradient(ellipse 80% 60% at 80% 80%, rgba(76,201,240,0.04) 0%, transparent 60%)',
-    psychological: 'radial-gradient(ellipse 80% 60% at 20% 20%, rgba(124,77,255,0.06) 0%, transparent 60%)',
-    slice:         'radial-gradient(ellipse 80% 60% at 50% 100%,rgba(6,214,160,0.03) 0%, transparent 60%)',
-    all:           '',
-  };
-
-  document.getElementById('moodRow')?.addEventListener('click', e => {
-    const pill = e.target.closest('.mood-pill');
-    if (!pill) return;
-    const mood = pill.dataset.mood || 'all';
-    const tint = MOOD_TINTS[mood] || '';
-    if (tint) {
-      moodOverlay.style.background = tint;
-      moodOverlay.classList.add('mood-active');
-    } else {
-      moodOverlay.classList.remove('mood-active');
-    }
-  });
-
-  /* ── 6. Tilt 3D cards — desktop uniquement ── */
-  const isTouch = window.matchMedia('(hover: none)').matches;
-  var lastCard = null;
-  if (!isTouch) {
-  document.addEventListener('mousemove', function(e){
-    var card = e.target.closest('.anime-card');
-    if(!card){
-      if(lastCard){ lastCard.style.transform=''; lastCard=null; }
-      return;
-    }
-    var r  = card.getBoundingClientRect();
-    var dx = (e.clientX - r.left - r.width/2)  / (r.width/2);
-    var dy = (e.clientY - r.top  - r.height/2) / (r.height/2);
-    card.style.transform = `translateY(-10px) scale(1.06) rotateY(${dx*7}deg) rotateX(${-dy*4}deg)`;
-    lastCard = card;
-  });
-  document.addEventListener('mouseleave', function(e){
-    if (!e.target || typeof e.target.closest !== 'function') return;
-    var card = e.target.closest('.anime-card');
-    if(card) card.style.transform = '';
-  }, true);
-  } // end !isTouch
-
-  /* ── 7. Navbar active link + Section tracking ── */
   const navLinks = document.querySelectorAll('.nav-link');
-  const _raw  = location.pathname.split('/').pop() || 'index.html';
-  const path  = _raw.includes('.') ? _raw : _raw + '.html';
+  const _raw = location.pathname.split('/').pop() || 'index.html';
+  const path = _raw.includes('.') ? _raw : _raw + '.html';
   navLinks.forEach(l => {
     const href = l.getAttribute('href');
     l.classList.toggle('active', href === path || (path === 'index.html' && href === 'index.html'));
   });
-
-  // Track section visible → met le nav-link correspondant en section-active
-  const sections = document.querySelectorAll('section[id]');
-  if ('IntersectionObserver' in window && sections.length) {
-    const sectionIO = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        const id   = entry.target.id;
-        const link = document.querySelector(`.nav-link[href="#${id}"]`);
-        document.querySelectorAll('.nav-link.section-active').forEach(l => l.classList.remove('section-active'));
-        if (link) link.classList.add('section-active');
-      });
-    }, { threshold: 0.35 });
-    sections.forEach(s => sectionIO.observe(s));
-  }
-
 })();
 </script>
 
 <script>
-/* ════════════════════════════════════════
-   HERO PORTAL ENGINE
-   Particules · Parallax souris · Aura · Surprise
-   ════════════════════════════════════════ */
-(function(){
-  /* ── Canvas particules ── */
-  const canvas = document.getElementById('heroParticles');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let W, H, particles = [];
-
-  function resize(){
-    W = canvas.width  = canvas.offsetWidth  || window.innerWidth;
-    H = canvas.height = canvas.offsetHeight || window.innerHeight * 0.92;
-  }
-  window.addEventListener('resize', resize, {passive:true});
-  resize();
-
-  function spawnParticles(){
-    particles = [];
-    const n = Math.min(90, Math.floor(W * H / 14000));
-    for(let i = 0; i < n; i++){
-      particles.push({
-        x:  Math.random() * W,
-        y:  Math.random() * H,
-        r:  0.4 + Math.random() * 1.6,
-        vx: (Math.random() - 0.5) * 0.15,
-        vy: -0.04 - Math.random() * 0.2,
-        o:  0.08 + Math.random() * 0.42,
-        h:  [280, 315, 200, 260][Math.floor(Math.random() * 4)],
-      });
+/* Avatar navbar */
+(function() {
+  try {
+    var saved = JSON.parse(localStorage.getItem('VoirAnime_avatar') || 'null');
+    if (saved && saved.img) {
+      document.querySelectorAll('.nav-avatar-img').forEach(function(img) { img.src = saved.img; img.style.display = 'block'; });
+      document.querySelectorAll('.nav-avatar-fallback').forEach(function(f) { f.style.display = 'none'; });
     }
-  }
-  spawnParticles();
-  window.addEventListener('resize', spawnParticles, {passive:true});
-
-  let mx = 0.5, my = 0.5;
-  document.getElementById('hero')?.addEventListener('mousemove', e => {
-    const r = e.currentTarget.getBoundingClientRect();
-    mx = (e.clientX - r.left) / r.width;
-    my = (e.clientY - r.top)  / r.height;
-  }, {passive:true});
-
-  (function tick(){
-    ctx.clearRect(0, 0, W, H);
-    for(const p of particles){
-      p.x += p.vx + (mx - 0.5) * 0.1;
-      p.y += p.vy + (my - 0.5) * 0.05;
-      if(p.y < -4) p.y = H + 4;
-      if(p.x < -4) p.x = W + 4;
-      if(p.x > W + 4) p.x = -4;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${p.h},75%,70%,${p.o})`;
-      ctx.fill();
-    }
-    requestAnimationFrame(tick);
-  })();
-
-  /* ── Parallax souris ── */
-  const heroBg     = document.getElementById('heroBg');
-  const posterWrap = document.getElementById('heroPosterWrap');
-  const heroAura   = document.getElementById('heroAura');
-
-  const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-  
-  // Parallax uniquement desktop — désactivé sur touch ET sur écrans < 1025px
-  const isDesktop = !isTouch && window.innerWidth > 1024;
-
-  if (isDesktop) {
-  document.getElementById('hero')?.addEventListener('mousemove', e => {
-    const r  = e.currentTarget.getBoundingClientRect();
-    const dx = (e.clientX - r.left  - r.width  / 2) / r.width;
-    const dy = (e.clientY - r.top   - r.height / 2) / r.height;
-    if(heroBg)     heroBg.style.transform     = `translate(${dx*-16}px,${dy*-9}px) scale(1.07)`;
-    if(posterWrap) posterWrap.style.transform = `translateY(-50%) translate(${dx*14}px,${dy*8}px) rotateY(${dx*6}deg) rotateX(${-dy*3}deg)`;
-    if(heroAura)   heroAura.style.transform   = `translate(${dx*22}px,${dy*14}px)`;
-  }, {passive:true});
-
-  document.getElementById('hero')?.addEventListener('mouseleave', () => {
-    if(heroBg)     heroBg.style.transform     = 'translate(0,0) scale(1.07)';
-    if(posterWrap) posterWrap.style.transform = 'translateY(-50%)';
-    if(heroAura)   heroAura.style.transform   = 'translate(0,0)';
-  }, {passive:true});
-  } // end isDesktop
-
-  /* ── Découverte aléatoire ── */
-  document.getElementById('heroSurpriseBtn')?.addEventListener('click', () => {
-    const pool = window._heroAnimesPool;
-    if(!pool || pool.length < 2) return;
-    let idx;
-    do { idx = Math.floor(Math.random() * pool.length); }
-    while(idx === (window._heroCurrentIndex || 0));
-    window._heroCurrentIndex = idx;
-    if(window._renderHero) window._renderHero(pool[idx]);
-    if(window._updateHeroDots) window._updateHeroDots();
-    // Flash visuel
-    const flash = document.createElement('div');
-    flash.style.cssText = 'position:fixed;inset:0;z-index:9000;background:#020617;opacity:.4;pointer-events:none;transition:opacity .4s';
-    document.body.appendChild(flash);
-    requestAnimationFrame(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 420); });
-  });
-
-})();
-  /* ── Carousel : flèches + swipe ── */
-(function () {
-  const SCROLL_AMOUNT = 900; // px scrollés par clic
-
-  // --- Flèches ---
-  document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.carousel-btn');
-    if (!btn) return;
-    const id = btn.dataset.carousel;
-    const track = document.getElementById('carousel-' + id);
-    if (!track) return;
-    const dir = btn.classList.contains('prev') ? -1 : 1;
-    track.scrollBy({ left: dir * SCROLL_AMOUNT, behavior: 'smooth' });
-  });
-
-  // --- Swipe tactile ---
-  document.querySelectorAll('.carousel').forEach(function (track) {
-    let startX = 0, startScroll = 0, dragging = false;
-
-    track.addEventListener('touchstart', function (e) {
-      startX = e.touches[0].clientX;
-      startScroll = track.scrollLeft;
-      dragging = true;
-    }, { passive: true });
-
-    track.addEventListener('touchmove', function (e) {
-      if (!dragging) return;
-      const dx = startX - e.touches[0].clientX;
-      track.scrollLeft = startScroll + dx;
-    }, { passive: true });
-
-    track.addEventListener('touchend', function () { dragging = false; });
-
-    // --- Drag souris (desktop) ---
-    track.addEventListener('mousedown', function (e) {
-      startX = e.pageX;
-      startScroll = track.scrollLeft;
-      dragging = true;
-      track.style.cursor = 'grabbing';
-      track.style.userSelect = 'none';
-    });
-    window.addEventListener('mousemove', function (e) {
-      if (!dragging) return;
-      track.scrollLeft = startScroll - (e.pageX - startX);
-    });
-    window.addEventListener('mouseup', function () {
-      dragging = false;
-      track.style.cursor = '';
-      track.style.userSelect = '';
-    });
-  });
+  } catch(_) {}
 })();
 </script>
+
 <script>
 (function() {
-  // Init notifications — lit piUserId depuis localStorage (pi-auth absent sur cette page)
   function tryInitNotifs() {
     var raw = localStorage.getItem('pi_user');
     if (!raw) return;
     try {
       var user = JSON.parse(raw);
-      if (user && user.uid && window.VA_initNotifications) {
-if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
-        if (window.VA_initPremium) window.VA_initPremium(user.uid);
+      if (user && user.uid) {
+        if (window.VA_initFeatures) window.VA_initFeatures(user.uid);
+        if (window.VA_initPremium)  window.VA_initPremium(user.uid);
       }
     } catch (_) {}
   }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', tryInitNotifs);
-  } else {
-    tryInitNotifs();
-  }
-})();
-</script>
-<script>
-/* Chargement avatar navbar */
-(function() {
-  try {
-    var saved = JSON.parse(localStorage.getItem('VoirAnime_avatar') || 'null');
-    if (saved && saved.img) {
-      var imgs = document.querySelectorAll('.nav-avatar-img');
-      var fallbacks = document.querySelectorAll('.nav-avatar-fallback');
-      imgs.forEach(function(img) { img.src = saved.img; img.style.display = 'block'; });
-      fallbacks.forEach(function(f) { f.style.display = 'none'; });
-    }
-  } catch(e) {}
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tryInitNotifs);
+  else tryInitNotifs();
 })();
 </script>
 
