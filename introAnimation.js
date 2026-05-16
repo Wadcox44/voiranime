@@ -331,6 +331,8 @@
       if (s && s.parentNode) s.parentNode.removeChild(s);
       document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
+      // Révéler le body une fois l'overlay totalement supprimé
+      document.body.style.visibility = 'visible';
     }, 520);
   }
 
@@ -392,14 +394,16 @@
   };
 
   /* ── Auto-play ── */
-  function _autoplay() {
-    if (_shouldPlay()) play();
+  /* Le body est caché dès le <head> via style inline (visibility:hidden).
+     On le révèle ici : soit après l'animation, soit immédiatement si déjà vue. */
+  function _revealBody() {
+    document.body.style.visibility = 'visible';
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', _autoplay);
+  if (_shouldPlay()) {
+    play().then(_revealBody);
   } else {
-    setTimeout(_autoplay, 50);
+    _revealBody();
   }
 
 })();
