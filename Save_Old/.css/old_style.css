@@ -999,7 +999,7 @@ main { flex: 1; }
   background: var(--pink);
   border-color: var(--pink);
 }
-.card-fav-btn.active svg { fill: currentColor; }
+.card-fav-btn.active svg { fill: #fff; stroke: #fff; }
 
 /* Barre de progression */
 .progress-bar-wrap {
@@ -2465,11 +2465,11 @@ body {
 }
 .card-fav-btn.active {
   opacity: 1;
-  background: var(--pink-dim);
+  background: var(--pink);
   border-color: var(--pink);
   box-shadow: var(--glow-pink-sm);
 }
-.card-fav-btn.active svg { fill: var(--pink); stroke: var(--pink); }
+.card-fav-btn.active svg { fill: #fff; stroke: #fff; }
 
 /* Barre de progression */
 .progress-bar-wrap {
@@ -3702,7 +3702,7 @@ a:active {
   /* Carousel mobile : scroll libre et fluide */
   .carousel {
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
+    touch-action: pan-y;
     padding-bottom: 16px;
   }
 }
