@@ -206,8 +206,14 @@
     btn.addEventListener('click', function () { switchTab(btn.dataset.status); });
   });
 
+  // Lire le tab depuis l'URL (?tab=watching ou ?tab=completed)
+  var urlTab = new URLSearchParams(window.location.search).get('tab');
+  if (urlTab && ['planToWatch','watching','completed'].indexOf(urlTab) !== -1) {
+    currentStatus = urlTab;
+  }
+
   loadAll();
-  render(currentStatus);
+  switchTab(currentStatus);
 })();
 </script>
 
