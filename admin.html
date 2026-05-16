@@ -3,378 +3,1449 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>VoirAnime Admin</title>
+<title>VoirAnime — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a12;color:#e2e8f0;min-height:100vh}
-  #loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh}
-  .login-box{background:#111827;border:1px solid #1e293b;border-radius:16px;padding:40px;width:340px;text-align:center}
-  .login-box h1{font-size:1.4rem;font-weight:800;margin-bottom:6px}
-  .login-box p{color:#64748b;font-size:0.83rem;margin-bottom:24px}
-  input{width:100%;background:#0f172a;border:1px solid #1e293b;color:#e2e8f0;padding:10px 14px;border-radius:8px;font-size:0.9rem;outline:none;margin-bottom:12px}
-  input:focus{border-color:#7c4dff}
-  button{background:#7c4dff;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:0.88rem;font-weight:600;width:100%;transition:opacity .2s}
-  button:hover{opacity:.85}
-  button.danger{background:#ef4444}
-  button.success{background:#22c55e}
-  button.ghost{background:transparent;border:1px solid #1e293b;color:#94a3b8;width:auto}
-  button.ghost:hover{border-color:#7c4dff;color:#a78bfa}
-  #app{display:none;padding:24px;max-width:1200px;margin:0 auto}
-  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #1e293b}
-  .header h1{font-size:1.2rem;font-weight:800}
-  .tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
-  .tab{padding:7px 16px;border-radius:8px;border:1px solid #1e293b;background:transparent;color:#94a3b8;cursor:pointer;font-size:0.82rem;font-weight:600}
-  .tab.active{background:#7c4dff;border-color:#7c4dff;color:#fff}
-  .panel{display:none}
-  .panel.active{display:block}
-  .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:24px}
-  .stat-card{background:#111827;border:1px solid #1e293b;border-radius:12px;padding:16px}
-  .stat-card .val{font-size:1.8rem;font-weight:900;color:#a78bfa}
-  .stat-card .lbl{font-size:0.72rem;color:#64748b;text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
-  .stat-card .sub{font-size:0.75rem;color:#475569;margin-top:2px}
-  table{width:100%;border-collapse:collapse;font-size:0.82rem}
-  th{text-align:left;padding:8px 12px;color:#475569;font-weight:600;border-bottom:1px solid #1e293b;font-size:0.72rem;text-transform:uppercase}
-  td{padding:9px 12px;border-bottom:1px solid #0f172a;color:#94a3b8}
-  tr:hover td{background:#111827}
-  .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700}
-  .badge.green{background:rgba(34,197,94,.15);color:#22c55e}
-  .badge.red{background:rgba(239,68,68,.15);color:#ef4444}
-  .badge.yellow{background:rgba(245,158,11,.15);color:#f59e0b}
-  .badge.gray{background:#1e293b;color:#64748b}
-  .form-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-  .form-row input{margin-bottom:0;flex:1;min-width:160px}
-  .form-row select{background:#0f172a;border:1px solid #1e293b;color:#e2e8f0;padding:10px 14px;border-radius:8px;font-size:0.9rem;flex:1;min-width:140px}
-  .result-box{background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:14px;margin-top:12px;font-size:0.78rem;color:#22d3ee;white-space:pre-wrap;max-height:300px;overflow:auto;display:none}
-  .range-btns{display:flex;gap:6px;margin-bottom:16px}
-  .range-btn{padding:5px 12px;border-radius:6px;border:1px solid #1e293b;background:transparent;color:#94a3b8;cursor:pointer;font-size:0.78rem}
-  .range-btn.active{background:#1e293b;color:#e2e8f0}
-  .error-msg{color:#ef4444;font-size:0.8rem;margin-top:8px}
+/* ── Reset & Variables ───────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #080810;
+  --surface:   #0e0e1a;
+  --surface2:  #13131f;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.12);
+  --text:      #e2e8f0;
+  --muted:     #64748b;
+  --muted2:    #475569;
+  --accent:    #7c4dff;
+  --accent2:   #a78bfa;
+  --green:     #22c55e;
+  --red:       #ef4444;
+  --yellow:    #f59e0b;
+  --cyan:      #22d3ee;
+  --pi:        #f7b731;
+  --radius:    12px;
+  --radius-sm: 8px;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --sidebar-w: 220px;
+  --header-h:  56px;
+}
+
+html, body { height: 100%; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* ── Login ───────────────────────────────────────────────────────────────── */
+#loginScreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(124,77,255,0.12) 0%, transparent 70%);
+}
+
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+
+.login-logo {
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, var(--accent2), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.login-sub {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-bottom: 28px;
+}
+
+.input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.2s;
+  margin-bottom: 12px;
+}
+.input:focus { border-color: var(--accent); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+.btn:hover  { opacity: 0.88; }
+.btn:active { transform: scale(0.97); }
+.btn-primary  { background: var(--accent); color: #fff; width: 100%; }
+.btn-success  { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+.btn-danger   { background: rgba(239,68,68,0.15); color: var(--red);   border: 1px solid rgba(239,68,68,0.25); }
+.btn-warning  { background: rgba(245,158,11,0.15); color: var(--yellow); border: 1px solid rgba(245,158,11,0.25); }
+.btn-ghost    { background: transparent; color: var(--muted); border: 1px solid var(--border2); }
+.btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+.btn-sm { padding: 5px 10px; font-size: 0.75rem; }
+
+.error-msg { color: var(--red); font-size: 0.78rem; margin-top: 8px; min-height: 20px; }
+
+/* ── App Layout ──────────────────────────────────────────────────────────── */
+#app { display: none; min-height: 100vh; }
+
+/* Topbar mobile */
+.topbar {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 200;
+}
+.topbar-title {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent2), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.menu-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text); padding: 6px; display: flex;
+}
+.menu-btn svg { display: block; }
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 300;
+  transition: transform 0.25s ease;
+}
+.sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent2), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.sidebar-version {
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: 2px;
+  font-family: var(--font-mono);
+}
+
+.nav { padding: 12px 10px; flex: 1; overflow-y: auto; }
+.nav-section {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--muted2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 10px 10px 5px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 500;
+  transition: all 0.15s;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+.nav-item:hover  { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: rgba(124,77,255,0.15); color: var(--accent2); }
+.nav-item .nav-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 20px;
+}
+
+.sidebar-footer {
+  padding: 12px 10px;
+  border-top: 1px solid var(--border);
+}
+
+/* Overlay mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 250;
+  backdrop-filter: blur(2px);
+}
+
+/* Main */
+.main {
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 28px 0;
+  gap: 12px;
+}
+.page-title {
+  font-family: var(--font-head);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+.page-sub { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
+.main-content { padding: 20px 28px 40px; }
+
+/* ── Range tabs ──────────────────────────────────────────────────────────── */
+.range-tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  width: fit-content;
+}
+.range-tab {
+  padding: 5px 14px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--font-body);
+}
+.range-tab.active { background: var(--accent); color: #fff; }
+
+/* ── Panels ──────────────────────────────────────────────────────────────── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── Stats Grid ──────────────────────────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  transition: border-color 0.2s;
+}
+.stat-card:hover { border-color: var(--border2); }
+.stat-card .val {
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent2);
+  line-height: 1;
+}
+.stat-card .val.green { color: var(--green); }
+.stat-card .val.red   { color: var(--red); }
+.stat-card .val.yellow{ color: var(--yellow); }
+.stat-card .val.pi    { color: var(--pi); }
+.stat-card .lbl {
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  margin-top: 6px;
+}
+.stat-card .sub {
+  font-size: 0.72rem;
+  color: var(--muted2);
+  margin-top: 4px;
+}
+
+/* Section headers */
+.section-title {
+  font-family: var(--font-head);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 24px 0 12px;
+}
+
+/* Revenue split cards */
+.revenue-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.rev-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.rev-card .rev-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.rev-card .rev-main {
+  font-family: var(--font-head);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--pi);
+}
+.rev-card .rev-sub {
+  font-size: 0.72rem;
+  color: var(--muted2);
+  margin-top: 4px;
+}
+.rev-card .rev-alltime {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 500px; }
+th {
+  text-align: left;
+  padding: 10px 14px;
+  color: var(--muted2);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  background: var(--surface2);
+}
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--muted);
+  vertical-align: middle;
+}
+td:first-child { color: var(--text); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badge.green  { background: rgba(34,197,94,0.12);  color: var(--green); }
+.badge.red    { background: rgba(239,68,68,0.12);  color: var(--red); }
+.badge.yellow { background: rgba(245,158,11,0.12); color: var(--yellow); }
+.badge.gray   { background: rgba(255,255,255,0.06); color: var(--muted); }
+.badge.purple { background: rgba(167,139,250,0.12); color: var(--accent2); }
+.badge.cyan   { background: rgba(34,211,238,0.12); color: var(--cyan); }
+
+/* ── Toolbar / filters ───────────────────────────────────────────────────── */
+.toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.toolbar .input { margin-bottom: 0; flex: 1; min-width: 180px; max-width: 300px; }
+.toolbar select {
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  outline: none;
+  cursor: pointer;
+}
+
+/* ── Result box ──────────────────────────────────────────────────────────── */
+.result-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 0.75rem;
+  color: var(--cyan);
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow: auto;
+  font-family: var(--font-mono);
+  display: none;
+}
+.result-box.visible { display: block; }
+
+/* ── Action cards ────────────────────────────────────────────────────────── */
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.action-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.action-card-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.action-card-title.purple { color: var(--accent2); }
+.action-card-title.yellow { color: var(--yellow); }
+.action-btns { display: flex; flex-direction: column; gap: 8px; }
+
+/* ── User drawer (panneau latéral) ───────────────────────────────────────── */
+.drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 400;
+  backdrop-filter: blur(2px);
+}
+.drawer-overlay.open { display: block; }
+.drawer {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 380px;
+  max-width: 100vw;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 500;
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  padding: 24px;
+}
+.drawer.open { transform: translateX(0); }
+.drawer-close {
+  background: none; border: none; cursor: pointer; color: var(--muted);
+  font-size: 1.2rem; float: right; margin-bottom: 8px;
+}
+.drawer-uid {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  word-break: break-all;
+  margin-bottom: 16px;
+}
+.drawer-section { margin-top: 20px; }
+.drawer-section-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+.drawer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.8rem;
+}
+.drawer-row:last-child { border-bottom: none; }
+.drawer-row .k { color: var(--muted); }
+.drawer-row .v { color: var(--text); font-weight: 500; }
+.drawer-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
+/* ── Confirm modal ───────────────────────────────────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 600;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 28px 24px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+}
+.modal-icon { font-size: 2rem; margin-bottom: 12px; }
+.modal-title { font-family: var(--font-head); font-size: 1rem; font-weight: 800; margin-bottom: 8px; }
+.modal-msg { font-size: 0.82rem; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+.modal-btns { display: flex; gap: 10px; justify-content: center; }
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.empty .empty-icon { font-size: 2rem; margin-bottom: 8px; }
+
+/* ── Toast ───────────────────────────────────────────────────────────────── */
+.toast-wrap {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 700;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: slideUp 0.25s ease;
+  max-width: 300px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+.toast.success { border-color: rgba(34,197,94,0.3); color: var(--green); }
+.toast.error   { border-color: rgba(239,68,68,0.3); color: var(--red); }
+.toast.info    { border-color: rgba(124,77,255,0.3); color: var(--accent2); }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Alert banner ────────────────────────────────────────────────────────── */
+.alert-banner {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  color: var(--red);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* ── Loading skeleton ────────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .topbar { display: flex; }
+  .sidebar {
+    transform: translateX(-100%);
+    top: 0;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-overlay { display: block; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+  .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
+  .main {
+    margin-left: 0;
+    padding-top: var(--header-h);
+  }
+  .main-header { padding: 16px 16px 0; }
+  .main-content { padding: 16px 16px 40px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .action-grid { grid-template-columns: 1fr; }
+  .revenue-split { grid-template-columns: 1fr; }
+  .drawer { width: 100%; }
+  .toast-wrap { left: 16px; right: 16px; bottom: 16px; }
+  .toast { max-width: 100%; }
+}
+
+@media (max-width: 400px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- ── Login ─────────────────────────────────────────────────────────────── -->
 <div id="loginScreen">
-  <div class="login-box">
-    <h1>⚙ VoirAnime Admin</h1>
-    <p>Accès restreint — administrateurs uniquement</p>
-    <input type="password" id="secretInput" placeholder="Secret admin" onkeydown="if(event.key==='Enter')login()"/>
-    <button onclick="login()">Connexion</button>
+  <div class="login-card">
+    <div class="login-logo">⚙ VoirAnime Admin</div>
+    <p class="login-sub">Accès restreint — administrateurs uniquement</p>
+    <input type="password" id="secretInput" class="input" placeholder="Secret admin"
+      onkeydown="if(event.key==='Enter')login()"/>
+    <button class="btn btn-primary" onclick="login()">Connexion</button>
     <p class="error-msg" id="loginError"></p>
   </div>
 </div>
 
-<!-- APP -->
+<!-- ── App ───────────────────────────────────────────────────────────────── -->
 <div id="app">
-  <div class="header">
-    <h1>⚙ VoirAnime Admin</h1>
-    <div style="display:flex;gap:8px;align-items:center">
-      <span id="headerRange" style="font-size:0.75rem;color:#475569"></span>
-      <button class="ghost" onclick="logout()">Déconnexion</button>
+
+  <!-- Topbar mobile -->
+  <div class="topbar">
+    <span class="topbar-title">⚙ Admin</span>
+    <button class="menu-btn" onclick="toggleSidebar()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">⚙ VoirAnime</div>
+      <div class="sidebar-version">Admin Panel v2.0</div>
     </div>
-  </div>
-
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('stats')">📊 Stats</button>
-    <button class="tab" onclick="switchTab('users')">👥 Users</button>
-    <button class="tab" onclick="switchTab('payments')">💰 Paiements</button>
-    <button class="tab" onclick="switchTab('logs')">📋 Logs</button>
-    <button class="tab" onclick="switchTab('actions')">⚡ Actions</button>
-  </div>
-
-  <!-- STATS -->
-  <div class="panel active" id="panel-stats">
-    <div class="range-btns">
-      <button class="range-btn active" onclick="setRange('7d',this)">7 jours</button>
-      <button class="range-btn" onclick="setRange('30d',this)">30 jours</button>
-      <button class="range-btn" onclick="setRange('all',this)">Tout</button>
+    <nav class="nav">
+      <div class="nav-section">Principal</div>
+      <button class="nav-item active" onclick="switchPanel('overview')">
+        <span class="nav-icon">📊</span> Vue d'ensemble
+      </button>
+      <button class="nav-item" onclick="switchPanel('subscriptions')">
+        <span class="nav-icon">⭐</span> Abonnements
+      </button>
+      <button class="nav-item" onclick="switchPanel('revenue')">
+        <span class="nav-icon">π</span> Revenus
+      </button>
+      <div class="nav-section">Gestion</div>
+      <button class="nav-item" onclick="switchPanel('users')">
+        <span class="nav-icon">👥</span> Utilisateurs
+      </button>
+      <button class="nav-item" onclick="switchPanel('payments')">
+        <span class="nav-icon">💳</span> Paiements
+        <span class="nav-badge" id="repairBadge" style="display:none">!</span>
+      </button>
+      <button class="nav-item" onclick="switchPanel('logs')">
+        <span class="nav-icon">📋</span> Logs
+      </button>
+      <div class="nav-section">Outils</div>
+      <button class="nav-item" onclick="switchPanel('actions')">
+        <span class="nav-icon">⚡</span> Actions
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost" style="width:100%;font-size:0.78rem" onclick="logout()">
+        ↩ Déconnexion
+      </button>
     </div>
-    <div class="stats-grid" id="statsGrid">
-      <div style="color:#475569;font-size:0.82rem">Chargement…</div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="main-header">
+      <div>
+        <div class="page-title" id="pageTitle">Vue d'ensemble</div>
+        <div class="page-sub" id="pageSub">Données en temps réel</div>
+      </div>
+      <div class="range-tabs" id="globalRange">
+        <button class="range-tab active" onclick="setRange('7d',this)">7j</button>
+        <button class="range-tab" onclick="setRange('30d',this)">30j</button>
+        <button class="range-tab" onclick="setRange('all',this)">Tout</button>
+      </div>
     </div>
-    <h3 style="font-size:0.85rem;font-weight:700;color:#475569;margin-bottom:12px;text-transform:uppercase;letter-spacing:.1em">Paiements récents</h3>
-    <div id="statsPaymentsTable"></div>
-  </div>
+    <div class="main-content">
 
-  <!-- USERS -->
-  <div class="panel" id="panel-users">
-    <div class="form-row">
-      <input id="userSearch" placeholder="piUserId ou username…"/>
-      <button onclick="searchUser()">Rechercher</button>
-      <button class="ghost" onclick="loadUsers('all')">Tous</button>
-      <button class="ghost" onclick="loadUsers('premium')">Premium</button>
-      <button class="ghost" onclick="loadUsers('blocked')">Bloqués</button>
-    </div>
-    <div id="usersTable"></div>
-    <div class="result-box" id="userResult"></div>
-  </div>
-
-  <!-- PAIEMENTS -->
-  <div class="panel" id="panel-payments">
-    <div class="form-row">
-      <select id="payFilter" onchange="loadPayments()">
-        <option value="">Tous les statuts</option>
-        <option value="activated">Activés</option>
-        <option value="paid_not_activated">Non activés</option>
-        <option value="failed_permanently">Échec permanent</option>
-        <option value="refunded">Remboursés</option>
-      </select>
-      <button onclick="loadPayments()">Filtrer</button>
-      <button class="success" onclick="repairAll()">🔧 Réparer non-activés</button>
-    </div>
-    <div id="paymentsTable"></div>
-    <div class="result-box" id="payResult"></div>
-  </div>
-
-  <!-- LOGS -->
-  <div class="panel" id="panel-logs">
-    <div id="logsTable"></div>
-  </div>
-
-  <!-- ACTIONS -->
-  <div class="panel" id="panel-actions">
-    <h3 style="font-size:0.9rem;font-weight:700;margin-bottom:16px">Actions manuelles</h3>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-
-      <div style="background:#111827;border:1px solid #1e293b;border-radius:12px;padding:16px">
-        <div style="font-size:0.82rem;font-weight:700;margin-bottom:12px;color:#a78bfa">👤 Gestion User</div>
-        <div class="form-row"><input id="actUserId" placeholder="piUserId"/></div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <button onclick="userAction('block')">🔒 Bloquer</button>
-          <button class="success" onclick="userAction('unblock')">🔓 Débloquer</button>
-          <button class="success" onclick="userAction('premium_on')">⭐ Activer Premium (30j)</button>
-          <button class="danger" onclick="userAction('premium_off')">⭐ Désactiver Premium</button>
-          <button onclick="userAction('reset')">🗑 Reset stats</button>
-          <button onclick="userAction('test_premium')">🧪 Test Premium (1j)</button>
+      <!-- ── OVERVIEW ───────────────────────────────────────────────────── -->
+      <div class="panel active" id="panel-overview">
+        <div id="alertsZone"></div>
+        <div class="stats-grid" id="overviewGrid">
+          <!-- skeletons -->
+          <div class="stat-card"><div class="skeleton" style="height:32px;margin-bottom:8px"></div><div class="skeleton" style="height:12px;width:60%"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:32px;margin-bottom:8px"></div><div class="skeleton" style="height:12px;width:60%"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:32px;margin-bottom:8px"></div><div class="skeleton" style="height:12px;width:60%"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:32px;margin-bottom:8px"></div><div class="skeleton" style="height:12px;width:60%"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:32px;margin-bottom:8px"></div><div class="skeleton" style="height:12px;width:60%"></div></div>
+          <div class="stat-card"><div class="skeleton" style="height:32px;margin-bottom:8px"></div><div class="skeleton" style="height:12px;width:60%"></div></div>
         </div>
-        <div class="result-box" id="actResult"></div>
+        <div class="section-title">Logs récents</div>
+        <div class="table-wrap" id="overviewLogs">
+          <div class="empty"><div class="empty-icon">📋</div>Chargement…</div>
+        </div>
       </div>
 
-      <div style="background:#111827;border:1px solid #1e293b;border-radius:12px;padding:16px">
-        <div style="font-size:0.82rem;font-weight:700;margin-bottom:12px;color:#f59e0b">💰 Remboursement</div>
-        <div class="form-row"><input id="refPaymentId" placeholder="paymentId"/></div>
-        <div class="form-row"><input id="refUserId" placeholder="piUserId (optionnel)"/></div>
-        <div class="form-row"><input id="refReason" placeholder="Raison"/></div>
-        <button class="danger" onclick="logRefund()">Enregistrer remboursement</button>
-        <div style="font-size:0.72rem;color:#475569;margin-top:8px">⚠ Pi Network n'a pas d'API de remboursement — opération manuelle uniquement.</div>
-        <div class="result-box" id="refResult"></div>
+      <!-- ── SUBSCRIPTIONS ──────────────────────────────────────────────── -->
+      <div class="panel" id="panel-subscriptions">
+        <div class="stats-grid" id="subGrid"></div>
+        <div class="section-title">Répartition des plans</div>
+        <div class="stats-grid" id="subPlanGrid" style="grid-template-columns:repeat(3,1fr)"></div>
       </div>
+
+      <!-- ── REVENUE ────────────────────────────────────────────────────── -->
+      <div class="panel" id="panel-revenue">
+        <div class="section-title">Période sélectionnée</div>
+        <div class="revenue-split" id="revPeriod"></div>
+        <div class="section-title">Tout temps</div>
+        <div class="revenue-split" id="revAllTime"></div>
+        <div class="section-title">Métriques</div>
+        <div class="stats-grid" id="revMetrics" style="grid-template-columns:repeat(3,1fr)"></div>
+      </div>
+
+      <!-- ── USERS ──────────────────────────────────────────────────────── -->
+      <div class="panel" id="panel-users">
+        <div class="toolbar">
+          <input id="userSearch" class="input" placeholder="piUserId ou username…" onkeydown="if(event.key==='Enter')searchUser()"/>
+          <button class="btn btn-primary btn-sm" onclick="searchUser()">Rechercher</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadUsers('all')">Tous</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadUsers('premium')">⭐ Premium</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadUsers('blocked')">🔒 Bloqués</button>
+        </div>
+        <div class="table-wrap" id="usersTable">
+          <div class="empty"><div class="empty-icon">👥</div>Lance une recherche ou charge la liste</div>
+        </div>
+      </div>
+
+      <!-- ── PAYMENTS ───────────────────────────────────────────────────── -->
+      <div class="panel" id="panel-payments">
+        <div class="toolbar">
+          <select id="payFilter" onchange="loadPayments()">
+            <option value="">Tous les statuts</option>
+            <option value="activated">Activés</option>
+            <option value="paid_not_activated">Non activés ⚠</option>
+            <option value="failed_permanently">Échec permanent</option>
+            <option value="refunded">Remboursés</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" onclick="loadPayments()">Filtrer</button>
+          <button class="btn btn-success btn-sm" onclick="repairAll()">🔧 Réparer tous</button>
+        </div>
+        <div class="table-wrap" id="paymentsTable">
+          <div class="empty"><div class="empty-icon">💳</div>Chargement…</div>
+        </div>
+        <div class="result-box" id="payResult"></div>
+      </div>
+
+      <!-- ── LOGS ───────────────────────────────────────────────────────── -->
+      <div class="panel" id="panel-logs">
+        <div class="toolbar">
+          <select id="logTypeFilter" onchange="filterLogs()">
+            <option value="">Tous les types</option>
+            <option value="admin_action">Actions admin</option>
+            <option value="error">Erreurs</option>
+          </select>
+        </div>
+        <div class="table-wrap" id="logsTable">
+          <div class="empty"><div class="empty-icon">📋</div>Chargement…</div>
+        </div>
+      </div>
+
+      <!-- ── ACTIONS ────────────────────────────────────────────────────── -->
+      <div class="panel" id="panel-actions">
+        <div class="action-grid">
+          <div class="action-card">
+            <div class="action-card-title purple">👤 Gestion Utilisateur</div>
+            <div class="form-row" style="margin-bottom:12px">
+              <input id="actUserId" class="input" placeholder="piUserId" style="margin-bottom:0"/>
+            </div>
+            <div class="action-btns">
+              <button class="btn btn-danger" onclick="confirmAction('block',   'Bloquer cet utilisateur ?',    'Il perdra accès Premium. Cette action est loggée.', '🔒')">🔒 Bloquer</button>
+              <button class="btn btn-success" onclick="confirmAction('unblock', 'Débloquer cet utilisateur ?', 'L\'utilisateur retrouvera un accès normal.', '🔓')">🔓 Débloquer</button>
+              <button class="btn btn-ghost" onclick="confirmAction('premium_on','Activer Premium 30j ?','Un abonnement mensuel sera créé manuellement.','⭐')">⭐ Activer Premium (30j)</button>
+              <button class="btn btn-warning" onclick="confirmAction('premium_off','Désactiver Premium ?','L\'utilisateur reviendra en mode gratuit immédiatement.','⚠')">⚠ Désactiver Premium</button>
+              <button class="btn btn-ghost" onclick="confirmAction('reset','Reset les stats ?','Efface watchStatus et history au prochain chargement.','🗑')">🗑 Reset stats</button>
+              <button class="btn btn-ghost" onclick="confirmAction('test_premium','Activer mode test Premium 1j ?','Pour tester l\'interface Premium. Non facturable.','🧪')">🧪 Test Premium (1j)</button>
+            </div>
+            <div class="result-box" id="actResult"></div>
+          </div>
+
+          <div class="action-card">
+            <div class="action-card-title yellow">💰 Remboursement manuel</div>
+            <p style="font-size:0.76rem;color:var(--muted);margin-bottom:14px;line-height:1.5">
+              Pi Network n'a pas d'API de remboursement.<br>Cette action log le remboursement et désactive le Premium associé.
+            </p>
+            <input id="refPaymentId" class="input" placeholder="paymentId (obligatoire)"/>
+            <input id="refUserId"    class="input" placeholder="piUserId (optionnel)"/>
+            <input id="refReason"    class="input" placeholder="Raison du remboursement"/>
+            <button class="btn btn-danger" style="width:100%" onclick="confirmRefund()">Enregistrer remboursement</button>
+            <div class="result-box" id="refResult"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+  </main>
+</div>
+
+<!-- ── User Drawer ─────────────────────────────────────────────────────── -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="userDrawer">
+  <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  <div id="drawerContent"></div>
+</div>
+
+<!-- ── Confirm Modal ───────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-icon" id="modalIcon"></div>
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-msg" id="modalMsg"></div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-danger" id="modalConfirmBtn">Confirmer</button>
     </div>
   </div>
 </div>
 
+<!-- ── Toasts ──────────────────────────────────────────────────────────── -->
+<div class="toast-wrap" id="toastWrap"></div>
+
 <script>
+/* ═══════════════════════════════════════════════════════════════════
+   VoirAnime Admin — v2
+   - Auth via Authorization: Bearer header
+   - Données business fiables (abonnés actifs, churn, revenus séparés)
+   - UX : drawer user, confirm modal, toasts, responsive
+═══════════════════════════════════════════════════════════════════ */
+
 const BASE = 'https://voir-anime.vercel.app';
 let SECRET = '';
 let currentRange = '7d';
-let statsData = null;
+let statsCache   = null;
+let allLogs      = [];
 
-// ── Auth ──────────────────────────────────────────────────────────────────────
+/* ── Auth ─────────────────────────────────────────────────────────────── */
 async function login() {
   const s = document.getElementById('secretInput').value.trim();
   if (!s) return;
-  // Test rapide avec un appel stats
-  const r = await api('admin-stats', null, 'GET', `?secret=${encodeURIComponent(s)}&range=7d`);
+  document.getElementById('loginError').textContent = '';
+  const r = await api('admin-stats', null, 'GET', `?range=7d`);
   if (r.ok) {
     SECRET = s;
+    sessionStorage.setItem('va_admin_secret', s);
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    statsData = r;
-    renderStats(r);
+    statsCache = r;
+    renderAll(r);
     loadPayments();
   } else {
-    document.getElementById('loginError').textContent = 'Secret incorrect ou erreur serveur.';
+    document.getElementById('loginError').textContent =
+      r.error === 'Unauthorized' ? 'Secret incorrect.' : 'Erreur serveur — vérifiez les logs Vercel.';
   }
 }
+
 function logout() {
-  SECRET = ''; location.reload();
+  SECRET = '';
+  sessionStorage.removeItem('va_admin_secret');
+  location.reload();
 }
 
-// ── API helper ────────────────────────────────────────────────────────────────
+// Auto-restore session
+window.addEventListener('DOMContentLoaded', async () => {
+  const saved = sessionStorage.getItem('va_admin_secret');
+  if (saved) {
+    SECRET = saved;
+    const r = await api('admin-stats', null, 'GET', `?range=7d`);
+    if (r.ok) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      statsCache = r;
+      renderAll(r);
+      loadPayments();
+    } else {
+      SECRET = '';
+      sessionStorage.removeItem('va_admin_secret');
+    }
+  }
+});
+
+/* ── API ──────────────────────────────────────────────────────────────── */
 async function api(endpoint, body, method = 'POST', qs = '') {
   try {
+    const headers = {
+      'Authorization': `Bearer ${SECRET}`,
+      'Content-Type':  'application/json',
+    };
     const opts = method === 'GET'
-      ? { method: 'GET' }
-      : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ secret: SECRET, ...body }) };
+      ? { method: 'GET', headers }
+      : { method: 'POST', headers, body: JSON.stringify(body || {}) };
     const r = await fetch(`${BASE}/api/${endpoint}${qs}`, opts);
     return r.json();
   } catch(e) { return { error: e.message }; }
 }
 
-// ── Tabs ─────────────────────────────────────────────────────────────────────
-function switchTab(id) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', t.textContent.includes(
-    {stats:'Stats',users:'Users',payments:'Paiements',logs:'Logs',actions:'Actions'}[id]
-  )));
+/* ── Navigation ───────────────────────────────────────────────────────── */
+const PAGE_TITLES = {
+  overview:      ['Vue d\'ensemble', 'Données en temps réel'],
+  subscriptions: ['Abonnements',     'Actifs, churn, upgrades'],
+  revenue:       ['Revenus',         'Abonnements vs dons en Pi'],
+  users:         ['Utilisateurs',    'Recherche et gestion'],
+  payments:      ['Paiements',       'Historique et réparation'],
+  logs:          ['Logs',            'Actions admin et erreurs'],
+  actions:       ['Actions manuelles','Opérations directes'],
+};
+
+function switchPanel(id) {
+  document.querySelectorAll('.nav-item').forEach(el =>
+    el.classList.toggle('active', el.textContent.trim().toLowerCase().includes(
+      { overview:'ensemble', subscriptions:'abonnement', revenue:'revenu',
+        users:'utilisateur', payments:'paiement', logs:'log', actions:'action' }[id]
+    ))
+  );
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-'+id).classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+  const [title, sub] = PAGE_TITLES[id] || ['', ''];
+  document.getElementById('pageTitle').textContent = title;
+  document.getElementById('pageSub').textContent   = sub;
+
+  // Chargements à la demande
   if (id === 'users')    loadUsers('all');
-  if (id === 'logs')     loadLogs();
+  if (id === 'payments') loadPayments();
+  if (id === 'logs')     renderLogsTable(allLogs);
+
+  // Mobile : fermer sidebar
+  if (window.innerWidth <= 768) toggleSidebar(false);
 }
 
-// ── Range ────────────────────────────────────────────────────────────────────
+function toggleSidebar(force) {
+  const sidebar  = document.getElementById('sidebar');
+  const overlay  = document.getElementById('sidebarOverlay');
+  const open     = force !== undefined ? force : !sidebar.classList.contains('open');
+  sidebar.classList.toggle('open', open);
+  overlay.classList.toggle('open', open);
+}
+
+/* ── Range ─────────────────────────────────────────────────────────────── */
 async function setRange(range, btn) {
-  document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.range-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   currentRange = range;
-  const r = await api('admin-stats', null, 'GET', `?secret=${encodeURIComponent(SECRET)}&range=${range}`);
-  if (r.ok) renderStats(r);
+  const r = await api('admin-stats', null, 'GET', `?range=${range}`);
+  if (r.ok) { statsCache = r; renderAll(r); }
 }
 
-// ── Stats ─────────────────────────────────────────────────────────────────────
-function renderStats(d) {
-  const g = document.getElementById('statsGrid');
+/* ── Render all panels ────────────────────────────────────────────────── */
+function renderAll(d) {
+  renderOverview(d);
+  renderSubscriptions(d);
+  renderRevenue(d);
+  allLogs = d.logs?.recent || [];
+
+  // Badge réparation
+  const badge = document.getElementById('repairBadge');
+  if (d.payments?.needsRepair > 0) {
+    badge.textContent = d.payments.needsRepair;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+
+  // Alertes
+  renderAlerts(d);
+}
+
+/* ── Overview ─────────────────────────────────────────────────────────── */
+function renderOverview(d) {
+  const g = document.getElementById('overviewGrid');
   g.innerHTML = [
-    card('👥 Total users',   d.users.total,          d.users.newInRange + ' nouveaux'),
-    card('⭐ Premium',       d.users.premium,         'Conversion : ' + d.users.conversionRate),
-    card('🔒 Bloqués',       d.users.blocked,         ''),
-    card('💰 Revenus',       d.business.revenue,      'ARPU : ' + d.business.arpu),
-    card('📦 Mensuel',       d.business.monthly,      ''),
-    card('📦 Annuel',        d.business.annual,       '2 mois offerts'),
-    card('✅ Paiements OK',  d.payments.activated,    'Taux : ' + d.payments.successRate),
-    card('⚠ Non activés',   d.payments.failedActivation, 'À réparer'),
-    card('❌ Échec perm.',   d.payments.permanentFail,'Manuel requis'),
-    card('👁 Vues totales',  d.engagement.totalViews, ''),
-    card('🖱 Clics',         d.engagement.totalClicks,''),
-    card('🐛 Erreurs logs',  d.logs.errors,           d.logs.adminActions + ' actions admin'),
+    card('👥 Utilisateurs',    d.users.total,                    d.users.newInRange + ' nouveaux'),
+    card('⭐ Premium actifs',  d.subscriptions.activeTotal,      'Taux : ' + d.users.conversionRate, 'green'),
+    card('📉 Churn',           d.users.churnedTotal,             'Taux : ' + d.users.churnRate, 'red'),
+    card('💳 Paiements OK',    d.payments.activatedInRange,      'Taux : ' + d.payments.successRate),
+    card('⚠ À réparer',       d.payments.needsRepair,           'Paiements bloqués', d.payments.needsRepair > 0 ? 'yellow' : ''),
+    card('π Revenus période',  d.revenue.periodTotal,            'Abonnements + dons', 'pi'),
   ].join('');
 
-  // Logs récents dans stats
-  const tbl = document.getElementById('statsPaymentsTable');
-  tbl.innerHTML = d.logs.recent.length
-    ? '<table><tr><th>Type</th><th>Action</th><th>Date</th></tr>'
-      + d.logs.recent.map(l => `<tr><td>${l.type||'—'}</td><td>${l.action||l.message||'—'}</td><td>${fmtDate(l.timestamp)}</td></tr>`).join('')
-      + '</table>'
-    : '<div style="color:#475569;font-size:0.82rem">Aucun log récent.</div>';
-}
-function card(lbl, val, sub) {
-  return `<div class="stat-card"><div class="val">${val??'—'}</div><div class="lbl">${lbl}</div><div class="sub">${sub}</div></div>`;
+  // Logs
+  renderLogsTable(d.logs?.recent || [], 'overviewLogs', 8);
 }
 
-// ── Users ─────────────────────────────────────────────────────────────────────
+/* ── Subscriptions ─────────────────────────────────────────────────────── */
+function renderSubscriptions(d) {
+  const s = d.subscriptions;
+  document.getElementById('subGrid').innerHTML = [
+    card('⭐ Actifs total',    s.activeTotal,    s.newInRange + ' nouveaux', 'green'),
+    card('📅 Mensuel actifs',  s.activeMonthly,  'plan mensuel'),
+    card('📆 Annuel actifs',   s.activeAnnual,   'plan annuel'),
+    card('📉 Churn total',     d.users.churnedTotal, d.users.churnRate, 'red'),
+    card('⬆ Upgrades',        s.upgrades,       'mensuel → annuel', 'cyan'),
+    card('⬇ Downgrades',      s.downgrades,     'annuel → mensuel', 'yellow'),
+  ].join('');
+
+  document.getElementById('subPlanGrid').innerHTML = [
+    card('📦 Tx mensuels',  d.revenue.monthlyTxTotal, 'transactions activées'),
+    card('📦 Tx annuels',   d.revenue.annualTxTotal,  'transactions activées'),
+    card('🎁 Dons',         d.revenue.donsTxTotal,    'donations'),
+  ].join('');
+}
+
+/* ── Revenue ───────────────────────────────────────────────────────────── */
+function renderRevenue(d) {
+  const r = d.revenue;
+  document.getElementById('revPeriod').innerHTML = `
+    <div class="rev-card">
+      <div class="rev-label">Abonnements</div>
+      <div class="rev-main">${r.periodSubscriptions}</div>
+      <div class="rev-sub">sur la période sélectionnée</div>
+    </div>
+    <div class="rev-card">
+      <div class="rev-label">Dons</div>
+      <div class="rev-main">${r.periodDonations}</div>
+      <div class="rev-sub">sur la période sélectionnée</div>
+    </div>
+  `;
+  document.getElementById('revAllTime').innerHTML = `
+    <div class="rev-card">
+      <div class="rev-label">Abonnements (tout temps)</div>
+      <div class="rev-main">${r.allTimeSubscriptions}</div>
+      <div class="rev-sub">${r.monthlyTxTotal} mensuel · ${r.annualTxTotal} annuel</div>
+    </div>
+    <div class="rev-card">
+      <div class="rev-label">Dons (tout temps)</div>
+      <div class="rev-main">${r.allTimeDonations}</div>
+      <div class="rev-sub">${r.donsTxTotal} donations</div>
+    </div>
+  `;
+  document.getElementById('revMetrics').innerHTML = [
+    card('π Total all-time', r.allTimeTotal,  'abonnements + dons', 'pi'),
+    card('π ARPU',           r.arpu,          'par abonné premium actif', 'pi'),
+    card('✅ Taux succès',   d.payments.successRate, 'paiements activés'),
+  ].join('');
+}
+
+/* ── Alerts ─────────────────────────────────────────────────────────────── */
+function renderAlerts(d) {
+  const zone = document.getElementById('alertsZone');
+  zone.innerHTML = '';
+  if (d.payments.needsRepair > 0) {
+    zone.innerHTML += `<div class="alert-banner">
+      ⚠ ${d.payments.needsRepair} paiement(s) non activé(s) — 
+      <button class="btn btn-ghost btn-sm" style="margin-left:8px" onclick="switchPanel('payments');document.getElementById('payFilter').value='paid_not_activated';loadPayments()">
+        Voir &amp; réparer
+      </button>
+    </div>`;
+  }
+  if (d.users.churnedTotal > 0 && currentRange !== 'all') {
+    zone.innerHTML += `<div class="alert-banner" style="background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.25);color:var(--yellow)">
+      📉 ${d.users.churnedTotal} utilisateur(s) churné(s) · Taux : ${d.users.churnRate}
+    </div>`;
+  }
+}
+
+/* ── Helpers stat card ────────────────────────────────────────────────── */
+function card(lbl, val, sub, colorClass = '') {
+  return `<div class="stat-card">
+    <div class="val ${colorClass}">${val ?? '—'}</div>
+    <div class="lbl">${lbl}</div>
+    ${sub ? `<div class="sub">${sub}</div>` : ''}
+  </div>`;
+}
+
+/* ── Users ─────────────────────────────────────────────────────────────── */
 async function loadUsers(filter) {
+  document.getElementById('usersTable').innerHTML = '<div class="empty">Chargement…</div>';
   const body = filter === 'premium' ? { action:'user_list', onlyPremium:true }
              : filter === 'blocked' ? { action:'user_list', onlyBlocked:true }
              : { action:'user_list' };
   const r = await api('admin', body);
   renderUsers(r.result || []);
 }
+
 async function searchUser() {
   const q = document.getElementById('userSearch').value.trim();
   if (!q) return;
   const r = await api('admin', { action:'user_get', piUserId: q });
-  show('userResult', r);
-  if (r.result?.user) renderUsers([{ id: q, ...r.result.user }]);
+  if (r.result?.user) {
+    renderUsers([{ id: q, ...r.result.user }]);
+    openDrawer(q, r.result.user, r.result.payments || []);
+  } else {
+    toast('Utilisateur non trouvé', 'error');
+  }
 }
+
 function renderUsers(list) {
   const t = document.getElementById('usersTable');
-  if (!list.length) { t.innerHTML = '<div style="color:#475569;font-size:0.82rem;padding:16px">Aucun résultat.</div>'; return; }
-  t.innerHTML = '<table><tr><th>piUserId</th><th>Username</th><th>Statut</th><th>Plan</th><th>Expiration</th><th>Actions</th></tr>'
-    + list.map(u => `<tr>
-      <td style="font-size:0.72rem;color:#7c4dff">${u.id||'—'}</td>
+  if (!list.length) {
+    t.innerHTML = '<div class="empty"><div class="empty-icon">👥</div>Aucun résultat.</div>';
+    return;
+  }
+  t.innerHTML = `<table>
+    <tr>
+      <th>piUserId</th><th>Username</th><th>Statut</th>
+      <th>Plan</th><th>Expiration</th><th>Actions</th>
+    </tr>
+    ${list.map(u => `<tr>
+      <td style="font-family:var(--font-mono);font-size:0.7rem;color:var(--accent2)">${u.id||'—'}</td>
       <td>${u.piUsername||'—'}</td>
       <td>${u.blocked ? badge('Bloqué','red') : u.isPremium ? badge('Premium','green') : badge('Gratuit','gray')}</td>
-      <td>${u.plan||'—'}</td>
-      <td>${u.expiresAt ? fmtDate(u.expiresAt) : '—'}</td>
-      <td style="display:flex;gap:4px">
-        <button class="ghost" style="padding:4px 8px;font-size:0.72rem" onclick="quickAction('user_block','${u.id}')">Bloquer</button>
-        <button class="ghost" style="padding:4px 8px;font-size:0.72rem" onclick="quickAction('user_premium_set','${u.id}',true)">+Premium</button>
+      <td>${u.plan ? badge(u.plan, u.plan==='annual'?'cyan':'purple') : '—'}</td>
+      <td style="font-size:0.75rem">${fmtDate(u.expiresAt)}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="viewUser('${u.id}')">Détails</button>
       </td>
-    </tr>`).join('') + '</table>';
+    </tr>`).join('')}
+  </table>`;
 }
 
-// ── Payments ──────────────────────────────────────────────────────────────────
+async function viewUser(piUserId) {
+  const r = await api('admin', { action:'user_get', piUserId });
+  if (r.result) openDrawer(piUserId, r.result.user, r.result.payments || []);
+  else toast('Erreur chargement user', 'error');
+}
+
+/* ── User Drawer ──────────────────────────────────────────────────────── */
+function openDrawer(piUserId, user, payments) {
+  const now = Date.now();
+  const exp = user.expiresAt?.seconds ? user.expiresAt.seconds * 1000 : (user.expiresAt || 0);
+  const isExpired = exp > 0 && exp < now;
+
+  document.getElementById('drawerContent').innerHTML = `
+    <h2 style="font-family:var(--font-head);font-size:1rem;font-weight:800;margin-bottom:4px">
+      ${user.piUsername || 'Utilisateur inconnu'}
+    </h2>
+    <div class="drawer-uid">${piUserId}</div>
+    ${user.blocked ? badge('Bloqué','red') : user.isPremium ? badge('Premium actif','green') : badge('Gratuit','gray')}
+    ${isExpired ? badge('Expiré','red') : ''}
+
+    <div class="drawer-section">
+      <div class="drawer-section-title">Abonnement</div>
+      <div class="drawer-row"><span class="k">Plan</span><span class="v">${user.plan || '—'}</span></div>
+      <div class="drawer-row"><span class="k">Expiration</span><span class="v">${fmtDate(user.expiresAt)}</span></div>
+      <div class="drawer-row"><span class="k">Activé le</span><span class="v">${fmtDate(user.activatedAt)}</span></div>
+      <div class="drawer-row"><span class="k">Churné le</span><span class="v">${fmtDate(user.churnedAt)}</span></div>
+    </div>
+
+    <div class="drawer-section">
+      <div class="drawer-section-title">Compte</div>
+      <div class="drawer-row"><span class="k">Créé le</span><span class="v">${fmtDate(user.createdAt)}</span></div>
+      <div class="drawer-row"><span class="k">Bloqué</span><span class="v">${user.blocked ? '✅ Oui' : 'Non'}</span></div>
+      <div class="drawer-row"><span class="k">Mode test</span><span class="v">${user.testMode ? '⚠ Oui' : 'Non'}</span></div>
+    </div>
+
+    <div class="drawer-section">
+      <div class="drawer-section-title">Paiements récents</div>
+      ${payments.length ? `<div class="table-wrap" style="margin-top:8px">
+        <table style="min-width:unset">
+          <tr><th>Plan</th><th>Statut</th><th>Date</th></tr>
+          ${payments.map(tx => `<tr>
+            <td>${tx.plan||'don'}</td>
+            <td>${statusBadge(tx.status)}</td>
+            <td style="font-size:0.7rem">${fmtDate(tx.createdAt)}</td>
+          </tr>`).join('')}
+        </table>
+      </div>` : '<div style="color:var(--muted);font-size:0.78rem">Aucun paiement.</div>'}
+    </div>
+
+    <div class="drawer-section">
+      <div class="drawer-section-title">Actions rapides</div>
+      <div class="drawer-actions">
+        <button class="btn btn-sm ${user.blocked ? 'btn-success' : 'btn-danger'}"
+          onclick="drawerAction('${piUserId}', '${user.blocked ? 'unblock' : 'block'}')">
+          ${user.blocked ? '🔓 Débloquer' : '🔒 Bloquer'}
+        </button>
+        <button class="btn btn-sm btn-ghost"
+          onclick="drawerAction('${piUserId}', '${user.isPremium ? 'premium_off' : 'premium_on'}')">
+          ${user.isPremium ? '⚠ Désactiver Premium' : '⭐ Activer Premium'}
+        </button>
+        <button class="btn btn-sm btn-ghost"
+          onclick="drawerAction('${piUserId}', 'test_premium')">
+          🧪 Test Premium
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.getElementById('userDrawer').classList.add('open');
+}
+
+async function drawerAction(piUserId, type) {
+  let action, extra = {};
+  if (type === 'block')       action = 'user_block';
+  else if (type === 'unblock')action = 'user_unblock';
+  else if (type === 'premium_on')  { action = 'user_premium_set'; extra = { enable:true }; }
+  else if (type === 'premium_off') { action = 'user_premium_set'; extra = { enable:false }; }
+  else if (type === 'test_premium') action = 'test_premium';
+  const r = await api('admin', { action, piUserId, ...extra });
+  toast(r.ok ? '✅ Action effectuée' : '❌ ' + (r.error || 'Erreur'), r.ok ? 'success' : 'error');
+  if (r.ok) viewUser(piUserId);
+}
+
+function closeDrawer() {
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.getElementById('userDrawer').classList.remove('open');
+}
+
+/* ── Payments ─────────────────────────────────────────────────────────── */
 async function loadPayments() {
   const status = document.getElementById('payFilter')?.value || '';
-  const r = await api('admin', { action:'payment_list', status: status||undefined });
+  document.getElementById('paymentsTable').innerHTML = '<div class="empty">Chargement…</div>';
+  const r = await api('admin', { action:'payment_list', status: status || undefined });
   const list = r.result || [];
   const t = document.getElementById('paymentsTable');
-  if (!list.length) { t.innerHTML = '<div style="color:#475569;font-size:0.82rem;padding:16px">Aucun paiement.</div>'; return; }
-  t.innerHTML = '<table><tr><th>paymentId</th><th>piUserId</th><th>Plan</th><th>Statut</th><th>Tentatives</th><th>Date</th><th></th></tr>'
-    + list.map(tx => `<tr>
-      <td style="font-size:0.7rem;color:#7c4dff">${tx.id}</td>
+  if (!list.length) {
+    t.innerHTML = '<div class="empty"><div class="empty-icon">💳</div>Aucun paiement.</div>';
+    return;
+  }
+  t.innerHTML = `<table>
+    <tr><th>paymentId</th><th>piUserId</th><th>Plan</th><th>Statut</th><th>Tentatives</th><th>Date</th><th></th></tr>
+    ${list.map(tx => `<tr>
+      <td style="font-family:var(--font-mono);font-size:0.68rem;color:var(--accent2)">${tx.id}</td>
       <td style="font-size:0.72rem">${tx.piUserId||'—'}</td>
-      <td>${tx.plan||'don'}</td>
+      <td>${tx.plan ? badge(tx.plan,'purple') : badge('don','yellow')}</td>
       <td>${statusBadge(tx.status)}</td>
       <td>${tx.attempts||0}</td>
-      <td>${fmtDate(tx.createdAt)}</td>
-      <td>${tx.status==='paid_not_activated'
-        ? `<button class="ghost" style="padding:4px 8px;font-size:0.72rem" onclick="repairOne('${tx.id}')">Réparer</button>`
-        : ''}</td>
-    </tr>`).join('') + '</table>';
+      <td style="font-size:0.72rem">${fmtDate(tx.createdAt)}</td>
+      <td>
+        ${tx.status==='paid_not_activated'
+          ? `<button class="btn btn-success btn-sm" onclick="repairOne('${tx.id}')">Réparer</button>`
+          : ''}
+      </td>
+    </tr>`).join('')}
+  </table>`;
 }
+
 async function repairAll() {
   const r = await api('admin', { action:'payment_repair' });
-  show('payResult', r);
+  showResult('payResult', r);
+  toast(r.ok ? '✅ Réparation lancée' : '❌ Erreur réparation', r.ok ? 'success' : 'error');
   loadPayments();
 }
+
 async function repairOne(paymentId) {
   const r = await api('admin', { action:'payment_repair', paymentId });
-  show('payResult', r);
+  showResult('payResult', r);
+  toast(r.ok ? '✅ Réparé' : '❌ ' + (r.error||'Erreur'), r.ok ? 'success' : 'error');
   loadPayments();
 }
 
-// ── Logs ──────────────────────────────────────────────────────────────────────
-async function loadLogs() {
-  const r = await api('admin-stats', null, 'GET', `?secret=${encodeURIComponent(SECRET)}&range=${currentRange}`);
-  const logs = r.logs?.recent || [];
-  document.getElementById('logsTable').innerHTML = logs.length
-    ? '<table><tr><th>Type</th><th>Action / Message</th><th>Params</th><th>Date</th></tr>'
-      + logs.map(l => `<tr>
-        <td>${l.type||'—'}</td>
-        <td>${l.action||l.message||'—'}</td>
-        <td style="font-size:0.7rem;color:#475569;max-width:200px;overflow:hidden;text-overflow:ellipsis">${l.params||''}</td>
-        <td>${fmtDate(l.timestamp)}</td>
-      </tr>`).join('') + '</table>'
-    : '<div style="color:#475569;padding:16px;font-size:0.82rem">Aucun log.</div>';
+/* ── Logs ──────────────────────────────────────────────────────────────── */
+function renderLogsTable(logs, containerId = 'logsTable', maxRows = 50) {
+  const t = document.getElementById(containerId);
+  if (!logs.length) {
+    t.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>Aucun log.</div>';
+    return;
+  }
+  const rows = logs.slice(0, maxRows);
+  t.innerHTML = `<table>
+    <tr><th>Type</th><th>Action / Message</th><th>Params</th><th>Date</th></tr>
+    ${rows.map(l => `<tr>
+      <td>${l.type === 'error' ? badge('erreur','red') : badge(l.type||'info','gray')}</td>
+      <td>${l.action || l.message || '—'}</td>
+      <td style="font-size:0.68rem;color:var(--muted2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        ${l.params||''}
+      </td>
+      <td style="font-size:0.72rem">${fmtDate(l.timestamp)}</td>
+    </tr>`).join('')}
+  </table>`;
 }
 
-// ── Actions ───────────────────────────────────────────────────────────────────
-async function userAction(type) {
+function filterLogs() {
+  const type = document.getElementById('logTypeFilter').value;
+  const filtered = type ? allLogs.filter(l => l.type === type) : allLogs;
+  renderLogsTable(filtered);
+}
+
+/* ── Actions ───────────────────────────────────────────────────────────── */
+let pendingAction = null;
+
+function confirmAction(type, title, msg, icon) {
   const uid = document.getElementById('actUserId').value.trim();
-  if (!uid) { alert('Saisis un piUserId'); return; }
+  if (!uid) { toast('Saisis un piUserId', 'error'); return; }
+  pendingAction = { type, uid };
+  document.getElementById('modalIcon').textContent  = icon;
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalMsg').textContent   = msg;
+  document.getElementById('confirmModal').classList.add('open');
+  document.getElementById('modalConfirmBtn').onclick = executeAction;
+}
+
+async function executeAction() {
+  closeModal();
+  if (!pendingAction) return;
+  const { type, uid } = pendingAction;
   let r;
-  if (type === 'block')       r = await api('admin', { action:'user_block', piUserId:uid });
-  else if (type === 'unblock')r = await api('admin', { action:'user_unblock', piUserId:uid });
-  else if (type === 'premium_on') r = await api('admin', { action:'user_premium_set', piUserId:uid, enable:true });
-  else if (type === 'premium_off')r = await api('admin', { action:'user_premium_set', piUserId:uid, enable:false });
-  else if (type === 'reset')  r = await api('admin', { action:'user_reset_stats', piUserId:uid });
+  if (type === 'block')        r = await api('admin', { action:'user_block',       piUserId:uid });
+  else if (type === 'unblock') r = await api('admin', { action:'user_unblock',     piUserId:uid });
+  else if (type === 'premium_on')  r = await api('admin', { action:'user_premium_set', piUserId:uid, enable:true });
+  else if (type === 'premium_off') r = await api('admin', { action:'user_premium_set', piUserId:uid, enable:false });
+  else if (type === 'reset')   r = await api('admin', { action:'user_reset_stats', piUserId:uid });
   else if (type === 'test_premium') r = await api('admin', { action:'test_premium', piUserId:uid });
-  show('actResult', r);
+  showResult('actResult', r);
+  toast(r.ok ? '✅ Action effectuée' : '❌ ' + (r.error||'Erreur'), r.ok ? 'success' : 'error');
+  pendingAction = null;
 }
-async function quickAction(action, piUserId, enable) {
-  const r = await api('admin', { action, piUserId, enable });
-  alert(r.ok ? '✅ OK' : '❌ ' + (r.error||'Erreur'));
-  loadUsers('all');
+
+function confirmRefund() {
+  const payId = document.getElementById('refPaymentId').value.trim();
+  if (!payId) { toast('paymentId obligatoire', 'error'); return; }
+  document.getElementById('modalIcon').textContent  = '⚠';
+  document.getElementById('modalTitle').textContent = 'Enregistrer remboursement ?';
+  document.getElementById('modalMsg').textContent   = 'Le Premium associé sera désactivé. Cette action est irréversible.';
+  document.getElementById('confirmModal').classList.add('open');
+  document.getElementById('modalConfirmBtn').onclick = executeRefund;
 }
-async function logRefund() {
+
+async function executeRefund() {
+  closeModal();
   const r = await api('admin', {
-    action:'payment_refund_log',
+    action:    'payment_refund_log',
     paymentId: document.getElementById('refPaymentId').value.trim(),
-    piUserId:  document.getElementById('refUserId').value.trim() || undefined,
+    piUserId:  document.getElementById('refUserId').value.trim()   || undefined,
     reason:    document.getElementById('refReason').value.trim(),
   });
-  show('refResult', r);
+  showResult('refResult', r);
+  toast(r.ok ? '✅ Remboursement enregistré' : '❌ ' + (r.error||'Erreur'), r.ok ? 'success' : 'error');
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function show(id, data) {
+function closeModal() {
+  document.getElementById('confirmModal').classList.remove('open');
+}
+
+/* ── Helpers ───────────────────────────────────────────────────────────── */
+function showResult(id, data) {
   const el = document.getElementById(id);
   if (!el) return;
-  el.style.display = 'block';
+  el.classList.add('visible');
   el.textContent = JSON.stringify(data, null, 2);
 }
-function badge(t, c) { return `<span class="badge ${c}">${t}</span>`; }
+
+function badge(t, c) {
+  return `<span class="badge ${c}">${t}</span>`;
+}
+
 function statusBadge(s) {
-  const m = {activated:'green',pi_completed:'yellow',paid_not_activated:'red',failed_permanently:'red',pending:'gray',refunded:'yellow'};
+  const m = {
+    activated:           'green',
+    pi_completed:        'cyan',
+    paid_not_activated:  'red',
+    failed_permanently:  'red',
+    pending:             'gray',
+    refunded:            'yellow',
+  };
   return badge(s||'—', m[s]||'gray');
 }
+
 function fmtDate(v) {
   if (!v) return '—';
-  const ms = v?.seconds ? v.seconds*1000 : (typeof v === 'number' ? v : Date.parse(v));
-  if (!ms) return '—';
-  return new Date(ms).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' });
+  const ms = v?.seconds ? v.seconds * 1000
+           : typeof v === 'number' ? v
+           : Date.parse(v);
+  if (!ms || isNaN(ms)) return '—';
+  return new Date(ms).toLocaleDateString('fr-FR', {
+    day:'2-digit', month:'2-digit', year:'2-digit',
+    hour:'2-digit', minute:'2-digit',
+  });
+}
+
+/* ── Toast ─────────────────────────────────────────────────────────────── */
+function toast(msg, type = 'info') {
+  const wrap = document.getElementById('toastWrap');
+  const el   = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transition = 'opacity 0.3s';
+    setTimeout(() => el.remove(), 300);
+  }, 3000);
 }
 </script>
 </body>
