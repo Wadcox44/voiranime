@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VoirAnime — Progression anime</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    .nav-logo{text-decoration:none;display:inline-flex;align-items:center}
+    .logo-glitch{display:inline-block;font-family:'Outfit',sans-serif;font-size:1.45rem;font-weight:900;letter-spacing:-.5px;transform:skewX(-6deg);position:relative;user-select:none}
+    .logo-glitch::before,.logo-glitch::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%;font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:inherit;opacity:0;pointer-events:none}
+    .logo-glitch::before{color:#22d3ee;clip-path:polygon(0 15%,100% 15%,100% 45%,0 45%);animation:va-gr-auto 5s steps(2) infinite;opacity:1}
+    .logo-glitch::after{color:#a78bfa;clip-path:polygon(0 55%,100% 55%,100% 85%,0 85%);animation:va-gb-auto 5s steps(2) .06s infinite;opacity:1}
+    @keyframes va-gr-auto{0%{transform:translate(-2px,1px);opacity:1}4%{transform:translate(2px,-1px);opacity:1}8%{transform:translate(-1px,2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
+    @keyframes va-gb-auto{0%{transform:translate(2px,-1px);opacity:1}4%{transform:translate(-2px,1px);opacity:1}8%{transform:translate(1px,-2px);opacity:1}8.1%,100%{transform:translate(0,0);opacity:0}}
+    .logo-voir{color:#fff;animation:va-gw 2.6s ease-in-out infinite}
+    .logo-anime{color:#22d3ee;animation:va-gp 2.6s ease-in-out infinite .4s}
+    @keyframes va-gw{0%,100%{text-shadow:0 0 4px rgba(34,211,238,.4),0 0 10px rgba(34,211,238,.2)}50%{text-shadow:0 0 8px rgba(34,211,238,.9),0 0 20px rgba(34,211,238,.5),0 0 36px rgba(167,139,250,.3)}}
+    @keyframes va-gp{0%,100%{text-shadow:0 0 5px rgba(34,211,238,.6),0 0 14px rgba(167,139,250,.3)}50%{text-shadow:0 0 10px #22d3ee,0 0 24px rgba(34,211,238,.7),0 0 40px rgba(167,139,250,.45)}}
+
+    /* Tabs */
+    .watch-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 48px 20px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .watch-tabs::-webkit-scrollbar { display: none; }
+    .watch-tab {
+      flex-shrink: 0;
+      font-family: 'Outfit', sans-serif;
+      font-size: .75rem;
+      font-weight: 700;
+      padding: 7px 16px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.04);
+      color: rgba(255,255,255,.45);
+      cursor: pointer;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .watch-tab.active-plan    { background: rgba(245,158,11,.15); border-color: rgba(245,158,11,.4); color: #f59e0b; }
+    .watch-tab.active-watch   { background: rgba(96,165,250,.15); border-color: rgba(96,165,250,.4); color: #60a5fa; }
+    .watch-tab.active-done    { background: rgba(74,222,128,.15); border-color: rgba(74,222,128,.4); color: #4ade80; }
+    .watch-tab:hover { background: rgba(255,255,255,.08); }
+
+    /* Fix grid */
+    .subpage-grid {
+      grid-template-columns: repeat(3, 1fr) !important;
+      padding: 0 12px !important;
+    }
+    @media (min-width: 480px) {
+      .subpage-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)) !important; }
+    }
+    @media (max-width: 768px) {
+      .watch-tabs { padding: 0 16px 16px; }
+    }
+  </style>
+  <script src="js/i18n.js"></script>
+  <script src="featuresManager.js"></script>
+  <script src="premiumManager.js"></script>
+</head>
+<body>
+
+<nav class="navbar scrolled" id="navbar">
+  <div class="nav-top">
+    <div class="nav-left">
+      <div class="nav-logo-wrap">
+        <a href="index.html" class="nav-logo" aria-label="VoirAnime">
+          <span class="logo-glitch" data-text="VoirAnime">
+            <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
+          </span>
+        </a>
+        <span class="logo-tagline">Découvre autrement.</span>
+      </div>
+    </div>
+    <a href="profile.html" class="nav-avatar-btn nav-avatar-left" id="navAvatarBtn" title="Mon profil">
+      <img class="nav-avatar-img" id="navAvatarImg" src="" alt="Profil"
+           onerror="this.style.display='none';document.getElementById('navAvatarFallback').style.display='flex'"/>
+      <div class="nav-avatar-fallback" id="navAvatarFallback">👤</div>
+    </a>
+    <div class="nav-right"></div>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html" class="nav-link">Home</a></li>
+    <li><a href="catalogue.html" class="nav-link">Catalogue</a></li>
+    <li><a href="duel.html" class="nav-link">⚔ Duels</a></li>
+    <li><a href="news.html" class="nav-link">📰 News</a></li>
+    <li><a href="soutenir.html" class="nav-link nav-link-support">💜 Support</a></li>
+  </ul>
+</nav>
+
+<div class="subpage-header">
+  <a href="profile.html" class="subpage-back">← Profil</a>
+  <h1 class="subpage-title">🎬 Progression</h1>
+  <div class="subpage-meta" id="watchMeta"></div>
+</div>
+
+<!-- Tabs -->
+<div class="watch-tabs">
+  <button class="watch-tab active-plan" data-status="planToWatch" id="tab-plan">⏳ À voir <span id="cnt-plan">0</span></button>
+  <button class="watch-tab" data-status="watching"    id="tab-watch">▶ En cours <span id="cnt-watch">0</span></button>
+  <button class="watch-tab" data-status="completed"   id="tab-done">✓ Terminés <span id="cnt-done">0</span></button>
+</div>
+
+<div class="subpage-grid" id="watchGrid"></div>
+<div class="subpage-empty hidden" id="watchEmpty">
+  <div class="subpage-empty-icon">🎬</div>
+  <p id="watchEmptyText">Aucun anime dans cette catégorie.</p>
+  <a href="index.html" class="subpage-cta">Explorer le catalogue →</a>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-logo">Voir<span>Anime</span></div>
+  <p class="footer-text">Aucune vidéo n'est hébergée sur ce site.</p>
+</footer>
+
+<script>
+(function () {
+  var STATUS_COLORS = { planToWatch: '#f59e0b', watching: '#60a5fa', completed: '#4ade80' };
+  var STATUS_LABELS = { planToWatch: 'À voir', watching: 'En cours', completed: 'Terminé' };
+  var ACTIVE_CLASSES = { planToWatch: 'active-plan', watching: 'active-watch', completed: 'active-done' };
+  var EMPTY_TEXTS = {
+    planToWatch: 'Aucun anime dans ta liste "À voir".',
+    watching:    'Aucun anime en cours.',
+    completed:   'Aucun anime terminé pour le moment.'
+  };
+
+  function getWatchStatus() {
+    try { return JSON.parse(localStorage.getItem('VoirAnime_watchStatus') || '{}'); } catch (_) { return {}; }
+  }
+
+  var currentStatus = 'planToWatch';
+  var allAnimes = {};
+
+  function loadAll() {
+    var raw = getWatchStatus();
+    allAnimes = { planToWatch: [], watching: [], completed: [] };
+    Object.keys(raw).forEach(function (id) {
+      var a = raw[id];
+      if (a && a.status && allAnimes[a.status]) {
+        allAnimes[a.status].push(Object.assign({}, a, { id: id }));
+      }
+    });
+    // Comptes
+    document.getElementById('cnt-plan').textContent  = allAnimes.planToWatch.length;
+    document.getElementById('cnt-watch').textContent = allAnimes.watching.length;
+    document.getElementById('cnt-done').textContent  = allAnimes.completed.length;
+
+    var total = allAnimes.planToWatch.length + allAnimes.watching.length + allAnimes.completed.length;
+    var meta = document.getElementById('watchMeta');
+    if (meta) meta.textContent = total + ' anime' + (total > 1 ? 's' : '');
+  }
+
+  function render(status) {
+    var grid  = document.getElementById('watchGrid');
+    var empty = document.getElementById('watchEmpty');
+    var emptyTxt = document.getElementById('watchEmptyText');
+    if (!grid) return;
+
+    var list = allAnimes[status] || [];
+    grid.innerHTML = '';
+
+    if (!list.length) {
+      if (emptyTxt) emptyTxt.textContent = EMPTY_TEXTS[status] || 'Aucun anime ici.';
+      if (empty) empty.classList.remove('hidden');
+      return;
+    }
+    if (empty) empty.classList.add('hidden');
+
+    list.forEach(function (a) {
+      var card = document.createElement('a');
+      card.className = 'subpage-card';
+      card.href = 'anime.html?id=' + a.id;
+      var imgSrc = a.img || a.image_url || '';
+      var color  = STATUS_COLORS[a.status] || '#fff';
+      var label  = STATUS_LABELS[a.status] || '';
+      card.innerHTML =
+        '<img src="' + imgSrc + '" alt="' + (a.title || '') + '" class="subpage-card-img" loading="lazy" ' +
+             'onerror="this.src=\'https://placehold.co/130x195/0f0e1a/555?text=?\'">' +
+        '<div class="subpage-card-body">' +
+          '<div class="subpage-card-title">' + (a.title || 'Anime') + '</div>' +
+          '<div style="font-size:.6rem;font-weight:700;color:' + color + ';margin-top:3px">' + label + '</div>' +
+        '</div>';
+      grid.appendChild(card);
+    });
+  }
+
+  function switchTab(status) {
+    currentStatus = status;
+    document.querySelectorAll('.watch-tab').forEach(function (t) {
+      t.classList.remove('active-plan', 'active-watch', 'active-done');
+    });
+    var activeTab = document.querySelector('[data-status="' + status + '"]');
+    if (activeTab) activeTab.classList.add(ACTIVE_CLASSES[status]);
+    render(status);
+  }
+
+  document.querySelectorAll('.watch-tab').forEach(function (btn) {
+    btn.addEventListener('click', function () { switchTab(btn.dataset.status); });
+  });
+
+  loadAll();
+  render(currentStatus);
+})();
+</script>
+
+<script>
+(function(){
+  var overlay = document.createElement("div");
+  overlay.className = "page-transition-overlay in";
+  document.body.appendChild(overlay);
+  setTimeout(function(){ overlay.remove(); }, 450);
+  document.addEventListener("click", function(e){
+    var link = e.target.closest("a[href]");
+    if (!link) return;
+    var href = link.getAttribute("href");
+    if (!href || href.startsWith("#") || href.startsWith("http") || href.startsWith("mailto") || link.target === "_blank") return;
+    e.preventDefault();
+    var ov = document.createElement("div");
+    ov.className = "page-transition-overlay out";
+    document.body.appendChild(ov);
+    setTimeout(function(){ window.location.href = href; }, 340);
+  });
+})();
+</script>
+<script>
+(function(){
+  var bar = document.createElement('div');
+  bar.className = 'scroll-progress';
+  document.body.prepend(bar);
+  window.addEventListener('scroll', function() {
+    var h = document.documentElement;
+    bar.style.width = Math.min((h.scrollTop/(h.scrollHeight-h.clientHeight))*100,100)+'%';
+  }, {passive:true});
+  try {
+    var saved = JSON.parse(localStorage.getItem('VoirAnime_avatar')||'null');
+    if (saved && saved.img) {
+      document.querySelectorAll('.nav-avatar-img').forEach(function(i){i.src=saved.img;i.style.display='block';});
+      document.querySelectorAll('.nav-avatar-fallback').forEach(function(f){f.style.display='none';});
+    }
+  } catch(_){}
+  function tryInit(){
+    var raw=localStorage.getItem('pi_user');if(!raw)return;
+    try{var u=JSON.parse(raw);if(u&&u.uid){if(window.VA_initFeatures)window.VA_initFeatures(u.uid);if(window.VA_initPremium)window.VA_initPremium(u.uid);}}catch(_){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',tryInit);else tryInit();
+})();
+</script>
+</body>
+</html>

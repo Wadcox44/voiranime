@@ -246,6 +246,28 @@
     }
     .watch-filter-btn:hover { border-color: var(--pink); color: var(--pink); }
     .watch-filter-btn.active { background: var(--pink); border-color: var(--pink); color: #fff; }
+    /* Bouton retirer des favoris */
+    .fav-remove-btn {
+      position: absolute;
+      top: 5px; right: 5px;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: rgba(0,0,0,.65);
+      border: 1px solid rgba(255,255,255,.15);
+      color: #ff4fd8;
+      font-size: .8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity .2s, transform .18s, background .18s;
+      z-index: 10;
+      line-height: 1;
+    }
+    .subpage-card:hover .fav-remove-btn { opacity: 1; }
+    .fav-remove-btn:hover { background: rgba(255,79,216,.3); transform: scale(1.15); }
+    .subpage-card { position: relative; }
     /* Fix débordement grille sur mobile */
     .subpage-grid {
       grid-template-columns: repeat(3, 1fr) !important;
@@ -350,9 +372,24 @@
         <img src="${f.img||''}" alt="${f.title}"
              onerror="this.src='https://placehold.co/130x195/0f0e1a/555?text=?'"
              class="subpage-card-img"/>
+        <button class="fav-remove-btn" title="Retirer des favoris">♥</button>
         <div class="subpage-card-body">
           <div class="subpage-card-title">${f.title}</div>
         </div>`;
+
+      // Bouton retirer
+      const btn = card.querySelector('.fav-remove-btn');
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let favs2 = getFavs().filter(x => x.id !== f.id);
+        localStorage.setItem('VoirAnime_favs', JSON.stringify(favs2));
+        card.style.transition = 'opacity .25s, transform .25s';
+        card.style.opacity = '0';
+        card.style.transform = 'scale(0.85)';
+        setTimeout(() => { card.remove(); render(); }, 260);
+      });
+
       grid.appendChild(card);
     });
 
