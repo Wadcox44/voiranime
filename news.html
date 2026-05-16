@@ -296,6 +296,7 @@
       transition: all .18s;
     }
     .news-trend-tag:hover{ background: rgba(255,79,216,.14); border-color: rgba(255,79,216,.35); color: #f5d0fe; }
+    .news-trend-tag.active{ background: rgba(255,79,216,.2); border-color: rgba(255,79,216,.55); color: #f5d0fe; }
 
     /* ── Feed ── */
     .news-feed{
@@ -747,14 +748,14 @@
     <!-- Trending bar -->
     <div class="news-trending" id="newsTrending">
       <span class="news-trending-label">🔥 Trending</span>
-      <span class="news-trend-tag">#OnePiece</span>
-      <span class="news-trend-tag">#DemonSlayer</span>
-      <span class="news-trend-tag">#ChainsawMan</span>
-      <span class="news-trend-tag">#JujutsuKaisen</span>
-      <span class="news-trend-tag">#MyHeroAcademia</span>
-      <span class="news-trend-tag">#AttackOnTitan</span>
-      <span class="news-trend-tag">#DragonBall</span>
-      <span class="news-trend-tag">#Bleach</span>
+      <span class="news-trend-tag" data-filter="OnePiece">#OnePiece</span>
+      <span class="news-trend-tag" data-filter="Demon Slayer">#DemonSlayer</span>
+      <span class="news-trend-tag" data-filter="Chainsaw Man">#ChainsawMan</span>
+      <span class="news-trend-tag" data-filter="Jujutsu Kaisen">#JujutsuKaisen</span>
+      <span class="news-trend-tag" data-filter="My Hero Academia">#MHA</span>
+      <span class="news-trend-tag" data-filter="Attack on Titan">#AoT</span>
+      <span class="news-trend-tag" data-filter="Dragon Ball">#DragonBall</span>
+      <span class="news-trend-tag" data-filter="Bleach">#Bleach</span>
     </div>
 
     <!-- Section label -->
@@ -949,7 +950,8 @@
   }
 
   /* ── Render cards ── */
-  function renderCards(articles, container, startIdx) {
+  function renderCards(articles, container, startIdx, replace) {
+    if (replace) container.innerHTML = '';
     articles.forEach(function(a, i) {
       var badge     = getBadge(a);
       var img       = extractImg(a);
@@ -1150,7 +1152,35 @@
     pill.addEventListener('click', function() {
       document.querySelectorAll('.news-filter-pill').forEach(function(p) { p.classList.remove('active'); });
       pill.classList.add('active');
+      // Réinitialiser le filtre trending
+      document.querySelectorAll('.news-trend-tag').forEach(function(t) { t.classList.remove('active'); });
       loadGlobalNews(pill.dataset.source);
+    });
+  });
+
+  /* ── Trending tags — filtrer les articles par mot-clé ── */
+  document.querySelectorAll('.news-trend-tag').forEach(function(tag) {
+    tag.addEventListener('click', function() {
+      var wasActive = tag.classList.contains('active');
+      document.querySelectorAll('.news-trend-tag').forEach(function(t) { t.classList.remove('active'); });
+      if (wasActive) {
+        // Désactiver le filtre
+        renderCards(currentArticles.slice(0, PAGE_SIZE), document.getElementById('newsFeedGlobal'), 0, true);
+        return;
+      }
+      tag.classList.add('active');
+      var keyword = (tag.dataset.filter || '').toLowerCase();
+      var filtered = currentArticles.filter(function(a) {
+        return (a.title || '').toLowerCase().includes(keyword)
+          || (a.description || '').toLowerCase().includes(keyword);
+      });
+      var feed = document.getElementById('newsFeedGlobal');
+      feed.innerHTML = '';
+      if (!filtered.length) {
+        feed.innerHTML = '<div class="news-empty"><p>Aucun article trouvé pour <strong>' + tag.textContent + '</strong></p></div>';
+      } else {
+        renderCards(filtered, feed, 0);
+      }
     });
   });
 
@@ -1268,6 +1298,11 @@
 <!-- Transition cinématique entre pages -->
 <script>
 (function(){
+  // S'assurer que news.html est dans l'historique pour que le retour fonctionne
+  if (window.history && window.history.replaceState) {
+    window.history.replaceState({ page: 'news' }, document.title, window.location.href);
+  }
+
   var overlay = document.createElement("div");
   overlay.className = "page-transition-overlay in";
   document.body.appendChild(overlay);
@@ -1277,8 +1312,10 @@
     var link = e.target.closest("a[href]");
     if (!link) return;
     var href = link.getAttribute("href");
+    // Ignorer : ancres, liens externes, mailto, target=_blank, boutons réaction
     if (!href || href.startsWith("#") || href.startsWith("http") ||
-        href.startsWith("mailto") || link.target === "_blank") return;
+        href.startsWith("mailto") || link.target === "_blank" ||
+        e.target.closest('.news-reaction-btn')) return;
     e.preventDefault();
     var ov = document.createElement("div");
     ov.className = "page-transition-overlay out";
