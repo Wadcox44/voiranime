@@ -103,12 +103,14 @@
       '#va-intro-tagline {',
         'display:block;',
         'font-family:Outfit,system-ui,-apple-system,sans-serif;',
-        'font-size:0.56rem;',
-        'font-weight:500;',
-        'letter-spacing:0.3em;',
+        'font-size:0.72rem;',
+        'font-weight:600;',
+        'letter-spacing:0.35em;',
         'text-transform:uppercase;',
-        'color:rgba(255,255,255,0.24);',
-        'margin-top:12px;',
+        'color:#22d3ee;',
+        'opacity:0.85;',
+        'margin-top:14px;',
+        'text-shadow:0 0 12px rgba(34,211,238,0.6),0 0 28px rgba(34,211,238,0.25);',
       '}',
     ].join('\n');
     document.head.appendChild(s);
@@ -390,15 +392,14 @@
   };
 
   /* ── Auto-play ── */
-  /* Joue immédiatement — l'overlay est injecté sur <html>
-     donc pas besoin d'attendre <body> ou DOMContentLoaded.
-     Le body reste invisible (via CSS dans le <head>) jusqu'à la fin de l'intro. */
-  if (_shouldPlay()) {
-    play().then(function() {
-      document.body.style.visibility = 'visible';
-    });
+  function _autoplay() {
+    if (_shouldPlay()) play();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _autoplay);
   } else {
-    document.body.style.visibility = 'visible';
+    setTimeout(_autoplay, 50);
   }
 
 })();
