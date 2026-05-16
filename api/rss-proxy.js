@@ -1,9 +1,7 @@
-// api/rss-proxy.js — VoirAnime
-// Proxy RSS serverless Vercel (CommonJS)
-
-const https = require('https');
-const http  = require('http');
-const { URL } = require('url');
+// api/rss-proxy.js — VoirAnime (ESM)
+import https from 'https';
+import http from 'http';
+import { URL } from 'url';
 
 const ALLOWED_DOMAINS = [
   'myanimelist.net',
@@ -15,8 +13,7 @@ const ALLOWED_DOMAINS = [
   'animeplanet.com',
 ];
 
-function fetchUrl(urlStr, redirects) {
-  redirects = redirects || 0;
+function fetchUrl(urlStr, redirects = 0) {
   if (redirects > 5) return Promise.reject(new Error('too many redirects'));
   return new Promise((resolve, reject) => {
     let parsed;
@@ -27,9 +24,8 @@ function fetchUrl(urlStr, redirects) {
       path: parsed.pathname + parsed.search,
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-        'Accept': 'application/rss+xml, application/xml, text/xml, application/atom+xml, */*',
+        'Accept': 'application/rss+xml, application/xml, text/xml, */*',
         'Accept-Language': 'fr,en;q=0.9',
-        'Cache-Control': 'no-cache',
       },
       timeout: 9000,
     };
@@ -40,9 +36,7 @@ function fetchUrl(urlStr, redirects) {
           : parsed.origin + res.headers.location;
         return fetchUrl(next, redirects + 1).then(resolve).catch(reject);
       }
-      if (res.statusCode !== 200) {
-        return reject(new Error('HTTP ' + res.statusCode));
-      }
+      if (res.statusCode !== 200) return reject(new Error('HTTP ' + res.statusCode));
       const chunks = [];
       res.on('data', chunk => chunks.push(chunk));
       res.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
@@ -53,18 +47,14 @@ function fetchUrl(urlStr, redirects) {
 }
 
 function getText(raw, tag) {
-  const reCdata = new RegExp('<' + tag + '[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/' + tag + '>', 'i');
-  const mC = reCdata.exec(raw);
+  const mC = new RegExp(`<${tag}[^>]*><!\\[CDATA\\[([\\s\\S]*?)\\]\\]><\\/${tag}>`, 'i').exec(raw);
   if (mC) return mC[1].trim();
-  const rePlain = new RegExp('<' + tag + '[^>]*>([^<]*)<\\/' + tag + '>', 'i');
-  const mP = rePlain.exec(raw);
-  if (mP) return mP[1].trim();
-  return '';
+  const mP = new RegExp(`<${tag}[^>]*>([^<]*)<\\/${tag}>`, 'i').exec(raw);
+  return mP ? mP[1].trim() : '';
 }
 
 function getAttr(raw, tag, attr) {
-  const re = new RegExp('<' + tag + '[^>]+' + attr + '=["\']([^"\']+)["\']', 'i');
-  const m = re.exec(raw);
+  const m = new RegExp(`<${tag}[^>]+${attr}=["']([^"']+)["']`, 'i').exec(raw);
   return m ? m[1] : '';
 }
 
@@ -84,10 +74,9 @@ function parseRSS(xml, count) {
   let m;
   while ((m = re.exec(xml)) !== null && items.length < count) {
     const raw = m[1];
-    const link = getText(raw, 'link') || getText(raw, 'guid') || getAttr(raw, 'guid', 'isPermaLink');
     items.push({
       title:       getText(raw, 'title'),
-      link,
+      link:        getText(raw, 'link') || getText(raw, 'guid'),
       pubDate:     getText(raw, 'pubDate') || getText(raw, 'dc:date'),
       description: getText(raw, 'description'),
       thumbnail:   extractImage(raw),
@@ -96,15 +85,12 @@ function parseRSS(xml, count) {
   return items;
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const { url, count = '30' } = req.query || {};
-
   if (!url) return res.status(400).json({ error: 'missing url param' });
 
   let hostname;
@@ -126,4 +112,4 @@ module.exports = async function handler(req, res) {
     console.error('[rss-proxy]', err.message);
     return res.status(500).json({ error: err.message });
   }
-};
+}
