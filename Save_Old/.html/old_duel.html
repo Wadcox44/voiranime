@@ -721,18 +721,6 @@ function updateSessionStats() {
   if (statStreak) statStreak.textContent = `${state.streak} 🔥`;
   if (navCount) navCount.textContent = state.duelsPlayed;
 
-  const milestones = { 5: '5 duels 🔥 En feu !', 10: '10 duels 💪 Incroyable !', 25: '25 duels 👑 Légende !' };
-  if (milestones[state.streak]) showMilestone(milestones[state.streak]);
-}
-
-function showMilestone(text) {
-  const existing = document.querySelector('.streak-milestone');
-  if (existing) existing.remove();
-  const el2 = document.createElement('div');
-  el2.className   = 'streak-milestone';
-  el2.textContent = text;
-  document.body.appendChild(el2);
-  setTimeout(() => el2.remove(), 2600);
 }
 
 async function loadLeaderboard() {
