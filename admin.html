@@ -954,7 +954,7 @@ async function login() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     statsCache = r;
-    fetchPiRate();
+    await fetchPiRate();
     renderAll(r);
     loadPayments();
   } else {
@@ -980,7 +980,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('app').style.display = 'block';
       statsCache = r;
-      fetchPiRate();
+      await fetchPiRate();
       renderAll(r);
       loadPayments();
     } else {
@@ -1039,6 +1039,7 @@ function switchPanel(id) {
   if (id === 'users')    loadUsers('all');
   if (id === 'payments') loadPayments();
   if (id === 'logs')     renderLogsTable(allLogs);
+  if (id === 'revenue' && statsCache) renderRevenue(statsCache);
 
   // Mobile : fermer sidebar
   if (window.innerWidth <= 768) toggleSidebar(false);
@@ -1059,6 +1060,8 @@ async function setRange(range, btn) {
   currentRange = range;
   const r = await api('admin-stats', null, 'GET', `?range=${range}`);
   if (r.ok) { statsCache = r; renderAll(r); }
+  // Re-render revenue panel si ouvert (piEurRate déjà chargé)
+  if (statsCache) renderRevenue(statsCache);
 }
 
 /* ── Render all panels ────────────────────────────────────────────────── */
