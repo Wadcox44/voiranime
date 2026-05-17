@@ -1,7 +1,7 @@
 // api/_userHelper.js
 // Helper partagé — lecture et calcul du statut utilisateur Premium
 // Importé par favorites.js, notifications.js, features.js, premium.js
-//
+// 
 // Schéma Firestore users/{piUserId} :
 //   isPremium:   boolean   — true si abonnement actif et non expiré
 //   plan:        string    — 'monthly' | 'annual' | null
