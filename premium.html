@@ -590,7 +590,123 @@ function toggleDetails() {
     .then(function(d) { show(d.count || 0); })
     .catch(function() { show(DEMO_COUNT); });
 })();
+
+/* ── Modal raison d'annulation ─────────────────────────────────────────────
+   Exporté globalement : window.VA_showCancelModal(piUserId, onConfirmed)
+   Appelé depuis profile.html sur le bouton "Annuler mon abonnement"
+   ou depuis la popup de non-renouvellement.
+──────────────────────────────────────────────────────────────────────────── */
+window.VA_showCancelModal = function(piUserId, onConfirmed) {
+  var modal = document.getElementById('cancelReasonModal');
+  if (!modal) return;
+  // Reset
+  document.getElementById('cancelReason').value = '';
+  document.getElementById('otherServiceWrap').style.display = 'none';
+  document.getElementById('otherServiceInput').value = '';
+  document.getElementById('cancelModalError').textContent = '';
+  modal.style.display = 'flex';
+
+  // Stocker le contexte pour la confirmation
+  modal._piUserId    = piUserId;
+  modal._onConfirmed = onConfirmed;
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+  var reasonSel = document.getElementById('cancelReason');
+  if (reasonSel) {
+    reasonSel.addEventListener('change', function() {
+      var wrap = document.getElementById('otherServiceWrap');
+      wrap.style.display = this.value === 'other_service' ? 'block' : 'none';
+    });
+  }
+});
+
+function closeCancelModal() {
+  var modal = document.getElementById('cancelReasonModal');
+  if (modal) modal.style.display = 'none';
+}
+
+async function confirmCancel() {
+  var modal    = document.getElementById('cancelReasonModal');
+  var reason   = document.getElementById('cancelReason').value;
+  var errEl    = document.getElementById('cancelModalError');
+  var otherSvc = document.getElementById('otherServiceInput').value.trim();
+
+  if (!reason) {
+    errEl.textContent = 'Merci de sélectionner une raison.';
+    return;
+  }
+
+  var piUserId = modal._piUserId;
+  if (!piUserId) {
+    errEl.textContent = 'Utilisateur non identifié.';
+    return;
+  }
+
+  var btn = document.getElementById('cancelConfirmBtn');
+  btn.disabled = true;
+  btn.textContent = 'En cours…';
+  errEl.textContent = '';
+
+  try {
+    var body = { action: 'cancel', piUserId: piUserId, reason: reason };
+    if (reason === 'other_service' && otherSvc) body.otherService = otherSvc;
+
+    var res  = await fetch('https://voir-anime.vercel.app/api/premium', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(body),
+    });
+    var data = await res.json();
+
+    if (data.ok) {
+      closeCancelModal();
+      if (typeof modal._onConfirmed === 'function') modal._onConfirmed();
+    } else {
+      errEl.textContent = data.error || 'Une erreur est survenue.';
+    }
+  } catch(e) {
+    errEl.textContent = 'Erreur réseau. Réessaie.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Confirmer l\'annulation';
+  }
+}
 </script>
+
+<!-- ── Modal raison d'annulation ── -->
+<div id="cancelReasonModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:var(--bg-card,#1a1a2e);border-radius:16px;padding:2rem;max-width:440px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.5);">
+    <h3 style="margin:0 0 .5rem;font-size:1.2rem;color:var(--text-primary,#fff);">Avant de partir… 😔</h3>
+    <p style="margin:0 0 1.25rem;font-size:.9rem;color:var(--text-secondary,#aaa);">Quelle est la raison principale de ton annulation ?</p>
+
+    <select id="cancelReason" style="width:100%;padding:.75rem 1rem;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:var(--text-primary,#fff);font-size:.95rem;margin-bottom:1rem;cursor:pointer;">
+      <option value="">-- Sélectionne une raison --</option>
+      <option value="too_expensive">💸 C'est trop cher</option>
+      <option value="not_using_enough">😴 Je n'utilise pas assez le site</option>
+      <option value="features_not_interesting">🤷 Les fonctionnalités premium ne m'intéressent pas</option>
+      <option value="technical_issue">🔧 Problème technique</option>
+      <option value="other_service">🔄 Je suis passé à un autre service</option>
+      <option value="other">✏️ Autre</option>
+    </select>
+
+    <div id="otherServiceWrap" style="display:none;margin-bottom:1rem;">
+      <input id="otherServiceInput" type="text" placeholder="Quel service ? (facultatif)" maxlength="100"
+        style="width:100%;padding:.75rem 1rem;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:var(--text-primary,#fff);font-size:.9rem;box-sizing:border-box;" />
+    </div>
+
+    <p id="cancelModalError" style="color:#ff6b6b;font-size:.85rem;min-height:1.2em;margin:0 0 1rem;"></p>
+
+    <div style="display:flex;gap:.75rem;">
+      <button onclick="closeCancelModal()" style="flex:1;padding:.75rem;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:transparent;color:var(--text-primary,#fff);font-size:.95rem;cursor:pointer;">
+        Garder mon abonnement
+      </button>
+      <button id="cancelConfirmBtn" onclick="confirmCancel()" style="flex:1;padding:.75rem;border-radius:10px;border:none;background:#e74c3c;color:#fff;font-size:.95rem;font-weight:600;cursor:pointer;">
+        Confirmer l'annulation
+      </button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
