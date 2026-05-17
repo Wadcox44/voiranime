@@ -805,6 +805,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
           <button class="btn btn-ghost btn-sm" onclick="loadUsers('all')">Tous</button>
           <button class="btn btn-ghost btn-sm" onclick="loadUsers('premium')">⭐ Premium</button>
           <button class="btn btn-ghost btn-sm" onclick="loadUsers('blocked')">🔒 Bloqués</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV('users')" style="margin-left:auto">⬇ CSV</button>
         </div>
         <div class="table-wrap" id="usersTable">
           <div class="empty"><div class="empty-icon">👥</div>Lance une recherche ou charge la liste</div>
@@ -823,6 +824,7 @@ tr:hover td { background: rgba(255,255,255,0.02); }
           </select>
           <button class="btn btn-ghost btn-sm" onclick="loadPayments()">Filtrer</button>
           <button class="btn btn-success btn-sm" onclick="repairAll()">🔧 Réparer tous</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV('payments')" style="margin-left:auto">⬇ CSV</button>
         </div>
         <div class="table-wrap" id="paymentsTable">
           <div class="empty"><div class="empty-icon">💳</div>Chargement…</div>
@@ -873,6 +875,20 @@ tr:hover td { background: rgba(255,255,255,0.02); }
             <input id="refReason"    class="input" placeholder="Raison du remboursement"/>
             <button class="btn btn-danger" style="width:100%" onclick="confirmRefund()">Enregistrer remboursement</button>
             <div class="result-box" id="refResult"></div>
+          </div>
+
+          <div class="action-card" style="grid-column:1/-1">
+            <div class="action-card-title" style="color:var(--cyan)">📧 Test alertes email</div>
+            <p style="font-size:0.76rem;color:var(--muted);margin-bottom:14px;line-height:1.5">
+              Envoie un email de test à <strong>voiranime.admin@gmail.com</strong> pour vérifier que Resend fonctionne.
+            </p>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <button class="btn btn-ghost btn-sm" onclick="sendTestAlert('payment_success')">✅ Paiement activé</button>
+              <button class="btn btn-ghost btn-sm" onclick="sendTestAlert('payment_failed')">⚠ Paiement échoué</button>
+              <button class="btn btn-ghost btn-sm" onclick="sendTestAlert('new_subscriber')">⭐ Nouvel abonné</button>
+              <button class="btn btn-ghost btn-sm" onclick="sendTestAlert('new_churn')">📉 Churn</button>
+              <button class="btn btn-ghost btn-sm" onclick="sendTestAlert('repair_needed')">🔧 Réparation</button>
+            </div>
           </div>
         </div>
       </div>
@@ -977,15 +993,6 @@ function logout() {
 
 // Auto-restore session
 window.addEventListener('DOMContentLoaded', async () => {
-  // Vérification token URL hash
-  const REQUIRED_HASH = '#va-9xKm2pR';
-  if (window.location.hash !== REQUIRED_HASH) {
-    document.body.innerHTML = '';
-    document.title = '404';
-    window.location.replace('https://voir-anime.vercel.app');
-    return;
-  }
-
   const saved = sessionStorage.getItem('va_admin_secret');
   if (saved) {
     SECRET = saved;
@@ -1218,6 +1225,7 @@ async function searchUser() {
 }
 
 function renderUsers(list) {
+  _lastUsers = list || [];
   const t = document.getElementById('usersTable');
   if (!list.length) {
     t.innerHTML = '<div class="empty"><div class="empty-icon">👥</div>Aucun résultat.</div>';
@@ -1341,6 +1349,7 @@ async function loadPayments() {
     t.innerHTML = '<div class="empty"><div class="empty-icon">💳</div>Aucun paiement.</div>';
     return;
   }
+  _lastPayments = list;
   t.innerHTML = `<table>
     <tr><th>paymentId</th><th>piUserId</th><th>Plan</th><th>Statut</th><th>Tentatives</th><th>Date</th><th></th></tr>
     ${list.map(tx => `<tr>
@@ -1505,6 +1514,65 @@ function toast(msg, type = 'info') {
     setTimeout(() => el.remove(), 300);
   }, 3000);
 }
+
+/* ── Export CSV ────────────────────────────────────────────────────────── */
+let _lastUsers    = [];
+let _lastPayments = [];
+
+const _origRenderUsers    = null;
+const _origRenderPayments = null;
+
+function exportCSV(type) {
+  let rows = [], filename = '';
+
+  if (type === 'users') {
+    if (!_lastUsers.length) { toast('Charge la liste d'abord', 'error'); return; }
+    filename = `voiranime-users-${new Date().toISOString().slice(0,10)}.csv`;
+    const headers = ['piUserId','piUsername','isPremium','plan','expiresAt','blocked','createdAt'];
+    rows = [
+      headers.join(','),
+      ..._lastUsers.map(u => headers.map(k => {
+        let v = u[k] ?? '';
+        if (k === 'expiresAt' || k === 'createdAt' || k === 'activatedAt') {
+          const ms = v?.seconds ? v.seconds * 1000 : (typeof v === 'number' ? v : 0);
+          v = ms ? new Date(ms).toISOString() : '';
+        }
+        return `"${String(v).replace(/"/g, '""')}"`;
+      }).join(','))
+    ];
+  } else if (type === 'payments') {
+    if (!_lastPayments.length) { toast('Charge la liste d'abord', 'error'); return; }
+    filename = `voiranime-payments-${new Date().toISOString().slice(0,10)}.csv`;
+    const headers = ['id','piUserId','plan','status','amount','attempts','createdAt'];
+    rows = [
+      headers.join(','),
+      ..._lastPayments.map(tx => headers.map(k => {
+        let v = tx[k] ?? '';
+        if (k === 'createdAt') {
+          const ms = v?.seconds ? v.seconds * 1000 : (typeof v === 'number' ? v : 0);
+          v = ms ? new Date(ms).toISOString() : '';
+        }
+        return `"${String(v).replace(/"/g, '""')}"`;
+      }).join(','))
+    ];
+  }
+
+  if (!rows.length) return;
+  const blob = new Blob([rows.join('
+')], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+  toast(`✅ ${filename} téléchargé`, 'success');
+}
+
+/* ── Alertes email test ─────────────────────────────────────────────────── */
+async function sendTestAlert(type) {
+  const r = await api('alerts', { type, data: { piUserId: 'test', plan: 'monthly', paymentId: 'test_123', count: 3 } });
+  toast(r.ok ? `✅ Email "${type}" envoyé` : '❌ Erreur envoi', r.ok ? 'success' : 'error');
+}
+
 </script>
 </body>
 </html>
