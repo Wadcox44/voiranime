@@ -1,15 +1,17 @@
 // api/notifications.js
 // Gestion complète des notifications Free/Premium en un seul endpoint
 // GET  ?action=get&piUserId=xxx
-// POST { action: 'read'|'generate', piUserId, ...params }
+// POST { action: 'read'|'generate'|'expire', piUserId, ...params }
 //
 // get      (GET)  : { piUserId }
 // read     (POST) : { piUserId, notifId? }  — notifId absent = tout marquer lu
-// generate (POST) : sécurisé par x-cron-secret
+// generate (POST) : sécurisé par x-cron-secret (cron Vercel 9h UTC)
+// expire   (POST) : sécurisé par x-cron-secret — expire abonnements dépassés
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore, Timestamp } from 'firebase-admin/firestore';
-import { getUser, requirePremium } from './_userHelper.js';
+import { getFirestore, Timestamp }       from 'firebase-admin/firestore';
+import { getUser }                       from './_userHelper.js';
+import { sendAlert }                     from './alerts.js';
 
 if (!getApps().length) {
   initializeApp({
@@ -21,13 +23,10 @@ if (!getApps().length) {
   });
 }
 
-const db           = getFirestore();
-const JIKAN        = 'https://api.jikan.moe/v4';
-const CRON_SECRET  = process.env.CRON_SECRET;
+const db          = getFirestore();
+const JIKAN       = 'https://api.jikan.moe/v4';
+const CRON_SECRET = process.env.CRON_SECRET;
 
-/* ── Types de notifications (extensible) ────────────────────────────────
-   Pour ajouter un type : ajouter ici + créer generate{Type}() ci-dessous
-──────────────────────────────────────────────────────────────────────── */
 const NOTIF_TYPES = {
   new_episode:    { tier: 'free',    icon: '📺' },
   recommendation: { tier: 'premium', icon: '✨' },
@@ -36,7 +35,6 @@ const NOTIF_TYPES = {
 };
 
 /* ── Helpers ── */
-
 async function jikanGet(path) {
   const res = await fetch(`${JIKAN}${path}`);
   if (!res.ok) throw new Error(`Jikan ${res.status}`);
@@ -165,7 +163,7 @@ async function actionGet(piUserId) {
 }
 
 async function actionRead(piUserId, { notifId }) {
-  const ref     = db.collection('users').doc(piUserId);
+  const ref       = db.collection('users').doc(piUserId);
   const notifsRef = ref.collection('notifications');
 
   if (notifId) {
@@ -191,7 +189,7 @@ async function actionGenerate(secret) {
     const userData  = doc.data();
     if (!userData.favorites?.length) continue;
     const userRef   = doc.ref;
-    const isPremium = (await getUser(doc.id)).isPremium; // via _userHelper — vérifie expiresAt
+    const { isPremium } = await getUser(doc.id);
     try {
       totalNotifs += await generateNewEpisode(userRef, userData.favorites);
       if (isPremium) {
@@ -205,23 +203,28 @@ async function actionGenerate(secret) {
     }
   }
 
-  // Expiration automatique : exécutée après chaque génération de notifs
+  // Expiration automatique après génération
   const expireResult = await actionExpire(secret, { _internal: true });
+  const expired = expireResult[1]?.expired || 0;
+
+  // Alerte si paiements à réparer
+  const repairSnap = await db.collection('transactions')
+    .where('status', '==', 'paid_not_activated').limit(1).get();
+  if (!repairSnap.empty) {
+    const count = (await db.collection('transactions')
+      .where('status', '==', 'paid_not_activated').get()).size;
+    sendAlert('repair_needed', { count }).catch(() => {});
+  }
 
   return [200, {
     ok: true,
     usersProcessed,
     notifsGenerated: totalNotifs,
-    expiredAccounts: expireResult[1]?.expired || 0,
+    expiredAccounts: expired,
   }];
 }
 
-/* ── Expiration automatique des abonnements ────────────────────────────────
-   Parcourt tous les utilisateurs avec isPremium:true dont expiresAt est passé
-   → met isPremium:false + plan:null + subscriptionStatus:'expired'
-   Appelé automatiquement par actionGenerate (cron 9h UTC)
-   ou manuellement : POST { action:'expire' } avec x-cron-secret
-──────────────────────────────────────────────────────────────────────────── */
+/* ── Expiration automatique ── */
 async function actionExpire(secret, opts = {}) {
   if (!opts._internal && CRON_SECRET && secret !== CRON_SECRET) {
     return [401, { error: 'Unauthorized' }];
@@ -230,14 +233,12 @@ async function actionExpire(secret, opts = {}) {
   const now  = Date.now();
   let expired = 0, errors = 0;
 
-  // Requête ciblée : uniquement les isPremium:true (pas tous les users)
   const snap = await db.collection('users')
     .where('isPremium', '==', true)
     .get();
 
   if (snap.empty) return [200, { ok: true, expired: 0, checked: 0 }];
 
-  // Traitement en batch (max 500 ops Firestore)
   const BATCH_SIZE = 400;
   let   batch      = db.batch();
   let   batchCount = 0;
@@ -245,19 +246,20 @@ async function actionExpire(secret, opts = {}) {
   for (const doc of snap.docs) {
     const data        = doc.data();
     const expiresAtMs = data.expiresAt?.toMillis?.() || null;
-
-    // Ignorer si pas de date d'expiration ou pas encore expiré
     if (!expiresAtMs || expiresAtMs > now) continue;
 
     try {
-      batch.update(doc.ref, {
-        isPremium: false,
-        plan:      null,         // subscriptionType → none
-      });
+      batch.update(doc.ref, { isPremium: false, plan: null, churnedAt: new Date() });
       batchCount++;
       expired++;
 
-      // Commit par tranche de 400 pour ne pas dépasser la limite Firestore
+      // Alerte churn par email
+      sendAlert('new_churn', {
+        piUserId:   doc.id,
+        piUsername: data.piUsername || doc.id,
+        plan:       data.plan || '—',
+      }).catch(() => {});
+
       if (batchCount >= BATCH_SIZE) {
         await batch.commit();
         batch      = db.batch();
@@ -269,16 +271,15 @@ async function actionExpire(secret, opts = {}) {
     }
   }
 
-  // Commit le reste
   if (batchCount > 0) await batch.commit();
 
-  console.log(`[expire] Done — ${expired} expired, ${errors} errors, ${snap.size} checked`);
+  console.log(`[expire] Done — ${expired} expired, ${errors} errors`);
   return [200, { ok: true, expired, errors, checked: snap.size }];
 }
 
 /* ── Handler principal ── */
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin',  '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -301,7 +302,7 @@ export default async function handler(req, res) {
       } else {
         if (!piUserId) return res.status(400).json({ error: 'piUserId required' });
         if (action === 'read') [status, body] = await actionRead(piUserId, params);
-        else return res.status(400).json({ error: 'Unknown action: use read|generate|expire' });
+        else return res.status(400).json({ error: 'Unknown action' });
       }
     } else {
       return res.status(405).json({ error: 'Method not allowed' });
