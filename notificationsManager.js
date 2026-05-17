@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
    VoirAnime — notificationsManager.js
    Gestion client des notifications Free / Premium
-   - Fetch depuis /api/notifications-get (vérification serveur)
+   - Fetch depuis /api/notifications?action=get (vérification serveur)
    - Cache sessionStorage 1h max
    - Badge dans la navbar
    - Panneau de notifications
@@ -54,7 +54,7 @@ async function fetchNotifications(piUserId) {
   if (cached) return cached;
 
   // 2. Sinon appeler le serveur
-  const res = await fetch(`/api/notifications-get?piUserId=${encodeURIComponent(piUserId)}`);
+  const res = await fetch(`/api/notifications?action=get&piUserId=${encodeURIComponent(piUserId)}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
 
