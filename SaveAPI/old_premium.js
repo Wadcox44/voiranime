@@ -1,6 +1,6 @@
-// api/premium.js  (+ favorites fusionné)
+// api/premium.js
 // Gestion centralisée des abonnements Premium VoirAnime
-// POST { action: 'activate'|'status'|'cancel'|'add'|'remove'|'sync'|'reorder', piUserId, ...params }
+// POST { action: 'activate'|'status'|'cancel', piUserId, ...params }
 //
 // activate : { piUserId, plan, paymentId, txid }  → proxy vers la logique dans pi-complete
 //             Préférer appeler pi-complete directement — cette action reste pour compatibilité
@@ -8,8 +8,9 @@
 // cancel   : { piUserId }                          → désactive à expiration (pas de remboursement)
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
+import { getFirestore, Timestamp }       from 'firebase-admin/firestore';
 import { getUser, requirePremium }          from './_userHelper.js';
+import { checkRateLimit }                   from './_rateLimit.js';
 
 if (!getApps().length) {
   initializeApp({
@@ -22,7 +23,6 @@ if (!getApps().length) {
 }
 
 const db = getFirestore();
-const FREE_LIMIT = 20;
 
 /* ── Plans disponibles ─────────────────────────────────────────────────────
    Pour ajouter un plan : ajouter une entrée ici — le reste s'adapte auto
@@ -153,119 +153,6 @@ async function actionCancel(piUserId) {
   }];
 }
 
-/* ── Favoris (fusionné depuis favorites.js) ─────────────────────────────── */
-/* ── Actions ── */
-async function actionAdd(piUserId, { animeId, title, img }) {
-  if (!animeId) return [400, { error: 'animeId required' }];
-  const numId = Number(animeId);
-  if (isNaN(numId)) return [400, { error: 'Invalid animeId' }];
-
-  const { ref, isPremium } = await getUser(piUserId);
-  const favsRef   = ref.collection('favorites');
-  const favDocRef = favsRef.doc(String(numId));
-
-  // Déjà en favori
-  if ((await favDocRef.get()).exists) {
-    const snap = await favsRef.count().get();
-    return [200, { ok: true, alreadyExists: true, count: snap.data().count, isPremium }];
-  }
-
-  // Vérifier limite Free
-  if (!isPremium) {
-    const snap = await favsRef.count().get();
-    if (snap.data().count >= FREE_LIMIT) {
-      return [403, { error: 'LIMIT_REACHED', limit: FREE_LIMIT, count: snap.data().count, isPremium: false }];
-    }
-  }
-
-  // Ajouter
-  await favDocRef.set({ animeId: numId, title: title || '', img: img || '', addedAt: Timestamp.now() });
-  await ref.set(
-    { favorites: FieldValue.arrayUnion({ id: numId, title: title || '', img: img || '' }) },
-    { merge: true }
-  );
-
-  const newSnap = await favsRef.count().get();
-  return [200, {
-    ok: true,
-    count: newSnap.data().count,
-    isPremium,
-    limit:     isPremium ? null : FREE_LIMIT,
-    remaining: isPremium ? null : FREE_LIMIT - newSnap.data().count,
-  }];
-}
-
-async function actionRemove(piUserId, { animeId }) {
-  if (!animeId) return [400, { error: 'animeId required' }];
-  const numId = Number(animeId);
-  if (isNaN(numId)) return [400, { error: 'Invalid animeId' }];
-
-  const { ref } = await getUser(piUserId);
-  await ref.collection('favorites').doc(String(numId)).delete();
-
-  const userData = (await ref.get()).data() || {};
-  const favs     = (userData.favorites || []).filter(f => Number(f.id) !== numId);
-  await ref.set({ favorites: favs }, { merge: true });
-
-  const snap = await ref.collection('favorites').count().get();
-  return [200, { ok: true, count: snap.data().count }];
-}
-
-async function actionSync(piUserId, { favorites }) {
-  if (!Array.isArray(favorites)) return [400, { error: 'favorites array required' }];
-
-  const { ref, isPremium } = await getUser(piUserId);
-  const toSync = isPremium ? favorites : favorites.slice(0, FREE_LIMIT);
-
-  const batch   = db.batch();
-  const favsRef = ref.collection('favorites');
-  for (const fav of toSync) {
-    const numId = Number(fav.id);
-    if (isNaN(numId)) continue;
-    batch.set(favsRef.doc(String(numId)), {
-      animeId: numId, title: fav.title || '', img: fav.img || '', addedAt: Timestamp.now(),
-    }, { merge: true });
-  }
-  batch.set(ref, {
-    favorites: toSync.map(f => ({ id: Number(f.id), title: f.title || '', img: f.img || '' })),
-  }, { merge: true });
-  await batch.commit();
-
-  return [200, { ok: true, synced: toSync.length, truncated: favorites.length > toSync.length, isPremium }];
-}
-
-// Reorder — Premium uniquement : sauvegarde le nouvel ordre dans Firestore
-// POST { piUserId, order: [animeId1, animeId2, ...] }
-async function actionReorder(piUserId, { order }) {
-  if (!Array.isArray(order)) return [400, { error: 'order array required' }];
-
-  const { ref, isPremium } = await getUser(piUserId);
-
-  // Middleware Premium — non contournable
-  const guard = await requirePremium(piUserId, 'favorites_reorder');
-  if (guard) return [guard.status, guard.body];
-
-  // Récupérer les données actuelles des favoris depuis Firestore
-  const favsSnap = await ref.collection('favorites').get();
-  const favsMap  = {};
-  favsSnap.docs.forEach(doc => {
-    favsMap[String(doc.data().animeId)] = doc.data();
-  });
-
-  // Reconstruire le tableau ordonné
-  const ordered = order
-    .map(id => favsMap[String(Number(id))])
-    .filter(Boolean);
-
-  // Sauvegarder le nouvel ordre sur le doc user (le tableau favorites[] définit l'ordre)
-  await ref.set({
-    favorites:      ordered.map(f => ({ id: f.animeId, title: f.title, img: f.img })),
-    favoritesOrder: order.map(Number), // tableau des IDs dans l'ordre
-  }, { merge: true });
-
-  return [200, { ok: true, count: ordered.length }];
-}
-
 /* ── Handler ── */
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -275,6 +162,9 @@ export default async function handler(req, res) {
   // GET rapide pour status (utilisé par le client au chargement)
   if (req.method === 'GET') {
     const { piUserId } = req.query;
+    // Rate limiting : 60 requêtes/minute par IP
+    const limited = await checkRateLimit(req, 'premium', 60, 60);
+    if (limited) return res.status(429).json({ error: 'Too many requests', retryAfter: 60 });
     const [status, body] = await actionStatus(piUserId).catch(e => {
       console.error('[premium GET]', e);
       return [500, { error: 'Server error' }];
@@ -292,12 +182,7 @@ export default async function handler(req, res) {
     if      (action === 'activate') [status, body] = await actionActivate(piUserId, params);
     else if (action === 'status')   [status, body] = await actionStatus(piUserId);
     else if (action === 'cancel')   [status, body] = await actionCancel(piUserId);
-    // Favoris
-    else if (action === 'add')      [status, body] = await actionAdd(piUserId, params);
-    else if (action === 'remove')   [status, body] = await actionRemove(piUserId, params);
-    else if (action === 'sync')     [status, body] = await actionSync(piUserId, params);
-    else if (action === 'reorder')  [status, body] = await actionReorder(piUserId, params);
-    else return res.status(400).json({ error: `Unknown action: ${action}. Valid: activate|status|cancel|add|remove|sync|reorder` });
+    else return res.status(400).json({ error: `Unknown action: ${action}` });
 
     return res.status(status).json(body);
   } catch (e) {
