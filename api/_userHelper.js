@@ -12,20 +12,42 @@
 //   piUsername:  string    — pseudo Pi Network
 //   favorites:   array     — [{id, title, img}] pour les notifications
 //   favoritesOrder: array  — [id, id, ...] ordre personnalisé (Premium)
+//   firstSeenAt: Timestamp — date du premier login (créé à l'inscription free)
+//   lastSeenAt:  Timestamp — date du dernier login
 //
 // subscriptionStatus calculé (jamais stocké, toujours dérivé) :
 //   'active'  → isPremium && expiresAt > now
 //   'expired' → isPremium=false && expiresAt existe && expiresAt < now
 //   'none'    → jamais eu d'abonnement
 
-import { getFirestore, Timestamp } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 
 // Pas d'initializeApp ici — chaque fichier appelant l'initialise déjà
 
-export async function getUser(piUserId) {
+export async function getUser(piUserId, { piUsername, registerIfNew = false } = {}) {
   const db  = getFirestore();
   const ref = db.collection('users').doc(piUserId);
   const doc = await ref.get();
+
+  // ── Création automatique du doc free au premier login ──────────────────────
+  // Appelé par registerUser() — permet d'avoir tous les users dans Firestore
+  // pour la stat free vs premium, même ceux qui n'ont jamais payé.
+  if (!doc.exists && registerIfNew) {
+    const newUser = {
+      isPremium:   false,
+      plan:        null,
+      piUsername:  piUsername || '',
+      firstSeenAt: FieldValue.serverTimestamp(),
+      lastSeenAt:  FieldValue.serverTimestamp(),
+    };
+    await ref.set(newUser).catch(() => {}); // non bloquant si erreur
+  } else if (doc.exists && registerIfNew) {
+    // Mettre à jour lastSeenAt + piUsername si fourni
+    const updates = { lastSeenAt: FieldValue.serverTimestamp() };
+    if (piUsername) updates.piUsername = piUsername;
+    ref.update(updates).catch(() => {}); // non bloquant
+  }
+
   const data = doc.exists ? doc.data() : {};
   const now  = Date.now();
 
@@ -97,7 +119,24 @@ const FEATURE_MESSAGES = {
   default:             'This feature requires a Premium subscription.',
 };
 
-export async function requirePremium(piUserId, featureName = 'default') {
+export { getUser, requirePremium };
+
+/* ── registerUser ──────────────────────────────────────────────────────────
+   À appeler depuis pi-approve.js ou premium.html au moment du Pi.authenticate().
+   Crée le doc users/{piUserId} avec isPremium:false si c'est un nouvel utilisateur,
+   ou met à jour lastSeenAt si déjà connu.
+
+   Utilisation dans pi-approve.js :
+     import { registerUser } from './_userHelper.js';
+     await registerUser(piUserId, piUsername);
+
+   Utilisation côté client (via un endpoint GET /api/premium?piUserId=xxx) :
+     → actionStatus() dans premium.js appelle getUser() avec registerIfNew:true
+──────────────────────────────────────────────────────────────────────────── */
+export async function registerUser(piUserId, piUsername = '') {
+  if (!piUserId) return;
+  await getUser(piUserId, { piUsername, registerIfNew: true });
+}
   if (!piUserId) {
     return { status: 400, body: { error: 'piUserId required' } };
   }
