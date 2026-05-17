@@ -746,10 +746,13 @@ tr:hover td { background: rgba(255,255,255,0.02); }
         <div class="page-title" id="pageTitle">Vue d'ensemble</div>
         <div class="page-sub" id="pageSub">Données en temps réel</div>
       </div>
-      <div class="range-tabs" id="globalRange">
-        <button class="range-tab active" onclick="setRange('7d',this)">7j</button>
-        <button class="range-tab" onclick="setRange('30d',this)">30j</button>
-        <button class="range-tab" onclick="setRange('all',this)">Tout</button>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span id="piRateBadge" style="font-size:0.72rem;color:var(--pi);font-family:var(--font-mono);background:rgba(247,183,49,0.08);border:1px solid rgba(247,183,49,0.2);padding:4px 10px;border-radius:20px">Chargement taux Pi…</span>
+        <div class="range-tabs" id="globalRange">
+          <button class="range-tab active" onclick="setRange('7d',this)">7j</button>
+          <button class="range-tab" onclick="setRange('30d',this)">30j</button>
+          <button class="range-tab" onclick="setRange('all',this)">Tout</button>
+        </div>
       </div>
     </div>
     <div class="main-content">
@@ -909,6 +912,35 @@ let SECRET = '';
 let currentRange = '7d';
 let statsCache   = null;
 let allLogs      = [];
+let piEurRate    = null; // taux Pi → EUR récupéré en temps réel
+
+/* ── Taux Pi/EUR (CoinGecko) ──────────────────────────────────────────── */
+async function fetchPiRate() {
+  try {
+    const r = await fetch(
+      'https://api.coingecko.com/api/v3/simple/price?ids=pi-network&vs_currencies=eur',
+      { cache: 'no-store' }
+    );
+    const data = await r.json();
+    piEurRate = data?.['pi-network']?.eur || null;
+  } catch(e) {
+    piEurRate = null;
+  }
+  const el = document.getElementById('piRateBadge');
+  if (el) {
+    el.textContent = piEurRate
+      ? `1 Pi = €${piEurRate.toFixed(4)}`
+      : '— Pi/EUR';
+  }
+}
+
+function piToEur(piStr) {
+  if (!piEurRate || !piStr) return piStr;
+  const num = parseFloat(piStr);
+  if (isNaN(num)) return piStr;
+  const eur = (num * piEurRate).toFixed(2);
+  return `${piStr} <span style="color:var(--muted);font-size:0.85em">(≈ €${eur})</span>`;
+}
 
 /* ── Auth ─────────────────────────────────────────────────────────────── */
 async function login() {
@@ -922,6 +954,7 @@ async function login() {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     statsCache = r;
+    fetchPiRate();
     renderAll(r);
     loadPayments();
   } else {
@@ -947,6 +980,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('app').style.display = 'block';
       statsCache = r;
+      fetchPiRate();
       renderAll(r);
       loadPayments();
     } else {
@@ -1056,7 +1090,7 @@ function renderOverview(d) {
     card('📉 Churn',           d.users.churnedTotal,             'Taux : ' + d.users.churnRate, 'red'),
     card('💳 Paiements OK',    d.payments.activatedInRange,      'Taux : ' + d.payments.successRate),
     card('⚠ À réparer',       d.payments.needsRepair,           'Paiements bloqués', d.payments.needsRepair > 0 ? 'yellow' : ''),
-    card('π Revenus période',  d.revenue.periodTotal,            'Abonnements + dons', 'pi'),
+    card('Pi Revenus période', piToEur(d.revenue.periodTotal),   'Abonnements + dons', 'pi'),
   ].join('');
 
   // Logs
@@ -1088,31 +1122,31 @@ function renderRevenue(d) {
   document.getElementById('revPeriod').innerHTML = `
     <div class="rev-card">
       <div class="rev-label">Abonnements</div>
-      <div class="rev-main">${r.periodSubscriptions}</div>
+      <div class="rev-main">${piToEur(r.periodSubscriptions)}</div>
       <div class="rev-sub">sur la période sélectionnée</div>
     </div>
     <div class="rev-card">
       <div class="rev-label">Dons</div>
-      <div class="rev-main">${r.periodDonations}</div>
+      <div class="rev-main">${piToEur(r.periodDonations)}</div>
       <div class="rev-sub">sur la période sélectionnée</div>
     </div>
   `;
   document.getElementById('revAllTime').innerHTML = `
     <div class="rev-card">
       <div class="rev-label">Abonnements (tout temps)</div>
-      <div class="rev-main">${r.allTimeSubscriptions}</div>
+      <div class="rev-main">${piToEur(r.allTimeSubscriptions)}</div>
       <div class="rev-sub">${r.monthlyTxTotal} mensuel · ${r.annualTxTotal} annuel</div>
     </div>
     <div class="rev-card">
       <div class="rev-label">Dons (tout temps)</div>
-      <div class="rev-main">${r.allTimeDonations}</div>
+      <div class="rev-main">${piToEur(r.allTimeDonations)}</div>
       <div class="rev-sub">${r.donsTxTotal} donations</div>
     </div>
   `;
   document.getElementById('revMetrics').innerHTML = [
-    card('π Total all-time', r.allTimeTotal,  'abonnements + dons', 'pi'),
-    card('π ARPU',           r.arpu,          'par abonné premium actif', 'pi'),
-    card('✅ Taux succès',   d.payments.successRate, 'paiements activés'),
+    card('Pi Total all-time', piToEur(r.allTimeTotal),  'abonnements + dons', 'pi'),
+    card('Pi ARPU',           piToEur(r.arpu),          'par abonné premium actif', 'pi'),
+    card('✅ Taux succès',    d.payments.successRate,   'paiements activés'),
   ].join('');
 }
 
