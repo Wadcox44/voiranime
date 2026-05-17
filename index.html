@@ -488,39 +488,39 @@
 <div class="toast" id="toast"></div>
 
 <!-- DEBUG PI TEMPORAIRE — à retirer après test -->
-<div id="pi-debug" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid #a78bfa;border-radius:10px;padding:.75rem 1.25rem;font-size:.8rem;color:#fff;z-index:9999;text-align:center;max-width:320px;display:none;"></div>
+<div id="pi-debug" style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid #a78bfa;border-radius:10px;padding:.75rem 1.25rem;font-size:.8rem;color:#fff;z-index:9999;text-align:center;max-width:320px;"></div>
 <script>
-(function() {
   var d = document.getElementById('pi-debug');
-  function show(msg, color) {
-    d.style.display = 'block';
-    d.style.borderColor = color || '#a78bfa';
-    d.innerHTML = msg;
-  }
+  d.innerHTML = '⏳ Script chargé — test Pi…';
 
-  if (typeof window.Pi === 'undefined') {
-    show('❌ SDK Pi non chargé (window.Pi undefined)', '#ff6b6b');
-    return;
-  }
-  show('✅ SDK Pi chargé — auth en cours…', '#4ade80');
+  window.addEventListener('load', function() {
+    if (typeof window.Pi === 'undefined') {
+      d.style.borderColor = '#ff6b6b';
+      d.innerHTML = '❌ window.Pi undefined après load';
+      return;
+    }
+    d.style.borderColor = '#4ade80';
+    d.innerHTML = '✅ SDK Pi OK — auth…';
 
-  try {
-    Pi.init({ version: '2.0', sandbox: true });
-    Pi.authenticate(['username'], function() {})
-      .then(function(auth) {
-        if (auth && auth.user) {
-          show('✅ Auth OK — uid: ' + auth.user.uid.slice(0,8) + '…<br>username: ' + auth.user.username, '#4ade80');
-        } else {
-          show('⚠️ Auth retourné mais pas de user', '#fbbf24');
-        }
-      })
-      .catch(function(e) {
-        show('❌ Auth échoué: ' + (e && e.message ? e.message : JSON.stringify(e)), '#ff6b6b');
-      });
-  } catch(e) {
-    show('❌ Pi.init échoué: ' + e.message, '#ff6b6b');
-  }
-})();
+    try {
+      Pi.init({ version: '2.0', sandbox: true });
+      Pi.authenticate(['username'], function() {})
+        .then(function(auth) {
+          if (auth && auth.user) {
+            d.innerHTML = '✅ Auth OK<br>uid: ' + auth.user.uid.slice(0,8) + '…<br>user: ' + auth.user.username;
+          } else {
+            d.innerHTML = '⚠️ Auth OK mais pas de user';
+          }
+        })
+        .catch(function(e) {
+          d.style.borderColor = '#ff6b6b';
+          d.innerHTML = '❌ Auth erreur: ' + (e && e.message ? e.message : String(e));
+        });
+    } catch(e) {
+      d.style.borderColor = '#ff6b6b';
+      d.innerHTML = '❌ Pi.init erreur: ' + e.message;
+    }
+  });
 </script>
 <!-- FIN DEBUG PI -->
 
