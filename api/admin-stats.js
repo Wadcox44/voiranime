@@ -111,7 +111,7 @@ export default async function handler(req, res) {
     const txs = txSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
     // Prix de référence (à aligner avec vos vrais tarifs)
-    const PRICES = { monthly: 1.99, annual: 19.99, don: 0 };
+    const PRICES = { monthly: 2.49, annual: 24.99, don: 0 };
 
     // Toutes transactions activées (historique complet pour revenus totaux)
     const allActivated = txs.filter(t =>
@@ -195,14 +195,14 @@ export default async function handler(req, res) {
 
       revenue: {
         // Période sélectionnée
-        periodSubscriptions: revenueRange.subscriptions.toFixed(2) + ' π',
-        periodDonations:     revenueRange.donations.toFixed(2)     + ' π',
-        periodTotal:         revenueRange.total.toFixed(2)         + ' π',
+        periodSubscriptions: revenueRange.subscriptions.toFixed(2) + ' Pi',
+        periodDonations:     revenueRange.donations.toFixed(2)     + ' Pi',
+        periodTotal:         revenueRange.total.toFixed(2)         + ' Pi',
         // Tout temps
-        allTimeSubscriptions: revenueAll.subscriptions.toFixed(2)  + ' π',
-        allTimeDonations:     revenueAll.donations.toFixed(2)       + ' π',
-        allTimeTotal:         revenueAll.total.toFixed(2)           + ' π',
-        arpu:                 arpu + ' π',
+        allTimeSubscriptions: revenueAll.subscriptions.toFixed(2)  + ' Pi',
+        allTimeDonations:     revenueAll.donations.toFixed(2)       + ' Pi',
+        allTimeTotal:         revenueAll.total.toFixed(2)           + ' Pi',
+        arpu:                 arpu + ' Pi',
         // Breakdown plans
         monthlyTxTotal,
         annualTxTotal,
