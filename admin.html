@@ -915,9 +915,9 @@ async function login() {
   const s = document.getElementById('secretInput').value.trim();
   if (!s) return;
   document.getElementById('loginError').textContent = '';
+  SECRET = s;
   const r = await api('admin-stats', null, 'GET', `?range=7d`);
   if (r.ok) {
-    SECRET = s;
     sessionStorage.setItem('va_admin_secret', s);
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
@@ -925,6 +925,7 @@ async function login() {
     renderAll(r);
     loadPayments();
   } else {
+    SECRET = '';
     document.getElementById('loginError').textContent =
       r.error === 'Unauthorized' ? 'Secret incorrect.' : 'Erreur serveur — vérifiez les logs Vercel.';
   }
@@ -958,15 +959,21 @@ window.addEventListener('DOMContentLoaded', async () => {
 /* ── API ──────────────────────────────────────────────────────────────── */
 async function api(endpoint, body, method = 'POST', qs = '') {
   try {
-    const headers = {
-      'Authorization': `Bearer ${SECRET}`,
-      'Content-Type':  'application/json',
-    };
-    const opts = method === 'GET'
-      ? { method: 'GET', headers }
-      : { method: 'POST', headers, body: JSON.stringify(body || {}) };
-    const r = await fetch(`${BASE}/api/${endpoint}${qs}`, opts);
-    return r.json();
+    const headers = { 'Content-Type': 'application/json' };
+    // Pour les GET : secret en query param (évite les problèmes CORS avec Authorization header)
+    // Pour les POST : secret dans le body
+    let opts;
+    if (method === 'GET') {
+      const sep = qs.includes('?') ? '&' : '?';
+      const fullQs = qs + sep + 'secret=' + encodeURIComponent(SECRET);
+      opts = { method: 'GET', headers };
+      const r = await fetch(`${BASE}/api/${endpoint}${fullQs}`, opts);
+      return r.json();
+    } else {
+      opts = { method: 'POST', headers, body: JSON.stringify({ secret: SECRET, ...(body || {}) }) };
+      const r = await fetch(`${BASE}/api/${endpoint}${qs}`, opts);
+      return r.json();
+    }
   } catch(e) { return { error: e.message }; }
 }
 
