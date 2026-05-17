@@ -4,6 +4,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue }      from 'firebase-admin/firestore';
+import { sendAlert }                     from './alerts.js';
 
 const PI_API     = 'https://api.minepi.com/v2';
 const PI_API_KEY = process.env.PI_APP_API_KEY;
@@ -199,6 +200,9 @@ export default async function handler(req, res) {
       });
 
       console.error(`[pi-complete] PAID_NOT_ACTIVATED paymentId=${paymentId} piUserId=${piUserId} plan=${plan}`);
+
+      // Alerte email admin
+      sendAlert('payment_failed', { paymentId, piUserId, plan, attempts: premiumResult.attempts }).catch(() => {});
 
       // Répondre 200 avec toutes les infos de preuve — le paiement Pi est confirmé
       return res.status(200).json({

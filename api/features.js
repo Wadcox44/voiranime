@@ -24,6 +24,7 @@
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore }                  from 'firebase-admin/firestore';
+import { checkRateLimit }                from './_rateLimit.js';
 
 function initFirebase() {
   if (getApps().length) return;
@@ -115,6 +116,10 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET')    return res.status(405).json({ error: 'Method not allowed' });
+
+  // Rate limiting : 60 requêtes/minute par IP
+  const limited = await checkRateLimit(req, 'features', 60, 60);
+  if (limited) return res.status(429).json({ error: 'Too many requests', retryAfter: 60 });
 
   const { piUserId } = req.query || {};
 
