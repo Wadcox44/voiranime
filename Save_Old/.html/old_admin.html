@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>VoirAnime — Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 /* ── Reset & Variables ───────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,6 +29,7 @@
   --radius:    12px;
   --radius-sm: 8px;
   --font-mono: 'JetBrains Mono', monospace;
+  --font-num:  'Inter', sans-serif;
   --font-head: 'Syne', sans-serif;
   --font-body: 'DM Sans', sans-serif;
   --sidebar-w: 220px;
@@ -304,11 +305,13 @@ body {
 }
 .stat-card:hover { border-color: var(--border2); }
 .stat-card .val {
-  font-family: var(--font-head);
+  font-family: var(--font-num);
   font-size: 1.6rem;
   font-weight: 800;
   color: var(--accent2);
   line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 .stat-card .val.green { color: var(--green); }
 .stat-card .val.red   { color: var(--red); }
@@ -361,10 +364,12 @@ body {
   margin-bottom: 10px;
 }
 .rev-card .rev-main {
-  font-family: var(--font-head);
+  font-family: var(--font-num);
   font-size: 1.4rem;
   font-weight: 800;
   color: var(--pi);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 .rev-card .rev-sub {
   font-size: 0.72rem;
