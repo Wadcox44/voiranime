@@ -1292,29 +1292,6 @@ async function init() {
   updateFavUI();
   renderFavoritesSection();
 
-  // Enregistrement silencieux Pi — crée la fiche "free" si c'est un nouvel utilisateur
-  // Non bloquant : ne ralentit pas le chargement de la page
-  if (window.Pi) {
-    try {
-      window.Pi.init({ version: '2.0', sandbox: true });
-      window.Pi.authenticate(['username'], function() {}).then(function(auth) {
-        if (!auth || !auth.user) return;
-        // Stocker localement pour les autres pages
-        try { localStorage.setItem('pi_user', JSON.stringify(auth.user)); } catch(e) {}
-        // Enregistrer dans Firestore (crée le doc free si nouveau)
-        fetch('https://voir-anime.vercel.app/api/premium', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({
-            action:     'register',
-            piUserId:   auth.user.uid,
-            piUsername: auth.user.username,
-          }),
-        }).catch(function() {}); // silencieux — erreur réseau non bloquante
-      }).catch(function() {}); // utilisateur refuse ou pas dans Pi Browser → ok
-    } catch(e) {}
-  }
-
   loadAnimeDuJour();
   loadForYou();
 

@@ -65,6 +65,18 @@ else {
         };
 
         localStorage.setItem("pi_user", JSON.stringify(this.user));
+
+        // Enregistrer le visiteur (crée doc free si nouveau)
+        fetch("https://voir-anime.vercel.app/api/premium", {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify({
+            action:     "register",
+            piUserId:   this.user.uid,
+            piUsername: this.user.username,
+          }),
+        }).catch(() => {}); // silencieux — non bloquant
+
         return this.user;
       } catch (e) {
         console.warn("[Pi Auth] Échec authentification:", e);
