@@ -1,175 +1,156 @@
 // api/features.js
-// Gestion des feature flags Free vs Premium
-// GET  ?piUserId=xxx           → liste toutes les features avec statut d'accès
-// POST { action:'add', ...}    → ajoute une feature (admin seulement)
-// POST { action:'toggle', ...} → active/désactive une feature (admin seulement)
+// Feature flags Free vs Premium par utilisateur
+// GET /api/features?piUserId=xxx  (piUserId optionnel)
 //
-// Firestore structure:
-//   features/{featureId} → { name, description, releasedAt, enabled }
-//   freeAt = releasedAt + FREE_DELAY_DAYS * 86400000 (calculé côté serveur)
+// Retourne :
+// {
+//   isPremium: bool,
+//   features: {
+//     featureId: {
+//       accessible: bool,
+//       reason: 'premium_only' | 'free' | 'early_access',
+//       freeAt: timestamp | null,
+//       daysUntilFree: number | null
+//     }
+//   }
+// }
+//
+// Définition des features :
+//   accessible: true  → tout le monde y a accès
+//   accessible: false → Premium seulement (ou délai Early Access en cours)
+//   freeAt            → date à laquelle la feature devient gratuite
+//
+// Pour ajouter une feature : l'ajouter dans FEATURE_DEFINITIONS ci-dessous
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore, Timestamp }       from 'firebase-admin/firestore';
-import { getUser, requirePremium }          from './_userHelper.js';
+import { getFirestore }                  from 'firebase-admin/firestore';
 
-if (!getApps().length) {
-  initializeApp({
-    credential: cert({
-      projectId:   process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey:  process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
+function initFirebase() {
+  if (getApps().length) return;
+  initializeApp({ credential: cert({
+    projectId:   process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey:  process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  })});
 }
 
-const db               = getFirestore();
-const FREE_DELAY_DAYS  = 15;
-const FREE_DELAY_MS    = FREE_DELAY_DAYS * 24 * 3600 * 1000;
-const ADMIN_SECRET     = process.env.ADMIN_SECRET; // variable Vercel pour les actions admin
+// ── Définition des features ───────────────────────────────────────────────────
+// premiumOnly: true  → réservé aux abonnés Premium
+// freeAfterDays: N   → devient gratuit N jours après le lancement (Early Access)
+// freeAt: 'YYYY-MM-DD' → devient gratuit à une date fixe
+// (si ni premiumOnly ni freeAt → toujours accessible)
 
-/* ── Helpers ── */
-async function getPremiumStatus(piUserId) {
-  if (!piUserId) return false;
-  const { isPremium } = await getUser(piUserId);
-  return isPremium;
-}
+const FEATURE_DEFINITIONS = {
+  catalogue_v2: {
+    premiumOnly:    false,
+    freeAfterDays:  30,
+    launchedAt:     '2025-06-01', // date de lancement de la feature
+  },
+  advanced_stats: {
+    premiumOnly: true,
+  },
+  recommendations: {
+    premiumOnly: true,
+  },
+  notifications_premium: {
+    premiumOnly: true,
+  },
+  unlimited_favorites: {
+    premiumOnly: true,
+  },
+  list_reorder: {
+    premiumOnly: true,
+  },
+  early_access_news: {
+    premiumOnly:   false,
+    freeAfterDays: 14,
+    launchedAt:    '2025-06-01',
+  },
+};
 
-function computeFeatureAccess(feature, isPremium, now) {
-  if (!feature.enabled) {
-    return { accessible: false, reason: 'disabled' };
+// ── Calcul du statut d'une feature pour un user ───────────────────────────────
+function resolveFeature(featureId, def, isPremium) {
+  // Feature inconnue = toujours accessible
+  if (!def) return { accessible: true, reason: 'unknown' };
+
+  // Premium → accès à tout
+  if (isPremium) return { accessible: true, reason: 'premium' };
+
+  // Feature réservée Premium sans date de libération
+  if (def.premiumOnly && !def.freeAfterDays && !def.freeAt) {
+    return { accessible: false, reason: 'premium_only', freeAt: null, daysUntilFree: null };
   }
 
-  const releasedAt = feature.releasedAt?.toMillis?.() || 0;
-  const freeAt     = releasedAt + FREE_DELAY_MS;
+  // Early Access : calcul de la date de libération
+  let freeAtMs = null;
+  if (def.freeAt) {
+    freeAtMs = new Date(def.freeAt).getTime();
+  } else if (def.freeAfterDays && def.launchedAt) {
+    freeAtMs = new Date(def.launchedAt).getTime() + def.freeAfterDays * 86400000;
+  }
 
-  if (isPremium) {
-    // Premium : accès dès releasedAt
+  if (freeAtMs) {
+    const now = Date.now();
+    if (now >= freeAtMs) {
+      // Délai écoulé → accessible à tous
+      return { accessible: true, reason: 'free', freeAt: freeAtMs };
+    }
+    // Encore en Early Access
+    const daysUntilFree = Math.ceil((freeAtMs - now) / 86400000);
     return {
-      accessible:   now >= releasedAt,
-      isPremium:    true,
-      releasedAt,
-      freeAt,
-      reason:       now >= releasedAt ? 'premium_access' : 'not_released_yet',
-    };
-  } else {
-    // Free : accès dès freeAt
-    const daysLeft = Math.ceil((freeAt - now) / 86400000);
-    return {
-      accessible:   now >= freeAt,
-      isPremium:    false,
-      releasedAt,
-      freeAt,
-      daysUntilFree: Math.max(0, daysLeft),
-      reason:       now >= freeAt ? 'free_access' : 'pending_free',
+      accessible:    false,
+      reason:        'early_access',
+      freeAt:        freeAtMs,
+      daysUntilFree,
     };
   }
+
+  // Pas de restriction
+  return { accessible: true, reason: 'free' };
 }
 
-/* ── Actions ── */
-async function actionGet(piUserId) {
-  const now       = Date.now();
-  const isPremium = await getPremiumStatus(piUserId);
-
-  const snap     = await db.collection('features').orderBy('releasedAt', 'desc').get();
-  const features = {};
-
-  snap.docs.forEach(doc => {
-    const data   = doc.data();
-    const access = computeFeatureAccess(data, isPremium, now);
-
-    features[doc.id] = {
-      id:          doc.id,
-      name:        data.name        || doc.id,
-      description: data.description || '',
-      ...access,
-      // Ne jamais exposer les timestamps bruts au client Free
-      // (évite qu'il calcule freeAt lui-même pour contourner)
-      releasedAt: isPremium ? access.releasedAt : undefined,
-      freeAt:     access.freeAt,
-    };
-  });
-
-  return [200, { ok: true, isPremium, features }];
-}
-
-// Admin : ajouter une nouvelle feature
-// POST { action:'add', name, description, featureId, releasedAt? }
-async function actionAdd(params, adminSecret) {
-  if (ADMIN_SECRET && adminSecret !== ADMIN_SECRET) {
-    return [401, { error: 'Unauthorized' }];
-  }
-
-  const { featureId, name, description, releasedAt } = params;
-  if (!featureId || !name) return [400, { error: 'featureId and name required' }];
-
-  const releaseTs = releasedAt
-    ? Timestamp.fromMillis(new Date(releasedAt).getTime())
-    : Timestamp.now();
-
-  await db.collection('features').doc(featureId).set({
-    name,
-    description: description || '',
-    releasedAt:  releaseTs,
-    enabled:     true,
-    createdAt:   Timestamp.now(),
-  });
-
-  const freeDate = new Date(releaseTs.toMillis() + FREE_DELAY_MS);
-  return [200, {
-    ok: true,
-    featureId,
-    releasedAt: releaseTs.toMillis(),
-    freeAt:     freeDate.toISOString(),
-    freeDate:   freeDate.toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' }),
-  }];
-}
-
-// Admin : activer / désactiver une feature (kill switch)
-// POST { action:'toggle', featureId, enabled }
-async function actionToggle(params, adminSecret) {
-  if (ADMIN_SECRET && adminSecret !== ADMIN_SECRET) {
-    return [401, { error: 'Unauthorized' }];
-  }
-
-  const { featureId, enabled } = params;
-  if (!featureId) return [400, { error: 'featureId required' }];
-
-  await db.collection('features').doc(featureId).update({
-    enabled: enabled !== false, // true par défaut
-  });
-
-  return [200, { ok: true, featureId, enabled: enabled !== false }];
-}
-
-/* ── Handler ── */
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Origin',  '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
   if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'GET')    return res.status(405).json({ error: 'Method not allowed' });
+
+  const { piUserId } = req.query || {};
 
   try {
-    if (req.method === 'GET') {
-      const { piUserId } = req.query;
-      const [status, body] = await actionGet(piUserId || null);
-      return res.status(status).json(body);
+    let isPremium = false;
+    let userFlags = {}; // flags individuels éventuels
+
+    if (piUserId) {
+      initFirebase();
+      const db  = getFirestore();
+      const doc = await db.collection('users').doc(piUserId).get();
+
+      if (doc.exists) {
+        const data  = doc.data();
+        const now   = Date.now();
+        const expMs = data.expiresAt?.toMillis?.() || 0;
+
+        isPremium = !!(data.isPremium && expMs > now);
+        userFlags = data.flags || {};
+      }
     }
 
-    if (req.method === 'POST') {
-      const { action, ...params } = req.body || {};
-      const adminSecret = req.headers['x-admin-secret'] || params.adminSecret;
+    // Résoudre chaque feature
+    const features = {};
+    for (const [id, def] of Object.entries(FEATURE_DEFINITIONS)) {
+      // Flag individuel override
+      if (userFlags[id] === true)  { features[id] = { accessible: true,  reason: 'user_flag' }; continue; }
+      if (userFlags[id] === false) { features[id] = { accessible: false, reason: 'user_flag' }; continue; }
 
-      let status, body;
-      if      (action === 'add')    [status, body] = await actionAdd(params, adminSecret);
-      else if (action === 'toggle') [status, body] = await actionToggle(params, adminSecret);
-      else return res.status(400).json({ error: 'Unknown action: use add|toggle' });
-
-      return res.status(status).json(body);
+      features[id] = resolveFeature(id, def, isPremium);
     }
 
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(200).json({ ok: true, isPremium, features });
 
-  } catch (e) {
+  } catch(e) {
     console.error('[features]', e);
-    return res.status(500).json({ error: 'Server error' });
+    return res.status(500).json({ error: 'Server error', message: e.message });
   }
 }
