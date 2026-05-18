@@ -8,7 +8,7 @@ import { buildFranchise } from './animeFranchise.js';
 const API = 'https://api.jikan.moe/v4';
 
 /* ──────────────────────────────────────
-   UTILS 
+   UTILS
 ────────────────────────────────────── */
 function el(id) { return document.getElementById(id); }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
