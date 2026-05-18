@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head> 
+<head>
   <meta charset="UTF-8"/>
 <meta name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
@@ -88,13 +88,13 @@
   <!-- Cache le body immédiatement pour éviter le flash avant l'intro animation -->
   <style>body{visibility:hidden}</style>
 
+  <!-- Pi Network SDK + auth en premier — doit être prêt avant les managers -->
+  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+  <script src="pi-auth.js"></script>
   <script src="js/i18n.js"></script>
   <script src="featuresManager.js"></script>
   <script src="premiumManager.js"></script>
   <script src="premiumPreview.js"></script>
-  <!-- Pi Network SDK + auth (doit être chargé avant main.js) -->
-  <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-  <script src="pi-auth.js"></script>
 </head>
 <body>
 
@@ -487,42 +487,7 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- DEBUG PI TEMPORAIRE — à retirer après test -->
-<div id="pi-debug" style="position:fixed;top:10px;left:10px;right:10px;background:#1a1a2e;border:2px solid #a78bfa;border-radius:10px;padding:.75rem 1.25rem;font-size:.85rem;color:#fff;z-index:99999;text-align:center;"></div>
-<script>
-  var d = document.getElementById('pi-debug');
-  d.innerHTML = '⏳ Script chargé — test Pi…';
 
-  window.addEventListener('load', function() {
-    if (typeof window.Pi === 'undefined') {
-      d.style.borderColor = '#ff6b6b';
-      d.innerHTML = '❌ window.Pi undefined après load';
-      return;
-    }
-    d.style.borderColor = '#4ade80';
-    d.innerHTML = '✅ SDK Pi OK — auth…';
-
-    try {
-      Pi.init({ version: '2.0', sandbox: true });
-      Pi.authenticate(['username'], function() {})
-        .then(function(auth) {
-          if (auth && auth.user) {
-            d.innerHTML = '✅ Auth OK<br>uid: ' + auth.user.uid.slice(0,8) + '…<br>user: ' + auth.user.username;
-          } else {
-            d.innerHTML = '⚠️ Auth OK mais pas de user';
-          }
-        })
-        .catch(function(e) {
-          d.style.borderColor = '#ff6b6b';
-          d.innerHTML = '❌ Auth erreur: ' + (e && e.message ? e.message : String(e));
-        });
-    } catch(e) {
-      d.style.borderColor = '#ff6b6b';
-      d.innerHTML = '❌ Pi.init erreur: ' + e.message;
-    }
-  });
-</script>
-<!-- FIN DEBUG PI -->
 
 <!-- ════════════════════════════════
      SCRIPTS
