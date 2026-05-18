@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin",  "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Authorization, Content-Type, x-cron-secret" }
+      ]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/notifications",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron-stats",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
