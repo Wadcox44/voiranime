@@ -96,6 +96,10 @@ else {
     }
   };
 
-  // init uniquement si Pi OK
-  window.piAuth.init();
+  // Attendre que la page soit chargée avant d'init Pi
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => window.piAuth.init());
+  } else {
+    window.piAuth.init();
+  }
 }
