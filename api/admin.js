@@ -201,11 +201,164 @@ async function logAction(db, action, params, result) {
   } catch(e) {}
 }
 
+
+// ── buildStats — calcule toutes les stats pour la page admin ─────────────
+async function buildStats(db, range = '7d') {
+  const now = Date.now();
+  const rangeMs = { '24h': 86400000, '7d': 604800000, '30d': 2592000000, '90d': 7776000000, 'all': null };
+  const ms    = rangeMs[range] ?? rangeMs['7d'];
+  const since = new Date(ms ? now - ms : 0);
+
+  // ── Users ──
+  const usersSnap = await db.collection('users').get();
+  const allUsers  = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const total     = allUsers.length;
+  const premium   = allUsers.filter(u => u.isPremium === true);
+  const churned   = allUsers.filter(u => !u.isPremium && u.expiresAt);
+  const newInRange = allUsers.filter(u => {
+    const t = u.firstSeenAt?.toMillis?.() || u.createdAt?.toMillis?.() || 0;
+    return t >= since.getTime();
+  }).length;
+
+  const conversionRate = total > 0 ? Math.round(premium.length / total * 100) + '%' : '0%';
+  const churnRate      = (premium.length + churned.length) > 0
+    ? Math.round(churned.length / (premium.length + churned.length) * 100) + '%' : '0%';
+
+  // ── Subscriptions ──
+  const subsSnap   = await db.collection('subscriptions').get();
+  const allSubs    = subsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const activeSubs = allSubs.filter(s => s.status === 'active');
+  const newSubs    = allSubs.filter(s => {
+    const t = s.activatedAt?.toMillis?.() || 0;
+    return t >= since.getTime();
+  });
+
+  const activeMonthly = activeSubs.filter(s => s.plan === 'monthly').length;
+  const activeAnnual  = activeSubs.filter(s => s.plan === 'annual').length;
+
+  // Upgrades/downgrades (approximatif — basé sur les transactions multiples par user)
+  const subsByUser = {};
+  allSubs.forEach(s => {
+    if (!subsByUser[s.piUserId]) subsByUser[s.piUserId] = [];
+    subsByUser[s.piUserId].push(s);
+  });
+  let upgrades = 0, downgrades = 0;
+  Object.values(subsByUser).forEach(subs => {
+    if (subs.length < 2) return;
+    subs.sort((a, b) => (a.activatedAt?.toMillis?.() || 0) - (b.activatedAt?.toMillis?.() || 0));
+    for (let i = 1; i < subs.length; i++) {
+      if (subs[i-1].plan === 'monthly' && subs[i].plan === 'annual') upgrades++;
+      if (subs[i-1].plan === 'annual'  && subs[i].plan === 'monthly') downgrades++;
+    }
+  });
+
+  // ── Paiements / Transactions ──
+  const txSnap    = await db.collection('transactions').get();
+  const allTx     = txSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const activated = allTx.filter(t => t.status === 'activated');
+  const needsRepair = allTx.filter(t => t.status === 'paid_not_activated').length;
+  const activatedInRange = activated.filter(t => {
+    const ts = t.activatedAt?.toMillis?.() || t.completedAt?.toMillis?.() || 0;
+    return ts >= since.getTime();
+  }).length;
+  const successRate = allTx.length > 0
+    ? Math.round(activated.length / allTx.length * 100) + '%' : '0%';
+
+  // ── Revenus ──
+  const subTx   = activated.filter(t => t.plan === 'monthly' || t.plan === 'annual');
+  const donTx   = activated.filter(t => !t.plan || t.plan === 'donation');
+  const periodSubTx = subTx.filter(t => {
+    const ts = t.activatedAt?.toMillis?.() || t.completedAt?.toMillis?.() || 0;
+    return ts >= since.getTime();
+  });
+  const periodDonTx = donTx.filter(t => {
+    const ts = t.activatedAt?.toMillis?.() || t.completedAt?.toMillis?.() || 0;
+    return ts >= since.getTime();
+  });
+
+  const sumPi = arr => arr.reduce((acc, t) => acc + (parseFloat(t.amount) || 0), 0);
+  const allTimeSubscriptions = sumPi(subTx);
+  const allTimeDonations     = sumPi(donTx);
+  const periodSubscriptions  = sumPi(periodSubTx);
+  const periodDonations      = sumPi(periodDonTx);
+  const periodTotal          = periodSubscriptions + periodDonations;
+  const arpu = premium.length > 0
+    ? Math.round(allTimeSubscriptions / premium.length * 100) / 100 : 0;
+
+  // ── Logs récents ──
+  let recentLogs = [];
+  try {
+    const logsSnap = await db.collection('logs')
+      .orderBy('timestamp', 'desc').limit(20).get();
+    recentLogs = logsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch(e) {}
+
+  return {
+    users: {
+      total,
+      newInRange,
+      premiumTotal:   premium.length,
+      churnedTotal:   churned.length,
+      conversionRate,
+      churnRate,
+    },
+    subscriptions: {
+      activeTotal:   activeSubs.length,
+      activeMonthly,
+      activeAnnual,
+      newInRange:    newSubs.length,
+      upgrades,
+      downgrades,
+    },
+    payments: {
+      activatedInRange,
+      needsRepair,
+      successRate,
+    },
+    revenue: {
+      periodTotal,
+      periodSubscriptions,
+      periodDonations,
+      allTimeTotal:          allTimeSubscriptions + allTimeDonations,
+      allTimeSubscriptions,
+      allTimeDonations,
+      monthlyTxTotal:        subTx.filter(t => t.plan === 'monthly').length,
+      annualTxTotal:         subTx.filter(t => t.plan === 'annual').length,
+      donsTxTotal:           donTx.length,
+      arpu,
+    },
+    logs: { recent: recentLogs },
+  };
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin',  '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST')   return res.status(405).json({ error: 'Method not allowed' });
+
+  // ── Handler GET — appelé par la page admin pour login + stats ──────────
+  if (req.method === 'GET') {
+    const { secret, action, range = '7d' } = req.query || {};
+    if (!secret || secret !== ADMIN_SECRET)
+      return res.status(401).json({ error: 'Unauthorized' });
+
+    try {
+      initFirebase();
+      const db = getFirestore();
+
+      if (action === 'stats') {
+        const result = await buildStats(db, range);
+        return res.status(200).json({ ok: true, ...result });
+      }
+
+      return res.status(400).json({ error: `Unknown GET action: ${action}` });
+    } catch(e) {
+      console.error('[admin GET]', e);
+      return res.status(500).json({ error: 'Server error', message: e.message });
+    }
+  }
+
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { secret, action, ...params } = req.body || {};
 
