@@ -16,10 +16,6 @@
     {
       "path": "/api/notifications",
       "schedule": "0 9 * * *"
-    },
-    {
-      "path": "/api/cron-stats",
-      "schedule": "0 * * * *"
     }
   ]
 }
