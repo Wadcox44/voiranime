@@ -209,22 +209,84 @@ async function buildStats(db, range = '7d') {
   const ms    = rangeMs[range] ?? rangeMs['7d'];
   const since = new Date(ms ? now - ms : 0);
 
-  // ── Users ──
+  // ── Users ──────────────────────────────────────────────────────────────
   const usersSnap = await db.collection('users').get();
   const allUsers  = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
   const total     = allUsers.length;
-  const premium   = allUsers.filter(u => u.isPremium === true);
-  const churned   = allUsers.filter(u => !u.isPremium && u.expiresAt);
+
+  // Nouveaux dans la période
   const newInRange = allUsers.filter(u => {
     const t = u.firstSeenAt?.toMillis?.() || u.createdAt?.toMillis?.() || 0;
     return t >= since.getTime();
   }).length;
 
-  const conversionRate = total > 0 ? Math.round(premium.length / total * 100) + '%' : '0%';
-  const churnRate      = (premium.length + churned.length) > 0
-    ? Math.round(churned.length / (premium.length + churned.length) * 100) + '%' : '0%';
+  // Premium actifs
+  const premium = allUsers.filter(u => u.isPremium === true);
 
-  // ── Subscriptions ──
+  // Churners : ont déjà eu un abonnement mais ne sont plus premium
+  const churned = allUsers.filter(u => !u.isPremium && u.expiresAt);
+
+  // Utilisateurs ayant annulé (willCancel = true mais encore actifs)
+  const willCancelCount = allUsers.filter(u => u.isPremium && u.willCancel === true).length;
+
+  // CORRECTION taux de conversion : exclure les users inscrits depuis moins de 24h
+  const eligibleForConversion = allUsers.filter(u => {
+    const t = u.firstSeenAt?.toMillis?.() || u.createdAt?.toMillis?.() || 0;
+    return t > 0 && (now - t) >= 86400000; // au moins 24h d'ancienneté
+  });
+  const conversionRate = eligibleForConversion.length > 0
+    ? Math.round(premium.length / eligibleForConversion.length * 100) + '%'
+    : '0%';
+
+  // CORRECTION taux de churn : inclut willCancel
+  const effectiveChurned = churned.length + willCancelCount;
+  const churnBase = premium.length + churned.length;
+  const churnRate = churnBase > 0
+    ? Math.round(effectiveChurned / churnBase * 100) + '%'
+    : '0%';
+
+  // Funnel : inscription → première interaction → premium
+  const hadAnyActivity = allUsers.filter(u => u.lastSeenAt && u.firstSeenAt &&
+    u.lastSeenAt?.toMillis?.() > u.firstSeenAt?.toMillis?.()
+  ).length;
+  const funnelAuth       = total;
+  const funnelActive     = hadAnyActivity;
+  const funnelPremium    = premium.length;
+  const funnelAuthToActive   = total > 0 ? Math.round(hadAnyActivity / total * 100) + '%' : '0%';
+  const funnelActiveToPremium = hadAnyActivity > 0 ? Math.round(premium.length / hadAnyActivity * 100) + '%' : '0%';
+
+  // DAU/MAU (approximation via lastSeenAt)
+  const dau24h = allUsers.filter(u => {
+    const t = u.lastSeenAt?.toMillis?.() || 0;
+    return t >= now - 86400000;
+  }).length;
+  const mau30d = allUsers.filter(u => {
+    const t = u.lastSeenAt?.toMillis?.() || 0;
+    return t >= now - 2592000000;
+  }).length;
+  const dauMauRatio = mau30d > 0 ? Math.round(dau24h / mau30d * 100) + '%' : '0%';
+
+  // Top raisons d'annulation
+  const cancelReasons = {};
+  allUsers.forEach(u => {
+    if (u.cancelReason) {
+      cancelReasons[u.cancelReason] = (cancelReasons[u.cancelReason] || 0) + 1;
+    }
+  });
+  const topCancelReasons = Object.entries(cancelReasons)
+    .sort((a, b) => b[1] - a[1])
+    .map(([reason, count]) => ({ reason, count }));
+
+  // Temps médian free → premium (en jours)
+  const conversionTimes = premium
+    .filter(u => u.firstSeenAt && u.activatedAt)
+    .map(u => (u.activatedAt?.toMillis?.() - u.firstSeenAt?.toMillis?.()) / 86400000)
+    .filter(d => d >= 0 && d < 365);
+  const medianConversionDays = conversionTimes.length > 0
+    ? Math.round(conversionTimes.sort((a,b) => a-b)[Math.floor(conversionTimes.length / 2)])
+    : null;
+
+  // ── Subscriptions ──────────────────────────────────────────────────────
   const subsSnap   = await db.collection('subscriptions').get();
   const allSubs    = subsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
   const activeSubs = allSubs.filter(s => s.status === 'active');
@@ -236,7 +298,7 @@ async function buildStats(db, range = '7d') {
   const activeMonthly = activeSubs.filter(s => s.plan === 'monthly').length;
   const activeAnnual  = activeSubs.filter(s => s.plan === 'annual').length;
 
-  // Upgrades/downgrades (approximatif — basé sur les transactions multiples par user)
+  // Upgrades/downgrades
   const subsByUser = {};
   allSubs.forEach(s => {
     if (!subsByUser[s.piUserId]) subsByUser[s.piUserId] = [];
@@ -252,7 +314,7 @@ async function buildStats(db, range = '7d') {
     }
   });
 
-  // ── Paiements / Transactions ──
+  // ── Paiements / Transactions ───────────────────────────────────────────
   const txSnap    = await db.collection('transactions').get();
   const allTx     = txSnap.docs.map(d => ({ id: d.id, ...d.data() }));
   const activated = allTx.filter(t => t.status === 'activated');
@@ -264,7 +326,7 @@ async function buildStats(db, range = '7d') {
   const successRate = allTx.length > 0
     ? Math.round(activated.length / allTx.length * 100) + '%' : '0%';
 
-  // ── Revenus ──
+  // ── Revenus ────────────────────────────────────────────────────────────
   const subTx   = activated.filter(t => t.plan === 'monthly' || t.plan === 'annual');
   const donTx   = activated.filter(t => !t.plan || t.plan === 'donation');
   const periodSubTx = subTx.filter(t => {
@@ -282,10 +344,38 @@ async function buildStats(db, range = '7d') {
   const periodSubscriptions  = sumPi(periodSubTx);
   const periodDonations      = sumPi(periodDonTx);
   const periodTotal          = periodSubscriptions + periodDonations;
-  const arpu = premium.length > 0
-    ? Math.round(allTimeSubscriptions / premium.length * 100) / 100 : 0;
 
-  // ── Logs récents ──
+  // CORRECTION ARPU : sur abonnés uniques ayant payé, pas juste les actifs
+  const uniquePayingUsers = new Set(subTx.map(t => t.piUserId).filter(Boolean)).size;
+  const arpu = uniquePayingUsers > 0
+    ? Math.round(allTimeSubscriptions / uniquePayingUsers * 100) / 100 : 0;
+
+  // MRR estimé (Monthly Recurring Revenue)
+  const mrrMonthly = activeMonthly * 2.49;
+  const mrrAnnual  = activeAnnual  * (24.99 / 12);
+  const mrr        = Math.round((mrrMonthly + mrrAnnual) * 100) / 100;
+
+  // ── Top animes (vues) ──────────────────────────────────────────────────
+  let topAnimes = [];
+  try {
+    const viewsSnap = await db.collection('stats').doc('views').collection('anime')
+      .orderBy('total', 'desc').limit(10).get();
+    topAnimes = viewsSnap.docs.map(d => ({ animeId: d.id, views: d.data().total || 0 }));
+  } catch(e) {}
+
+  // ── Top favoris ────────────────────────────────────────────────────────
+  const favCounts = {};
+  allUsers.forEach(u => {
+    (u.favorites || []).forEach(f => {
+      if (f.id) favCounts[f.id] = { count: (favCounts[f.id]?.count || 0) + 1, title: f.title || f.id };
+    });
+  });
+  const topFavorites = Object.entries(favCounts)
+    .sort((a, b) => b[1].count - a[1].count)
+    .slice(0, 10)
+    .map(([id, v]) => ({ animeId: id, title: v.title, count: v.count }));
+
+  // ── Logs récents ───────────────────────────────────────────────────────
   let recentLogs = [];
   try {
     const logsSnap = await db.collection('logs')
@@ -297,10 +387,30 @@ async function buildStats(db, range = '7d') {
     users: {
       total,
       newInRange,
-      premiumTotal:   premium.length,
-      churnedTotal:   churned.length,
+      premiumTotal:       premium.length,
+      churnedTotal:       churned.length,
+      willCancelCount,
       conversionRate,
       churnRate,
+      eligibleCount:      eligibleForConversion.length,
+      medianConversionDays,
+    },
+    funnel: {
+      auth:              funnelAuth,
+      active:            funnelActive,
+      premium:           funnelPremium,
+      authToActiveRate:  funnelAuthToActive,
+      activeToPremiumRate: funnelActiveToPremium,
+    },
+    retention: {
+      dau: dau24h,
+      mau: mau30d,
+      dauMauRatio,
+    },
+    behavior: {
+      topAnimes,
+      topFavorites,
+      topCancelReasons,
     },
     subscriptions: {
       activeTotal:   activeSubs.length,
@@ -326,6 +436,7 @@ async function buildStats(db, range = '7d') {
       annualTxTotal:         subTx.filter(t => t.plan === 'annual').length,
       donsTxTotal:           donTx.length,
       arpu,
+      mrr,
     },
     logs: { recent: recentLogs },
   };
