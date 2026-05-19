@@ -1052,10 +1052,10 @@
       </div>
       <div class="stat-group-phrase" id="phraseActivite">Commence à explorer le catalogue !</div>
       <div class="stat-group-cells cols-3">
-        <div class="stat-cell" style="cursor:pointer" onclick="openHistoryPanel()">
+        <a href="visited.html" class="stat-cell" style="text-decoration:none">
           <div class="stat-cell-num" id="statHistCount" style="color:var(--violet)">0</div>
           <div class="stat-cell-label">Visités</div>
-        </div>
+        </a>
         <a href="favorites.html" class="stat-cell" style="text-decoration:none">
           <div class="stat-cell-num" id="statFavCount" style="color:var(--pink)">0</div>
           <div class="stat-cell-label">Favoris</div>
@@ -1075,18 +1075,18 @@
       </div>
       <div class="stat-group-phrase" id="phraseProgression">Ajoute des animes à ta liste !</div>
       <div class="stat-group-cells cols-3">
-        <div class="stat-cell">
+        <a href="watching.html?tab=planToWatch" class="stat-cell" style="text-decoration:none">
           <div class="stat-cell-num" id="statPlanCount" style="color:#f59e0b">0</div>
           <div class="stat-cell-label">À voir</div>
-        </div>
-        <div class="stat-cell">
+        </a>
+        <a href="watching.html?tab=watching" class="stat-cell" style="text-decoration:none">
           <div class="stat-cell-num" id="statWatchingCount" style="color:#60a5fa">0</div>
           <div class="stat-cell-label">En cours</div>
-        </div>
-        <div class="stat-cell">
+        </a>
+        <a href="watching.html?tab=completed" class="stat-cell" style="text-decoration:none">
           <div class="stat-cell-num" id="statCompletedCount" style="color:#4ade80">0</div>
           <div class="stat-cell-label">Terminés</div>
-        </div>
+        </a>
       </div>
     </div>
 
@@ -1098,12 +1098,12 @@
       </div>
       <div class="stat-group-phrase" id="phraseEngagement">Termine ton premier anime pour voir tes heures !</div>
       <div class="stat-group-cells cols-1">
-        <div class="stat-cell" style="display:flex;align-items:center;justify-content:center;gap:14px;padding:10px 16px">
+        <a href="engagement.html" class="stat-cell" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:14px;padding:10px 16px">
           <div class="stat-cell-num" id="statHoursCount" style="color:#a78bfa;font-size:1.6rem">0h</div>
           <div style="text-align:left">
             <div class="stat-cell-label" style="font-size:0.65rem">de visionnage cumulé</div>
           </div>
-        </div>
+        </a>
       </div>
     </div>
 
@@ -2902,18 +2902,6 @@ document.addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
-<!-- ══ PANEL HISTORIQUE VISITÉS ══ -->
-<div id="historyPanel" style="position:fixed;inset:0;z-index:9500;background:var(--bg);display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.32s cubic-bezier(0.4,0,0.2,1);">
-  <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--ink1);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:10;flex-shrink:0;">
-    <button onclick="closeHistoryPanel()" style="background:rgba(255,255,255,0.05);border:1px solid var(--b2);color:var(--text);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-    </button>
-    <h2 id="historyPanelTitle" style="margin:0;font-size:1.05rem;font-weight:700;color:var(--text)">Animes visités</h2>
-  </div>
-  <div style="flex:1;overflow-y:auto;padding:16px;">
-    <div class="profile-grid" id="historyPanelGrid"></div>
-  </div>
-</div>
 
 </body>
 </html>
