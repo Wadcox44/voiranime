@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nous contacter — VoirAnime</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="contact-modal.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    body { background: var(--va-bg, #0b0d14); min-height: 100vh; font-family: 'Outfit', sans-serif; }
+
+    /* ── Navbar simplifiée ── */
+    .c-navbar {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(11,13,20,0.92);
+      backdrop-filter: blur(12px);
+    }
+    .c-back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 8px 14px;
+      color: #e8eaf0; font-size: 13px; font-weight: 500;
+      font-family: inherit; cursor: pointer; text-decoration: none;
+      transition: background 0.18s, border-color 0.18s;
+    }
+    .c-back-btn:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.18); }
+    .c-back-btn svg { flex-shrink: 0; }
+    .c-navbar-logo {
+      flex: 1; text-align: center;
+      font-family: 'Outfit', sans-serif; font-size: 1.1rem; font-weight: 900;
+      letter-spacing: -0.5px; text-decoration: none;
+    }
+    .c-navbar-logo .logo-voir  { color: #fff; }
+    .c-navbar-logo .logo-anime { color: #22d3ee; }
+    .c-navbar-spacer { width: 80px; } /* équilibre le bouton retour */
+
+    /* ── Page layout ── */
+    .c-page {
+      min-height: calc(100vh - 57px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start;
+      padding: 40px 20px 60px;
+    }
+
+    /* ── Card formulaire ── */
+    .c-card {
+      width: 100%; max-width: 520px;
+      background: rgba(18,22,36,0.72);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 36px 32px 32px;
+      backdrop-filter: blur(20px) saturate(1.4);
+      box-shadow: 0 24px 80px -12px rgba(0,0,0,0.6),
+                  0 0 60px -20px rgba(124,92,252,0.2);
+    }
+
+    /* ── Header ── */
+    .c-header { text-align: center; margin-bottom: 28px; }
+    .c-title {
+      font-size: 26px; font-weight: 800; letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #fff 30%, #9478ff);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    /* ── Badge Pi ── */
+    .c-pi-badge {
+      display: none; align-items: center; gap: 10px;
+      background: rgba(124,92,252,0.08);
+      border: 1px solid rgba(124,92,252,0.2);
+      border-radius: 10px; padding: 10px 14px;
+      margin-bottom: 20px;
+    }
+    .c-pi-badge.visible { display: flex; }
+    .c-pi-name { font-weight: 700; color: #9478ff; font-size: 0.88rem; }
+    .c-pi-sub  { color: #8b90a0; font-size: 0.73rem; }
+
+    /* ── Champs manuels ── */
+    .c-manual { margin-bottom: 4px; }
+
+    /* ── Erreur globale ── */
+    .c-error {
+      color: #f87171; font-size: 0.8rem;
+      min-height: 1.2em; text-align: center;
+      margin-bottom: 4px;
+    }
+
+    /* ── Success plein écran ── */
+    .c-success-screen {
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 40px 20px;
+      gap: 16px;
+    }
+    .c-success-screen.visible { display: flex; }
+    .c-success-icon { font-size: 3rem; }
+    .c-success-title { font-size: 1.3rem; font-weight: 700; color: #34d399; }
+    .c-success-sub   { font-size: 0.88rem; color: #8b90a0; line-height: 1.6; }
+    .c-success-back  {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 8px; padding: 10px 20px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px; color: #e8eaf0;
+      font-size: 13px; font-weight: 500;
+      font-family: inherit; cursor: pointer; text-decoration: none;
+      transition: background 0.18s;
+    }
+    .c-success-back:hover { background: rgba(255,255,255,0.1); }
+
+    @media (max-width: 560px) {
+      .c-card { padding: 28px 18px 24px; border-radius: 16px; }
+      .c-page { padding: 24px 12px 40px; }
+      .c-title { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="c-navbar">
+  <a href="profile.html" class="c-back-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Retour
+  </a>
+  <a href="index.html" class="c-navbar-logo" aria-label="VoirAnime">
+    <span class="logo-voir">Voir</span><span class="logo-anime">Anime</span>
+  </a>
+  <div class="c-navbar-spacer"></div>
+</nav>
+
+<!-- Page -->
+<main class="c-page">
+  <div class="c-card">
+
+    <!-- Écran succès -->
+    <div class="c-success-screen" id="cSuccessScreen">
+      <div class="c-success-icon">✅</div>
+      <div class="c-success-title">Message envoyé !</div>
+      <div class="c-success-sub">On te répond sous 24–48h.<br>Merci de nous avoir contactés.</div>
+      <a href="profile.html" class="c-success-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        Retour au profil
+      </a>
+    </div>
+
+    <!-- Formulaire -->
+    <div id="cFormWrap">
+      <div class="c-header">
+        <h1 class="c-title">Nous contacter</h1>
+      </div>
+
+      <!-- Badge Pi -->
+      <div class="c-pi-badge" id="cPiBadge">
+        <span style="font-size:1.2rem">⚡</span>
+        <div>
+          <div class="c-pi-name" id="cPiName"></div>
+          <div class="c-pi-sub">Connecté via Pi Network</div>
+        </div>
+      </div>
+
+      <form class="contact-form" id="cForm" action="https://voir-anime.vercel.app/api/admin" method="POST">
+        <input type="hidden" name="action"      value="contact"/>
+        <input type="hidden" id="cPiUid"        name="piUserId"   value=""/>
+        <input type="hidden" id="cPiUsername"   name="piUsername" value=""/>
+        <input type="hidden" id="cLang"         name="_lang"/>
+        <input type="hidden" id="cUrl"          name="_pageUrl"/>
+
+        <!-- Identité manuelle -->
+        <div class="c-manual" id="cManualFields">
+          <div class="contact-form__row">
+            <div class="contact-form__group contact-form__group--half">
+              <label for="cFirstname" class="contact-form__label">Prénom <span class="contact-form__required">*</span></label>
+              <input id="cFirstname" type="text" name="firstname" placeholder="Prénom" class="contact-form__input" autocomplete="given-name"/>
+            </div>
+            <div class="contact-form__group contact-form__group--half">
+              <label for="cLastname" class="contact-form__label">Nom <span class="contact-form__required">*</span></label>
+              <input id="cLastname" type="text" name="lastname" placeholder="Nom de famille" class="contact-form__input" autocomplete="family-name"/>
+            </div>
+          </div>
+          <div class="contact-form__group" style="margin-top:16px">
+            <label for="cEmail" class="contact-form__label">Email <span class="contact-form__required">*</span></label>
+            <input id="cEmail" type="email" name="email" placeholder="email@exemple.com" class="contact-form__input" autocomplete="email"/>
+          </div>
+        </div>
+
+        <!-- Sujet — étape 1 : catégorie -->
+        <div class="contact-form__group">
+          <label for="cCategory" class="contact-form__label">Catégorie <span class="contact-form__required">*</span></label>
+          <div class="contact-form__select-wrapper">
+            <select id="cCategory" class="contact-form__select">
+              <option value="" disabled selected>Choisis une catégorie…</option>
+              <option value="technique">🐛 Technique</option>
+              <option value="contenu">🎌 Contenu</option>
+              <option value="paiement">💳 Compte &amp; Paiement</option>
+              <option value="pro">🤝 Pro</option>
+            </select>
+            <svg class="contact-form__select-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+        <!-- Sujet — étape 2 : sous-sujet (conditionnel) -->
+        <div class="contact-form__group" id="cSubjectWrap" style="display:none">
+          <label for="cSubject" class="contact-form__label">Sujet <span class="contact-form__required">*</span></label>
+          <div class="contact-form__select-wrapper">
+            <select id="cSubject" name="subject" required class="contact-form__select">
+              <option value="" disabled selected>Choisis un sujet…</option>
+            </select>
+            <svg class="contact-form__select-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+        <!-- Anime concerné (conditionnel) -->
+        <div class="contact-form__group" id="cAnimeField" style="display:none">
+          <label for="cAnime" class="contact-form__label">Anime concerné <span class="contact-form__optional">(optionnel)</span></label>
+          <input id="cAnime" type="text" name="anime" placeholder="Ex : Demon Slayer, One Piece…" class="contact-form__input"/>
+        </div>
+
+        <!-- Message -->
+        <div class="contact-form__group">
+          <label for="cMessage" class="contact-form__label">Message <span class="contact-form__required">*</span></label>
+          <textarea id="cMessage" name="message" required rows="6" placeholder="Décris ta demande en détail…" class="contact-form__textarea"></textarea>
+        </div>
+
+        <div class="c-error" id="cErrorMsg"></div>
+
+        <button type="submit" class="contact-form__submit" id="cSubmitBtn">
+          <span class="contact-form__submit-text">Envoyer le message ✉️</span>
+          <span class="contact-form__submit-loader" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2.5" fill="none" stroke-dasharray="40 60" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 10 10" to="360 10 10" dur=".7s" repeatCount="indefinite"/></circle></svg>
+          </span>
+        </button>
+      </form>
+    </div>
+
+  </div>
+</main>
+
+<script>
+(function() {
+  'use strict';
+
+  var form      = document.getElementById('cForm');
+  var submitBtn = document.getElementById('cSubmitBtn');
+  var errMsg    = document.getElementById('cErrorMsg');
+  var formWrap  = document.getElementById('cFormWrap');
+  var success   = document.getElementById('cSuccessScreen');
+
+  // ── Pré-remplir Pi ──────────────────────────────────────────────────
+  document.getElementById('cLang').value = navigator.language || 'unknown';
+  document.getElementById('cUrl').value  = window.location.href;
+
+  var piUser = null;
+  try { piUser = JSON.parse(localStorage.getItem('pi_user') || 'null'); } catch(e) {}
+
+  if (piUser && piUser.uid) {
+    document.getElementById('cPiBadge').classList.add('visible');
+    document.getElementById('cPiName').textContent  = '@' + (piUser.username || piUser.uid.slice(0,8));
+    document.getElementById('cPiUid').value         = piUser.uid;
+    document.getElementById('cPiUsername').value    = piUser.username || '';
+    document.getElementById('cManualFields').style.display = 'none';
+  }
+
+  // ── Sujets par catégorie ─────────────────────────────────────────────
+  var SUBJECTS = {
+    technique: [
+      { value: 'bug_technique',   label: 'Bug technique' },
+      { value: 'probleme_video',  label: 'Problème lecture vidéo' },
+    ],
+    contenu: [
+      { value: 'anime_manquant',  label: 'Anime manquant' },
+      { value: 'suggestion',      label: 'Suggestion d'amélioration' },
+    ],
+    paiement: [
+      { value: 'probleme_abonnement', label: 'Problème abonnement / paiement' },
+      { value: 'compte_pi',           label: 'Compte Pi / connexion' },
+    ],
+    pro: [
+      { value: 'partenariat', label: 'Partenariat' },
+      { value: 'business',    label: 'Business' },
+      { value: 'autre',       label: 'Autre' },
+    ],
+  };
+  var ANIME_SUBJECTS = ['anime_manquant','probleme_video','bug_technique'];
+
+  document.getElementById('cCategory').addEventListener('change', function() {
+    var cat      = this.value;
+    var subWrap  = document.getElementById('cSubjectWrap');
+    var subSel   = document.getElementById('cSubject');
+    var animeField = document.getElementById('cAnimeField');
+
+    // Remplir le sous-select
+    subSel.innerHTML = '<option value="" disabled selected>Choisis un sujet…</option>';
+    (SUBJECTS[cat] || []).forEach(function(s) {
+      var opt = document.createElement('option');
+      opt.value = s.value; opt.textContent = s.label;
+      subSel.appendChild(opt);
+    });
+
+    // Si 1 seul choix → sélectionner automatiquement
+    if ((SUBJECTS[cat] || []).length === 1) {
+      subSel.value = SUBJECTS[cat][0].value;
+      subWrap.style.display = 'none';
+      // Vérifier champ anime
+      animeField.style.display = ANIME_SUBJECTS.indexOf(subSel.value) !== -1 ? 'block' : 'none';
+    } else {
+      subWrap.style.display = 'block';
+      animeField.style.display = 'none';
+    }
+  });
+
+  document.getElementById('cSubject').addEventListener('change', function() {
+    var show = ANIME_SUBJECTS.indexOf(this.value) !== -1;
+    document.getElementById('cAnimeField').style.display = show ? 'block' : 'none';
+  });
+
+  // ── Envoi ────────────────────────────────────────────────────────────
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    errMsg.textContent = '';
+
+    var isPi = !!document.getElementById('cPiUid').value;
+    if (!isPi) {
+      var fn = document.getElementById('cFirstname').value.trim();
+      var ln = document.getElementById('cLastname').value.trim();
+      var em = document.getElementById('cEmail').value.trim();
+      if (!fn || !ln) { errMsg.textContent = 'Merci de renseigner ton prénom et nom.'; return; }
+      if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { errMsg.textContent = 'Adresse email invalide.'; return; }
+    }
+    if (!document.getElementById('cCategory').value) {
+      errMsg.textContent = 'Merci de sélectionner une catégorie.'; return;
+    }
+    if (!document.getElementById('cSubject').value) {
+      errMsg.textContent = 'Merci de sélectionner un sujet.'; return;
+    }
+    var msg = document.getElementById('cMessage').value.trim();
+    if (msg.length < 10) { errMsg.textContent = 'Message trop court (min 10 caractères).'; return; }
+
+    submitBtn.classList.add('is-loading');
+
+    var fd = new FormData(form);
+    var payload = {};
+    fd.forEach(function(v, k) { if (v !== '') payload[k] = v; });
+
+    fetch(form.action, {
+      method:  'POST',
+      body:    JSON.stringify(payload),
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+    })
+    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+    .then(function(res) {
+      submitBtn.classList.remove('is-loading');
+      if (res.ok && res.data.ok) {
+        formWrap.style.display = 'none';
+        success.classList.add('visible');
+      } else {
+        errMsg.textContent = res.data.error || 'Erreur lors de l\'envoi. Réessaie.';
+      }
+    })
+    .catch(function() {
+      submitBtn.classList.remove('is-loading');
+      errMsg.textContent = 'Erreur réseau. Vérifie ta connexion.';
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
