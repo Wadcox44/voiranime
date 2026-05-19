@@ -653,7 +653,7 @@ body {
         <div class="contact-form__group">
           <label for="cCategory" class="contact-form__label">Catégorie <span class="contact-form__required">*</span></label>
           <div class="contact-form__select-wrapper">
-            <select id="cCategory" class="contact-form__select">
+            <select id="cCategory" class="contact-form__select" onchange="cShowSubjects(this.value)">
               <option value="" disabled selected>Choisis une catégorie…</option>
               <option value="technique">🐛 Technique</option>
               <option value="contenu">🎌 Contenu</option>
@@ -668,7 +668,7 @@ body {
         <div class="contact-form__group" id="cSubjectWrap" style="display:none">
           <label for="cSubject" class="contact-form__label">Sujet <span class="contact-form__required">*</span></label>
           <div class="contact-form__select-wrapper">
-            <select id="cSubject" name="subject" required class="contact-form__select">
+            <select id="cSubject" name="subject" required class="contact-form__select" onchange="cOnSubjectChange(this.value)">
               <option value="" disabled selected>Choisis un sujet…</option>
             </select>
             <svg class="contact-form__select-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -749,13 +749,12 @@ document.addEventListener('DOMContentLoaded', function() {
   };
   var ANIME_SUBJECTS = ['anime_manquant','probleme_video','bug_technique'];
 
-  document.getElementById('cCategory').addEventListener('change', function() {
-    var cat      = this.value;
-    var subWrap  = document.getElementById('cSubjectWrap');
-    var subSel   = document.getElementById('cSubject');
+  // Fonctions globales appelées via onchange inline
+  window.cShowSubjects = function(cat) {
+    var subWrap    = document.getElementById('cSubjectWrap');
+    var subSel     = document.getElementById('cSubject');
     var animeField = document.getElementById('cAnimeField');
 
-    // Remplir le sous-select
     subSel.innerHTML = '<option value="" disabled selected>Choisis un sujet…</option>';
     (SUBJECTS[cat] || []).forEach(function(s) {
       var opt = document.createElement('option');
@@ -763,22 +762,20 @@ document.addEventListener('DOMContentLoaded', function() {
       subSel.appendChild(opt);
     });
 
-    // Si 1 seul choix → sélectionner automatiquement
     if ((SUBJECTS[cat] || []).length === 1) {
       subSel.value = SUBJECTS[cat][0].value;
       subWrap.style.display = 'none';
-      // Vérifier champ anime
       animeField.style.display = ANIME_SUBJECTS.indexOf(subSel.value) !== -1 ? 'block' : 'none';
     } else {
       subWrap.style.display = 'block';
       animeField.style.display = 'none';
     }
-  });
+  };
 
-  document.getElementById('cSubject').addEventListener('change', function() {
-    var show = ANIME_SUBJECTS.indexOf(this.value) !== -1;
-    document.getElementById('cAnimeField').style.display = show ? 'block' : 'none';
-  });
+  window.cOnSubjectChange = function(val) {
+    document.getElementById('cAnimeField').style.display =
+      ANIME_SUBJECTS.indexOf(val) !== -1 ? 'block' : 'none';
+  };
 
   // ── Envoi ────────────────────────────────────────────────────────────
   form.addEventListener('submit', function(e) {
