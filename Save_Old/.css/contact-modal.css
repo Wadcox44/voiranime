@@ -1,0 +1,446 @@
+/* ═══════════════════════════════════════════
+   CONTACT MODAL — VoirAnime
+   Dark / Glassmorphism / Premium
+   ═══════════════════════════════════════════ */
+
+/* ── RESET & BASE ───────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* palette */
+  --va-bg:            #0b0d14;
+  --va-surface:       rgba(18, 22, 36, .72);
+  --va-surface-solid: #121624;
+  --va-border:        rgba(255, 255, 255, .08);
+  --va-border-focus:  rgba(124, 92, 252, .55);
+  --va-text:          #e8eaf0;
+  --va-text-muted:    #8b90a0;
+  --va-accent:        #7c5cfc;
+  --va-accent-glow:   rgba(124, 92, 252, .35);
+  --va-accent-hover:  #9478ff;
+  --va-success:       #34d399;
+  --va-danger:        #f87171;
+  --va-radius:        12px;
+  --va-radius-sm:     8px;
+  --va-font:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --va-transition:    .22s cubic-bezier(.4,0,.2,1);
+}
+
+body {
+  font-family: var(--va-font);
+  background: var(--va-bg);
+  color: var(--va-text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── DEMO TRIGGER (remove in production) ── */
+.demo-trigger-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+.demo-open-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  font-family: var(--va-font);
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, var(--va-accent), #a78bfa);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: transform var(--va-transition), box-shadow var(--va-transition);
+  box-shadow: 0 4px 24px var(--va-accent-glow);
+}
+.demo-open-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 32px var(--va-accent-glow);
+}
+.demo-open-btn__icon {
+  font-size: 18px;
+}
+
+/* ═══════════════════════════════════════════
+   MODAL OVERLAY
+   ═══════════════════════════════════════════ */
+.contact-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  /* hidden by default */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .3s ease, visibility .3s ease;
+}
+.contact-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* backdrop */
+.contact-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, .65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ═══════════════════════════════════════════
+   CARD — glassmorphism
+   ═══════════════════════════════════════════ */
+.contact-modal__card {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--va-surface);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid var(--va-border);
+  border-radius: 20px;
+  padding: 36px 32px 32px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.04) inset,
+    0 24px 80px -12px rgba(0, 0, 0, .6),
+    0 0 60px -20px var(--va-accent-glow);
+  /* entrance animation */
+  transform: scale(.92) translateY(16px);
+  transition: transform .35s cubic-bezier(.34,1.56,.64,1), opacity .3s ease;
+}
+.contact-modal.is-open .contact-modal__card {
+  transform: scale(1) translateY(0);
+}
+
+/* scrollbar styling */
+.contact-modal__card::-webkit-scrollbar {
+  width: 6px;
+}
+.contact-modal__card::-webkit-scrollbar-track {
+  background: transparent;
+}
+.contact-modal__card::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.12);
+  border-radius: 3px;
+}
+
+/* ── CLOSE BTN ──────────────────────────── */
+.contact-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--va-border);
+  border-radius: 10px;
+  background: rgba(255,255,255,.04);
+  color: var(--va-text-muted);
+  cursor: pointer;
+  transition: background var(--va-transition), color var(--va-transition), border-color var(--va-transition);
+}
+.contact-modal__close:hover {
+  background: rgba(255,255,255,.08);
+  color: #fff;
+  border-color: rgba(255,255,255,.15);
+}
+
+/* ═══════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════ */
+.contact-modal__header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.contact-modal__title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  background: linear-gradient(135deg, #fff 30%, var(--va-accent-hover));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.contact-modal__subtitle {
+  margin-top: 6px;
+  font-size: 13.5px;
+  color: var(--va-text-muted);
+  font-weight: 400;
+}
+
+/* ═══════════════════════════════════════════
+   FORM LAYOUT
+   ═══════════════════════════════════════════ */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-form__group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contact-form__row {
+  display: flex;
+  gap: 16px;
+}
+.contact-form__group--half {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── LABELS ─────────────────────────────── */
+.contact-form__label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--va-text-muted);
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+.contact-form__required {
+  color: var(--va-accent);
+  margin-left: 2px;
+}
+.contact-form__optional {
+  font-weight: 400;
+  text-transform: none;
+  font-size: 11.5px;
+  opacity: .6;
+}
+
+/* ── INPUT / TEXTAREA / SELECT shared ───── */
+.contact-form__input,
+.contact-form__textarea,
+.contact-form__select {
+  width: 100%;
+  font-family: var(--va-font);
+  font-size: 14px;
+  color: var(--va-text);
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid var(--va-border);
+  border-radius: var(--va-radius);
+  padding: 12px 14px;
+  outline: none;
+  transition:
+    border-color var(--va-transition),
+    box-shadow var(--va-transition),
+    background var(--va-transition);
+}
+.contact-form__input::placeholder,
+.contact-form__textarea::placeholder {
+  color: rgba(139, 144, 160, .6);
+}
+
+/* focus highlight */
+.contact-form__input:focus,
+.contact-form__textarea:focus,
+.contact-form__select:focus {
+  border-color: var(--va-border-focus);
+  background: rgba(124, 92, 252, .06);
+  box-shadow: 0 0 0 3px rgba(124, 92, 252, .12), 0 0 20px -4px rgba(124, 92, 252, .15);
+}
+
+/* ── SELECT WRAPPER ─────────────────────── */
+.contact-form__select-wrapper {
+  position: relative;
+}
+.contact-form__select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 40px;
+  cursor: pointer;
+}
+.contact-form__select option {
+  background: var(--va-surface-solid);
+  color: var(--va-text);
+  padding: 8px;
+}
+.contact-form__select-chevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--va-text-muted);
+  pointer-events: none;
+  transition: color var(--va-transition);
+}
+.contact-form__select:focus + .contact-form__select-chevron {
+  color: var(--va-accent);
+}
+
+/* ── TEXTAREA ───────────────────────────── */
+.contact-form__textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════
+   SUBMIT BUTTON
+   ═══════════════════════════════════════════ */
+.contact-form__submit {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 24px;
+  font-family: var(--va-font);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  color: #fff;
+  background: linear-gradient(135deg, var(--va-accent), #a270f7);
+  border: none;
+  border-radius: var(--va-radius);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform var(--va-transition),
+    box-shadow var(--va-transition),
+    filter var(--va-transition);
+  box-shadow: 0 4px 20px -4px var(--va-accent-glow);
+}
+.contact-form__submit::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.15), transparent 60%);
+  opacity: 0;
+  transition: opacity var(--va-transition);
+}
+.contact-form__submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 32px -4px var(--va-accent-glow), 0 0 20px -2px rgba(124,92,252,.3);
+}
+.contact-form__submit:hover::before {
+  opacity: 1;
+}
+.contact-form__submit:active {
+  transform: translateY(0) scale(.98);
+}
+
+/* loading state */
+.contact-form__submit-loader {
+  display: none;
+}
+.contact-form__submit.is-loading .contact-form__submit-text {
+  opacity: 0;
+}
+.contact-form__submit.is-loading .contact-form__submit-loader {
+  display: flex;
+  position: absolute;
+}
+.contact-form__submit.is-loading {
+  pointer-events: none;
+  filter: brightness(.85);
+}
+
+/* ═══════════════════════════════════════════
+   SUCCESS MESSAGE
+   ═══════════════════════════════════════════ */
+.contact-form__success {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: rgba(52, 211, 153, .1);
+  border: 1px solid rgba(52, 211, 153, .25);
+  border-radius: var(--va-radius);
+  font-size: 13.5px;
+  color: var(--va-success);
+  animation: successIn .4s ease;
+}
+.contact-form__success[hidden] {
+  display: none;
+}
+.contact-form__success-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+@keyframes successIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE — MOBILE
+   ═══════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .contact-modal {
+    padding: 12px;
+    align-items: flex-end;
+  }
+  .contact-modal__card {
+    max-height: 92vh;
+    padding: 28px 20px 24px;
+    border-radius: 18px 18px 12px 12px;
+  }
+  .contact-form__row {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .contact-modal__title {
+    font-size: 20px;
+  }
+  .contact-modal__subtitle {
+    font-size: 12.5px;
+  }
+}
+
+@media (max-width: 380px) {
+  .contact-modal__card {
+    padding: 24px 16px 20px;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   VALIDATION VISUAL FEEDBACK
+   ═══════════════════════════════════════════ */
+.contact-form__input:invalid:not(:placeholder-shown),
+.contact-form__textarea:invalid:not(:placeholder-shown) {
+  border-color: rgba(248, 113, 113, .45);
+}
+.contact-form__input:valid:not(:placeholder-shown),
+.contact-form__textarea:valid:not(:placeholder-shown) {
+  border-color: rgba(52, 211, 153, .3);
+}
+
+/* ═══════════════════════════════════════════
+   SUBTLE AMBIENT GLOW BEHIND CARD
+   ═══════════════════════════════════════════ */
+.contact-modal__card::after {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, rgba(124, 92, 252, .08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
