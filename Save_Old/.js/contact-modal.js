@@ -26,6 +26,17 @@
     hiddenLang.value = navigator.language || navigator.userLanguage || 'unknown';
     hiddenUrl.value  = window.location.href;
 
+    // Pré-remplir le pseudo Pi Network si disponible
+    try {
+      var piUser = JSON.parse(localStorage.getItem('pi_user'));
+      if (piUser && piUser.username) {
+        var nameInput = document.getElementById('contactName');
+        if (nameInput && !nameInput.value) {
+          nameInput.value = piUser.username;
+        }
+      }
+    } catch(e) {}
+
     modal.classList.add('is-open');
     document.body.style.overflow = 'hidden';
 
