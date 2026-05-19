@@ -442,6 +442,146 @@ async function buildStats(db, range = '7d') {
   };
 }
 
+
+// ── Anti-spam : store en mémoire (reset à chaque cold start) ─────────────
+// Pour un anti-spam persistant, utiliser Firestore. Ici on utilise _rateLimit.js
+// qui gère déjà la limite par IP.
+const CONTACT_SUBJECTS = [
+  'bug_technique','probleme_video','anime_manquant','suggestion',
+  'probleme_abonnement','compte_pi','partenariat','business','autre'
+];
+const SUBJECT_LABELS = {
+  bug_technique:        '🐛 Bug technique',
+  probleme_video:       '📺 Problème lecture vidéo',
+  anime_manquant:       '🎌 Anime manquant',
+  suggestion:           '💡 Suggestion d'amélioration',
+  probleme_abonnement:  '💳 Problème abonnement / paiement',
+  compte_pi:            '⚡ Compte Pi / connexion',
+  partenariat:          '🤝 Partenariat',
+  business:             '📊 Business',
+  autre:                '✏️ Autre',
+};
+const PRIORITY_LABELS = { low: '🟢 Faible', medium: '🟡 Normale', high: '🔴 Urgente' };
+
+async function actionContact(req, res) {
+  // ── Rate limit : 3 messages / heure par IP ─────────────────────────────
+  const limited = await checkRateLimit(req, 'contact', 3, 3600);
+  if (limited) {
+    return res.status(429).json({ error: 'Trop de messages envoyés. Réessaie dans 1h.' });
+  }
+
+  const {
+    subject, message, priority = 'low',
+    piUserId, piUsername,
+    firstname, lastname, email,
+    anime,
+  } = req.body || {};
+
+  // ── Validation ─────────────────────────────────────────────────────────
+  const isPiUser = !!piUserId;
+  if (!isPiUser && (!firstname?.trim() || !lastname?.trim() || !email?.trim())) {
+    return res.status(400).json({ error: 'Prénom, nom et email requis.' });
+  }
+  if (!CONTACT_SUBJECTS.includes(subject)) {
+    return res.status(400).json({ error: 'Sujet invalide.' });
+  }
+  const msgClean = message?.trim();
+  if (!msgClean || msgClean.length < 10) {
+    return res.status(400).json({ error: 'Message trop court (min 10 caractères).' });
+  }
+  if (msgClean.length > 3000) {
+    return res.status(400).json({ error: 'Message trop long (max 3000 caractères).' });
+  }
+
+  // ── Anti-spam basique : détecter les URLs multiples ────────────────────
+  const urlCount = (msgClean.match(/https?:\/\//g) || []).length;
+  if (urlCount > 2) {
+    return res.status(400).json({ error: 'Message rejeté (spam détecté).' });
+  }
+
+  // ── Construire l'email ─────────────────────────────────────────────────
+  const now       = new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' });
+  const fromLabel = isPiUser
+    ? `@${piUsername || piUserId}`
+    : `${firstname} ${lastname} &lt;${email}&gt;`;
+  const subjectLabel  = SUBJECT_LABELS[subject] || subject;
+  const priorityLabel = PRIORITY_LABELS[priority] || priority;
+  const priorityColor = priority === 'high' ? '#ef4444' : priority === 'medium' ? '#f59e0b' : '#22c55e';
+
+  const html = `
+    <div style="font-family:sans-serif;max-width:580px;margin:0 auto;padding:24px;background:#f8fafc;border-radius:12px">
+      <h2 style="margin:0 0 4px;color:#0f172a">✉️ Nouveau message — VoirAnime</h2>
+      <p style="margin:0 0 20px;color:#64748b;font-size:13px">${now}</p>
+
+      <table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:20px">
+        <tr style="background:#fff;border-radius:8px">
+          <td style="padding:10px 14px;color:#64748b;width:140px">Expéditeur</td>
+          <td style="padding:10px 14px;font-weight:700;color:#0f172a">${fromLabel}</td>
+        </tr>
+        ${isPiUser ? `<tr><td style="padding:10px 14px;color:#64748b">Pi UID</td><td style="padding:10px 14px;font-family:monospace;font-size:12px;color:#7c4dff">${piUserId}</td></tr>` : `<tr><td style="padding:10px 14px;color:#64748b">Email</td><td style="padding:10px 14px"><a href="mailto:${email}" style="color:#7c4dff">${email}</a></td></tr>`}
+        <tr>
+          <td style="padding:10px 14px;color:#64748b">Sujet</td>
+          <td style="padding:10px 14px;font-weight:600">${subjectLabel}</td>
+        </tr>
+        ${anime ? `<tr><td style="padding:10px 14px;color:#64748b">Anime</td><td style="padding:10px 14px">${anime}</td></tr>` : ''}
+        <tr>
+          <td style="padding:10px 14px;color:#64748b">Urgence</td>
+          <td style="padding:10px 14px;font-weight:700;color:${priorityColor}">${priorityLabel}</td>
+        </tr>
+      </table>
+
+      <div style="background:#fff;border-radius:8px;padding:16px;font-size:14px;line-height:1.7;color:#1e293b;white-space:pre-wrap">${msgClean.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+
+      <hr style="margin:24px 0;border:none;border-top:1px solid #e2e8f0"/>
+      <p style="font-size:12px;color:#94a3b8;margin:0">
+        VoirAnime · Message reçu via le formulaire de contact
+        ${isPiUser ? '· Utilisateur Pi authentifié ✅' : ''}
+      </p>
+    </div>
+  `;
+
+  // ── Envoyer via Resend ─────────────────────────────────────────────────
+  if (!RESEND_API_KEY) {
+    console.warn('[contact] RESEND_API_KEY manquant');
+    return res.status(500).json({ error: 'Service email non configuré.' });
+  }
+
+  const r = await fetch('https://api.resend.com/emails', {
+    method:  'POST',
+    headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from:    'VoirAnime Contact <onboarding@resend.dev>',
+      to:      [ADMIN_EMAIL],
+      reply_to: isPiUser ? undefined : email,
+      subject: `[${priorityLabel}] ${subjectLabel} — ${isPiUser ? '@'+piUsername : firstname+' '+lastname}`,
+      html,
+    }),
+  });
+
+  if (!r.ok) {
+    const err = await r.text();
+    console.error('[contact] Resend error:', err);
+    return res.status(500).json({ error: 'Erreur envoi email.' });
+  }
+
+  // ── Log dans Firestore (optionnel, pour historique) ────────────────────
+  try {
+    initFirebase();
+    const db = getFirestore();
+    await db.collection('contacts').add({
+      subject, priority, piUserId: piUserId || null,
+      piUsername: piUsername || null,
+      name: isPiUser ? null : `${firstname} ${lastname}`,
+      email: isPiUser ? null : email,
+      anime: anime || null,
+      messageLength: msgClean.length,
+      sentAt: FieldValue.serverTimestamp(),
+    });
+  } catch(e) { /* non bloquant */ }
+
+  return res.status(200).json({ ok: true });
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin',  '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
@@ -473,7 +613,12 @@ export default async function handler(req, res) {
 
   const { secret, action, ...params } = req.body || {};
 
-  // Auth
+  // ── Action contact — publique, pas de secret requis ───────────────────
+  if (action === 'contact') {
+    return actionContact(req, res);
+  }
+
+  // Auth — toutes les autres actions nécessitent le secret
   if (!secret || secret !== ADMIN_SECRET) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
