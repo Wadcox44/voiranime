@@ -711,15 +711,25 @@ tr:hover td { background: rgba(255,255,255,0.02); }
       <div class="sidebar-version">Admin Panel v2.0</div>
     </div>
     <nav class="nav">
-      <div class="nav-section">Principal</div>
+      <div class="nav-section">Business</div>
       <button class="nav-item active" onclick="switchPanel('overview')">
         <span class="nav-icon">📊</span> Vue d'ensemble
+      </button>
+      <button class="nav-item" onclick="switchPanel('revenue')">
+        <span class="nav-icon" style="font-size:0.75rem;font-weight:700">Pi</span> Revenus & MRR
       </button>
       <button class="nav-item" onclick="switchPanel('subscriptions')">
         <span class="nav-icon">⭐</span> Abonnements
       </button>
-      <button class="nav-item" onclick="switchPanel('revenue')">
-        <span class="nav-icon" style="font-size:0.75rem;font-weight:700">Pi</span> Revenus
+      <div class="nav-section">Utilisateurs</div>
+      <button class="nav-item" onclick="switchPanel('funnel')">
+        <span class="nav-icon">🎯</span> Funnel
+      </button>
+      <button class="nav-item" onclick="switchPanel('retention')">
+        <span class="nav-icon">🔄</span> Rétention
+      </button>
+      <button class="nav-item" onclick="switchPanel('behavior')">
+        <span class="nav-icon">🎌</span> Comportement
       </button>
       <div class="nav-section">Gestion</div>
       <button class="nav-item" onclick="switchPanel('users')">
@@ -730,11 +740,10 @@ tr:hover td { background: rgba(255,255,255,0.02); }
         <span class="nav-badge" id="repairBadge" style="display:none">!</span>
       </button>
       <button class="nav-item" onclick="switchPanel('logs')">
-        <span class="nav-icon">📋</span> Logs
+        <span class="nav-icon">📋</span> Logs admin
       </button>
-      <div class="nav-section">Outils</div>
       <button class="nav-item" onclick="switchPanel('actions')">
-        <span class="nav-icon">⚡</span> Actions
+        <span class="nav-icon">⚙️</span> Actions
       </button>
     </nav>
     <div class="sidebar-footer">
@@ -846,7 +855,45 @@ tr:hover td { background: rgba(255,255,255,0.02); }
         </div>
       </div>
 
-      <!-- ── ACTIONS ────────────────────────────────────────────────────── -->
+      <!-- ── FUNNEL ─────────────────────────────────────────────────────── -->
+      <div class="panel" id="panel-funnel">
+        <div class="section-title">Funnel d'acquisition</div>
+        <div class="stats-grid" id="funnelGrid"></div>
+        <div class="section-title" style="margin-top:24px">Délai free → premium</div>
+        <div class="stats-grid" id="funnelConvGrid" style="grid-template-columns:repeat(2,1fr)"></div>
+      </div>
+
+      <!-- ── RETENTION ──────────────────────────────────────────────────── -->
+      <div class="panel" id="panel-retention">
+        <div class="section-title">Activité utilisateurs</div>
+        <div class="stats-grid" id="retentionGrid" style="grid-template-columns:repeat(3,1fr)"></div>
+        <div class="section-title" style="margin-top:24px">Abonnements à risque</div>
+        <div class="stats-grid" id="retentionRiskGrid" style="grid-template-columns:repeat(2,1fr)"></div>
+      </div>
+
+      <!-- ── BEHAVIOR ───────────────────────────────────────────────────── -->
+      <div class="panel" id="panel-behavior">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div>
+            <div class="section-title">🔥 Top 10 animes vus</div>
+            <div class="table-wrap" id="topAnimesTable">
+              <div class="empty"><div class="empty-icon">🎌</div>Chargement…</div>
+            </div>
+          </div>
+          <div>
+            <div class="section-title">❤️ Top 10 favoris</div>
+            <div class="table-wrap" id="topFavoritesTable">
+              <div class="empty"><div class="empty-icon">❤️</div>Chargement…</div>
+            </div>
+          </div>
+        </div>
+        <div class="section-title" style="margin-top:24px">📉 Raisons d'annulation</div>
+        <div class="table-wrap" id="cancelReasonsTable">
+          <div class="empty"><div class="empty-icon">📋</div>Chargement…</div>
+        </div>
+      </div>
+
+            <!-- ── ACTIONS ────────────────────────────────────────────────────── -->
       <div class="panel" id="panel-actions">
         <div class="action-grid">
           <div class="action-card">
@@ -1044,6 +1091,105 @@ const PAGE_TITLES = {
   actions:       ['Actions manuelles','Opérations directes'],
 };
 
+/* ── Funnel ─────────────────────────────────────────────────────────── */
+function renderFunnel(d) {
+  const f = d.funnel || {};
+  document.getElementById('funnelGrid').innerHTML = [
+    card('1️⃣ Auth Pi',         f.auth    || 0, 'utilisateurs identifiés'),
+    card('2️⃣ Actifs',          f.active  || 0, 'ont revisité · ' + (f.authToActiveRate||'—') + ' du total'),
+    card('3️⃣ Premium',         f.premium || 0, 'ont payé · ' + (f.activeToPremiumRate||'—') + ' des actifs', 'green'),
+    card('🎯 Conversion globale', d.users?.conversionRate || '—', 'sur utilisateurs éligibles (>24h)', 'green'),
+  ].join('');
+
+  const med = d.users?.medianConversionDays;
+  document.getElementById('funnelConvGrid').innerHTML = [
+    card('⏱ Délai médian',     med != null ? med + ' jours' : '—', 'entre inscription et premier paiement'),
+    card('📊 Éligibles conv.',  d.users?.eligibleCount || 0, 'inscrits depuis plus de 24h'),
+  ].join('');
+}
+
+/* ── Retention ──────────────────────────────────────────────────────── */
+function renderRetention(d) {
+  const r = d.retention || {};
+  document.getElementById('retentionGrid').innerHTML = [
+    card('📅 DAU',   r.dau || 0, 'actifs dans les dernières 24h'),
+    card('📆 MAU',   r.mau || 0, 'actifs dans les 30 derniers jours'),
+    card('📊 DAU/MAU', r.dauMauRatio || '—', 'ratio d'engagement · >20% = bon'),
+  ].join('');
+
+  document.getElementById('retentionRiskGrid').innerHTML = [
+    card('⚠ Annulations en attente', d.users?.willCancelCount || 0, 'premium avec willCancel=true', d.users?.willCancelCount > 0 ? 'yellow' : ''),
+    card('📉 Churners totaux', d.users?.churnedTotal || 0, 'ont eu un abonnement, ne l'ont pas renouvelé', 'red'),
+  ].join('');
+}
+
+/* ── Behavior ───────────────────────────────────────────────────────── */
+function renderBehavior(d) {
+  const b = d.behavior || {};
+
+  // Top animes
+  const ta = document.getElementById('topAnimesTable');
+  if (b.topAnimes?.length) {
+    ta.innerHTML = '<table><tr><th>#</th><th>Anime ID</th><th>Vues</th></tr>' +
+      b.topAnimes.map((a, i) => `<tr>
+        <td style="color:var(--muted);font-size:0.8rem">${i+1}</td>
+        <td style="font-family:var(--font-mono);font-size:0.75rem;color:var(--accent2)">${a.animeId}</td>
+        <td><strong>${a.views}</strong></td>
+      </tr>`).join('') + '</table>';
+  } else {
+    ta.innerHTML = '<div class="empty"><div class="empty-icon">🎌</div>Aucune donnée de vues</div>';
+  }
+
+  // Top favoris
+  const tf = document.getElementById('topFavoritesTable');
+  if (b.topFavorites?.length) {
+    tf.innerHTML = '<table><tr><th>#</th><th>Titre</th><th>Favoris</th></tr>' +
+      b.topFavorites.map((f, i) => `<tr>
+        <td style="color:var(--muted);font-size:0.8rem">${i+1}</td>
+        <td style="font-size:0.8rem">${f.title || f.animeId}</td>
+        <td><strong>${f.count}</strong></td>
+      </tr>`).join('') + '</table>';
+  } else {
+    tf.innerHTML = '<div class="empty"><div class="empty-icon">❤️</div>Aucun favori enregistré</div>';
+  }
+
+  // Raisons d'annulation
+  const cr = document.getElementById('cancelReasonsTable');
+  const REASON_LABELS = {
+    too_expensive:            '💸 Trop cher',
+    not_using_enough:         '😴 Pas assez utilisé',
+    features_not_interesting: '🤷 Fonctionnalités pas intéressantes',
+    technical_issue:          '🔧 Problème technique',
+    other_service:            '🔄 Autre service',
+    other:                    '✏️ Autre',
+    not_specified:            '— Non spécifié',
+  };
+  if (b.topCancelReasons?.length) {
+    const total = b.topCancelReasons.reduce((s, r) => s + r.count, 0);
+    cr.innerHTML = '<table><tr><th>Raison</th><th>Nombre</th><th>%</th></tr>' +
+      b.topCancelReasons.map(r => `<tr>
+        <td>${REASON_LABELS[r.reason] || r.reason}</td>
+        <td><strong>${r.count}</strong></td>
+        <td style="color:var(--muted)">${Math.round(r.count / total * 100)}%</td>
+      </tr>`).join('') + '</table>';
+  } else {
+    cr.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>Aucune annulation enregistrée</div>';
+  }
+}
+
+const PANEL_TITLES = {
+  overview:      ['📊 Vue d'ensemble',   'KPIs business en temps réel'],
+  revenue:       ['💰 Revenus & MRR',     'Abonnements, dons, métriques financières'],
+  subscriptions: ['⭐ Abonnements',       'Plans actifs, upgrades, downgrades'],
+  funnel:        ['🎯 Funnel',            'Acquisition → Auth → Premium'],
+  retention:     ['🔄 Rétention',         'DAU/MAU, engagement, risques'],
+  behavior:      ['🎌 Comportement',      'Top animes, favoris, raisons d'annulation'],
+  users:         ['👥 Utilisateurs',      'Recherche et gestion des comptes'],
+  payments:      ['💳 Paiements',         'Transactions, réparations, remboursements'],
+  logs:          ['📋 Logs admin',        'Historique des actions critiques'],
+  actions:       ['⚙️ Actions',           'Outils manuels d'administration'],
+};
+
 function switchPanel(id) {
   document.querySelectorAll('.nav-item').forEach(el =>
     el.classList.toggle('active', el.textContent.trim().toLowerCase().includes(
@@ -1053,6 +1199,11 @@ function switchPanel(id) {
   );
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-' + id).classList.add('active');
+  const titles = PANEL_TITLES[id];
+  if (titles) {
+    document.getElementById('pageTitle').textContent = titles[0];
+    document.getElementById('pageSub').textContent   = titles[1];
+  }
   const [title, sub] = PAGE_TITLES[id] || ['', ''];
   document.getElementById('pageTitle').textContent = title;
   document.getElementById('pageSub').textContent   = sub;
@@ -1089,8 +1240,11 @@ async function setRange(range, btn) {
 /* ── Render all panels ────────────────────────────────────────────────── */
 function renderAll(d) {
   renderOverview(d);
-  renderSubscriptions(d);
   renderRevenue(d);
+  renderSubscriptions(d);
+  renderFunnel(d);
+  renderRetention(d);
+  renderBehavior(d);
   allLogs = d.logs?.recent || [];
 
   // Badge réparation
@@ -1109,13 +1263,14 @@ function renderAll(d) {
 /* ── Overview ─────────────────────────────────────────────────────────── */
 function renderOverview(d) {
   const g = document.getElementById('overviewGrid');
+  const mrrLabel = d.revenue?.mrr != null ? 'MRR : ' + d.revenue.mrr.toFixed(2) + ' Pi' : '';
   g.innerHTML = [
-    card('👥 Utilisateurs',    d.users.total,                    d.users.newInRange + ' nouveaux'),
-    card('⭐ Premium actifs',  d.subscriptions.activeTotal,      'Taux : ' + d.users.conversionRate, 'green'),
-    card('📉 Churn',           d.users.churnedTotal,             'Taux : ' + d.users.churnRate, 'red'),
-    card('💳 Paiements OK',    d.payments.activatedInRange,      'Taux : ' + d.payments.successRate),
-    card('⚠ À réparer',       d.payments.needsRepair,           'Paiements bloqués', d.payments.needsRepair > 0 ? 'yellow' : ''),
-    card('Pi Revenus période', piToEur(d.revenue.periodTotal),   'Abonnements + dons', 'pi'),
+    card('👥 Utilisateurs',        d.users.total,                    d.users.newInRange + ' nouveaux sur la période'),
+    card('⭐ Premium actifs',       d.subscriptions.activeTotal,      'Conversion : ' + d.users.conversionRate + ' (éligibles)', 'green'),
+    card('📉 Churn',                d.users.churnedTotal,             'Taux : ' + d.users.churnRate + (d.users.willCancelCount ? ' · ' + d.users.willCancelCount + ' annulations en attente' : ''), 'red'),
+    card('💰 MRR estimé',           (d.revenue?.mrr || 0).toFixed(2) + ' Pi', 'mensuel · annuel proratisé', 'pi'),
+    card('💳 Paiements activés',    d.payments.activatedInRange,      'Taux succès : ' + d.payments.successRate),
+    card('⚠ À réparer',            d.payments.needsRepair,           'Paiements bloqués', d.payments.needsRepair > 0 ? 'yellow' : ''),
   ].join('');
 
   // Logs
@@ -1170,7 +1325,8 @@ function renderRevenue(d) {
   `;
   document.getElementById('revMetrics').innerHTML = [
     card('Pi Total all-time', piToEur(r.allTimeTotal),  'abonnements + dons', 'pi'),
-    card('Pi ARPU',           piToEur(r.arpu),          'par abonné premium actif', 'pi'),
+    card('Pi ARPU',           piToEur(r.arpu),          'par abonné unique ayant payé', 'pi'),
+    card('MRR estimé',        (r.mrr||0).toFixed(2) + ' Pi', 'revenus récurrents mensuels', 'pi'),
     card('✅ Taux succès',    d.payments.successRate,   'paiements activés'),
   ].join('');
 }
