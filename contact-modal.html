@@ -488,80 +488,107 @@
         <p class="contact-modal__subtitle">Bug, suggestion ou collaboration — on te répond rapidement</p>
       </header>
 
+      <!-- Identité Pi -->
+      <div id="cmPiIdentity" style="display:none;align-items:center;gap:10px;background:rgba(124,92,252,0.08);border:1px solid rgba(124,92,252,0.2);border-radius:10px;padding:10px 14px;margin-bottom:4px">
+        <span style="font-size:1.1rem">⚡</span>
+        <div>
+          <div id="cmPiName" style="font-weight:700;color:#9478ff;font-size:0.85rem"></div>
+          <div style="color:#8b90a0;font-size:0.72rem">Connecté via Pi Network</div>
+        </div>
+      </div>
+
       <!-- form -->
-      <form
-        id="contactForm"
-        class="contact-form"
-        action="https://formspree.io/f/YOUR_FORM_ID"
-        method="POST"
-      >
-        <!-- ── TYPE DE DEMANDE ── -->
-        <div class="contact-form__group">
-          <label for="contactType" class="contact-form__label">Type de demande <span class="contact-form__required">*</span></label>
-          <div class="contact-form__select-wrapper">
-            <select id="contactType" name="type" required class="contact-form__select">
-              <option value="" disabled selected>Choisis une catégorie…</option>
-              <option value="bug">🐞 Bug / erreur</option>
-              <option value="suggestion">💡 Suggestion d'amélioration</option>
-              <option value="collaboration">🤝 Collaboration / partenariat</option>
-              <option value="contenu">🎬 Contenu anime / ajout / correction</option>
-              <option value="autre">❓ Autre</option>
-            </select>
-            <svg class="contact-form__select-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-        </div>
+      <form id="contactForm" class="contact-form" action="https://voir-anime.vercel.app/api/admin" method="POST">
 
-        <!-- ── PAGE CONCERNÉE ── -->
-        <div class="contact-form__group">
-          <label for="contactPage" class="contact-form__label">Page concernée <span class="contact-form__optional">(optionnel)</span></label>
-          <div class="contact-form__select-wrapper">
-            <select id="contactPage" name="page" class="contact-form__select">
-              <option value="" disabled selected>Sélectionne une page…</option>
-              <option value="accueil">🏠 Accueil</option>
-              <option value="catalogue">📚 Catalogue</option>
-              <option value="news">📰 News</option>
-              <option value="anime">🎥 Anime</option>
-              <option value="profil">👤 Profil</option>
-              <option value="global">🌐 Global / site entier</option>
-            </select>
-            <svg class="contact-form__select-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-        </div>
+        <!-- Champs cachés -->
+        <input type="hidden" name="action"      value="contact"/>
+        <input type="hidden" id="cmPiUid"       name="piUserId"   value=""/>
+        <input type="hidden" id="cmPiUsername"  name="piUsername" value=""/>
+        <input type="hidden" id="hiddenLang"    name="_lang"/>
+        <input type="hidden" id="hiddenUrl"     name="_pageUrl"/>
 
-        <!-- ── IDENTITÉ ── -->
-        <div class="contact-form__row">
-          <div class="contact-form__group contact-form__group--half">
-            <label for="contactName" class="contact-form__label">Nom <span class="contact-form__required">*</span></label>
-            <input id="contactName" type="text" name="name" required placeholder="Ton pseudo ou nom" class="contact-form__input" autocomplete="name" />
+        <!-- Identité manuelle (si non connecté Pi) -->
+        <div id="cmManualFields">
+          <div class="contact-form__row">
+            <div class="contact-form__group contact-form__group--half">
+              <label for="contactFirstname" class="contact-form__label">Prénom <span class="contact-form__required">*</span></label>
+              <input id="contactFirstname" type="text" name="firstname" placeholder="Prénom" class="contact-form__input" autocomplete="given-name"/>
+            </div>
+            <div class="contact-form__group contact-form__group--half">
+              <label for="contactLastname" class="contact-form__label">Nom <span class="contact-form__required">*</span></label>
+              <input id="contactLastname" type="text" name="lastname" placeholder="Nom de famille" class="contact-form__input" autocomplete="family-name"/>
+            </div>
           </div>
-          <div class="contact-form__group contact-form__group--half">
+          <div class="contact-form__group">
             <label for="contactEmail" class="contact-form__label">Email <span class="contact-form__required">*</span></label>
-            <input id="contactEmail" type="email" name="email" required placeholder="email@exemple.com" class="contact-form__input" autocomplete="email" />
+            <input id="contactEmail" type="email" name="email" placeholder="email@exemple.com" class="contact-form__input" autocomplete="email"/>
           </div>
         </div>
 
-        <!-- ── MESSAGE ── -->
+        <!-- Sujet -->
+        <div class="contact-form__group">
+          <label for="contactSubject" class="contact-form__label">Sujet <span class="contact-form__required">*</span></label>
+          <div class="contact-form__select-wrapper">
+            <select id="contactSubject" name="subject" required class="contact-form__select">
+              <option value="" disabled selected>Choisis un sujet…</option>
+              <optgroup label="🐛 Technique">
+                <option value="bug_technique">Bug technique</option>
+                <option value="probleme_video">Problème lecture vidéo</option>
+              </optgroup>
+              <optgroup label="🎌 Contenu">
+                <option value="anime_manquant">Anime manquant</option>
+                <option value="suggestion">Suggestion d'amélioration</option>
+              </optgroup>
+              <optgroup label="💳 Compte & Paiement">
+                <option value="probleme_abonnement">Problème abonnement / paiement</option>
+                <option value="compte_pi">Compte Pi / connexion</option>
+              </optgroup>
+              <optgroup label="🤝 Pro">
+                <option value="partenariat">Partenariat</option>
+                <option value="business">Business</option>
+              </optgroup>
+              <option value="autre">Autre</option>
+            </select>
+            <svg class="contact-form__select-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+        <!-- Anime concerné (conditionnel) -->
+        <div class="contact-form__group" id="cmAnimeField" style="display:none">
+          <label for="contactAnime" class="contact-form__label">Anime concerné <span class="contact-form__optional">(optionnel)</span></label>
+          <input id="contactAnime" type="text" name="anime" placeholder="Ex : Demon Slayer, One Piece…" class="contact-form__input"/>
+        </div>
+
+        <!-- Urgence -->
+        <div class="contact-form__group">
+          <label class="contact-form__label">Urgence</label>
+          <div style="display:flex;gap:8px">
+            <button type="button" class="cm-prio active-low"  data-prio="low"    onclick="cmSetPrio('low')">🟢 Faible</button>
+            <button type="button" class="cm-prio"             data-prio="medium" onclick="cmSetPrio('medium')">🟡 Normale</button>
+            <button type="button" class="cm-prio"             data-prio="high"   onclick="cmSetPrio('high')">🔴 Urgente</button>
+          </div>
+          <input type="hidden" id="cmPriority" name="priority" value="low"/>
+        </div>
+
+        <!-- Message -->
         <div class="contact-form__group">
           <label for="contactMessage" class="contact-form__label">Message <span class="contact-form__required">*</span></label>
           <textarea id="contactMessage" name="message" required rows="5" placeholder="Décris ta demande en détail…" class="contact-form__textarea"></textarea>
         </div>
 
-        <!-- ── HIDDEN INPUTS ── -->
-        <input type="hidden" id="hiddenLang" name="_lang" />
-        <input type="hidden" id="hiddenUrl" name="_pageUrl" />
+        <div id="cmErrorMsg" style="color:#f87171;font-size:0.78rem;min-height:1em;text-align:center"></div>
 
-        <!-- ── SUBMIT ── -->
+        <!-- Submit -->
         <button type="submit" id="contactSubmitBtn" class="contact-form__submit">
-          <span class="contact-form__submit-text">Envoyer le message</span>
+          <span class="contact-form__submit-text">Envoyer le message ✉️</span>
           <span class="contact-form__submit-loader" aria-hidden="true">
             <svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2.5" fill="none" stroke-dasharray="40 60" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 10 10" to="360 10 10" dur=".7s" repeatCount="indefinite"/></circle></svg>
           </span>
         </button>
 
-        <!-- success message -->
         <div id="contactSuccess" class="contact-form__success" aria-live="polite" hidden>
           <span class="contact-form__success-icon">✅</span>
-          <p>Message envoyé avec succès ! On te répond rapidement.</p>
+          <p>Message envoyé ! On te répond sous 24–48h.</p>
         </div>
       </form>
     </div>

@@ -444,3 +444,16 @@ body {
   pointer-events: none;
   z-index: -1;
 }
+
+/* ── Boutons priorité ────────────────────── */
+.cm-prio {
+  flex: 1; padding: 8px 4px;
+  border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+  background: transparent; color: #8b90a0;
+  font-size: 0.72rem; font-weight: 700;
+  cursor: pointer; transition: all .18s; text-align: center;
+  font-family: var(--va-font);
+}
+.cm-prio.active-low    { border-color:#34d399;color:#34d399;background:rgba(52,211,153,.08); }
+.cm-prio.active-medium { border-color:#f59e0b;color:#f59e0b;background:rgba(245,158,11,.08); }
+.cm-prio.active-high   { border-color:#f87171;color:#f87171;background:rgba(248,113,113,.08); }
