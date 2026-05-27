@@ -12,6 +12,10 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, Timestamp }       from 'firebase-admin/firestore';
 import { getUser }                       from './_userHelper.js';
 import { sendAlert }                     from './alerts.js';
+import { checkRateLimit, cleanRateLimits } from './_rateLimit.js';
+import { FieldValue }                     from 'firebase-admin/firestore';
+
+const PRICES = { monthly: 2.49, annual: 24.99, don: 0 };
 
 if (!getApps().length) {
   initializeApp({
@@ -140,6 +144,69 @@ async function generateSimilar(userRef, favs) {
   return 0;
 }
 
+
+/* ── Mise à jour stats/global (fusion cron-stats) ────────────────────────── */
+async function updateGlobalStats() {
+  try {
+    const now = Date.now();
+    const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+    const since7d  = now - 7  * 86400000;
+    const since30d = now - 30 * 86400000;
+
+    const [usersSnap, txSnap] = await Promise.all([
+      db.collection('users').get(),
+      db.collection('transactions').get(),
+    ]);
+
+    const users = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const txs   = txSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    const totalUsers    = users.length;
+    const premiumUsers  = users.filter(u => u.isPremium && (u.expiresAt?.toMillis?.() || 0) > now).length;
+    const monthlyUsers  = users.filter(u => u.isPremium && u.plan === 'monthly' && (u.expiresAt?.toMillis?.() || 0) > now).length;
+    const annualUsers   = users.filter(u => u.isPremium && u.plan === 'annual'  && (u.expiresAt?.toMillis?.() || 0) > now).length;
+    const churnedUsers  = users.filter(u => !u.isPremium && u.plan && u.expiresAt && (u.expiresAt?.toMillis?.() || 0) < now).length;
+    const newUsersToday = users.filter(u => (u.createdAt?.toMillis?.() || 0) >= todayStart.getTime()).length;
+    const blockedUsers  = users.filter(u => u.blocked).length;
+    const needsRepair   = txs.filter(t => t.status === 'paid_not_activated').length;
+    const newUsers7d    = users.filter(u => (u.createdAt?.toMillis?.() || 0) > since7d).length;
+    const newUsers30d   = users.filter(u => (u.createdAt?.toMillis?.() || 0) > since30d).length;
+    const newPrem7d     = users.filter(u => u.isPremium && (u.activatedAt?.toMillis?.() || 0) > since7d).length;
+    const newPrem30d    = users.filter(u => u.isPremium && (u.activatedAt?.toMillis?.() || 0) > since30d).length;
+
+    const allActivated = txs.filter(t => ['activated','pi_completed'].includes(t.status));
+    let revenueSubscriptions = 0, revenueDonations = 0;
+    allActivated.forEach(t => {
+      const amount = t.amount || PRICES[t.plan] || 0;
+      if (t.plan === 'don' || !t.plan) revenueDonations    += amount;
+      else                             revenueSubscriptions += amount;
+    });
+    const rev7d  = allActivated.filter(t => (t.createdAt?.toMillis?.() || 0) > since7d).reduce((s,t) => s + (t.amount || PRICES[t.plan] || 0), 0);
+    const rev30d = allActivated.filter(t => (t.createdAt?.toMillis?.() || 0) > since30d).reduce((s,t) => s + (t.amount || PRICES[t.plan] || 0), 0);
+
+    await db.collection('stats').doc('global').set({
+      totalUsers, premiumUsers, monthlyUsers, annualUsers,
+      churnedUsers, newUsersToday, blockedUsers, needsRepair,
+      conversionRate: totalUsers > 0 ? parseFloat(((premiumUsers/totalUsers)*100).toFixed(1)) : 0,
+      churnRate: (premiumUsers+churnedUsers) > 0 ? parseFloat(((churnedUsers/(premiumUsers+churnedUsers))*100).toFixed(1)) : 0,
+      revenueTotal:         parseFloat((revenueSubscriptions+revenueDonations).toFixed(2)),
+      revenueSubscriptions: parseFloat(revenueSubscriptions.toFixed(2)),
+      revenueDonations:     parseFloat(revenueDonations.toFixed(2)),
+      arpu: premiumUsers > 0 ? parseFloat((revenueSubscriptions/premiumUsers).toFixed(2)) : 0,
+      newUsers7d, newUsers30d, newPrem7d, newPrem30d,
+      rev7d: parseFloat(rev7d.toFixed(2)), rev30d: parseFloat(rev30d.toFixed(2)),
+      updatedAt:  FieldValue.serverTimestamp(),
+      computedAt: new Date().toISOString(),
+    }, { merge: true });
+
+    console.log(`[cron-stats] Updated — ${totalUsers} users, ${premiumUsers} premium`);
+    return { totalUsers, premiumUsers, needsRepair };
+  } catch(e) {
+    console.error('[cron-stats] Error:', e.message);
+    return null;
+  }
+}
+
 /* ── Actions ── */
 async function actionGet(piUserId) {
   const { ref, data: userData, isPremium } = await getUser(piUserId);
@@ -182,7 +249,9 @@ async function actionRead(piUserId, { notifId }) {
 async function actionGenerate(secret) {
   if (CRON_SECRET && secret !== CRON_SECRET) return [401, { error: 'Unauthorized' }];
 
-  const usersSnap = await db.collection('users').get();
+  // Limite 100 users/run pour éviter le timeout Vercel
+  const BATCH_LIMIT = 100;
+  const usersSnap = await db.collection('users').limit(BATCH_LIMIT).get();
   let totalNotifs = 0, usersProcessed = 0;
 
   for (const doc of usersSnap.docs) {
@@ -216,11 +285,18 @@ async function actionGenerate(secret) {
     sendAlert('repair_needed', { count }).catch(() => {});
   }
 
+  // Mettre à jour les stats pré-agrégées
+  const statsResult = await updateGlobalStats();
+
+  // Nettoyer les vieilles entrées rate limit
+  cleanRateLimits().catch(() => {});
+
   return [200, {
     ok: true,
     usersProcessed,
     notifsGenerated: totalNotifs,
     expiredAccounts: expired,
+    stats: statsResult,
   }];
 }
 
@@ -289,6 +365,8 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       const { piUserId } = req.query;
       if (!piUserId) return res.status(400).json({ error: 'piUserId required' });
+      const limited = await checkRateLimit(req, 'notifications', 60, 60);
+      if (limited) return res.status(429).json({ error: 'Too many requests', retryAfter: 60 });
       [status, body] = await actionGet(piUserId);
 
     } else if (req.method === 'POST') {
