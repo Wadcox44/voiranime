@@ -1,15 +1,15 @@
 // api/premium.js
 // Gestion centralisée des abonnements Premium VoirAnime
-// POST { action: 'activate'|'status'|'cancel', piUserId, ...params }
+// POST { action: 'activate'|'status'|'cancel'|'register', piUserId, ...params }
 //
-// activate : { piUserId, plan, paymentId, txid }  → proxy vers la logique dans pi-complete
-//             Préférer appeler pi-complete directement — cette action reste pour compatibilité
-// status   : { piUserId }                          → retourne statut Premium complet
-// cancel   : { piUserId }                          → désactive à expiration (pas de remboursement)
+// activate : { piUserId, plan, paymentId, txid }           → active/renouvelle Premium
+// status   : { piUserId }                                  → retourne statut Premium complet
+// cancel   : { piUserId, reason, otherService? }           → désactive à expiration + raison
+// register : { piUserId, piUsername }                      → crée doc free si nouveau visiteur
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore, Timestamp }       from 'firebase-admin/firestore';
-import { getUser, requirePremium }          from './_userHelper.js';
+import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
+import { getUser, requirePremium, registerUser } from './_userHelper.js';
 import { checkRateLimit }                   from './_rateLimit.js';
 
 if (!getApps().length) {
@@ -138,19 +138,46 @@ async function actionStatus(piUserId) {
   }];
 }
 
-// Marquer pour annulation à expiration (pas de remboursement, accès jusqu'à expiresAt)
-async function actionCancel(piUserId) {
+// Marquer pour annulation à expiration + enregistrer la raison
+async function actionCancel(piUserId, { reason, otherService } = {}) {
   const guard = await requirePremium(piUserId, 'subscription_cancel');
   if (guard) return [guard.status, { ...guard.body, error: 'No active subscription to cancel' }];
 
   const { ref } = await getUser(piUserId);
 
-  await ref.update({ willCancel: true });
+  // Raisons valides côté serveur (whitelist)
+  const VALID_REASONS = [
+    'too_expensive',
+    'not_using_enough',
+    'features_not_interesting',
+    'technical_issue',
+    'other_service',
+    'other',
+  ];
+
+  const cancelData = {
+    willCancel:    true,
+    cancelledAt:   FieldValue.serverTimestamp(),
+    cancelReason:  VALID_REASONS.includes(reason) ? reason : 'not_specified',
+  };
+  if (reason === 'other_service' && otherService) {
+    cancelData.cancelOtherService = String(otherService).slice(0, 100); // limite 100 chars
+  }
+
+  await ref.update(cancelData);
 
   return [200, {
     ok:      true,
     message: 'Subscription will not renew. Access remains until expiration.',
   }];
+}
+
+// Enregistrer un visiteur Pi comme utilisateur free (si nouveau)
+// Appelé par main.js au chargement de chaque page, silencieusement
+async function actionRegister(piUserId, { piUsername } = {}) {
+  if (!piUserId) return [400, { error: 'piUserId required' }];
+  await registerUser(piUserId, piUsername);
+  return [200, { ok: true }];
 }
 
 /* ── Handler ── */
@@ -175,13 +202,14 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { action, piUserId, ...params } = req.body || {};
-  if (!action) return res.status(400).json({ error: 'action required: activate|status|cancel' });
+  if (!action) return res.status(400).json({ error: 'action required: activate|status|cancel|register' });
 
   try {
     let status, body;
     if      (action === 'activate') [status, body] = await actionActivate(piUserId, params);
     else if (action === 'status')   [status, body] = await actionStatus(piUserId);
-    else if (action === 'cancel')   [status, body] = await actionCancel(piUserId);
+    else if (action === 'cancel')   [status, body] = await actionCancel(piUserId, params);
+    else if (action === 'register') [status, body] = await actionRegister(piUserId, params);
     else return res.status(400).json({ error: `Unknown action: ${action}` });
 
     return res.status(status).json(body);
